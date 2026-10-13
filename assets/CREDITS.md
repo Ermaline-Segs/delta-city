@@ -1,6 +1,10 @@
 # Asset credits
 
-Every file in this folder is either CC0 (public domain) or under a licence that allows free commercial use with no restrictions.
+Most files in this folder are CC0 (public domain). Files marked **CC-BY** may be used freely, including commercially, but the author must be credited in the game (for example on a credits screen).
+
+## Credits required (CC-BY)
+
+- "Bus Stop" by Zsky ([Poly Pizza](https://poly.pizza/m/OWczicNWhO)), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Used as `props/bus_stop.glb`, unchanged.
 
 ## Ground textures (`textures/`)
 
@@ -58,6 +62,7 @@ All are the colour (diffuse) map only, 1024×1024 JPG, seamless tiling, unchange
 | `props/billboard.glb` | [Ad Board](https://poly.pizza/m/8G0qJ84VDS) | Uykucukoala, via Poly Pizza | CC0 1.0 | 400 |
 | `props/bench.glb` | [Bench](https://poly.pizza/m/jLxjFxFRpw) | Quaternius, via Poly Pizza | CC0 1.0 | 376 |
 | `props/waste_bin.glb` | [Trashcan Small](https://poly.pizza/m/i7HDuYDLkx) | Quaternius, via Poly Pizza | CC0 1.0 | 260 |
+| `props/bus_stop.glb` | [Bus Stop](https://poly.pizza/m/OWczicNWhO) | Zsky, via Poly Pizza | **CC-BY 3.0** (credit required) | 456 |
 
 The Kenney models load their shared `Textures/colormap.png` from a separate file. It was embedded into each `.glb` so every file stands alone. Geometry and materials are unchanged. The Poly Pizza models are the site's `.glb` downloads, unchanged.
 
