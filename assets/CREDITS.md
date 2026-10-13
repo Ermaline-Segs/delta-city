@@ -75,3 +75,49 @@ The Kenney models load their shared `Textures/colormap.png` from a separate file
 | `buildings/church.glb` | [Church](https://poly.pizza/m/GHzPfvoyzX) | CreativeTrio, via Poly Pizza | CC0 1.0 | 2,265 |
 
 All three are the site's `.glb` downloads, unchanged.
+
+## Characters (`characters/`)
+
+From the [Microsoft Rocketbox avatar library](https://github.com/microsoft/Microsoft-Rocketbox), © 2020 Microsoft, under the **MIT licence** (full text below; it must be kept with these files).
+
+| File | Rocketbox character | Triangles | Height |
+|---|---|---|---|
+| `characters/Male_Adult_12.glb` | `Assets/Avatars/Adults/Male_Adult_12` | 6,722 | 1.81 m |
+| `characters/Male_Adult_18.glb` | `Assets/Avatars/Adults/Male_Adult_18` | 6,434 | 1.81 m |
+| `characters/Male_Adult_04.glb` | `Assets/Avatars/Adults/Male_Adult_04` | 8,684 | 1.87 m |
+| `characters/Business_Male_05.glb` | `Assets/Avatars/Professions/Business_Male_05` | 7,164 | 1.80 m |
+| `characters/Construction_Male_03.glb` | `Assets/Avatars/Professions/Construction_Male_03` | 9,376 | 1.85 m |
+| `characters/Military_Male_01.glb` | `Assets/Avatars/Professions/Military_Male_01` | 15,387 | 1.84 m |
+| `characters/Sports_Male_03.glb` | `Assets/Avatars/Professions/Sports_Male_03` | 9,534 | 1.84 m |
+| `characters/Business_Female_01.glb` | `Assets/Avatars/Professions/Business_Female_01` | 8,966 | 1.74 m |
+| `characters/Pilot_Female_02.glb` | `Assets/Avatars/Professions/Pilot_Female_02` | 8,458 | 1.78 m |
+| `characters/Military_Female_02.glb` | `Assets/Avatars/Professions/Military_Female_02` | 12,957 | 1.78 m |
+| `characters/Fire_Female_02.glb` | `Assets/Avatars/Professions/Fire_Female_02` | 11,932 | 1.86 m |
+
+Each `.png` next to a `.glb` is a front-view render of the converted file.
+
+Changes made: each character's plain `.fbx` (not the `_facial` one) was converted to a single `.glb` with Blender 3.6 in background mode. Only the colour textures and, where present, the opacity texture (used for hair and eyelashes) were kept; normal and specular maps were dropped. The skeleton (68 bones) and skinning were kept, with no animations. Textures are JPEG, except the opacity textures, which Blender saves as PNG because JPEG cannot hold transparency.
+
+```
+MIT License
+
+Copyright (c) 2020 Microsoft
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
