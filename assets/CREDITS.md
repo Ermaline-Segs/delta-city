@@ -5,6 +5,9 @@ Most files in this folder are CC0 (public domain). Files marked **CC-BY** may be
 ## Credits required (CC-BY)
 
 - "Bus Stop" by Zsky ([Poly Pizza](https://poly.pizza/m/OWczicNWhO)), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Used as `props/bus_stop.glb`, unchanged.
+- "Small Hospital Bed" by qubodup ([OpenGameArt](https://opengameart.org/content/small-hospital-bed)), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Converted to `interiors/hospital/hospital_bed.glb`.
+- "Hospital Screen" by ouren ([OpenGameArt](https://opengameart.org/content/hospital-screen)), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Converted and scaled to `interiors/hospital/curtain_screen.glb`.
+- "Metal File Cabinet" by ulf ([OpenGameArt](https://opengameart.org/content/metal-file-cabinet)), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Converted to `interiors/office/filing_cabinet.glb`, with the loose paper folder removed.
 
 ## Ground textures (`textures/`)
 
@@ -121,3 +124,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Interior furniture and equipment (`interiors/`)
+
+Realistic models with photographic textures, at real-world size in metres (bottom on the floor, centred on the origin). All were converted to `.glb` with Blender 5.2. Models over 3,000 triangles were reduced with Blender's Decimate (collapse) modifier; the "Original" column shows their triangle count before that.
+
+| File | Source asset | Author / site | Licence | Triangles | Original | Size (m, W×D×H) |
+|---|---|---|---|---|---|---|
+| `interiors/university/classroom_desk.glb` | [School Desk 01](https://polyhaven.com/a/SchoolDesk_01) | Poly Haven | CC0 | 2,949 | 4,162 | 0.71×0.55×0.88 |
+| `interiors/university/classroom_chair.glb` | [School Chair 01](https://polyhaven.com/a/SchoolChair_01) | Poly Haven | CC0 | 2,950 | 5,072 | 0.57×0.68×1.01 |
+| `interiors/university/bookshelf.glb` | [Wooden Display Shelves 01](https://polyhaven.com/a/wooden_display_shelves_01) | Poly Haven | CC0 | 2,950 | 3,174 | 0.37×1.08×1.56 |
+| `interiors/university/reading_table.glb` | [Wooden Table 02](https://polyhaven.com/a/wooden_table_02) | Poly Haven | CC0 | 196 | – | 1.13×0.71×0.80 |
+| `interiors/university/microscope.glb` | [Industrial Microscope](https://polyhaven.com/a/industrial_microscope) | Poly Haven | CC0 | 2,950 | 16,598 | 0.21×0.50×0.46 |
+| `interiors/hospital/hospital_bed.glb` | [Small Hospital Bed](https://opengameart.org/content/small-hospital-bed) | qubodup, OpenGameArt | **CC-BY 3.0** | 540 | – | 1.15×2.20×1.05 |
+| `interiors/hospital/curtain_screen.glb` | [Hospital Screen](https://opengameart.org/content/hospital-screen) | ouren, OpenGameArt | **CC-BY 3.0** | 1,368 | – | 1.51×0.34×1.80 |
+| `interiors/hospital/waiting_chair.glb` | [Plastic Monobloc Chair 01](https://polyhaven.com/a/plastic_monobloc_chair_01) | Poly Haven | CC0 | 2,950 | 3,356 | 0.64×0.63×0.88 |
+| `interiors/office/office_desk.glb` | [Metal Office Desk](https://polyhaven.com/a/metal_office_desk) | Poly Haven | CC0 | 2,949 | 6,898 | 2.00×0.95×0.79 |
+| `interiors/office/office_chair.glb` | [Office Chair](https://opengameart.org/content/office-chair-1) | nisu, OpenGameArt | CC0 | 2,948 | 4,674 | 0.55×0.54×1.01 |
+| `interiors/office/filing_cabinet.glb` | [Metal File Cabinet](https://opengameart.org/content/metal-file-cabinet) | ulf, OpenGameArt | **CC-BY 3.0** | 368 | – | 0.49×0.68×1.22 |
+| `interiors/office/meeting_table.glb` | [Painted Wooden Table](https://polyhaven.com/a/painted_wooden_table) | Poly Haven | CC0 | 600 | – | 2.41×1.14×0.96 |
+| `interiors/office/potted_plant.glb` | [Potted Plant 04](https://polyhaven.com/a/potted_plant_04) (small succulent) | Poly Haven | CC0 | 2,949 | 8,929 | 0.17×0.18×0.27 |
+| `interiors/court/public_bench.glb` | [Painted Wooden Bench](https://polyhaven.com/a/painted_wooden_bench) | Poly Haven | CC0 | 630 | – | 1.16×0.50×0.89 |
+
+Poly Haven models keep their 1K colour, normal and roughness/metal textures. The OpenGameArt models use their colour texture only.
