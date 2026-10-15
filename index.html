@@ -26,6 +26,10 @@ button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .toast{position:fixed;left:50%;top:calc(120px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:#10243a;color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;font-size:14.5px;max-width:min(90vw,420px);text-align:center}
 [hidden]{display:none !important}
 .guide{pointer-events:none}
+.cashpill{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));top:calc(58px + env(safe-area-inset-top,0px));z-index:3;background:rgba(15,31,51,.92);color:#fff;font-weight:800;font-size:17px;padding:8px 16px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.3);letter-spacing:.3px}
+.choose .auth input{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg,#fff);color:var(--ink)}
+.choose .amsg{min-height:20px;margin:10px 0 0;font-size:14px}.choose .amsg.err{color:#b91c1c}
+.choose .aswitch{text-align:center;margin-top:10px}.choose button.link{background:none;border:0;color:#167C80;font-weight:700;text-decoration:underline;padding:4px;cursor:pointer}
 .choose .credits{margin:10px 0 0;font-size:11.5px;opacity:.6;text-align:center}
 .mini{position:fixed;left:calc(12px + env(safe-area-inset-left,0px));top:calc(112px + env(safe-area-inset-top,0px));width:140px;height:140px;border-radius:50%;border:3px solid #fff;box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer}
 .routebar{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:#1d9bf0;color:#fff;font-weight:700;font-size:15.5px;padding:8px 8px 8px 16px;border-radius:999px;display:flex;gap:10px;align-items:center;box-shadow:0 6px 18px rgba(0,0,0,.25);max-width:92vw}.routebar button{background:rgba(255,255,255,.22);color:#fff;border-color:transparent;padding:6px 12px}
@@ -1861,7 +1865,7 @@ let HV=null,HFLOOR_N=0;
 const toHosp=(n,fromLift)=>fadeTo(STATES[me.town].hosp+": "+HFLOORS.find(f=>f.n===n).name,()=>{HV=hospOf(n,STATES[me.town].hosp);HFLOOR_N=n;const L=HV.F.lift;stand("hosp",fromLift?{x:L.x,z:L.z+1.4,yaw:Math.PI}:{x:0,z:7.4,yaw:0})});
 const toGov=(kind,spot)=>fadeTo(GOV_SPEC[kind](me.town).title,()=>{GV=govOf(kind,me.town);govSpot=spot;stand("gov",{x:0,z:G_LD-1.6,yaw:0})});
 // arrive in a town, standing outside one of its doors and facing away from it
-const toTown=(st,spot,text,dist)=>fadeTo(text||st,()=>{me.town=st;driving=false;const T=townOf(st),d=T.spots[spot]||T.spots.imm;scene="town";me.inside=false;me.entered=true;Object.assign(cam,{x:d.x+d.fx*(dist||5),y:1.7,z:d.z+d.fz*(dist||5),yaw:Math.atan2(-d.fx,-d.fz),pitch:0});SNAPCAM=true;if(!T.car)parkCar(T)});
+const toTown=(st,spot,text,dist,pos)=>fadeTo(text||st,()=>{me.town=st;driving=false;const T=townOf(st),d=T.spots[spot]||T.spots.imm;scene="town";me.inside=false;me.entered=true;Object.assign(cam,pos?{x:pos.x,y:1.7,z:pos.z,yaw:pos.yaw||0,pitch:0}:{x:d.x+d.fx*(dist||5),y:1.7,z:d.z+d.fz*(dist||5),yaw:Math.atan2(-d.fx,-d.fz),pitch:0});SNAPCAM=true;if(!T.car)parkCar(T)});
 // one car, parked at the kerb of the road nearest to where you arrive
 function parkCar(T){let best=null;for(const r of T.map.roads){if(r.bridge)continue;const vx=r.x1-r.x0,vz=r.z1-r.z0,L=Math.hypot(vx,vz),t=clamp(((cam.x-r.x0)*vx+(cam.z-r.z0)*vz)/(L*L),.08,.92),x=r.x0+vx*t,z=r.z0+vz*t,d=Math.hypot(cam.x-x,cam.z-z);if(!best||d<best.d)best={d,x,z,ux:vx/L,uz:vz/L,w:r.w}}
   if(!best)return;const side=((cam.x-best.x)*-best.uz+(cam.z-best.z)*best.ux)>=0?1:-1,off=best.w/2-1.4;T.car={x:best.x-best.uz*side*off,z:best.z+best.ux*side*off,yaw:Math.atan2(-best.ux,-best.uz),v:0}}
@@ -2030,7 +2034,9 @@ function submitForm(){keepForm();const name=form.name.replace(/\s+/g," ").trim()
   const steps=[[15,"Checking your details..."],[40,"Checking that the name is not already in use..."],[65,"Preparing your identity record..."],[90,"Issuing your birth certificate..."],[100,"Done."]];let k=0;
   const next=()=>{if(k<steps.length){talk("work",{pct:steps[k][0],text:steps[k][1]});k++;setTimeout(next,750)}else{
     me.cert={no:"DC-"+STATE_CODE[form.state]+"-"+String(1+Math.floor(Math.random()*9000)).padStart(4,"0"),name,dob:form.dob.replace(/\s+/g," ").trim(),gender:form.gender,state:form.state,date:new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"})};
-    issueCertificate(me.cert).then(()=>{me.role="citizen";ui();talk("cert",true);toast("Your birth certificate has been issued. The city entrance is now open to you.")})}};next()}
+    {const done=()=>issueCertificate(me.cert).then(()=>{me.role="citizen";ui();talk("cert",true);toast("Your birth certificate has been issued. The city entrance is now open to you."+(typeof AUTH!=="undefined"&&AUTH.char?" You received K"+Number(me.cash||0).toLocaleString("en-GB")+" in cash.":""))});
+      // signed in: the server issues the certificate number and pays the K100,000 from the home state's revenue
+      if(typeof AUTH!=="undefined"&&AUTH.user&&!AUTH.offline)registerOnServer(me.cert).then(c=>{becomeCitizen(c);me.entered=false;done()}).catch(e=>{closeTalk();toast("Registration failed: "+(e.offline?"the save server can't be reached.":e.message))});else done()}}};next()}
 document.getElementById("talk").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.g){keepForm();form.gender=b.dataset.g;return talk("form")}if(b.dataset.s){keepForm();form.state=b.dataset.s;return talk("form")}
   const t=b.dataset.t;if(t==="close")closeTalk();else if(t==="way"){closeTalk();me.yaw=Math.PI/2;me.pitch=-.12;guide()}else if(t==="form")talk("form");else if(t==="submit")submitForm();else if(t==="cert")talk("cert",false)});
 document.getElementById("act").addEventListener("click",()=>doAct());
@@ -2139,7 +2145,7 @@ cv.addEventListener("pointerup",lookEnd);cv.addEventListener("pointercancel",loo
 // The only button at the top is Testing. It holds the controls that are for you, not for players.
 function ui(){guide();const el=document.getElementById("picks");el.innerHTML="";const add=(label,fn,on)=>{const bt=document.createElement("button");bt.textContent=label;bt.addEventListener("click",fn);if(on)bt.setAttribute("aria-pressed","true");el.appendChild(bt);return bt};
   if(scene!=="town"&&route)clearRoute();if(scene!=="town")closeMap();
-  add(view3?"View: behind me":"View: my eyes",()=>{view3=!view3;ui()});add(testOpen?"Close testing":"Testing",()=>{testOpen=!testOpen;ui()},testOpen);
+  add(view3?"View: behind me":"View: my eyes",()=>{view3=!view3;ui()});add(testOpen?"Close testing":"Testing",()=>{testOpen=!testOpen;ui()},testOpen);if(typeof AUTH!=="undefined"&&AUTH.user)add("Log out",logOut);
   if(testOpen){const sel=document.createElement("select");sel.className="who";sel.setAttribute("aria-label","Who you are");for(const[k,label]of ROLES){const o=document.createElement("option");o.value=k;o.textContent="You are: "+label;if(k===me.role)o.selected=true;sel.appendChild(o)}
     sel.addEventListener("change",()=>{const next=sel.value;if(next==="newcomer")return toBorder(true);const was=me.role;me.role=next;if(!me.cert)me.cert=Object.assign({},SAMPLE);if(was==="newcomer"&&scene!=="town"){pickDefault();choosing=false;document.getElementById("choose").hidden=true}ui()});el.appendChild(sel);
     add(SHADOW.on?"Shadows: on":"Shadows: off",()=>{SHADOW.on=!SHADOW.on;ui()},SHADOW.on);add("Ground: "+["all lawns","mixed","all red earth"][GROUND.mode],()=>{GROUND.mode=(GROUND.mode+1)%3;ui()});
@@ -2159,17 +2165,84 @@ function departures(){choosing=true;const el=document.getElementById("choose");e
 /* Choosing a character, before anything else: a gender, then one of three outfits. The picture
    of the character chosen is the photograph on the birth certificate. */
 const pick={gender:"",outfit:""};
-function chooser(){choosing=true;const el=document.getElementById("choose");el.hidden=false;document.getElementById("guide").hidden=true;const ready=ROSTER.ready;
+let chooserOn=false;
+function chooser(){chooserOn=true;choosing=true;const el=document.getElementById("choose");el.hidden=false;document.getElementById("guide").hidden=true;const ready=ROSTER.ready;
   el.innerHTML=`<div class="card"><h1>Welcome to Delta City</h1><p>Choose your character before you walk to the border gate.</p>
     <div class="lab">Gender</div><div class="seg">${["Male","Female"].map(v=>`<button data-g="${v}" class="${pick.gender===v?"on":""}">${v}</button>`).join("")}</div>
     ${pick.gender?`<div class="lab">Character</div>${ready?`<div class="looks">${ROSTER[pick.gender].map(c=>`<button class="look ${pick.outfit===c.key?"on":""}" data-o="${c.key}"><img src="${PICS[pick.gender][c.key].body}" alt="${c.name}">${c.name}</button>`).join("")}</div>`:`<p>Loading the characters...</p>`}`:""}
     <button class="go" data-go="1" ${pick.gender&&pick.outfit?"":"disabled"}>Enter Delta City</button><p class="credits">Models used under CC BY 3.0: \u201cBus Stop\u201d by Zsky; hospital bed by qubodup; folding screen by ouren; filing cabinet by ulf.</p></div>`}
 document.getElementById("choose").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const shut=()=>{choosing=false;document.getElementById("choose").hidden=true};
   if(b.dataset.g){pick.gender=b.dataset.g;pick.outfit="";chooser()}else if(b.dataset.o){pick.outfit=b.dataset.o;chooser()}
-  else if(b.dataset.go){me.gender=pick.gender;me.outfit=pick.outfit;const c=ROSTER[me.gender].find(q=>q.key===me.outfit);if(c)PLAYERS[me.gender]=c.m;shut();guide()}
-  else if(b.dataset.floor!==undefined){const n=+b.dataset.floor;shut();if(n!==HFLOOR_N)toHosp(n,true)}else if(b.dataset.stay)shut();else if(b.dataset.fly){const to=b.dataset.fly;shut();toTown(to,"air","Flying to "+to+"...",16)}});
+  else if(b.dataset.go){chooserOn=false;me.gender=pick.gender;me.outfit=pick.outfit;const c=ROSTER[me.gender].find(q=>q.key===me.outfit);if(c)PLAYERS[me.gender]=c.m;shut();guide()}
+  else if(b.dataset.floor!==undefined){const n=+b.dataset.floor;shut();if(n!==HFLOOR_N)toHosp(n,true)}else if(b.dataset.auth)authClick(b.dataset.auth);else if(b.dataset.stay)shut();else if(b.dataset.fly){const to=b.dataset.fly;shut();toTown(to,"air","Flying to "+to+"...",16)}});
 const guide0=guide;guide=function(){guide0();if(choosing)document.getElementById("guide").hidden=true};
-loadGround();loadTrees();loadProps();ui();chooser();requestAnimationFrame(frame);
+/* ================================ accounts and saving ================================
+   Players sign in with email and password. Their citizen (name, certificate, cash, home state, where they
+   were) is kept in the Supabase database, so it is the same on any phone or computer. The game talks to
+   Supabase directly over the web. Only the public key lives in this page; the database's own rules stop
+   anyone changing money, certificates or roles from here. */
+const SUPA=window.SUPA_OVERRIDE||{url:"https://jowcbkdesdrggkaivgbv.supabase.co",key:"sb_publishable_75V2WsFBHFkBh-thw4qe3A_Pgswez9G"};
+const AUTH={user:null,token:null,refresh:null,expires:0,offline:false,char:null,mode:"login",busyNow:false};
+const STORE_KEY="dc_session";
+function store(v){try{if(v)localStorage.setItem(STORE_KEY,JSON.stringify(v));else localStorage.removeItem(STORE_KEY)}catch(e){}}
+function stored(){try{return JSON.parse(localStorage.getItem(STORE_KEY)||"null")}catch(e){return null}}
+async function supa(path,opt){const o=opt||{},h=Object.assign({apikey:SUPA.key,"Content-Type":"application/json"},o.headers||{});if(o.auth&&AUTH.token)h.Authorization="Bearer "+AUTH.token;
+  let r;try{r=await fetch(SUPA.url+path,{method:o.method||"GET",headers:h,body:o.body?JSON.stringify(o.body):undefined,keepalive:!!o.keepalive})}catch(e){const err=new Error("offline");err.offline=true;throw err}
+  const text=await r.text();let data=null;try{data=text?JSON.parse(text):null}catch(e){data=text}
+  if(!r.ok){const m=data&&(data.msg||data.error_description||data.message||data.error)||("Error "+r.status);const err=new Error(m);err.status=r.status;throw err}return data}
+function takeSession(d){AUTH.user=d.user||AUTH.user;AUTH.token=d.access_token;AUTH.refresh=d.refresh_token;AUTH.expires=Date.now()+(d.expires_in||3600)*1000;store({refresh:AUTH.refresh,email:AUTH.user&&AUTH.user.email})}
+async function freshToken(){if(AUTH.token&&Date.now()<AUTH.expires-60000)return;const d=await supa("/auth/v1/token?grant_type=refresh_token",{method:"POST",body:{refresh_token:AUTH.refresh}});takeSession(d)}
+const signIn=(email,password)=>supa("/auth/v1/token?grant_type=password",{method:"POST",body:{email,password}}).then(takeSession);
+const signUp=(email,password)=>supa("/auth/v1/signup",{method:"POST",body:{email,password}});
+async function loadCitizen(){await freshToken();const rows=await supa("/rest/v1/characters?select=*&owner=eq."+AUTH.user.id,{auth:true});return rows&&rows[0]||null}
+async function registerOnServer(c){await freshToken();return supa("/rest/v1/rpc/register_citizen",{method:"POST",auth:true,body:{p_name:c.name,p_dob:c.dob,p_gender:c.gender,p_state:c.state,p_look:me.outfit||""}})}
+let lastSave=0,saving=false;
+async function saveNow(final){if(!AUTH.char||saving||scene!=="town"||driving||flying)return;saving=true;const pos={x:+cam.x.toFixed(2),z:+cam.z.toFixed(2),yaw:+cam.yaw.toFixed(3)};
+  try{await freshToken();await supa("/rest/v1/characters?owner=eq."+AUTH.user.id,{method:"PATCH",auth:true,keepalive:!!final,headers:{Prefer:"return=minimal"},body:{town:me.town,pos,updated_at:new Date().toISOString()}});AUTH.char.town=me.town;AUTH.char.pos=pos}catch(e){}saving=false}
+setInterval(()=>{if(Date.now()-lastSave>15000){lastSave=Date.now();saveNow(false)}},3000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")saveNow(true)});
+const fmtDate=d=>{try{return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"})}catch(e){return d}};
+// a citizen from the server becomes the player in the game
+function becomeCitizen(c){AUTH.char=c;me.gender=c.gender;me.outfit=c.look||(ROSTER[c.gender][0]||{}).key;const r=ROSTER[c.gender].find(q=>q.key===me.outfit)||ROSTER[c.gender][0];if(r){PLAYERS[c.gender]=r.m;me.outfit=r.key}
+  me.role=c.role||"citizen";me.cash=+c.cash||0;me.cert={no:c.cert_no,name:c.name,dob:c.dob,gender:c.gender,state:c.home_state,date:fmtDate(c.cert_date)};me.entered=true;showCash()}
+/* ---- the money in your hand, top right ---- */
+const cashEl=document.createElement("div");cashEl.className="cashpill";cashEl.hidden=true;document.body.appendChild(cashEl);
+function showCash(){if(AUTH.char){cashEl.textContent="K"+Number(me.cash||0).toLocaleString("en-GB");cashEl.hidden=false}else cashEl.hidden=true}
+/* ---- the sign-in screen: it uses the same card as choosing a character. An email already typed is kept when the form is redrawn. ---- */
+function authScreen(msg,isError){chooserOn=false;choosing=true;const el=document.getElementById("choose"),login=AUTH.mode==="login",typed=document.getElementById("a_email"),last=(typed&&typed.value)||(stored()||{}).email||"";el.hidden=false;document.getElementById("guide").hidden=true;
+  el.innerHTML=`<div class="card auth"><h1>Delta City RP</h1><p>${login?"Welcome back. Log in to continue where you left off.":"Create your account. Your citizen, money and progress are saved to it."}</p>
+    <label class="lab" for="a_email">Email</label><input id="a_email" type="email" autocomplete="email" value="${esc(last)}">
+    <label class="lab" for="a_pass">Password</label><input id="a_pass" type="password" autocomplete="${login?"current-password":"new-password"}" placeholder="${login?"":"at least 6 characters"}">
+    <p class="amsg ${isError?"err":""}" role="status">${msg?esc(msg):""}</p>
+    <button class="go" data-auth="${login?"login":"signup"}" ${AUTH.busyNow?"disabled":""}>${AUTH.busyNow?"Please wait...":login?"Log in":"Create account"}</button>
+    <div class="aswitch"><button class="link" data-auth="switch">${login?"New here? Create an account":"Already have an account? Log in"}</button></div>
+    <div class="aswitch"><button class="link" data-auth="offline">Play without an account (nothing is saved)</button></div></div>`;
+  const pass=document.getElementById("a_pass");setTimeout(()=>(last?pass:document.getElementById("a_email")).focus(),50);
+  for(const id of["a_email","a_pass"])document.getElementById(id).addEventListener("keydown",e=>{if(e.key==="Enter")authClick(login?"login":"signup")})}
+async function authClick(what){if(AUTH.busyNow)return;
+  if(what==="switch"){AUTH.mode=AUTH.mode==="login"?"signup":"login";return authScreen()}
+  if(what==="offline"){AUTH.offline=true;choosing=false;document.getElementById("choose").hidden=true;return chooser()}
+  const email=(document.getElementById("a_email").value||"").trim(),pass=document.getElementById("a_pass").value||"";
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return authScreen("Please enter a valid email address.",true);
+  if(pass.length<6)return authScreen("The password must be at least 6 characters.",true);
+  AUTH.busyNow=true;authScreen();
+  try{if(what==="signup"){const d=await signUp(email,pass);if(d&&d.access_token)takeSession(d);else{AUTH.busyNow=false;AUTH.mode="login";return authScreen("Account created. We've sent a confirmation link to "+email+". Open it, then log in here.")}}
+    else await signIn(email,pass);AUTH.busyNow=false;afterSignIn()}
+  catch(e){AUTH.busyNow=false;authScreen(e.offline?"Can't reach the save server from here. If you're on the test page, use the live game on GitHub, or play without an account.":/invalid login/i.test(e.message)?"That email and password don't match an account.":/already registered|already exists/i.test(e.message)?"That email already has an account. Log in instead.":/not confirmed/i.test(e.message)?"Please open the confirmation link in your email first.":e.message,true)}}
+// once signed in: carry on as your citizen, or, for a new account, choose a character and go to the border
+async function afterSignIn(){choosing=true;document.getElementById("choose").innerHTML=`<div class="card auth"><h1>Delta City RP</h1><p>Loading your citizen...</p></div>`;
+  let c=null;try{c=await loadCitizen()}catch(e){return authScreen(e.offline?"Can't reach the save server. Try again in a moment.":e.message,true)}
+  await new Promise(ok=>{const w=()=>ROSTER.ready?ok():setTimeout(w,200);w()});ui();
+  if(!c){choosing=false;document.getElementById("choose").hidden=true;return chooser()}
+  becomeCitizen(c);choosing=false;document.getElementById("choose").hidden=true;const p=c.pos||{};
+  toTown(STATES[c.town]?c.town:c.home_state,"imm","Welcome back, "+c.name.split(" ")[0],9,isFinite(p.x)?p:null)}
+function logOut(){saveNow(true);supa("/auth/v1/logout",{method:"POST",auth:true}).catch(()=>{});store(null);AUTH.user=AUTH.token=AUTH.refresh=AUTH.char=null;me.cash=0;showCash();setTimeout(()=>location.reload(),300)}
+// at the start: a saved sign-in carries straight on; otherwise the sign-in screen
+function startAuth(){const s=stored();if(s&&s.refresh){AUTH.refresh=s.refresh;choosing=true;document.getElementById("choose").hidden=false;document.getElementById("choose").innerHTML=`<div class="card auth"><h1>Delta City RP</h1><p>Signing you in...</p></div>`;
+    freshToken().then(()=>supa("/auth/v1/user",{auth:true})).then(u=>{AUTH.user=u;afterSignIn()}).catch(e=>{if(!e.offline)store(null);authScreen(e.offline?"Can't reach the save server. Log in again, or play without an account.":"Please log in again.",!!e.offline)});return}
+  authScreen()}
+
+loadGround();loadTrees();loadProps();ui();startAuth();requestAnimationFrame(frame);
 const FCLIPS={idle:"f_idle",walk:"f_walk",jog:"f_jog",back:"f_back",jback:"f_jback",sl:"f_strafe_l",sr:"f_strafe_r",jsl:"f_jstrafe_l",jsr:"f_jstrafe_r",jump:"f_jump"};
 Promise.resolve().then(()=>{WALKER.init();return Promise.all([WALKER.load("girl",FCLIPS),WALKER.load("henry",{idle:"m_idle",walk:"m_walk",jog:"m_jog",back:"m_back",sl:"m_strafe_l",sr:"m_strafe_r",jsl:"m_jstrafe_l",jsr:"m_jstrafe_r",jump:"m_jump"}),WALKER.load("c_party2",FCLIPS),WALKER.load("c_club",FCLIPS)])}).then(([w,h,p2,club])=>{w.armIn=8;CAST.violet=w;
   // everyone a player can choose, by gender. The first in each list is the default.
@@ -2179,7 +2252,7 @@ Promise.resolve().then(()=>{WALKER.init();return Promise.all([WALKER.load("girl"
     PICS[g][c.key]={face:snap(300,396,[.1,hy+.1,.94],[0,hy+.065,0],.5,bg,dr),body:snap(240,440,[.5,hy*.66,hy*2.3],[0,hy*.57,0],.5,bg,dr)}}
   ROSTER.ready=true;
   BAKE=null;CLEAR_GLASS=false;CELL=0;reset();placeModel("m_audi",c=>c[0]>220&&c[1]>220?K.glow:c[0]>220?K.glow:c[0]>150&&c[1]<70?K.gold:c[0]<40&&c[2]>44?K.glass:0);CARSCENE=upload();CARSCENE.twoSided=true;
-  if(choosing&&scene==="border")chooser()}).catch(e=>{console.error(e);toast("The characters could not be loaded. You can still play, but pictures will be missing.")});
+  if(choosing&&scene==="border"&&chooserOn)chooser()}).catch(e=>{console.error(e);toast("The characters could not be loaded. You can still play, but pictures will be missing.")});
 </script>
 </body>
 </html>
