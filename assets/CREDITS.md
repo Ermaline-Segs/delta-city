@@ -147,3 +147,9 @@ Realistic models with photographic textures, at real-world size in metres (botto
 | `interiors/court/public_bench.glb` | [Painted Wooden Bench](https://polyhaven.com/a/painted_wooden_bench) | Poly Haven | CC0 | 630 | – | 1.16×0.50×0.89 |
 
 Poly Haven models keep their 1K colour, normal and roughness/metal textures. The OpenGameArt models use their colour texture only.
+
+## Character creator (`creator/`)
+
+Fifteen characters from the [Microsoft Rocketbox avatar library](https://github.com/microsoft/Microsoft-Rocketbox), © 2020 Microsoft, **MIT licence** (full text in the Characters section above; it must be kept with these files): `Male_Adult_12`, `Male_Adult_18`, `Male_Adult_04`, `Business_Male_05`, `Sports_Male_03`, `Male_Adult_17`, `Male_Adult_15`, `Wood_Male_01`, `Business_Female_01`, `Female_Party_02`, `Pilot_Female_02`, `Female_Adult_10`, `Female_Adult_06`, `Business_Female_02`, `Business_Female_03`.
+
+Converted the same way as the Characters section (plain `.fbx`, colour and opacity textures only, skeleton and skinning kept, no animations, Blender 3.6), with every texture scaled down to at most 1024 px. Each `.png` is a front-view render of the converted file. `creator/parts.md` lists each character's parts and textures.
