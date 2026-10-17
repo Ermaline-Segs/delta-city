@@ -1765,15 +1765,22 @@ function feminineStand(m,w,t){const I=m.index,sd=clamp(Math.sin(t*.36)*3.2,-1,1)
    about the shoulder, around the body's forward line, until the hand passes just clear of the thigh. Only the outward
    spread changes; the forward and back swing, the elbow bend and the timing stay as recorded. A hand that would cut into
    the hips is moved out the same way. ARMFIT.clear: the gap kept outside the hip joint, as a share of leg length. */
-const ARMFIT={clear:.15,maxIn:.5,maxOut:.12,wrist:.75};
-function armFit(m){const I=m.index;if(I.LeftUpLeg===undefined||I.LeftHand===undefined)return false;const P=i=>[W[i][12],W[i][13],W[i][14]],L=P(I.LeftUpLeg),R=P(I.RightUpLeg);
-  let X=[L[0]-R[0],L[2]-R[2]];const xl=Math.hypot(X[0],X[1])||1;X=[X[0]/xl,X[1]/xl];const half=xl/2,mx=(L[0]+R[0])/2,mz=(L[2]+R[2])/2,F=[-X[1],0,X[0]];let changed=false;
-  for(const[s,sg]of[["Left",1],["Right",-1]]){const S=P(I[s+"Arm"]),Hn=P(I[s+"Hand"]),a=sg*((Hn[0]-S[0])*X[0]+(Hn[2]-S[2])*X[1]),b=S[1]-Hn[1],out=sg*((S[0]-mx)*X[0]+(S[2]-mz)*X[1]),Lh=Math.hypot(a,b);
-    if(Lh<.05||b<.05)continue;const want=half+m.legLen*ARMFIT.clear-out,th=clamp(Math.asin(clamp(want/Lh,-.95,.95))-Math.atan2(a,b),-ARMFIT.maxIn,ARMFIT.maxOut);if(Math.abs(th)<.005)continue;
-    const ax=sg>0?F:F.map(v=>-v),h=th/2,sn=Math.sin(h),q=[ax[0]*sn,ax[1]*sn,ax[2]*sn,Math.cos(h)];for(const part of["Arm","ForeArm","Hand"]){const i=I[s+part];if(i!==undefined)DQ[i]=qmul(q,DQ[i])}changed=true}
-  return changed}
-/* Relaxed wrists: a hand mostly keeps the line of its forearm, as in the character's own rest pose, and takes only a share
-   of the recorded wrist turn. Characters whose hand bones are set differently from the actor's otherwise flare their hands out. */
+const ARMFIT={upper:.09,clear:.14,maxIn:.55,maxOut:.12,wrist:.75};       /* upper: the upper arm's lean out from straight down (radians); clear: the hand's gap outside the hip joint, as a share of leg length */
+function armFit(m){const I=m.index;if(I.LeftUpLeg===undefined||I.LeftHand===undefined)return false;
+  // the body's sideways line (from the hip joints) and forward line, measured afresh each step
+  const P=i=>[W[i][12],W[i][13],W[i][14]],frame=()=>{const L=P(I.LeftUpLeg),R=P(I.RightUpLeg);let X=[L[0]-R[0],L[2]-R[2]];const xl=Math.hypot(X[0],X[1])||1;X=[X[0]/xl,X[1]/xl];return{X,half:xl/2,mx:(L[0]+R[0])/2,mz:(L[2]+R[2])/2,F:[-X[1],0,X[0]]}};
+  const lat=(f,v,sg)=>sg*(v[0]*f.X[0]+v[2]*f.X[1]),turn=(f,s,sg,parts,th)=>{if(Math.abs(th)<.004)return false;const ax=sg>0?f.F:f.F.map(v=>-v),h=th/2,sn=Math.sin(h),q=[ax[0]*sn,ax[1]*sn,ax[2]*sn,Math.cos(h)];
+    for(const part of parts){const i=I[s+part];if(i!==undefined)DQ[i]=qmul(q,DQ[i])}return true};
+  let changed=false,f=frame();
+  // 1. upper arm: the elbow comes in until the upper arm hangs close to straight down, beside the body
+  for(const[s,sg]of[["Left",1],["Right",-1]]){const S=P(I[s+"Arm"]),E=P(I[s+"ForeArm"]),d=[E[0]-S[0],E[1]-S[1],E[2]-S[2]],a=lat(f,d,sg),b=-d[1];if(b<.08)continue;
+    changed=turn(f,s,sg,["Arm","ForeArm","Hand"],clamp(ARMFIT.upper-Math.atan2(a,b),-ARMFIT.maxIn,ARMFIT.maxOut))||changed}
+  if(!changed)return false;solve(m,true,0);f=frame();
+  // 2. forearm: from the elbow, angled just enough for the hand to pass clear of the thigh
+  for(const[s,sg]of[["Left",1],["Right",-1]]){const E=P(I[s+"ForeArm"]),H=P(I[s+"Hand"]),d=[H[0]-E[0],H[1]-E[1],H[2]-E[2]],a=lat(f,d,sg),b=-d[1],Lh=Math.hypot(a,b);if(b<.06||Lh<.05)continue;
+    const elbowOut=lat(f,[E[0]-f.mx,0,E[2]-f.mz],sg),want=f.half+m.legLen*ARMFIT.clear-elbowOut;
+    turn(f,s,sg,["ForeArm","Hand"],clamp(Math.asin(clamp(want/Lh,-.95,.95))-Math.atan2(a,b),-ARMFIT.maxIn,ARMFIT.maxOut+.15))}
+  return true}
 function relaxWrists(m){const I=m.index;for(const s of["Left","Right"]){const h=I[s+"Hand"],f=I[s+"ForeArm"];if(h===undefined||f===undefined)continue;const a=DQ[h],b=DQ[f],sg=a[0]*b[0]+a[1]*b[1]+a[2]*b[2]+a[3]*b[3]<0?-1:1,t=ARMFIT.wrist;
   const q=[a[0]+(b[0]*sg-a[0])*t,a[1]+(b[1]*sg-a[1])*t,a[2]+(b[2]*sg-a[2])*t,a[3]+(b[3]*sg-a[3])*t],l=Math.hypot(...q);DQ[h]=q.map(v=>v/l)}}
 function poseClips(m,list,grounded,fem,stand,t){mixClips(list);const B=m.bones;for(let i=0;i<B.length;i++){const k=m.amap[i];if(k>=0)DQ[i]=qmul([QB[k*4],QB[k*4+1],QB[k*4+2],QB[k*4+3]],m.cinv[i])}if(grounded)relaxWrists(m);
@@ -1913,7 +1920,10 @@ function followCam(x,y,z,wallAt,maxY){const H=CAMCFG.height+jump.y;
   const e=[VIEW.tx-f[0]*VIEW.cur,clamp(VIEW.ty-f[1]*VIEW.cur,.25,maxY),VIEW.tz-f[2]*VIEW.cur];return[e,[VIEW.tx,VIEW.ty-.08,VIEW.tz]]}
 const CAST={},ROSTER={Male:[],Female:[],ready:false};
 const pickDefault=()=>{if(!me.gender){me.gender="Female";me.outfit=ROSTER.Female.length?ROSTER.Female[0].key:"party"}};const PLAYERS={},gait={p:0,run:0,amt:0,wf:1,wb:0,wl:0,wr:0,jump:-1,speed:0};
-let scene="border",busy=false,talking=false,choosing=true,flying=false,testOpen=false,mapOpen=false,route=null,ROUTE_SCENE=null,routeCheck=0,GV=null,govSpot="",last=0,frames=0,acc=0,slow=0,quality=Math.min(window.devicePixelRatio||1,1.25),toastT=0;
+let scene="border",busy=false,talking=false,choosing=true,flying=false,testOpen=false,mapOpen=false,route=null,ROUTE_SCENE=null,routeCheck=0,GV=null,govSpot="",last=0,frames=0,acc=0,slow=0,fast=0,quality=Math.min(window.devicePixelRatio||1,1.25),toastT=0;
+/* The drawing resolution adapts to the machine: down in small steps if the frame rate stays low, back up when it is steady again.
+   The first seconds in a new place (while a town is built or a building loads) do not count. */
+const QMAX=Math.min(window.devicePixelRatio||1,1.25),QSET={key:"",until:0,cap:Math.min(window.devicePixelRatio||1,1.25),capAt:0};      /* cap: just below the last level that proved too much; raised again after 45 s, to try higher */
 const SAMPLE={no:"DC-ASB-0001",name:"Sample Citizen",dob:"01 September 1996",gender:"Female",state:"Asaba",date:"10 October 2026"};
 const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);t.scene=upload();CELL=0;t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t}return TOWNS[st]}
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400)}
@@ -2024,9 +2034,12 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   if(scene==="town"&&frames%3===0)drawMini(T);document.getElementById("mini").hidden=scene!=="town"||choosing;
   frames++;acc+=real;if(acc>=.5){const fps=frames/acc;document.getElementById("fps").textContent=Math.round(fps);frames=0;acc=0;let tris2=0;const tris=scene==="town"?0:parts.reduce((s,S)=>s+S.tris,0)+(scene==="imm"?15450:0);
     if(scene==="town")tris2=parts.reduce((s,S)=>s+S.bufs.concat(S.clear).reduce((q,x)=>q+x.n/3,0),0);const info=document.getElementById("info");info.textContent=({town:me.town,border:"The border gate",bank:"Inside "+STATES[me.town].bank,imm:"Inside Immigration",gov:GV?GV.title:"",hosp:HV?HV.title:""})[scene]+", "+Math.round((scene==="town"?tris2:tris)/1000)+"k triangles, "+cv.width+"x"+cv.height;info.appendChild(document.createElement("br"));info.appendChild(document.createTextNode(GPU));
-    if(t>3&&fps<48&&quality>.5){slow++;if(slow>=2){quality=Math.max(.5,quality-.2);slow=0}}else slow=0;
-    if(t>8&&fps<42&&TREE_NEAR>-30&&scene==="town"){treeLow=(treeLow||0)+1;if(treeLow>=6){TREE_NEAR=-30;treeLow=0}}else treeLow=0;       // first, every tree switches to its light version
-    if(t>8&&fps<24&&SHADOW.on&&scene==="town"){lowFor=(lowFor||0)+1;if(lowFor>=6){SHADOW.on=false;toast("Shadows were switched off to keep the game smooth. You can turn them back on in Testing.")}}else lowFor=0}}       // shadows are the first thing to go on a slow machine        // lower the sharpness until it runs smoothly
+    {const key=scene+"/"+me.town;if(key!==QSET.key){QSET.key=key;QSET.until=t+5}}const calm=t>QSET.until&&!busy&&!choosing;
+    if(t-QSET.capAt>45&&QSET.cap<QMAX){QSET.cap=Math.min(QMAX,QSET.cap+.1);QSET.capAt=t}
+    if(calm&&fps<48&&quality>.5){slow++;fast=0;if(slow>=2){QSET.cap=Math.max(.5,quality-.05);QSET.capAt=t;quality=Math.max(.5,quality-.15);slow=0}}
+    else if(calm&&fps>=56&&quality<Math.min(QMAX,QSET.cap)-.001){fast++;slow=0;if(fast>=3){quality=Math.min(QMAX,QSET.cap,quality+.1);fast=0}}else{slow=0;fast=0}
+    if(calm&&t>8&&fps<42&&TREE_NEAR>-30&&scene==="town"){treeLow=(treeLow||0)+1;if(treeLow>=6){TREE_NEAR=-30;treeLow=0}}else treeLow=0;       // first, every tree switches to its light version
+    if(calm&&t>8&&fps<24&&SHADOW.on&&scene==="town"){lowFor=(lowFor||0)+1;if(lowFor>=6){SHADOW.on=false;toast("Shadows were switched off to keep the game smooth. You can turn them back on in Testing.")}}else lowFor=0}}       // shadows are the first thing to go on a slow machine        // lower the sharpness until it runs smoothly
 /* The Certificate of Birth: the same document the Discord bot issues, drawn to the same layout
    (640 x 905 design grid): header and emblems, the two numbered sections, the passport
    photograph, the statement, the registrar's line, the seal. */
@@ -2250,9 +2263,9 @@ function departures(){choosing=true;const el=document.getElementById("choose");e
    of the character chosen is the photograph on the birth certificate. */
 const pick={gender:"",outfit:""};
 let chooserOn=false;
-function chooser(){chooserOn=true;choosing=true;const el=document.getElementById("choose");el.hidden=false;document.getElementById("guide").hidden=true;const ready=ROSTER.ready;
+function chooser(){chooserOn=true;choosing=true;const el=document.getElementById("choose");el.hidden=false;document.getElementById("guide").hidden=true;const ready=ROSTER.ready;if(ready&&!pick.gender){const avail=["Male","Female"].filter(v=>ROSTER[v].length);if(avail.length===1)pick.gender=avail[0]}
   el.innerHTML=`<div class="card"><h1>Welcome to Delta City</h1><p>Choose your character before you walk to the border gate.</p>
-    <div class="lab">Gender</div><div class="seg">${["Male","Female"].map(v=>`<button data-g="${v}" class="${pick.gender===v?"on":""}">${v}</button>`).join("")}</div>
+    <div class="lab">Gender</div><div class="seg">${["Male","Female"].filter(v=>!ready||ROSTER[v].length).map(v=>`<button data-g="${v}" class="${pick.gender===v?"on":""}">${v}</button>`).join("")}</div>
     ${pick.gender?`<div class="lab">Character</div>${ready?`<div class="looks">${ROSTER[pick.gender].map(c=>`<button class="look ${pick.outfit===c.key?"on":""}" data-o="${c.key}"><img src="${PICS[pick.gender][c.key].body}" alt="${c.name}">${c.name}</button>`).join("")}</div>`:`<p>Loading the characters...</p>`}`:""}
     <button class="go" data-go="1" ${pick.gender&&pick.outfit?"":"disabled"}>Enter Delta City</button><p class="credits">Models used under CC BY 3.0: \u201cBus Stop\u201d by Zsky; hospital bed by qubodup; folding screen by ouren; filing cabinet by ulf.</p></div>`}
 document.getElementById("choose").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const shut=()=>{choosing=false;document.getElementById("choose").hidden=true};
@@ -2330,7 +2343,8 @@ loadGround();loadTrees();loadProps();ui();startAuth();requestAnimationFrame(fram
 const FCLIPS={idle:"f_idle",walk:"f_walk",jog:"f_jog",back:"f_back",jback:"f_jback",sl:"f_strafe_l",sr:"f_strafe_r",jsl:"f_jstrafe_l",jsr:"f_jstrafe_r",jump:"f_jump"};
 Promise.resolve().then(()=>{WALKER.init();return Promise.all([WALKER.load("girl",FCLIPS),WALKER.load("henry",{idle:"m_idle",walk:"m_walk",jog:"m_jog",back:"m_back",sl:"m_strafe_l",sr:"m_strafe_r",jsl:"m_jstrafe_l",jsr:"m_jstrafe_r",jump:"m_jump"}),WALKER.load("c_party2",FCLIPS),WALKER.load("c_club",FCLIPS)])}).then(([w,h,p2,club])=>{CAST.violet=w;
   // everyone a player can choose, by gender. The first in each list is the default.
-  ROSTER.Male=[{key:"henry",name:"Henry",m:h}];ROSTER.Female=[{key:"party",name:"Zoey",m:p2},{key:"club",name:"Tracy",m:club}];PLAYERS.Male=h;PLAYERS.Female=p2;
+  ROSTER.Male=[];       /* Henry is hidden for now. His model stays in the page; to bring him back, list him here again: {key:"henry",name:"Henry",m:h} */
+  ROSTER.Female=[{key:"party",name:"Zoey",m:p2},{key:"club",name:"Tracy",m:club}];PLAYERS.Male=h;PLAYERS.Female=p2;
   // each one's photograph (for the certificate) and full-length picture (for choosing), framed to their own height
   const still={p:0,run:0,amt:0},bg=[.84,.88,.92];for(const g of["Male","Female"])for(const c of ROSTER[g]){const hy=c.m.rest[c.m.index.Head][13],dr=VP=>WALKER.draw(c.m,VP,0,0,0,Math.PI,still,2,null,"");
     PICS[g][c.key]={face:snap(300,396,[.1,hy+.1,.94],[0,hy+.065,0],.5,bg,dr),body:snap(240,440,[.5,hy*.66,hy*2.3],[0,hy*.57,0],.5,bg,dr)}}
