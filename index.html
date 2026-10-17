@@ -136,7 +136,7 @@ function program(vs,fs){const sh=(t,s)=>{const x=gl.createShader(t);gl.shaderSou
 const VERT=`attribute vec3 p,n;attribute vec4 c;uniform mat4 vp,model;varying vec3 vn,vw,vc;varying float kind;
 void main(){vec4 w=model*vec4(p,1.);vn=mat3(model)*n;vw=w.xyz;vc=c.rgb;kind=c.a*255.;gl_Position=vp*w;}`;const IDENT=new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
 const TOWN=program(VERT,`
-precision highp float;varying vec3 vn,vw,vc;varying float kind;uniform vec3 eye;uniform float indoor,fogFar,shadowOn,time,groundOn,openMode;uniform vec2 ceil;uniform sampler2D detail,shadowMap,tRoad,tPave,tLawn,tOpen;uniform mat4 lvp;uniform vec4 avRoad,avPave,avLawn;uniform vec4 lawnZ[8];uniform sampler2D tWall;uniform float wallsOn;
+precision highp float;varying vec3 vn,vw,vc;varying float kind;uniform vec3 eye;uniform float indoor,fogFar,shadowOn,time,groundOn,openMode;uniform vec2 ceil;uniform sampler2D detail,shadowMap,tRoad,tPave,tLawn,tOpen;uniform mat4 lvp;uniform vec4 avRoad,avPave,avLawn;uniform vec4 lawnZ[8];uniform sampler2D tWall;uniform float wallsOn;uniform vec3 sunL,sunC,ambT,ambB,fogC;uniform float night;uniform vec4 lampP[12];
 // is this point in the sun? Look it up in the picture of the town taken from the sun's side: 1 = lit, 0 = in shadow
 float lit(vec3 p,float slope){vec4 q=lvp*vec4(p,1.);vec3 s=q.xyz*.5+.5;if(s.x<0.||s.x>1.||s.y<0.||s.y>1.||s.z>1.)return 1.;float b=.0009+.003*slope,t=0.,e=1.25/2048.;
   for(int i=-1;i<=1;i++)for(int j=-1;j<=1;j++)t+=texture2D(shadowMap,s.xy+vec2(float(i),float(j))*e).r+b>s.z?1.:0.;float edge=max(abs(s.x-.5),abs(s.y-.5))*2.;return mix(t/9.,1.,smoothstep(.8,1.,edge));}       // nine samples, for a soft edge
@@ -156,7 +156,7 @@ void main(){vec3 n=normalize(vn),v=normalize(eye-vw),c=vc,col;if(!gl_FrontFacing
     else if(wood){float f=1.-max(dot(n,v),0.);col=c*(1.+.2*f*f);}
     else col=c;
     gl_FragColor=vec4(col,1.);return;}
-  vec3 L=normalize(vec3(.42,.86,.5));
+  vec3 L=sunL;
   // real ground: road, paving, lawn and open ground take their look from photographs, at the brightness the town was designed in
   bool isRoad=kind>2.5&&kind<3.5,isLawn=kind>9.5&&kind<10.5,isOpen=kind>10.5&&kind<11.5,isPave=tile&&n.y>.7;float vl=dot(vc,vec3(.3,.59,.11));
   if(groundOn>.5&&n.y>.7&&(isRoad||isLawn||isOpen||isPave)){vec2 g=vw.xz;
@@ -176,11 +176,13 @@ void main(){vec3 n=normalize(vn),v=normalize(eye-vw),c=vc,col;if(!gl_FrontFacing
   bool water=kind>.5&&kind<1.5&&n.y>.9;
   if(water){vec2 w1=texture2D(detail,vw.xz*.035+vec2(time*.012,time*.008)).ra,w2=texture2D(detail,vw.xz*.09-vec2(time*.02,time*.011)).ra;n=normalize(vec3((w1.x+w2.x-1.)*.22,1.,(w1.y+w2.y-1.)*.22));}      // ripples that drift
   float dl=dot(n,L),sun=max(dl,0.),sh=shadowOn>.5?lit(vw+n*.06,1.-sun):1.;sun*=sh;
-  vec3 shade=mix(vec3(.42,.45,.56),vec3(.6,.68,.84),.5+.5*n.y)*(.86+.14*sh);col=c*(shade+vec3(1.08,.98,.82)*sun*.78);
-  if(metal){vec3 r=reflect(-v,n);col=c*(.62+.6*sun)+vec3(1.,.9,.6)*pow(max(dot(r,L),0.),20.)*.6*sh;}
-  if(kind>.5&&kind<1.5){vec3 gv=vc;if(wallsOn>.5&&!water&&abs(n.y)<.35){vec2 gg=vec2(abs(n.x)>abs(n.z)?vw.z:vw.x,vw.y);gv*=1.+(texture2D(tWall,gg/10.8).a-.5)*2.;}float f=pow(1.-max(dot(n,v),0.),2.5);vec3 r=reflect(-v,n);vec3 sky=mix(vec3(.8,.89,.96),vec3(.3,.56,.9),clamp(r.y*1.4+.15,0.,1.));col=mix(gv*(.45+.2*sh),sky,(water?.5:.35)+.5*f)+pow(max(dot(r,L),0.),water?140.:40.)*(water?1.4:.5)*sh;}
+  vec3 shade=mix(ambB,ambT,.5+.5*n.y)*(.86+.14*sh);col=c*(shade+sunC*sun);
+  if(night>.01){vec3 lc=vec3(0.);for(int i=0;i<12;i++){vec4 l=lampP[i];if(l.w>0.){vec3 dv=l.xyz-vw;float dd=dot(dv,dv);lc+=vec3(1.,.8,.52)*l.w*max(dot(n,normalize(dv)),0.)*(30./(dd+5.))*smoothstep(24.,9.,sqrt(dd));}}col+=c*lc*night;}
+  if(metal){vec3 r=reflect(-v,n);col=c*(dot(ambT,vec3(.33))*1.03+.75*sun*length(sunC))+sunC*pow(max(dot(r,L),0.),20.)*.8*sh;}
+  if(kind>.5&&kind<1.5){vec3 gv=vc;vec2 gg=vec2(abs(n.x)>abs(n.z)?vw.z:vw.x,vw.y);if(wallsOn>.5&&!water&&abs(n.y)<.35)gv*=1.+(texture2D(tWall,gg/10.8).a-.5)*2.;float f=pow(1.-max(dot(n,v),0.),2.5);vec3 r=reflect(-v,n);vec3 sky=mix(fogC*1.05,mix(fogC,ambT,.5)*.9,clamp(r.y*1.4+.15,0.,1.));col=mix(gv*(.45+.2*sh),sky,(water?.5:.35)+.5*f)+pow(max(dot(r,L),0.),water?140.:40.)*(water?1.4:.5)*sh;}
+    if(night>.01&&!water&&abs(n.y)<.35&&kind>.5&&kind<1.5){vec2 cell=floor(vec2(abs(n.x)>abs(n.z)?vw.z:vw.x,vw.y)/1.2);float hsh=fract(sin(dot(cell,vec2(12.9898,78.233)))*43758.5453);if(hsh>.62)col+=vec3(1.,.83,.56)*.42*night*(.55+.7*fract(hsh*7.));}
   col=pow(col*1.04,vec3(.94));                                                                                     // a little more punch
-  float fog=clamp((distance(eye,vw)-fogFar*.5)/(fogFar*.5),0.,1.);gl_FragColor=vec4(mix(col,vec3(.74,.86,.95),fog*fog*(3.-2.*fog)),1.);}`);
+  float fog=clamp((distance(eye,vw)-fogFar*.5)/(fogFar*.5),0.,1.);gl_FragColor=vec4(mix(col,fogC,fog*fog*(3.-2.*fog)),1.);}`);
 /* The picture of surface detail, made once when the page opens. Its four layers repeat seamlessly:
    red = veined stone, green = wood grain, blue = woven cloth, alpha = fine grain (plaster, brushed metal). */
 const DETAIL=(()=>{const N=256,data=new Uint8Array(N*N*4),TAU=6.2832;let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
@@ -275,7 +277,32 @@ function drawList(P,list){for(const b of list){gl.bindBuffer(gl.ARRAY_BUFFER,b.p
 /* Shadows. Before each frame the town is drawn once more, from the sun's side, into a picture that
    records only how far each point is from the sun. While drawing normally, a point further from the
    sun than what that picture recorded at the same spot must have something in front of it: shadow. */
-let NOW=0;const SUN=nrm([.42,.86,.5]),SHADOW={on:true,ready:false,size:2048,tex:null,fbo:null,lvp:IDENT,range:62};
+let NOW=0;const SUN=nrm([.42,.86,.5]);
+/* Time of day. The sun's position over Asaba (6.2 N, 6.7 E) is worked out from the date and West Africa Time, and the
+   light follows it: daylight, golden evening light, twilight and night. TIMEOVR (hours) overrides the clock for testing. */
+let TIMEOVR=null;const DAYLIGHT={dir:nrm([.42,.86,.5]),sun:[.84,.76,.64],ambT:[.6,.68,.84],ambB:[.42,.45,.56],fog:[.74,.86,.95],skyT:[.22,.5,.88],sunTint:[1,.9,.7],cloud:[1,.99,.97],sunVis:1,stars:0,night:0,elev:45,lamps:new Float32Array(48)};
+const LIGHT=Object.assign({force:null},DAYLIGHT,{lamps:new Float32Array(48)});
+function watHours(){const d=new Date(Date.now()+3600e3);return d.getUTCHours()+d.getUTCMinutes()/60+d.getUTCSeconds()/3600}
+// the sun over Asaba: altitude, and direction from north, clockwise. The town's north is -z and east is +x.
+function sunNow(){const now=new Date(),y0=Date.UTC(now.getUTCFullYear(),0,0),N=Math.floor((now.getTime()+3600e3-y0)/864e5),R=Math.PI/180,lat=6.2*R,lon=6.73;
+  const dec=23.44*R*Math.sin(2*Math.PI*(284+N)/365),B=2*Math.PI*(N-81)/364,eot=9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B),hrs=TIMEOVR!==null?TIMEOVR:watHours();
+  const H=15*R*(hrs+(4*(lon-15)+eot)/60-12),alt=Math.asin(Math.sin(lat)*Math.sin(dec)+Math.cos(lat)*Math.cos(dec)*Math.cos(H)),az=Math.atan2(Math.sin(H),Math.cos(H)*Math.sin(lat)-Math.tan(dec)*Math.cos(lat))+Math.PI;
+  return{alt,az,hrs}}
+const mixv=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t),sstep=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};
+let lightAt=-1;
+function updateLight(){if(NOW-lightAt<.5&&lightAt>=0)return;lightAt=NOW;const s=sunNow(),e=s.alt*180/Math.PI,ce=Math.cos(Math.max(s.alt,.05));
+  const dir=nrm([Math.sin(s.az)*ce,Math.max(Math.sin(s.alt),.05),-Math.cos(s.az)*ce]),day=sstep(-6,12,e),gold=(1-sstep(4,24,e))*sstep(-4,3,e),sunS=sstep(-1,7,e);
+  SUN[0]=dir[0];SUN[1]=dir[1];SUN[2]=dir[2];LIGHT.dir=dir;LIGHT.elev=e;
+  LIGHT.sun=mixv([.84,.76,.64],[1.02,.6,.32],gold).map(v=>v*sunS);
+  LIGHT.ambT=mixv(mixv([.17,.21,.33],[.6,.68,.84],day),[.62,.48,.55],gold*.45);LIGHT.ambB=mixv(mixv([.1,.11,.17],[.42,.45,.56],day),[.45,.33,.36],gold*.4);
+  LIGHT.fog=mixv(mixv([.05,.08,.15],[.74,.86,.95],day),[.95,.62,.44],gold*.8);LIGHT.skyT=mixv(mixv([.015,.035,.09],[.22,.5,.88],day),[.24,.3,.58],gold*.6);
+  LIGHT.sunTint=mixv([1,.9,.7],[1,.55,.25],gold);LIGHT.cloud=mixv(mixv([.14,.16,.22],[1,.99,.97],day),[1,.68,.55],gold*.75);LIGHT.sunVis=sstep(-3,1,e);LIGHT.stars=1-sstep(-12,-3,e);LIGHT.night=1-sstep(-4,6,e);
+  if(typeof SHADOW!=="undefined")SHADOW.dark=e<2.5}
+// send the light to a lighting program (buildings, trees or characters). Inside buildings, daylight-like light.
+function setLight(P,inside){const L=inside?DAYLIGHT:(LIGHT.force||LIGHT);gl.uniform3fv(P.u.sunL,L.dir);gl.uniform3fv(P.u.sunC,L.sun);gl.uniform3fv(P.u.ambT,L.ambT);gl.uniform3fv(P.u.ambB,L.ambB);gl.uniform3fv(P.u.fogC,L.fog);
+  gl.uniform1f(P.u.night,inside?0:L.night);if(P.u["lampP[0]"])gl.uniform4fv(P.u["lampP[0]"],L.lamps)}
+
+const SHADOW={on:true,ready:false,size:2048,tex:null,fbo:null,lvp:IDENT,range:62};
 const DEPTHP=program("attribute vec3 p;uniform mat4 vp,model;void main(){gl_Position=vp*model*vec4(p,1.);}","precision mediump float;void main(){gl_FragColor=vec4(1.);}");
 (()=>{const ext=gl.getExtension("WEBGL_depth_texture");if(!ext)return;const N=SHADOW.size,t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.DEPTH_COMPONENT,N,N,0,gl.DEPTH_COMPONENT,gl.UNSIGNED_INT,null);
   for(const[k,v]of[[gl.TEXTURE_MIN_FILTER,gl.NEAREST],[gl.TEXTURE_MAG_FILTER,gl.NEAREST],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]])gl.texParameteri(gl.TEXTURE_2D,k,v);
@@ -292,14 +319,14 @@ function shadowPass(lists,cx,cz,extra){if(!SHADOW.ready||!SHADOW.on)return;const
   for(const[bufs,model]of lists){gl.uniformMatrix4fv(DEPTHP.u.model,false,model||IDENT);for(const bf of bufs){gl.bindBuffer(gl.ARRAY_BUFFER,bf.p);gl.enableVertexAttribArray(DEPTHP.a.p);gl.vertexAttribPointer(DEPTHP.a.p,3,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,bf.i);gl.drawElements(gl.TRIANGLES,bf.n,gl.UNSIGNED_SHORT,0)}}
   if(extra)extra(SHADOW.lvp);gl.disable(gl.POLYGON_OFFSET_FILL);gl.colorMask(true,true,true,true);gl.bindFramebuffer(gl.FRAMEBUFFER,null)}
 /* The sky: deep blue overhead fading to a pale horizon, a bright sun with a glow, and slow clouds. */
-const SKYP=program("attribute vec2 p;varying vec2 q;void main(){q=p;gl_Position=vec4(p,.9999,1.);}",`precision highp float;varying vec2 q;uniform vec3 fw,rt,up,sun;uniform vec2 tanv;uniform float time;uniform sampler2D detail;
-void main(){vec3 d=normalize(fw+rt*q.x*tanv.x+up*q.y*tanv.y);float h=clamp(d.y,-.2,1.);vec3 col=mix(vec3(.74,.86,.95),vec3(.22,.5,.88),pow(max(h,0.),.55));
-  float s=max(dot(d,sun),0.);col+=vec3(1.,.9,.7)*(pow(s,900.)*4.+pow(s,24.)*.28+pow(s,4.)*.08);
-  if(d.y>.02){vec2 uv=d.xz/(d.y+.12);float c=texture2D(detail,uv*.05+vec2(time*.0018,0.)).r*.65+texture2D(detail,uv*.13+vec2(time*.003,time*.001)).r*.35;c=smoothstep(.5,.72,c)*smoothstep(.02,.22,d.y);col=mix(col,vec3(1.,.99,.97)*(.92+.1*s),c*.82);}
+const SKYP=program("attribute vec2 p;varying vec2 q;void main(){q=p;gl_Position=vec4(p,.9999,1.);}",`precision highp float;varying vec2 q;uniform vec3 fw,rt,up,sun,skyH,skyT,sunTint,cloudC;uniform vec2 tanv;uniform float time,sunVis,stars;uniform sampler2D detail;
+void main(){vec3 d=normalize(fw+rt*q.x*tanv.x+up*q.y*tanv.y);float h=clamp(d.y,-.2,1.);vec3 col=mix(skyH,skyT,pow(max(h,0.),.55));float s=max(dot(d,sun),0.);col+=sunTint*sunVis*(pow(s,900.)*4.+pow(s,24.)*.28+pow(s,4.)*.08);
+  if(stars>0.&&d.y>0.){vec3 q=floor(d*190.);float st=fract(sin(dot(q,vec3(12.9898,78.233,37.719)))*43758.5453);col+=vec3(step(.9972,st))*stars*smoothstep(0.,.25,d.y);}
+  if(d.y>.02){vec2 uv=d.xz/(d.y+.12);float c=texture2D(detail,uv*.05+vec2(time*.0018,0.)).r*.65+texture2D(detail,uv*.13+vec2(time*.003,time*.001)).r*.35;c=smoothstep(.5,.72,c)*smoothstep(.02,.22,d.y);col=mix(col,cloudC*(.92+.1*s*sunVis),c*.82);}
   gl_FragColor=vec4(col,1.);}`);
 const SKYQ=(()=>{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);return b})();
 function drawSky(eye,to,fov,aspect){const f=nrm(sub(to,eye)),r=nrm(cross(f,[0,1,0])),u=cross(r,f),t=Math.tan(fov/2);gl.disable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.useProgram(SKYP.p);
-  gl.uniform3fv(SKYP.u.fw,f);gl.uniform3fv(SKYP.u.rt,r);gl.uniform3fv(SKYP.u.up,u);gl.uniform3fv(SKYP.u.sun,SUN);gl.uniform2f(SKYP.u.tanv,t*aspect,t);gl.uniform1f(SKYP.u.time,NOW);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,DETAIL);gl.uniform1i(SKYP.u.detail,0);
+  gl.uniform3fv(SKYP.u.fw,f);gl.uniform3fv(SKYP.u.rt,r);gl.uniform3fv(SKYP.u.up,u);gl.uniform3fv(SKYP.u.sun,SUN);{const L=LIGHT.force||LIGHT;gl.uniform3fv(SKYP.u.skyH,L.fog);gl.uniform3fv(SKYP.u.skyT,L.skyT);gl.uniform3fv(SKYP.u.sunTint,L.sunTint);gl.uniform3fv(SKYP.u.cloudC,L.cloud);gl.uniform1f(SKYP.u.sunVis,L.sunVis);gl.uniform1f(SKYP.u.stars,L.stars)}gl.uniform2f(SKYP.u.tanv,t*aspect,t);gl.uniform1f(SKYP.u.time,NOW);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,DETAIL);gl.uniform1i(SKYP.u.detail,0);
   gl.bindBuffer(gl.ARRAY_BUFFER,SKYQ);gl.enableVertexAttribArray(SKYP.a.p);gl.vertexAttribPointer(SKYP.a.p,2,gl.FLOAT,false,0,0);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);gl.enable(gl.DEPTH_TEST)}
 /* The ground photographs. Each is filtered sharply even at a low angle, so a road stays crisp into the distance. */
 const GROUND={ready:false,mode:1,zones:[],tex:{},av:{}},ANISO=gl.getExtension("EXT_texture_filter_anisotropic")||gl.getExtension("WEBKIT_EXT_texture_filter_anisotropic");
@@ -331,17 +358,17 @@ function uploadTrees(){const C=new Map(),G=60,mk=(d,t)=>{const b=gl.createBuffer
 const TREE_LIT=`float lit(vec3 p,float slope){vec4 q=lvp*vec4(p,1.);vec3 s=q.xyz*.5+.5;if(s.x<0.||s.x>1.||s.y<0.||s.y>1.||s.z>1.)return 1.;float b=.0012+.003*slope,t=0.,e=1.25/2048.;
   for(int i=-1;i<=1;i++)for(int j=-1;j<=1;j++)t+=texture2D(shadowMap,s.xy+vec2(float(i),float(j))*e).r+b>s.z?1.:0.;float edge=max(abs(s.x-.5),abs(s.y-.5))*2.;return mix(t/9.,1.,smoothstep(.8,1.,edge));}`;
 const TREEP=program("attribute vec3 p,n;attribute vec2 uv;uniform mat4 vp;varying vec3 vw,vn;varying vec2 vu;void main(){vw=p;vn=n;vu=uv;gl_Position=vp*vec4(p,1.);}",
-  `precision highp float;varying vec3 vw,vn;varying vec2 vu;uniform sampler2D tex,shadowMap;uniform mat4 lvp;uniform vec3 eye;uniform float fogFar,shadowOn,leaf,cut;
+  `precision highp float;varying vec3 vw,vn;varying vec2 vu;uniform sampler2D tex,shadowMap;uniform mat4 lvp;uniform vec3 eye;uniform float fogFar,shadowOn,leaf,cut;uniform vec3 sunL,sunC,ambT,ambB,fogC;uniform float night;
 ${TREE_LIT}
-void main(){vec4 c=texture2D(tex,vu);if(c.a<cut)discard;vec3 n=normalize(vn);if(leaf<.5&&!gl_FrontFacing)n=-n;vec3 L=normalize(vec3(.42,.86,.5));float d=dot(n,L);
+void main(){vec4 c=texture2D(tex,vu);if(c.a<cut)discard;vec3 n=normalize(vn);if(leaf<.5&&!gl_FrontFacing)n=-n;vec3 L=sunL;float d=dot(n,L);
   float sun=leaf>.5?clamp(d*.55+.45,0.,1.):max(d,0.),sh=shadowOn>.5?lit(vw+n*.18,.7):1.;sun*=sh;
-  vec3 shade=mix(vec3(.42,.45,.56),vec3(.6,.68,.84),.5+.5*n.y)*(.84+.16*sh);vec3 col=c.rgb*(shade+vec3(1.08,.98,.82)*sun*.78);col=pow(col*1.04,vec3(.94));
-  float fog=clamp((distance(eye,vw)-fogFar*.5)/(fogFar*.5),0.,1.);gl_FragColor=vec4(mix(col,vec3(.74,.86,.95),fog*fog*(3.-2.*fog)),1.);}`);
+  vec3 shade=mix(ambB,ambT,.5+.5*n.y)*(.84+.16*sh);vec3 col=c.rgb*(shade+sunC*sun);col=pow(col*1.04,vec3(.94));
+  float fog=clamp((distance(eye,vw)-fogFar*.5)/(fogFar*.5),0.,1.);gl_FragColor=vec4(mix(col,fogC,fog*fog*(3.-2.*fog)),1.);}`);
 const TREED=program("attribute vec3 p;attribute vec2 uv;uniform mat4 vp;varying vec2 vu;void main(){vu=uv;gl_Position=vp*vec4(p,1.);}","precision mediump float;varying vec2 vu;uniform sampler2D tex;uniform float cut;void main(){if(texture2D(tex,vu).a<cut)discard;gl_FragColor=vec4(1.);}");
 // draw the trees of every square `vis` accepts. depth=true draws them into the sun's picture, so they cast leafy shadows.
 let TREE_NEAR=28;
 function drawTrees(TR,VP,eye,vis,fogFar,depth,near){const nr=near===undefined?TREE_NEAR:near;if(!TR||!TR.cells.length)return;const P=depth?TREED:TREEP;gl.useProgram(P.p);gl.disable(gl.CULL_FACE);gl.uniformMatrix4fv(P.u.vp,false,VP);
-  if(!depth){gl.uniform3fv(P.u.eye,eye);gl.uniform1f(P.u.fogFar,fogFar||1500);const shOn=SHADOW.ready&&SHADOW.on;gl.uniform1f(P.u.shadowOn,shOn?1:0);if(shOn)gl.uniformMatrix4fv(P.u.lvp,false,SHADOW.lvp);
+  if(!depth){gl.uniform3fv(P.u.eye,eye);gl.uniform1f(P.u.fogFar,fogFar||1500);setLight(P,false);const shOn=SHADOW.ready&&SHADOW.on&&!SHADOW.dark;gl.uniform1f(P.u.shadowOn,shOn?1:0);if(shOn)gl.uniformMatrix4fv(P.u.lvp,false,SHADOW.lvp);
     gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,SHADOW.tex||DETAIL);gl.uniform1i(P.u.shadowMap,2)}
   gl.activeTexture(gl.TEXTURE0);gl.uniform1i(P.u.tex,0);
   for(const c of TR.cells){if(vis&&!vis(c))continue;const full=!depth&&eye&&Math.hypot(c.cx-eye[0],c.cz-eye[2])<nr+30;for(const m of c.mats){gl.bindTexture(gl.TEXTURE_2D,TREES.tex[m.tex]);gl.uniform1f(P.u.cut,m.cut);if(!depth)gl.uniform1f(P.u.leaf,m.leaf?1:0);
@@ -368,7 +395,7 @@ function drawProps(G,VP){gl.useProgram(PROPP.p);gl.disable(gl.CULL_FACE);gl.unif
   for(const g of G){const D=PROPDATA[g.id];if(!D||!D.tex)continue;gl.bindTexture(gl.TEXTURE_2D,D.tex);for(const c of g.chunks){gl.bindBuffer(gl.ARRAY_BUFFER,c.p);gl.enableVertexAttribArray(PROPP.a.p);gl.vertexAttribPointer(PROPP.a.p,3,gl.FLOAT,false,0,0);
     gl.bindBuffer(gl.ARRAY_BUFFER,c.u);gl.enableVertexAttribArray(PROPP.a.uv);gl.vertexAttribPointer(PROPP.a.uv,2,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ARRAY_BUFFER,c.l);gl.enableVertexAttribArray(PROPP.a.l);gl.vertexAttribPointer(PROPP.a.l,1,gl.FLOAT,false,0,0);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,c.i);gl.drawElements(gl.TRIANGLES,c.count,gl.UNSIGNED_SHORT,0)}}gl.disableVertexAttribArray(PROPP.a.uv);gl.disableVertexAttribArray(PROPP.a.l)}
-function drawScene(S,VP,eye,indoor){if(S.props){const P=S.props;S.props=null;drawScene(S,VP,eye,indoor);S.props=P;drawProps(P,VP);return}if(S.twoSided)gl.disable(gl.CULL_FACE);else gl.enable(gl.CULL_FACE);gl.useProgram(TOWN.p);gl.uniformMatrix4fv(TOWN.u.vp,false,VP);gl.uniformMatrix4fv(TOWN.u.model,false,S.model||IDENT);gl.uniform3fv(TOWN.u.eye,eye);gl.uniform1f(TOWN.u.indoor,indoor?1:0);gl.uniform2fv(TOWN.u.ceil,S.ceil||[3.2,6.4]);gl.uniform1f(TOWN.u.fogFar,S.fogFar||1500);gl.uniform1f(TOWN.u.time,NOW);const shOn=!indoor&&SHADOW.ready&&SHADOW.on&&!S.noShadow;gl.uniform1f(TOWN.u.shadowOn,shOn?1:0);if(shOn)gl.uniformMatrix4fv(TOWN.u.lvp,false,SHADOW.lvp);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,SHADOW.tex||DETAIL);gl.uniform1i(TOWN.u.shadowMap,2);
+function drawScene(S,VP,eye,indoor){if(S.props){const P=S.props;S.props=null;drawScene(S,VP,eye,indoor);S.props=P;drawProps(P,VP);return}if(S.twoSided)gl.disable(gl.CULL_FACE);else gl.enable(gl.CULL_FACE);gl.useProgram(TOWN.p);gl.uniformMatrix4fv(TOWN.u.vp,false,VP);gl.uniformMatrix4fv(TOWN.u.model,false,S.model||IDENT);gl.uniform3fv(TOWN.u.eye,eye);gl.uniform1f(TOWN.u.indoor,indoor?1:0);gl.uniform2fv(TOWN.u.ceil,S.ceil||[3.2,6.4]);gl.uniform1f(TOWN.u.fogFar,S.fogFar||1500);gl.uniform1f(TOWN.u.time,NOW);setLight(TOWN,indoor);const shOn=!indoor&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark&&!S.noShadow;gl.uniform1f(TOWN.u.shadowOn,shOn?1:0);if(shOn)gl.uniformMatrix4fv(TOWN.u.lvp,false,SHADOW.lvp);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,SHADOW.tex||DETAIL);gl.uniform1i(TOWN.u.shadowMap,2);
   const gOn=!indoor&&GROUND.ready;gl.uniform1f(TOWN.u.groundOn,gOn?1:0);if(gOn)GROUND.bind();
   gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,DETAIL);gl.uniform1i(TOWN.u.detail,1);gl.activeTexture(gl.TEXTURE0);drawList(TOWN,S.bufs);
   if(S.sg.length){gl.disable(gl.CULL_FACE);gl.useProgram(SIGN.p);gl.uniformMatrix4fv(SIGN.u.vp,false,VP);gl.bindBuffer(gl.ARRAY_BUFFER,signUV);gl.enableVertexAttribArray(SIGN.a.uv);gl.vertexAttribPointer(SIGN.a.uv,2,gl.FLOAT,false,0,0);
@@ -402,7 +429,7 @@ function both(a,b,c,d,col){quad(a,b,c,d,col);quad(d,c,b,a,col)}
 function palm(x,z,h){if(TREES.data&&CELL)return addTree("palm",x,z,(h||5)*1.1);const H=h||5,g=hex("#2f9148"),g2=hex("#1f7437");cyl(x,0,z,.22,H,"#7a5a3c",5,.13);
   for(let k=0;k<6;k++){at(x,z,k/6*6.2832+(H*1.7),()=>{const lift=k%2?.75:.35;
     both([0,H+.1,-.2],[1.6,H+lift,-.5],[1.6,H+lift,.5],[0,H+.1,.2],g);both([1.6,H+lift,-.5],[3.3,H+lift-1.3,-.12],[3.3,H+lift-1.3,.12],[1.6,H+lift,.5],g2)})}}
-function lamp(x,z,turn){at(x,z,turn,()=>{cyl(0,0,0,.09,6,"#3a4048",6,.06);box(.7,5.95,0,1.5,.08,.1,"#3a4048");box(1.35,5.82,0,.5,.12,.22,"#f3efd8")})}
+function lamp(x,z,turn){at(x,z,turn,()=>{if(MAPD&&MAPD.lamps&&CELL){const w=wpt(1.35,0);MAPD.lamps.push([w[0],5.6,w[1]])}cyl(0,0,0,.09,6,"#3a4048",6,.06);box(.7,5.95,0,1.5,.08,.1,"#3a4048");box(1.35,5.82,0,.5,.12,.22,"#f3efd8")})}
 function flag(x,z,h){cyl(x,0,z,.07,h,"#d9dde2",6,.05);box(x+.75,h-1.05,z,1.5,.33,.03,"#00a86b");box(x+.75,h-1.38,z,1.5,.33,.03,"#ffffff");box(x+.75,h-.72,z,1.5,.33,.03,"#f5c542")}
 function steps(w,n,z0,color){for(let k=0;k<n;k++)box(0,0,z0+(n-k)*.34-.17,w+ (n-k)*.5,(k+1)*.17,.34,color||"#cfcabd")}
 
@@ -449,7 +476,7 @@ function modern(o){const w=o.w,d=o.d,fl=o.floors||3,fh=3.6,h=fl*fh,base=.6;
   for(const s of[-1,1])box(s*(ew/2+3),0,d/2+4.5,5,.5,2.2,"#3f8f4d")}                      // clipped hedges
 
 /* ================================ what to show ================================ */
-const BUILDINGS=[];let MAPD={roads:[],rounds:[],water:[],places:[]},BLOCKS=[];
+const BUILDINGS=[];let MAPD={roads:[],rounds:[],water:[],places:[],lamps:[]},BLOCKS=[];
 const KINDS=[[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Border/,"Transport","🚧"],[/Port\b/,"Transport","⚓"],[/Transport/,"Transport","🚌"],
   [/Federal/,"Government","🏛"],[/Villa\b/,"Government","🏰"],[/State Government/,"Government","🏛"],[/Court/,"Government","⚖"],[/Police/,"Government","🛡"],[/Immigration/,"Government","🛂"],[/Agricultur|Resources|Food/,"Government","🌿"],
   [/Bank/,"Services","🏦"],[/Hospital/,"Services","✚"],[/University/,"Services","🎓"],[/Utilities/,"Services","⚡"],[/Housing/,"Services","🏠"],[/Hotel|Guest|Suites|Hyatti/,"Services","🛏"]];
@@ -1042,7 +1069,7 @@ function townSpecs(st,C){const G="#3f86b3";if(C.capital)return{
     util:{name:C.util,short:"Utilities",w:16,d:9,floors:1,wall:"#f3ecc8",band:"#a67a05",zinc:ZINC.silver,roof:"gable",yardW:32,yardD:26},
     agri:{name:C.agri,short:"Agriculture",w:16,d:9,floors:1,wall:"#e3efd2",band:"#476f12",zinc:ZINC.green,roof:"hip",yardW:30,yardD:24}}}
 // build one state's town. Returns where its doors are, so the game knows where people go in and come out.
-function buildTown(st){const C=STATES[st],SP={};BUILDINGS.length=0;MAPD={roads:[],rounds:[],water:[],places:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
+function buildTown(st){const C=STATES[st],SP={};BUILDINGS.length=0;MAPD={roads:[],rounds:[],water:[],places:[],lamps:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
   const R0=9,R1=17,W=9,LEN=110,start=R1-.6;roundabout(R0,R1);
   for(let k=0;k<4;k++)road(Math.sin(k*Math.PI/2)*(start+LEN/2),-Math.cos(k*Math.PI/2)*(start+LEN/2),W,LEN,-k*Math.PI/2);
   const off=d=>W/2+4.2+d/2;                                    // how far a plot's centre sits from the middle of its road
@@ -1419,7 +1446,8 @@ function toyMan(o){const sk="#8d5a3b",hair="#1b1310";
   ball(0,1.705,-.035,.125,.1,.122,hair,12);if(o.band)cyl(0,1.71,-.02,.127,.028,o.band,16,.128)}
 const PICS={Male:{},Female:{}},HAIR={},MEN={};
 // take a photograph of one person standing at the centre, and hand it back as a picture
-function snap(w,h,eye,at,fov,bg,drawFn){cv.width=w;cv.height=h;gl.viewport(0,0,w,h);gl.clearColor(bg[0],bg[1],bg[2],1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.disable(gl.BLEND);
+function snap(w,h,eye,at,fov,bg,drawFn){const keepF=LIGHT.force;LIGHT.force=DAYLIGHT;try{return snapRaw(w,h,eye,at,fov,bg,drawFn)}finally{LIGHT.force=keepF}}
+function snapRaw(w,h,eye,at,fov,bg,drawFn){cv.width=w;cv.height=h;gl.viewport(0,0,w,h);gl.clearColor(bg[0],bg[1],bg[2],1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.disable(gl.BLEND);
   drawFn(mul(persp(fov,w/h,.05,30),look(eye,at,[0,1,0])),eye);return cv.toDataURL("image/jpeg",.92)}
 function makePictures(){const bg=[.84,.88,.92];
   for(const k of Object.keys(WOMAN_LOOKS)){const look=WOMAN_LOOKS[k],body=dressPerson(look);HAIR[k]=capture(()=>{for(const b of look.hair)ball(b[0],b[1],b[2],b[3],b[4],b[5],look.hairColor)});
@@ -1651,9 +1679,9 @@ const D=Math.PI/180;let WOMAN=null;
 const SKINP=program(`attribute vec3 p,n;attribute vec2 uv;attribute vec4 j,w,paint;uniform vec4 B[84];uniform mat4 vp,model;uniform vec3 lo;uniform float span;uniform vec2 uvlo,uvspan;varying vec3 vn;varying vec2 vu;varying vec4 vpaint;
 vec3 bone(float i,vec4 v){int k=int(i)*3;return vec3(dot(B[k],v),dot(B[k+1],v),dot(B[k+2],v));}
 void main(){vec4 v=vec4(lo+p*span,1.),d=vec4(n,0.);vec3 q=w.x*bone(j.x,v)+w.y*bone(j.y,v)+w.z*bone(j.z,v)+w.w*bone(j.w,v),m=w.x*bone(j.x,d)+w.y*bone(j.y,d)+w.z*bone(j.z,d)+w.w*bone(j.w,d);
-  vn=normalize((model*vec4(m,0.)).xyz);vu=uvlo+uv*uvspan;vpaint=paint;gl_Position=vp*model*vec4(q,1.);}`,`precision mediump float;varying vec3 vn;varying vec2 vu;varying vec4 vpaint;uniform sampler2D t;uniform vec3 tint,plain;uniform float cut,useTint,avg,useFlat;
+  vn=normalize((model*vec4(m,0.)).xyz);vu=uvlo+uv*uvspan;vpaint=paint;gl_Position=vp*model*vec4(q,1.);}`,`precision mediump float;varying vec3 vn;varying vec2 vu;varying vec4 vpaint;uniform vec3 sunL,sunC,ambT,ambB,fogC;uniform float night;uniform sampler2D t;uniform vec3 tint,plain;uniform float cut,useTint,avg,useFlat;
 void main(){vec4 c=texture2D(t,vu);if(useFlat>.5)c=vec4(plain,1.);if(c.a<cut)discard;if(useTint>.5){float l=dot(c.rgb,vec3(.3,.59,.11))/max(avg,.02);c.rgb=tint*clamp(l,.5,1.45);}c.rgb=mix(c.rgb,vpaint.rgb,smoothstep(.35,.65,vpaint.a));
-  vec3 n=normalize(vn);float d=dot(n,normalize(vec3(.42,.86,.5)));vec3 sh=mix(vec3(.5,.52,.6),vec3(.66,.72,.84),.5+.5*n.y);gl_FragColor=vec4(c.rgb*(sh+vec3(1.,.96,.86)*max(d,0.)*.62),1.);}`);
+  vec3 n=normalize(vn);float d=dot(n,sunL);vec3 sh=mix(ambB,ambT,.5+.5*n.y)*1.15;gl_FragColor=vec4(c.rgb*(sh+sunC*max(d,0.)*.8),1.);}`);
 const BLOC=gl.getUniformLocation(SKINP.p,"B");
 const mk=(d,t)=>{const b=gl.createBuffer();gl.bindBuffer(t||gl.ARRAY_BUFFER,b);gl.bufferData(t||gl.ARRAY_BUFFER,d,gl.STATIC_DRAW);return b};
 async function load(id,clips){const src=JSON.parse(document.getElementById(id).textContent),raw=atob(src.data),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
@@ -1731,9 +1759,26 @@ function feminineStand(m,w,t){const I=m.index,sd=clamp(Math.sin(t*.36)*3.2,-1,1)
   for(const[s,side]of[["Left",-1],["Right",1]]){add(s+"Arm",qz(side*7*k));add(s+"ForeArm",qmul(qz(side*6*k),qx(-9*k)));add(s+"Hand",qmul(qz(side*-9*k),qx(-8*k)))}
   return .034*sd*w}
 // move this character's bones to the mixed pose; returns how far to lift the body so the lower foot rests on the ground
-function poseClips(m,list,grounded,fem,stand,t){mixClips(list);const B=m.bones;for(let i=0;i<B.length;i++){const k=m.amap[i];if(k>=0)DQ[i]=qmul([QB[k*4],QB[k*4+1],QB[k*4+2],QB[k*4+3]],m.cinv[i])}
+/* Fitting the arms to this character's own body. The recordings were made for avatars bulkier through the hips and
+   chest than ours, so on our characters their arms swing wide of the body. For each arm, after posing: measure how far
+   out the hand sits compared with this character's hips, and turn the whole arm (upper arm, forearm and hand together)
+   about the shoulder, around the body's forward line, until the hand passes just clear of the thigh. Only the outward
+   spread changes; the forward and back swing, the elbow bend and the timing stay as recorded. A hand that would cut into
+   the hips is moved out the same way. ARMFIT.clear: the gap kept outside the hip joint, as a share of leg length. */
+const ARMFIT={clear:.15,maxIn:.5,maxOut:.12,wrist:.75};
+function armFit(m){const I=m.index;if(I.LeftUpLeg===undefined||I.LeftHand===undefined)return false;const P=i=>[W[i][12],W[i][13],W[i][14]],L=P(I.LeftUpLeg),R=P(I.RightUpLeg);
+  let X=[L[0]-R[0],L[2]-R[2]];const xl=Math.hypot(X[0],X[1])||1;X=[X[0]/xl,X[1]/xl];const half=xl/2,mx=(L[0]+R[0])/2,mz=(L[2]+R[2])/2,F=[-X[1],0,X[0]];let changed=false;
+  for(const[s,sg]of[["Left",1],["Right",-1]]){const S=P(I[s+"Arm"]),Hn=P(I[s+"Hand"]),a=sg*((Hn[0]-S[0])*X[0]+(Hn[2]-S[2])*X[1]),b=S[1]-Hn[1],out=sg*((S[0]-mx)*X[0]+(S[2]-mz)*X[1]),Lh=Math.hypot(a,b);
+    if(Lh<.05||b<.05)continue;const want=half+m.legLen*ARMFIT.clear-out,th=clamp(Math.asin(clamp(want/Lh,-.95,.95))-Math.atan2(a,b),-ARMFIT.maxIn,ARMFIT.maxOut);if(Math.abs(th)<.005)continue;
+    const ax=sg>0?F:F.map(v=>-v),h=th/2,sn=Math.sin(h),q=[ax[0]*sn,ax[1]*sn,ax[2]*sn,Math.cos(h)];for(const part of["Arm","ForeArm","Hand"]){const i=I[s+part];if(i!==undefined)DQ[i]=qmul(q,DQ[i])}changed=true}
+  return changed}
+/* Relaxed wrists: a hand mostly keeps the line of its forearm, as in the character's own rest pose, and takes only a share
+   of the recorded wrist turn. Characters whose hand bones are set differently from the actor's otherwise flare their hands out. */
+function relaxWrists(m){const I=m.index;for(const s of["Left","Right"]){const h=I[s+"Hand"],f=I[s+"ForeArm"];if(h===undefined||f===undefined)continue;const a=DQ[h],b=DQ[f],sg=a[0]*b[0]+a[1]*b[1]+a[2]*b[2]+a[3]*b[3]<0?-1:1,t=ARMFIT.wrist;
+  const q=[a[0]+(b[0]*sg-a[0])*t,a[1]+(b[1]*sg-a[1])*t,a[2]+(b[2]*sg-a[2])*t,a[3]+(b[3]*sg-a[3])*t],l=Math.hypot(...q);DQ[h]=q.map(v=>v/l)}}
+function poseClips(m,list,grounded,fem,stand,t){mixClips(list);const B=m.bones;for(let i=0;i<B.length;i++){const k=m.amap[i];if(k>=0)DQ[i]=qmul([QB[k*4],QB[k*4+1],QB[k*4+2],QB[k*4+3]],m.cinv[i])}if(grounded)relaxWrists(m);
   if(m.armIn){const I=m.index,h=m.armIn*Math.PI/360,s=Math.sin(h),c=Math.cos(h);for(const[n,sg]of[["Left",-1],["Right",1]])for(const part of["Arm","ForeArm","Hand"]){const i=I[n+part];if(i!==undefined)DQ[i]=qmul([0,0,sg*s,c],DQ[i])}}      // her arms hang a little closer to her body than the actor's did on a wider frame
-  solve(m,grounded,0);if(fem>.01||stand>.01){let sway=0;if(fem>.01)sway+=feminine(m,fem);if(stand>.01)sway+=feminineStand(m,stand,t||0);solve(m,grounded,sway)}
+  solve(m,grounded,0);if(grounded&&armFit(m))solve(m,grounded,0);if(fem>.01||stand>.01){let sway=0;if(fem>.01)sway+=feminine(m,fem);if(stand>.01)sway+=feminineStand(m,stand,t||0);solve(m,grounded,sway)}
   if(!grounded)return 0;const I=m.index;return Math.max(0,-Math.min(W[I.LeftFoot][13]-m.footY,W[I.RightFoot][13]-m.footY,W[I.LeftToeBase][13]-m.toeY,W[I.RightToeBase][13]-m.toeY))}      // never below the ground; in a run both feet may be off it
 /* Work out where every bone is for one moment of standing or walking.
    `turns` maps a bone name to rotations about the character's own axes
@@ -1822,7 +1867,7 @@ function draw(m,VP,x,y,z,yaw,state,t,look,lookKey){use(m);let lift;if(ANIM&&m.re
     else if(state.jump>=0&&m.clips.jump&&ANIM.clips[m.clips.jump])lift=poseClips(m,[[m.clips.jump,state.jump,1]],false,0,0,t);       // in the air: the jump recording; the height itself comes from the jump
     else lift=poseClips(m,[[idle,t/ANIM.clips[idle].dur,1-a]].concat(blend(m,state).list.map(([n,w])=>[n,state.p,w*a])),true,0,0,t)}
   else{const g=gaitPose(state.p,state.run,state.amt,t);poseBones(g.turns);lift=g.rise}const model=mul(trans(x,y+lift,z),rotY(yaw+Math.PI)),P=SKINP;
-  gl.enable(gl.CULL_FACE);gl.useProgram(P.p);gl.uniformMatrix4fv(P.u.vp,false,VP);gl.uniformMatrix4fv(P.u.model,false,model);gl.uniform4fv(BLOC,BONES);gl.uniform3fv(P.u.lo,m.lo);gl.uniform1f(P.u.span,m.span);
+  gl.enable(gl.CULL_FACE);gl.useProgram(P.p);gl.uniformMatrix4fv(P.u.vp,false,VP);gl.uniformMatrix4fv(P.u.model,false,model);setLight(P,!(scene==="town"||scene==="border"));gl.uniform4fv(BLOC,BONES);gl.uniform3fv(P.u.lo,m.lo);gl.uniform1f(P.u.span,m.span);
   const A=(loc,buf,size,type,norm,stride)=>{gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,type,norm,stride||0,0)};
   for(const part of m.parts){A(P.a.p,part.p,3,gl.UNSIGNED_SHORT,true);A(P.a.n,part.n,3,gl.BYTE,true,4);A(P.a.uv,part.uv,2,gl.UNSIGNED_SHORT,true);A(P.a.j,part.j,4,gl.UNSIGNED_BYTE,false);A(P.a.w,part.w,4,gl.UNSIGNED_BYTE,true);
     const paint=paintFor(m,part,look,lookKey||"");if(paint)A(P.a.paint,paint,4,gl.UNSIGNED_BYTE,true);else{gl.disableVertexAttribArray(P.a.paint);gl.vertexAttrib4f(P.a.paint,0,0,0,0)}
@@ -1831,7 +1876,7 @@ function draw(m,VP,x,y,z,yaw,state,t,look,lookKey){use(m);let lift;if(ANIM&&m.re
     gl.activeTexture(gl.TEXTURE0);if(part.tex)gl.bindTexture(gl.TEXTURE_2D,part.tex);gl.uniform1i(P.u.t,0);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,part.i);gl.drawElements(gl.TRIANGLES,part.count,gl.UNSIGNED_SHORT,0)}
   for(const a of[P.a.j,P.a.w,P.a.paint,P.a.uv])gl.disableVertexAttribArray(a);
   const h=m.index.Head;return{model,head:mul(model,mul(W[h],m.bones[h].inv))}}
-return{load,draw,init,blend,dbg:(m,list)=>{use(m);poseClips(m,list,true,0);return{W:W.slice(0,m.bones.length).map(w=>Array.from(w)),Q:Array.from(QB.slice(0,ANIM.bones.length*4)),D:DQ.slice(0,m.bones.length),names:ANIM.bones}},cycle:(m,run,back)=>ANIM&&m.rest?1/((1-run)/ANIM.clips[(back&&m.clips.back)||m.clips.walk].dur+run*m.jogRate/ANIM.clips[m.clips.jog].dur):1.06+(.71-1.06)*run}})();
+return{ARMFIT,load,draw,init,blend,dbg:(m,list,raw)=>{use(m);const keep=armFit;if(raw)armFit=()=>false;poseClips(m,list,true,0);armFit=keep;return{W:W.slice(0,m.bones.length).map(w=>Array.from(w)),Q:Array.from(QB.slice(0,ANIM.bones.length*4)),D:DQ.slice(0,m.bones.length),names:ANIM.bones}},cycle:(m,run,back)=>ANIM&&m.rest?1/((1-run)/ANIM.clips[(back&&m.clips.back)||m.clips.walk].dur+run*m.jogRate/ANIM.clips[m.clips.jog].dur):1.06+(.71-1.06)*run}})();
 
 /* ================================== playing ==================================
    A new player begins on foot at the border gate, and cannot reach any town until Violet has
@@ -1910,7 +1955,8 @@ const DOORWAYS={hosp:()=>toHosp(0,false),bank:()=>toBank(),imm:()=>STATES[me.tow
   fed:()=>allowed(ALL_FED)?toGov("federal","fed"):toast(GOV_SPEC.federal().noEntry),villa:()=>allowed(VILLA3)?toGov("villa","villa"):toast(GOV_SPEC.villa().noEntry),
   villa1:()=>allowed(VILLA3)?toGov("villa","villa1"):toast(GOV_SPEC.villa().noEntry),villa2:()=>allowed(VILLA3)?toGov("villa","villa2"):toast(GOV_SPEC.villa().noEntry)};
 let doorCool=0;
-function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.016,dt=Math.min(.05,real);last=t;NOW=t;
+function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.016,dt=Math.min(.05,real);last=t;NOW=t;updateLight();
+  if(scene==="town"&&LIGHT.night>0){const T0=townOf(me.town),L=(T0.map.lamps||[]).map(p=>[p,(p[0]-cam.x)**2+(p[2]-cam.z)**2]).sort((a,b)=>a[1]-b[1]).slice(0,12);LIGHT.lamps.fill(0);L.forEach(([p],i)=>LIGHT.lamps.set([p[0],p[1],p[2],1],i*4))}
   /* ---- moving on foot ----
      W and S move along the way the camera faces (flattened onto the ground), A and D to its side; together they move
      diagonally, never faster than straight. The mouse turns the camera, not the body. The body turns smoothly: towards
@@ -1962,10 +2008,10 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   const w=cv.clientWidth,h=cv.clientHeight,dpr=Math.min(window.devicePixelRatio||1,quality);if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
   const fly=scene==="town",indoor=scene==="bank"||scene==="imm"||scene==="gov"||scene==="hosp",fovNow=fly?(w>h?.85:1.05):(w>h?1.05:1.25),PMs=PLAYERS[me.gender]||PLAYERS.Female;
   // the sun's picture first: the town near you, the car, and your own character all cast shadows
-  if(scene==="town"&&SHADOW.ready&&SHADOW.on){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE)lists.push([CARSCENE.bufs,mul(trans(T.car.x,0,T.car.z),rotY(T.car.yaw+Math.PI))]);
+  if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE)lists.push([CARSCENE.bufs,mul(trans(T.car.x,0,T.car.z),rotY(T.car.yaw+Math.PI))]);
     shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing){gl.colorMask(true,true,true,true);WALKER.draw(PMs,lvp,cam.x,jump.y,cam.z,cam.yaw,gait,t,null,"");gl.colorMask(false,false,false,false)}})}
   gl.viewport(0,0,cv.width,cv.height);const VP=mul(persp(fovNow,w/h,fly?.25:.08,800),look(eye,to,[0,1,0]));
-  gl.clearColor(.74,.86,.95,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);if(!indoor)drawSky(eye,to,fovNow,w/h);
+  gl.clearColor(LIGHT.fog[0],LIGHT.fog[1],LIGHT.fog[2],1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);if(!indoor)drawSky(eye,to,fovNow,w/h);
   if(T)GROUND.zones=T.map.lawnZones||[];
   const parts=scene==="town"?townParts(T):scene==="border"?[BORDER]:scene==="bank"?[bankOf(me.town)].concat(BANK_DOORS.map(d=>bankCan(d.key)?d.open:d.shut)):scene==="hosp"?[HV.scene].concat(HV.doors.map(d=>allowed(d.who)?d.open:d.shut)):scene==="gov"?[GV.scene].concat(GV.doors.map(d=>allowed(d.who)?d.open:d.shut)):[IMM_IN].concat(IMM_DOORS.map(d=>immCan(d.key)?d.open:d.shut));
   if(scene==="imm"&&me.cert&&me.role==="citizen"&&!me.entered)parts.push(GUIDE);
@@ -2092,7 +2138,7 @@ function aerial(T){if(T.aerial)return T.aerial;const W=1500,H=900;let x0=1e9,x1=
   for(const p of T.map.places){x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);z0=Math.min(z0,p.z);z1=Math.max(z1,p.z)}
   GROUND.zones=T.map.lawnZones||[];const cx=(x0+x1)/2,cz=(z0+z1)/2,span=Math.max(x1-x0,(z1-z0)*1.55)+90,eye=[cx,span*.6,cz+span*.56],VP=mul(persp(.7,W/H,2,4000),look(eye,[cx,0,cz+span*.02],[0,1,0]));
   cv.width=W;cv.height=H;gl.viewport(0,0,W,H);gl.clearColor(.62,.78,.52,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.disable(gl.BLEND);
-  const S=T.scene,all={bufs:S.bufs.concat(S.cellBufs),clear:S.clear.concat(S.cellClear),sg:S.sg,fogFar:9000};drawScene(all,VP,eye,false);drawTrees(T.trees,VP,eye,null,9000,false,0);drawSceneClear(all,VP,eye,0);
+  const S=T.scene,all={bufs:S.bufs.concat(S.cellBufs),clear:S.clear.concat(S.cellClear),sg:S.sg,fogFar:9000};LIGHT.force=DAYLIGHT;drawScene(all,VP,eye,false);drawTrees(T.trees,VP,eye,null,9000,false,0);drawSceneClear(all,VP,eye,0);LIGHT.force=null;
   const proj=(x,z,y)=>{const v=[x,y||0,z],c=[0,1,3].map(r=>VP[r]*v[0]+VP[4+r]*v[1]+VP[8+r]*v[2]+VP[12+r]);return[(c[0]/c[2]*.5+.5)*100,(1-(c[1]/c[2]*.5+.5))*100]};
   return T.aerial={url:cv.toDataURL("image/jpeg",.88),proj,ratio:W/H}}
 let mapGroup="All",mapZoom=1;
@@ -2186,7 +2232,7 @@ function ui(){guide();const el=document.getElementById("picks");el.innerHTML="";
   add(view3?"View: behind me":"View: my eyes",()=>{view3=!view3;ui()});add(testOpen?"Close testing":"Testing",()=>{testOpen=!testOpen;ui()},testOpen);if(typeof AUTH!=="undefined"&&AUTH.user)add("Log out",logOut);
   if(testOpen){const sel=document.createElement("select");sel.className="who";sel.setAttribute("aria-label","Who you are");for(const[k,label]of ROLES){const o=document.createElement("option");o.value=k;o.textContent="You are: "+label;if(k===me.role)o.selected=true;sel.appendChild(o)}
     sel.addEventListener("change",()=>{const next=sel.value;if(next==="newcomer")return toBorder(true);const was=me.role;me.role=next;if(!me.cert)me.cert=Object.assign({},SAMPLE);if(was==="newcomer"&&scene!=="town"){pickDefault();choosing=false;document.getElementById("choose").hidden=true}ui()});el.appendChild(sel);
-    add(SHADOW.on?"Shadows: on":"Shadows: off",()=>{SHADOW.on=!SHADOW.on;ui()},SHADOW.on);add("Ground: "+["all lawns","mixed","all red earth"][GROUND.mode],()=>{GROUND.mode=(GROUND.mode+1)%3;ui()});
+    add(SHADOW.on?"Shadows: on":"Shadows: off",()=>{SHADOW.on=!SHADOW.on;ui()},SHADOW.on);{const T=[null,7,12,17.5,18.6,19.2,22],k=T.indexOf(TIMEOVR),f=h=>String(Math.floor(h)).padStart(2,"0")+":"+String(Math.round(h%1*60)).padStart(2,"0");add("Time: "+(TIMEOVR===null?"real ("+f(watHours())+")":f(TIMEOVR)),()=>{TIMEOVR=T[(k+1)%T.length];lightAt=-1;ui()})}add("Ground: "+["all lawns","mixed","all red earth"][GROUND.mode],()=>{GROUND.mode=(GROUND.mode+1)%3;ui()});
     if(scene==="town"){add(flying?"Flying: on":"Flying: off",()=>{flying=!flying;if(!flying)cam.y=1.7;ui()},flying);if(flying)add("See from above",()=>Object.assign(cam,{x:cam.x,y:380,z:cam.z+10,pitch:-1.54}));
       for(const st of Object.keys(STATES))if(st!==me.town)add("Go to "+st,()=>{clearRoute();toTown(st,"imm",st,9)})}
     if(scene==="bank")add("Leave the bank",()=>toTown(me.town,"bank"));if(scene==="gov")add("Leave the building",()=>toTown(me.town,govSpot));if(scene==="hosp")add("Leave the hospital",()=>toTown(me.town,"hosp"));
@@ -2282,7 +2328,7 @@ function startAuth(){const s=stored();if(s&&s.refresh){AUTH.refresh=s.refresh;ch
 
 loadGround();loadTrees();loadProps();ui();startAuth();requestAnimationFrame(frame);
 const FCLIPS={idle:"f_idle",walk:"f_walk",jog:"f_jog",back:"f_back",jback:"f_jback",sl:"f_strafe_l",sr:"f_strafe_r",jsl:"f_jstrafe_l",jsr:"f_jstrafe_r",jump:"f_jump"};
-Promise.resolve().then(()=>{WALKER.init();return Promise.all([WALKER.load("girl",FCLIPS),WALKER.load("henry",{idle:"m_idle",walk:"m_walk",jog:"m_jog",back:"m_back",sl:"m_strafe_l",sr:"m_strafe_r",jsl:"m_jstrafe_l",jsr:"m_jstrafe_r",jump:"m_jump"}),WALKER.load("c_party2",FCLIPS),WALKER.load("c_club",FCLIPS)])}).then(([w,h,p2,club])=>{w.armIn=8;CAST.violet=w;
+Promise.resolve().then(()=>{WALKER.init();return Promise.all([WALKER.load("girl",FCLIPS),WALKER.load("henry",{idle:"m_idle",walk:"m_walk",jog:"m_jog",back:"m_back",sl:"m_strafe_l",sr:"m_strafe_r",jsl:"m_jstrafe_l",jsr:"m_jstrafe_r",jump:"m_jump"}),WALKER.load("c_party2",FCLIPS),WALKER.load("c_club",FCLIPS)])}).then(([w,h,p2,club])=>{CAST.violet=w;
   // everyone a player can choose, by gender. The first in each list is the default.
   ROSTER.Male=[{key:"henry",name:"Henry",m:h}];ROSTER.Female=[{key:"party",name:"Zoey",m:p2},{key:"club",name:"Tracy",m:club}];PLAYERS.Male=h;PLAYERS.Female=p2;
   // each one's photograph (for the certificate) and full-length picture (for choosing), framed to their own height
