@@ -218,7 +218,7 @@ const chunks=[],chunksT=[];let cur=null,M=ident(),BAKE=null,CLEAR_GLASS=false,CE
 /* While a town is being built (CELL > 0), each surface is filed under the square of ground it stands
    on. Very large surfaces (the ground, a river) are kept apart and always drawn. */
 const TREES={data:null,inst:[],tex:[]};
-function addTree(sp,x,z,H){const w=wpt(x,z),a=(((w[0]*12.9898+w[1]*78.233)%6.2832)+6.2832)%6.2832;TREES.inst.push([sp,w[0],w[1],H,a])}
+function addTree(sp,x,z,H){const w=wpt(x,z),a=(((w[0]*12.9898+w[1]*78.233)%6.2832)+6.2832)%6.2832;TREES.inst.push([sp,w[0],w[1],H,a]);const t=sp==="shrub"?.45:.28;BLOCKS.push([w[0]-t,w[1]-t,w[0]+t,w[1]+t])}
 const K={glass:1/255,tile:2/255,road:3/255,glow:4/255,wood:5/255,fabric:6/255,gold:7/255,holo:9/255,grass:10/255,open:11/255};
 // which list a surface goes in: see-through things (the entrance marker, and glass indoors) are kept apart
 function target(kind,need,wx,wz,span){const k=Math.round((kind||0)*255),clear=k===9||(k===1&&CLEAR_GLASS);
@@ -443,8 +443,14 @@ function both(a,b,c,d,col){quad(a,b,c,d,col);quad(d,c,b,a,col)}
 function palm(x,z,h){if(TREES.data&&CELL)return addTree("palm",x,z,(h||5)*1.1);const H=h||5,g=hex("#2f9148"),g2=hex("#1f7437");cyl(x,0,z,.22,H,"#7a5a3c",5,.13);
   for(let k=0;k<6;k++){at(x,z,k/6*6.2832+(H*1.7),()=>{const lift=k%2?.75:.35;
     both([0,H+.1,-.2],[1.6,H+lift,-.5],[1.6,H+lift,.5],[0,H+.1,.2],g);both([1.6,H+lift,-.5],[3.3,H+lift-1.3,-.12],[3.3,H+lift-1.3,.12],[1.6,H+lift,.5],g2)})}}
-function lamp(x,z,turn){at(x,z,turn,()=>{if(MAPD&&MAPD.lamps&&CELL){const w=wpt(1.35,0);MAPD.lamps.push([w[0],5.6,w[1]])}cyl(0,0,0,.09,6,"#3a4048",6,.06);box(.7,5.95,0,1.5,.08,.1,"#3a4048");box(1.35,5.82,0,.5,.12,.22,"#f3efd8")})}
-function flag(x,z,h){cyl(x,0,z,.07,h,"#d9dde2",6,.05);box(x+.75,h-1.05,z,1.5,.33,.03,"#00a86b");box(x+.75,h-1.38,z,1.5,.33,.03,"#ffffff");box(x+.75,h-.72,z,1.5,.33,.03,"#f5c542")}
+/* Move a point off any road or roundabout onto the ground beside it, clear of the pavement edge by m. */
+function offRoad(x,z,m){for(let pass=0;pass<4;pass++){let moved=false;
+    for(const r of MAPD.roads||[]){const vx=r.x1-r.x0,vz=r.z1-r.z0,L2=vx*vx+vz*vz||1,s=((x-r.x0)*vx+(z-r.z0)*vz)/L2;if(s<=0||s>=1)continue;const px=r.x0+vx*s,pz=r.z0+vz*s,dx=x-px,dz=z-pz,dd=Math.hypot(dx,dz),need=r.w/2+.6+m;
+      if(dd<need){const L=Math.sqrt(L2),nx=dd>1e-3?dx/dd:-vz/L,nz=dd>1e-3?dz/dd:vx/L;x=px+nx*need;z=pz+nz*need;moved=true}}
+    for(const c of MAPD.rounds||[]){const dx=x-c.x,dz=z-c.z,dd=Math.hypot(dx,dz)||1;if(dd<c.r+m+.5&&dd>c.r*.6){x=c.x+dx/dd*(c.r+m+.5);z=c.z+dz/dd*(c.r+m+.5);moved=true}}
+    if(!moved)break}return[x,z]}
+function lamp(x,z,turn){at(x,z,turn,()=>{solidBox(0,0,.32,.32);if(MAPD&&MAPD.lamps&&CELL){const w=wpt(1.35,0);MAPD.lamps.push([w[0],5.6,w[1]])}cyl(0,0,0,.09,6,"#3a4048",6,.06);box(.7,5.95,0,1.5,.08,.1,"#3a4048");box(1.35,5.82,0,.5,.12,.22,"#f3efd8")})}
+function flag(x,z,h){solidBox(x,z,.3,.3);cyl(x,0,z,.07,h,"#d9dde2",6,.05);box(x+.75,h-1.05,z,1.5,.33,.03,"#00a86b");box(x+.75,h-1.38,z,1.5,.33,.03,"#ffffff");box(x+.75,h-.72,z,1.5,.33,.03,"#f5c542")}
 function steps(w,n,z0,color){for(let k=0;k<n;k++)box(0,0,z0+(n-k)*.34-.17,w+ (n-k)*.5,(k+1)*.17,.34,color||"#cfcabd")}
 
 /* An everyday building: painted block walls with a darker band at the bottom, framed windows,
@@ -490,7 +496,7 @@ function modern(o){const w=o.w,d=o.d,fl=o.floors||3,fh=3.6,h=fl*fh,base=.6;
   for(const s of[-1,1])box(s*(ew/2+3),0,d/2+4.5,5,.5,2.2,"#3f8f4d")}                      // clipped hedges
 
 /* ================================ what to show ================================ */
-const BUILDINGS=[];let MAPD={roads:[],rounds:[],water:[],places:[],lamps:[]},BLOCKS=[];
+const BUILDINGS=[];let MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[]},BLOCKS=[];
 const KINDS=[[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Border/,"Transport","🚧"],[/Port\b/,"Transport","⚓"],[/Transport/,"Transport","🚌"],
   [/Federal/,"Government","🏛"],[/Villa\b/,"Government","🏰"],[/State Government/,"Government","🏛"],[/Court/,"Government","⚖"],[/Police/,"Government","🛡"],[/Immigration/,"Government","🛂"],[/Agricultur|Resources|Food/,"Government","🌿"],
   [/Bank/,"Services","🏦"],[/Hospital/,"Services","✚"],[/University/,"Services","🎓"],[/Utilities/,"Services","⚡"],[/Housing/,"Services","🏠"],[/Hotel|Guest|Suites|Hyatti/,"Services","🛏"]];
@@ -917,20 +923,31 @@ const PLANS={};
    south, with the airport and the border gate; Quarters at Cable Point by the river. */
 /* ---- the National Treasury: a classical central bank. Stone podium and steps, six columns carrying a pediment,
    a dome behind, tall windows, bronze doors, flags. Front faces +z. ---- */
-function treasuryBuilding(){const ST="#e9e3d4",ST2="#d8d0bd",BASE="#bdb6a6",BR="#7a5a26",GL="#2f4a66";
-  box(0,0,0,32,.06,27,"#cfc7b3",K.tile);                                                           // forecourt paving
-  box(0,0,-.5,28,.85,20,BASE);steps(20,5,10,ST2);                                                   // podium and front steps
-  box(0,.85,-2,24,9.2,14,ST);box(0,10.05,-2,24.6,.5,14.6,ST2);box(0,10.55,-2,23.4,1.1,13.4,ST);         // the main block, cornice and attic
-  for(const s of[-1,1])for(let k=0;k<3;k++){for(const y of[1.9,6])box(s*12.03,.85+y,-7+k*4.6,.06,3.2,1.5,GL,K.glass);for(const y of[1.75,5.85])box(s*12.05,.85+y,-7+k*4.6,.1,.15,1.8,ST2)}
-  for(const x of[-7.2,-3.6,3.6,7.2])for(const y of[1.9,6])box(x,.85+y,5.03,1.5,3.2,.06,GL,K.glass);
-  box(0,.85,5.04,3.2,4.6,.1,"#3a2a12");box(-.8,.95,5.1,1.5,4.3,.06,BR,K.gold);box(.8,.95,5.1,1.5,4.3,.06,BR,K.gold);box(0,5.55,5.1,3.6,.3,.12,ST2);   // bronze doors
-  for(let k=0;k<6;k++){const x=-9+k*3.6;box(x,.85,7.6,1.3,.35,1.3,ST2);cyl(x,1.2,7.6,.48,8,ST,16,.42);box(x,9.2,7.6,1.3,.35,1.3,ST2)}   // six columns
-  box(0,9.55,7,21,.9,5.4,ST);plate(0,9.62,9.73,13,.62,"NATIONAL TREASURY","#e9e3d4","#5a4520");
-  at(0,7,Math.PI/2,()=>gable(0,10.45,0,5.4,2.4,20.6,ST,.15));                                        // the pediment
-  discZ(0,11.35,9.76,.7,"#c9a227",K.gold,24);
-  for(let k=0;k<5;k++)cyl(0,11.65+k*.55,-3,4.2*Math.cos(k*.33),.6,k<4?"#8fb3a3":"#c9a227",24);cyl(0,14.4,-3,.18,1.2,"#c9a227",8);   // the dome, copper green with a gold top
-  for(const s of[-1,1]){flag(s*13.2,11.5,9.5);box(s*4.2,0,13,1.1,1.6,1.1,ST2);box(s*4.2,1.6,13,1.3,.2,1.3,ST)}
-  solidBox(0,-.5,28,20)}
+function treasuryBuilding(){const ST="#e9e3d4",ST2="#d8d0bd",BASE="#bdb6a6",BR="#7a5a26",GL="#2f4a66",IRON="#1f2937",GOLD="#c9a227";
+  box(0,0,0,32,.06,27,"#cfc7b3",K.tile);box(0,.065,11.9,4.2,.02,3.2,"#e7e0cf",K.tile);                                           // the forecourt and a path from the gate to the steps
+  // the podium: you can walk on it; its sides are walled so the steps are the way up
+  box(0,0,-.5,28,.85,20,BASE);box(0,.85,-.5,28.2,.08,20.2,ST2);steps(20,5,9.5,ST2);for(const s of[-1,1])box(s*10.8,.85,10.5,1.2,.55,2.2,ST);
+  // the main block, cornice and attic; tall windows on both floors
+  box(0,.93,-2,24,9.1,14,ST);box(0,10.03,-2,24.6,.5,14.6,ST2);box(0,10.53,-2,23.4,1.1,13.4,ST);
+  for(const s of[-1,1])for(let k=0;k<3;k++){for(const y of[1.9,6])box(s*12.03,.93+y,-7+k*4.6,.06,3.2,1.5,GL,K.glass);for(const y of[1.75,5.85])box(s*12.05,.93+y,-7+k*4.6,.1,.15,1.8,ST2)}
+  for(const x of[-7.2,-3.6,3.6,7.2])for(const y of[1.9,6])box(x,.93+y,5.03,1.5,3.2,.06,GL,K.glass);
+  // the bronze doors, with a lit name over them
+  box(0,.93,5.04,3.6,5,.1,"#2a1d0b");box(-.88,1,5.1,1.68,4.5,.06,BR,K.gold);box(.88,1,5.1,1.68,4.5,.06,BR,K.gold);for(const s of[-1,1])box(s*.18,2.6,5.16,.08,.5,.06,GOLD,K.gold);
+  box(0,6,5.1,4.6,.35,.14,ST2);plate(0,6.45,5.12,4.4,.42,"DELTA CENTRAL BANK","#0b1a36","#f5d76e");
+  // six columns, the portico roof, the pediment with the seal, the name on the frieze
+  for(let k=0;k<6;k++){const x=-9+k*3.6;box(x,.93,7.6,1.3,.35,1.3,ST2);cyl(x,1.28,7.6,.48,7.95,ST,16,.42);box(x,9.23,7.6,1.3,.35,1.3,ST2);solidBox(x,7.6,.9,.9)}
+  box(0,9.58,7,21,.9,5.4,ST);plate(0,9.65,9.73,13,.62,"NATIONAL TREASURY","#e9e3d4","#5a4520");
+  at(0,7,Math.PI/2,()=>gable(0,10.48,0,5.4,2.4,20.6,ST,.15));discZ(0,11.38,9.76,.7,GOLD,K.gold,24);
+  for(let k=0;k<5;k++)cyl(0,11.65+k*.55,-3,4.2*Math.cos(k*.33),.6,k<4?"#8fb3a3":GOLD,24);cyl(0,14.4,-3,.18,1.2,GOLD,8);    // the dome
+  for(const s of[-1,1]){flag(s*13.2,11.5,9.5);for(const z of[-6,0,6])box(s*14.6,0,z,.1,.9,6,IRON)}
+  // the gateway on DBS Road: stone pillars with lamps, iron gates folded open, railings, and the sign wall
+  for(const s of[-1,1]){box(s*3.4,0,13.2,1.1,3.2,1.1,ST);box(s*3.4,3.2,13.2,1.35,.25,1.35,ST2);cyl(s*3.4,3.45,13.2,.22,.5,"#fffbe8",10,.18,K.glow);solidBox(s*3.4,13.2,1.1,1.1);
+    box(s*3.9,0,12.1,.06,2.2,2.1,IRON);for(let k=0;k<6;k++)box(s*3.9,.1,11.2+k*.36,.05,2.1,.05,IRON);
+    for(let k=0;k<6;k++)box(s*(5.3+k*1.75),0,13.3,.06,1.6,.06,IRON);box(s*(5.3+4.4),1.55,13.3,9.5,.08,.08,IRON);box(s*(5.3+4.4),.3,13.3,9.5,.06,.06,IRON);solidBox(s*9.7,13.3,9.6,.2)}
+  box(-9.6,0,12.4,6,1.3,.5,ST);plate(-9.6,.75,12.66,5.6,.4,"NATIONAL TREASURY",ST,"#5a4520");plate(-9.6,.3,12.66,5.6,.3,"DELTA CENTRAL BANK",ST,"#7a5a26");solidBox(-9.6,12.4,6,.5);
+  // what stops you: the main block, and the podium's walled sides (the steps are the way up)
+  solidBox(0,-2,24,14);for(const s of[-1,1]){solidBox(s*13.85,-.5,.3,20);solidBox(s*12.3,9.35,3.1,.3)}solidBox(0,-10.35,28,.3);
+  entrance(0,.93,5.25,3.2,4.4,0,true)}
 
 PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2,offS=d=>SW/2+4.2+d/2,RIV=246;MODERN=true;
   MAPD.lawnZones=[[-155,-235,205,-12],[-45,-45,45,45],[10,-14,240,40]];        // lawns: the government district and GRA, the centre, and Nnebisi Road to the bridgeMAPD.land="#bcdba4";
@@ -978,7 +995,9 @@ PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2
   [24,40,56].forEach(z=>home("singleroom",164+sd("singleroom"),z,-H));[199,215,231].forEach(x=>home("onebed",x,80-sd("onebed"),0));[176,194,212].forEach(x=>home("selfcon",x,80+sd("selfcon"),Math.PI));
   view("Quarters (Cable Point)",204,24,128,0,-.45);view("Niger Bridge",214,7,26,-H-.35,-.02);view("Border gate",-206,7,-66,H-.55,.05);
   /* ---- street life: a market, shops, a church, bus stops, parked cars, benches, bins, billboards ---- */
-  if(typeof PROPS_ON!=="undefined"&&PROPS_ON){const has=id=>!!document.getElementById(id),put=(id,x,z,turn,w,d)=>{if(!has(id))return;at(x,z,turn,()=>{placeModel(id);if(w)solidBox(0,0,w,d)})};
+  if(typeof PROPS_ON!=="undefined"&&PROPS_ON){const has=id=>!!document.getElementById(id),onRoad=(x,z,m)=>MAPD.roads.some(r=>{const vx=r.x1-r.x0,vz=r.z1-r.z0,L2=vx*vx+vz*vz||1,s=Math.max(0,Math.min(1,((x-r.x0)*vx+(z-r.z0)*vz)/L2));return Math.hypot(x-r.x0-vx*s,z-r.z0-vz*s)<r.w/2+m})||(MAPD.rounds||[]).some(c=>Math.hypot(x-c.x,z-c.z)<c.r+m),
+    SOLID={p_bench:[1.8,.7],p_waste_bin:[.7,.4],p_signboard:[.6,.55],p_billboard:[5,1.2],p_traffic_light:[.8,.6],p_bus_stop:[3.6,1.6],p_market_stall:[2.4,2.9]},
+    put=(id,x,z,turn,w,d)=>{if(!has(id))return;const s=SOLID[id]||[w||.6,d||.6];w=w||s[0];d=d||s[1];[x,z]=offRoad(x,z,Math.max(w,d)/2+.35);at(x,z,turn,()=>{placeModel(id);solidBox(0,0,w,d)})};
     // the market: between the hospital and DLA Road, beside Township and Cable Point
     const mx=137,mz=66;box(mx,.06,mz,40,.06,36,"#d9dcdd",K.tile);yardBox(mx,mz,40,36);mark("Asaba Market",mx,mz+20,"#b45309");
     for(let r=0;r<3;r++)for(let c=0;c<5;c++)put("p_market_stall",mx-12+c*6,mz-9+r*8,Math.PI,2.4,2.9);
@@ -992,14 +1011,16 @@ PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2
     // bus stops on the main roads, each with a bin beside it
     for(const[x,z,turn]of[[80,-7.6,0],[70,7.6,Math.PI],[-7.6,60,Math.PI/2],[7.6,-80,-Math.PI/2],[-60,-7.6,0],[150,90.9,0]]){put("p_bus_stop",x,z,turn,3.6,1.6);put("p_waste_bin",x+Math.cos(turn)*2.6,z-Math.sin(turn)*2.6,turn,.7,.4)}
     // benches and bins along Nnebisi Road and in the Government Gardens
-    for(let x=30;x<=230;x+=40){put("p_bench",x+12,-7.9,0);put("p_bench",x+32,7.9,Math.PI);put("p_waste_bin",x+16,-7.9,0)}
-    for(let k=0;k<4;k++){const a=k*Math.PI/2+.4;put("p_bench",Math.sin(a)*11.5,-136+Math.cos(a)*11.5,a+Math.PI)}
+    for(let x=30;x<=190;x+=40){put("p_bench",x+12,-7.9,0);put("p_bench",x+32,7.9,Math.PI);put("p_waste_bin",x+16,-7.9,0)}
+    for(let k=0;k<4;k++){const a=k*Math.PI/2+.4;put("p_bench",Math.sin(a)*7.4,-136+Math.cos(a)*7.4,a+Math.PI)}
     // traffic lights where Nnebisi Road meets Dennis Osadebay Way, and where Summit Road meets DLA Road
     for(const[cx,cz]of[[164,0],[0,97]])for(const[sx,sz,t]of[[-1,-1,0],[1,-1,-Math.PI/2],[1,1,Math.PI],[-1,1,Math.PI/2]])put("p_traffic_light",cx+sx*9.5,cz+sz*9.5,t,.8,.6);
     // billboards facing traffic on the expressway and on Nnebisi Road towards the bridge
     put("p_billboard",-190,-48,Math.PI*.82,5,1.2);put("p_billboard",-140,108,Math.PI*1.15,5,1.2);put("p_billboard",205,-12,-Math.PI/2,5,1.2)}
   /* ---- the National Treasury, on DBS Road between Immigration and Cambridge University, facing the road ---- */
-  {const tx=76.5,tz=-83;at(tx,tz,Math.PI,()=>treasuryBuilding());yardBox(tx,tz,32,27);SP.treasury=doorAt(tx,tz,Math.PI,12.1);mark("National Treasury",tx,tz-15,"#b45309")}
+  {const tx=76.5,tz=-83;at(tx,tz,Math.PI,()=>treasuryBuilding());yardBox(tx,tz,32,27);SP.treasury=doorAt(tx,tz,Math.PI,5.4);for(let i=TREES.inst.length-1;i>=0;i--){const t=TREES.inst[i];if(Math.abs(t[1]-tx)<8&&t[2]<tz-12&&t[2]>tz-24)TREES.inst.splice(i,1)}for(let i=BLOCKS.length-1;i>=0;i--){const b=BLOCKS[i];if(b[2]-b[0]<1.2&&Math.abs((b[0]+b[2])/2-tx)<8&&(b[1]+b[3])/2<tz-12&&(b[1]+b[3])/2>tz-24)BLOCKS.splice(i,1)}
+   mark("National Treasury",tx,tz-15,"#b45309");
+   MAPD.raised.push({x0:tx-14,x1:tx+14,z0:tz-11.2,z1:tz+10.5,h:.93,rz0:tz-11.2,rz1:tz-9.5})}       // the podium is raised .93 m; its steps rise from the forecourt (world -z is the front here)
   // trees, shrubs and flower beds on all the open ground between the plots
   plantOpenGround(-236,-196,RIV-12,176,130);MODERN=false};
 
@@ -1102,7 +1123,7 @@ function townSpecs(st,C){const G="#3f86b3";if(C.capital)return{
     util:{name:C.util,short:"Utilities",w:16,d:9,floors:1,wall:"#f3ecc8",band:"#a67a05",zinc:ZINC.silver,roof:"gable",yardW:32,yardD:26},
     agri:{name:C.agri,short:"Agriculture",w:16,d:9,floors:1,wall:"#e3efd2",band:"#476f12",zinc:ZINC.green,roof:"hip",yardW:30,yardD:24}}}
 // build one state's town. Returns where its doors are, so the game knows where people go in and come out.
-function buildTown(st){const C=STATES[st],SP={};BUILDINGS.length=0;MAPD={roads:[],rounds:[],water:[],places:[],lamps:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
+function buildTown(st){const C=STATES[st],SP={};BUILDINGS.length=0;MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
   const R0=9,R1=17,W=9,LEN=110,start=R1-.6;roundabout(R0,R1);
   for(let k=0;k<4;k++)road(Math.sin(k*Math.PI/2)*(start+LEN/2),-Math.cos(k*Math.PI/2)*(start+LEN/2),W,LEN,-k*Math.PI/2);
   const off=d=>W/2+4.2+d/2;                                    // how far a plot's centre sits from the middle of its road
@@ -1970,7 +1991,7 @@ return{ARMFIT,load,draw,init,blend,dbg:(m,list,raw)=>{use(m);const keep=armFit;i
    A new player begins on foot at the border gate, and cannot reach any town until Violet has
    issued a birth certificate. They then arrive in their home state. In a town you fly; inside
    a building you are on foot. Towns and interiors are built the first time someone goes there. */
-const ROLES=[["newcomer","a new arrival (no certificate)"],["citizen","a citizen"],
+const ROLES=[["newcomer","a new arrival (no certificate)"],["citizen","a citizen"],["admin","the Chief Admin (access to everything)"],
   ["teller","a bank teller"],["manager","the Bank Manager"],["director","the Bank Director"],["visitor","a visitor for the Bank Director"],
   ["officer","an immigration officer"],["deputy","the Deputy Comptroller-General"],["cg","the Comptroller-General"],
   ["governor","the Governor"],["ssg","the Secretary to the State Government"],["council","a State Council member"],["govvisitor","a Government Visitor"],
@@ -1978,6 +1999,9 @@ const ROLES=[["newcomer","a new arrival (no certificate)"],["citizen","a citizen
   ["md","the Medical Director"],["surgeon","a Surgeon"],["doctor","a Doctor"],["nurse","a Nurse"],["pharmacist","a Pharmacist"],["labsci","a Laboratory Scientist"],["dentist","a Dentist"],["patsvc","Patient Services Staff"],
   ["outpatient","a citizen: Outpatient"],["inpatient","a citizen: Hospitalized"],["dentalpt","a citizen: Dental patient"],["insurgery","a citizen: In surgery"]];
 const cam={x:0,y:9,z:46,yaw:0,pitch:-.08},me={x:0,y:0,z:50,yaw:0,pitch:.03,role:"newcomer",cert:null,inside:false,entered:false,gender:"",outfit:"",town:"Asaba"},input={x:0,y:0,run:false},keys={};
+let TGY=0;
+// the height of the ground in town: raised platforms and their steps
+function townGroundAt(T,x,z){for(const r of(T.map.raised||[]))if(x>r.x0&&x<r.x1&&z>r.z0&&z<r.z1){if(z<r.rz1)return r.h*Math.max(0,Math.min(1,(z-r.rz0)/(r.rz1-r.rz0)));return r.h}return 0}
 let view3=true,driving=false,CARSCENE=null,lowFor=0,treeLow=0,TREEVIS=null,dtNow=.016,SNAPCAM=true;
 const runHeld=()=>!!(keys.shift||input.run);
 function doJump(){if(jump.t<0&&!driving&&!flying&&!busy&&!talking&&!choosing&&!mapOpen){jump.t=0;jump.v=4.2;jump.y=.001}}
@@ -2010,7 +2034,7 @@ const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400)}
 function fadeTo(text,change){if(busy)return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
 const stand=(s,o)=>{scene=s;me.inside=s==="imm";Object.assign(me,{y:0,pitch:.03},o||{});SNAPCAM=true};
-const allowed=who=>!who||who.includes(me.role);
+const allowed=who=>!who||me.role==="admin"||who.includes(me.role);       // the Chief Admin may enter and use everything
 const toBorder=fresh=>fadeTo("The border gate",()=>{if(fresh){me.role="newcomer";me.cert=null;me.entered=false;form.name=form.dob=form.gender=form.state="";closeTalk();stand("border",{x:0,z:50,yaw:0});chooser()}else stand("border",{x:0,z:14.4,yaw:Math.PI})});
 const toImm=fromCity=>fadeTo("Delta City Immigration Authority",()=>stand("imm",fromCity?{x:-13.4,z:4.2,yaw:-Math.PI/2}:{x:0,z:9.6,yaw:0}));
 const toBank=()=>fadeTo(STATES[me.town].bank+": banking hall",()=>{bankOf(me.town);stand("bank",{x:0,z:8.4,yaw:0})});
@@ -2019,7 +2043,7 @@ let HV=null,HFLOOR_N=0;
 const toHosp=(n,fromLift)=>fadeTo(STATES[me.town].hosp+": "+HFLOORS.find(f=>f.n===n).name,()=>{HV=hospOf(n,STATES[me.town].hosp);HFLOOR_N=n;const L=HV.F.lift;stand("hosp",fromLift?{x:L.x,z:L.z+1.4,yaw:Math.PI}:{x:0,z:7.4,yaw:0})});
 const toGov=(kind,spot)=>fadeTo(GOV_SPEC[kind](me.town).title,()=>{GV=govOf(kind,me.town);govSpot=spot;stand("gov",{x:0,z:G_LD-1.6,yaw:0})});
 // arrive in a town, standing outside one of its doors and facing away from it
-const toTown=(st,spot,text,dist,pos)=>fadeTo(text||st,()=>{me.town=st;driving=false;const T=townOf(st),d=T.spots[spot]||T.spots.imm;scene="town";me.inside=false;me.entered=true;Object.assign(cam,pos?{x:pos.x,y:1.7,z:pos.z,yaw:pos.yaw||0,pitch:0}:{x:d.x+d.fx*(dist||5),y:1.7,z:d.z+d.fz*(dist||5),yaw:Math.atan2(-d.fx,-d.fz),pitch:0});SNAPCAM=true;if(!T.car)parkCar(T)});
+const toTown=(st,spot,text,dist,pos)=>fadeTo(text||st,()=>{me.town=st;driving=false;const T=townOf(st),d=T.spots[spot]||T.spots.imm;TGY=0;scene="town";me.inside=false;me.entered=true;Object.assign(cam,pos?{x:pos.x,y:1.7,z:pos.z,yaw:pos.yaw||0,pitch:0}:{x:d.x+d.fx*(dist||5),y:1.7,z:d.z+d.fz*(dist||5),yaw:Math.atan2(-d.fx,-d.fz),pitch:0});SNAPCAM=true;if(!T.car)parkCar(T)});
 // one car, parked at the kerb of the road nearest to where you arrive
 function parkCar(T){let best=null;for(const r of T.map.roads){if(r.bridge)continue;const vx=r.x1-r.x0,vz=r.z1-r.z0,L=Math.hypot(vx,vz),t=clamp(((cam.x-r.x0)*vx+(cam.z-r.z0)*vz)/(L*L),.08,.92),x=r.x0+vx*t,z=r.z0+vz*t,d=Math.hypot(cam.x-x,cam.z-z);if(!best||d<best.d)best={d,x,z,ux:vx/L,uz:vz/L,w:r.w}}
   if(!best)return;const side=((cam.x-best.x)*-best.uz+(cam.z-best.z)*best.ux)>=0?1:-1,off=best.w/2-1.4;T.car={x:best.x-best.uz*side*off,z:best.z+best.ux*side*off,yaw:Math.atan2(-best.ux,-best.uz),v:0}}
@@ -2051,10 +2075,10 @@ function cbClose(){clearInterval(cbTimer);cbTimer=null}
 function trsTerminal(kind){cbKind=kind;cbMsg="";choosing=true;const el=document.getElementById("choose");el.hidden=false;
   const head=kind==="cb"?"Delta Central Bank":"Reserve Office",shell=body=>`<div class="card cbcard"><h1>${head}</h1>${body}<button class="go" data-stay="1">Close</button></div>`;
   if(typeof AUTH==="undefined"||!AUTH.user||AUTH.offline){el.innerHTML=shell(`<p>This terminal works on the live game with a signed-in account whose role on the server is Bank Governor or Minister of Finance.</p>`);return}
-  if(!TRS_RES.includes(me.role)){el.innerHTML=shell(`<p>Only the Bank Governor and the Minister of Finance can use this terminal.</p>`);return}
+  if(!allowed(TRS_RES)){el.innerHTML=shell(`<p>Only the Bank Governor and the Minister of Finance can use this terminal.</p>`);return}
   el.innerHTML=shell(`<div id="cbBody"><p>Loading the reserves...</p></div>`);cbRefresh();cbClose();cbTimer=setInterval(()=>{if(document.getElementById("cbBody"))cbRefresh();else cbClose()},5000)}
 async function cbRefresh(){const box_=document.getElementById("cbBody");if(!box_)return;let d;try{d=await cbCall("cb_status")}catch(e){box_.innerHTML=`<p class="amsg err">${esc(e.message)}</p>`;return}
-  const order=me.role==="bankgov"&&cbKind==="cb",now=Date.now(),rows=(d.orders||[]).map(o=>{const pct=Math.round(100*o.settled/o.amount),left=Math.max(0,Math.ceil((o.amount-o.settled)/o.rate));
+  const order=(me.role==="bankgov"||me.role==="admin")&&cbKind==="cb",now=Date.now(),rows=(d.orders||[]).map(o=>{const pct=Math.round(100*o.settled/o.amount),left=Math.max(0,Math.ceil((o.amount-o.settled)/o.rate));
       return `<tr><td>${o.kind==="print"?"Print":"To "+esc(o.state)}</td><td>${kfmt(o.amount)}</td><td><i class="cbbar"><em style="width:${pct}%"></em></i>${pct}%</td><td>${o.done?"done":left+" min"}</td></tr>`}).join("");
   const keepAmt=(document.getElementById("cbAmt")||{}).value||"",keepDist=(document.getElementById("cbDAmt")||{}).value||"",keepSt=(document.getElementById("cbSt")||{}).value||"Asaba";
   box_.innerHTML=`<div class="cbres"><div><span>National Reserve</span><b>${kfmt(d.reserve)}</b></div>${(d.states||[]).map(s=>`<div><span>${esc(s.state)}</span><b>${kfmt(s.balance)}</b></div>`).join("")}<div><span>In transit</span><b>${kfmt(d.transit)}</b></div></div>
@@ -2065,6 +2089,23 @@ async function cbAction(what){const amt=s=>Math.round(+String(s||"").replace(/[^
   if(what==="print"){const a=amt(document.getElementById("cbAmt").value);if(!(a>0))throw new Error("Enter an amount to print.");await cbCall("cb_print",{p_amount:a});cbMsg="Printing "+kfmt(a)+": done in about "+Math.ceil(a/20000)+" minutes.";document.getElementById("cbAmt").value=""}
   if(what==="dist"){const a=amt(document.getElementById("cbDAmt").value),s=document.getElementById("cbSt").value;if(!(a>0))throw new Error("Enter an amount to send.");await cbCall("cb_distribute",{p_state:s,p_amount:a});cbMsg="Sending "+kfmt(a)+" to "+s+": arrives over about "+Math.ceil(a/100000)+" minutes.";document.getElementById("cbDAmt").value=""}
   }catch(e){cbMsg=e.message}cbRefresh()}
+
+/* ---- the Chief Admin's role tool: find a citizen by name or certificate number and give them a role.
+   The database checks that the person asking is the Chief Admin, and that the role exists. ---- */
+async function adminPanel(msg){choosing=true;const el=document.getElementById("choose");el.hidden=false;const q=(document.getElementById("admQ")||{}).value||"";
+  el.innerHTML=`<div class="card cbcard"><h1>Chief Admin: roles</h1><p>Find a citizen by name or certificate number, choose their role, and click Set. They get it within a minute.</p>
+    <div class="cbrow"><input id="admQ" placeholder="Name or certificate number" value="${esc(q)}"><button class="btn2s" data-adm="find">Find</button></div><p class="amsg">${esc(msg||"")}</p><div id="admList"></div><button class="go" data-stay="1">Close</button></div>`;
+  const inp=document.getElementById("admQ");inp.addEventListener("keydown",e=>{if(e.key==="Enter")adminAct("find")});if(q)adminAct("find")}
+async function adminAct(what){const list=document.getElementById("admList");if(!list)return;
+  if(typeof AUTH==="undefined"||!AUTH.user||AUTH.offline){list.innerHTML="<p>The role tool works on the live game while signed in.</p>";return}
+  try{if(what==="find"){const rows=await cbCall("admin_find",{p_query:(document.getElementById("admQ").value||"").trim()});
+      list.innerHTML=rows.length?`<table class="cbt"><tr><th>Citizen</th><th>Certificate</th><th>Role</th><th></th></tr>${rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.cert_no||"")}</td><td><select data-owner="${r.owner}">${ROLES.filter(x=>x[0]!=="newcomer").map(([k,l])=>`<option value="${k}" ${k===r.role?"selected":""}>${esc(l)}</option>`).join("")}</select></td><td><button class="btn2s" data-adm="set:${r.owner}">Set</button></td></tr>`).join("")}</table>`:"<p>No citizen found.</p>"}
+    else if(what.startsWith("set:")){const owner=what.slice(4),sel=document.querySelector(`#admList select[data-owner="${owner}"]`);await cbCall("admin_set_role",{p_owner:owner,p_role:sel.value});
+      const row=sel.closest("tr");adminPanel((row?row.cells[0].textContent:"Citizen")+" is now "+((ROLES.find(r=>r[0]===sel.value)||[0,sel.value])[1])+".")}}
+  catch(e){const m=document.querySelector("#choose .amsg");if(m){m.textContent=e.message;m.classList.add("err")}}}
+// a role given while someone is playing reaches them within a minute
+setInterval(async()=>{if(typeof AUTH==="undefined"||!AUTH.char||!AUTH.user)return;try{await freshToken();const rows=await supa("/rest/v1/characters?select=role&owner=eq."+AUTH.user.id,{auth:true});const r=rows&&rows[0]&&rows[0].role;
+  if(r&&r!==me.role){me.role=r;AUTH.char.role=r;ui();toast("Your role is now: "+((ROLES.find(x=>x[0]===r)||[0,r])[1])+".")}}catch(e){}},60000);
 
 let TV=null;
 const toTrs=()=>fadeTo("National Treasury",()=>{TV=trsOf();stand("trs",{x:0,z:9.4,yaw:0})});
@@ -2102,7 +2143,8 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
       cam.x=C.x;cam.z=C.z;cam.yaw=C.yaw;cam.y=1.7;if(route)followRoute(t)}
     else if(!busy&&!choosing&&!mapOpen){
       if(flying){cam.yaw=VIEW.yaw;cam.pitch=VIEW.pitch;const sp=(runHeld()?16:6)*dt;cam.x+=dx0*sp;cam.z+=dz0*sp;cam.y=clamp(cam.y+((keys.e?1:0)-(keys.q?1:0))*sp*(1+cam.y/20),1.2,420)}
-      else{cam.y=1.7;if(!hitT(cam.x+sx,cam.z,.4))cam.x+=sx;else VEL.x=0;if(!hitT(cam.x,cam.z+sz,.4))cam.z+=sz;else VEL.z=0}
+      else{cam.y=1.7;const hitC=(x,z)=>{if(!C||driving)return false;const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),dx=x-C.x,dz=z-C.z;return Math.abs(dx*fx+dz*fz)<2.7&&Math.abs(-dx*fz+dz*fx)<1.35},blk=(x,z)=>hitT(x,z,.4)||hitC(x,z);       /* the parked car is solid too */
+        if(!blk(cam.x+sx,cam.z))cam.x+=sx;else VEL.x=0;if(!blk(cam.x,cam.z+sz))cam.z+=sz;else VEL.z=0;TGY+=(townGroundAt(T,cam.x,cam.z)-TGY)*Math.min(1,dt*14)}
       if(cam.y<3.8&&t>doorCool)for(const k in T.spots){const d=T.spots[k],ax=(cam.x-d.x)*d.fx+(cam.z-d.z)*d.fz,lat=Math.abs((cam.x-d.x)*d.fz-(cam.z-d.z)*d.fx);                  // through a blue doorway
         if(lat<1.7&&ax>-.7&&ax<1.5){doorCool=t+1.5;cam.x=d.x+d.fx*2.6;cam.z=d.z+d.fz*2.6;DOORWAYS[k]();break}}
       if(route)followRoute(t)}
@@ -2112,7 +2154,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     if(flying||!view3){const ey=driving?1.12:cam.y;eye=[cam.x+(driving?fx*.1:0),ey,cam.z+(driving?fz*.1:0)];to=[eye[0]+fx*cp,ey+Math.sin(cam.pitch),eye[2]+fz*cp]}
     else{const dist=driving?7.6:3.5,up=driving?2.7:1.55,lift=clamp(.32-cam.pitch,0,1.2);let k=1;for(let q=.15;q<=1;q+=.15)if(hitT(cam.x-fx*dist*q,cam.z-fz*dist*q,.25)){k=Math.max(.15,q-.15);break}       // the camera stays this side of any wall behind you
       eye=[cam.x-fx*dist*k,up+lift*dist*.55*k,cam.z-fz*dist*k];to=[cam.x+fx*4,up-.15,cam.z+fz*4]}}
-    else[eye,to]=followCam(cam.x,0,cam.z,(x,z)=>hitT(x,z,.25),99)}
+    else[eye,to]=followCam(cam.x,TGY,cam.z,(x,z)=>hitT(x,z,.25),99)}
   else{
     if(sx||sz){if(!blocked(me.x+sx,me.z))me.x+=sx;else VEL.x=0;if(!blocked(me.x,me.z+sz))me.z+=sz;else VEL.z=0;me.y=floorAt(me.x,me.z,me.y);
       if(scene==="border"){if(Math.abs(me.x)<1.5&&me.z<12.4&&me.z>11)toImm(false)}
@@ -2128,7 +2170,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   const fly=scene==="town",indoor=scene==="bank"||scene==="imm"||scene==="gov"||scene==="hosp"||scene==="trs",fovNow=fly?(w>h?.85:1.05):(w>h?1.05:1.25),PMs=PLAYERS[me.gender]||PLAYERS.Female;
   // the sun's picture first: the town near you, the car, and your own character all cast shadows
   if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE)lists.push([CARSCENE.bufs,mul(trans(T.car.x,0,T.car.z),rotY(T.car.yaw+Math.PI))]);
-    shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing){gl.colorMask(true,true,true,true);WALKER.draw(PMs,lvp,cam.x,jump.y,cam.z,cam.yaw,gait,t,null,"");gl.colorMask(false,false,false,false)}})}
+    shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing){gl.colorMask(true,true,true,true);WALKER.draw(PMs,lvp,cam.x,TGY+jump.y,cam.z,cam.yaw,gait,t,null,"");gl.colorMask(false,false,false,false)}})}
   gl.viewport(0,0,cv.width,cv.height);const VP=mul(persp(fovNow,w/h,fly?.25:.08,800),look(eye,to,[0,1,0]));
   gl.clearColor(LIGHT.fog[0],LIGHT.fog[1],LIGHT.fog[2],1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);if(!indoor)drawSky(eye,to,fovNow,w/h);
   if(T)GROUND.zones=T.map.lawnZones||[];
@@ -2138,7 +2180,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   if(scene==="town"&&T.trees)drawTrees(T.trees,VP,eye,flying?null:c=>TREEVIS(c)&&Math.hypot(c.cx-cam.x,c.cz-cam.z)<125,flying?1500:150);       // beyond about 125 m the haze has swallowed the trees
   if(scene==="town"&&T.car&&CARSCENE){CARSCENE.model=mul(trans(T.car.x,0,T.car.z),rotY(T.car.yaw+Math.PI));CARSCENE.fogFar=flying?1500:150;drawScene(CARSCENE,VP,eye,false)}
   {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing;      // your own character, seen from behind
-    if(show){const town=scene==="town";WALKER.draw(PM,VP,town?cam.x:me.x,(town?0:me.y)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"")}}
+    if(show){const town=scene==="town";WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:me.y)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"")}}
   for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE)drawSceneClear(CARSCENE,VP,eye,t);
   if(scene==="town"&&frames%3===0)drawMini(T);document.getElementById("mini").hidden=scene!=="town"||choosing;
   frames++;acc+=real;if(acc>=.5){const fps=frames/acc;document.getElementById("fps").textContent=Math.round(fps);frames=0;acc=0;let tris2=0;const tris=scene==="town"?0:parts.reduce((s,S)=>s+S.tris,0)+(scene==="imm"?15450:0);
@@ -2352,7 +2394,7 @@ let wasLocked=false;document.addEventListener("pointerlockchange",()=>{const now
 // The only button at the top is Testing. It holds the controls that are for you, not for players.
 function ui(){guide();const el=document.getElementById("picks");el.innerHTML="";const add=(label,fn,on)=>{const bt=document.createElement("button");bt.textContent=label;bt.addEventListener("click",fn);if(on)bt.setAttribute("aria-pressed","true");el.appendChild(bt);return bt};
   if(scene!=="town"&&route)clearRoute();if(scene!=="town")closeMap();
-  add(view3?"View: behind me":"View: my eyes",()=>{view3=!view3;ui()});add(testOpen?"Close testing":"Testing",()=>{testOpen=!testOpen;ui()},testOpen);if(typeof AUTH!=="undefined"&&AUTH.user)add("Log out",logOut);
+  add(view3?"View: behind me":"View: my eyes",()=>{view3=!view3;ui()});add(testOpen?"Close testing":"Testing",()=>{testOpen=!testOpen;ui()},testOpen);if(me.role==="admin"&&typeof AUTH!=="undefined"&&AUTH.user)add("Admin",()=>adminPanel());if(typeof AUTH!=="undefined"&&AUTH.user)add("Log out",logOut);
   if(testOpen){const sel=document.createElement("select");sel.className="who";sel.setAttribute("aria-label","Who you are");for(const[k,label]of ROLES){const o=document.createElement("option");o.value=k;o.textContent="You are: "+label;if(k===me.role)o.selected=true;sel.appendChild(o)}
     sel.addEventListener("change",()=>{const next=sel.value;if(next==="newcomer")return toBorder(true);const was=me.role;me.role=next;if(!me.cert)me.cert=Object.assign({},SAMPLE);if(was==="newcomer"&&scene!=="town"){pickDefault();choosing=false;document.getElementById("choose").hidden=true}ui()});el.appendChild(sel);
     add(SHADOW.on?"Shadows: on":"Shadows: off",()=>{SHADOW.on=!SHADOW.on;ui()},SHADOW.on);{const T=[null,7,12,17.5,18.6,19.2,22],k=T.indexOf(TIMEOVR),f=h=>String(Math.floor(h)).padStart(2,"0")+":"+String(Math.round(h%1*60)).padStart(2,"0");add("Time: "+(TIMEOVR===null?"real ("+f(watHours())+")":f(TIMEOVR)),()=>{TIMEOVR=T[(k+1)%T.length];lightAt=-1;ui()})}add("Ground: "+["all lawns","mixed","all red earth"][GROUND.mode],()=>{GROUND.mode=(GROUND.mode+1)%3;ui()});
@@ -2381,7 +2423,7 @@ function chooser(){chooserOn=true;choosing=true;const el=document.getElementById
 document.getElementById("choose").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const shut=()=>{choosing=false;document.getElementById("choose").hidden=true};
   if(b.dataset.g){pick.gender=b.dataset.g;pick.outfit="";chooser()}else if(b.dataset.o){pick.outfit=b.dataset.o;chooser()}
   else if(b.dataset.go){chooserOn=false;me.gender=pick.gender;me.outfit=pick.outfit;const c=ROSTER[me.gender].find(q=>q.key===me.outfit);if(c)PLAYERS[me.gender]=c.m;shut();guide()}
-  else if(b.dataset.floor!==undefined){const n=+b.dataset.floor;shut();if(n!==HFLOOR_N)toHosp(n,true)}else if(b.dataset.cb)cbAction(b.dataset.cb);else if(b.dataset.auth)authClick(b.dataset.auth);else if(b.dataset.stay)shut();else if(b.dataset.fly){const to=b.dataset.fly;shut();toTown(to,"air","Flying to "+to+"...",16)}});
+  else if(b.dataset.floor!==undefined){const n=+b.dataset.floor;shut();if(n!==HFLOOR_N)toHosp(n,true)}else if(b.dataset.adm)adminAct(b.dataset.adm);else if(b.dataset.cb)cbAction(b.dataset.cb);else if(b.dataset.auth)authClick(b.dataset.auth);else if(b.dataset.stay)shut();else if(b.dataset.fly){const to=b.dataset.fly;shut();toTown(to,"air","Flying to "+to+"...",16)}});
 const guide0=guide;guide=function(){guide0();if(choosing)document.getElementById("guide").hidden=true};
 /* ================================ accounts and saving ================================
    Players sign in with email and password. Their citizen (name, certificate, cash, home state, where they
