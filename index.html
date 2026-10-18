@@ -32,6 +32,9 @@ html,body{overscroll-behavior:none}canvas,.stick,.tbtn{touch-action:none}
 .trun{right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(30px + env(safe-area-inset-bottom,0px))}
 .tjump{width:66px;height:66px;right:calc(118px + env(safe-area-inset-right,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 @media (orientation:portrait){.tjump{right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(126px + env(safe-area-inset-bottom,0px))}}
+.choose .cbcard{max-width:560px}.cbres{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin:8px 0 12px}.cbres div{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0}.cbres b{font-variant-numeric:tabular-nums}
+.cbrow{display:flex;gap:8px}.cbrow input,.cbrow select{flex:1;font:inherit;font-size:15px;padding:9px 10px;border-radius:10px;border:1px solid var(--line);min-width:0}.btn2s{font:inherit;font-weight:800;padding:9px 14px;border-radius:10px;border:0;background:#FBBF24;color:#1a1206;cursor:pointer}
+.cbt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}.cbt th,.cbt td{text-align:left;padding:5px 4px;border-bottom:1px solid var(--line)}.cbbar{display:inline-block;width:70px;height:7px;background:rgba(128,128,128,.25);border-radius:9px;margin-right:6px;vertical-align:middle}.cbbar em{display:block;height:100%;background:#16a34a;border-radius:9px}
 .cashpill{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));top:calc(58px + env(safe-area-inset-top,0px));z-index:3;background:rgba(15,31,51,.92);color:#fff;font-weight:800;font-size:17px;padding:8px 16px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.3);letter-spacing:.3px}
 .choose .auth input{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg,#fff);color:var(--ink)}
 .choose .amsg{min-height:20px;margin:10px 0 0;font-size:14px}.choose .amsg.err{color:#b91c1c}
@@ -136,7 +139,10 @@ function program(vs,fs){const sh=(t,s)=>{const x=gl.createShader(t);gl.shaderSou
 const VERT=`attribute vec3 p,n;attribute vec4 c;uniform mat4 vp,model;varying vec3 vn,vw,vc;varying float kind;
 void main(){vec4 w=model*vec4(p,1.);vn=mat3(model)*n;vw=w.xyz;vc=c.rgb;kind=c.a*255.;gl_Position=vp*w;}`;const IDENT=new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
 const TOWN=program(VERT,`
-precision highp float;varying vec3 vn,vw,vc;varying float kind;uniform vec3 eye;uniform float indoor,fogFar,shadowOn,time,groundOn,openMode;uniform vec2 ceil;uniform sampler2D detail,shadowMap,tRoad,tPave,tLawn,tOpen;uniform mat4 lvp;uniform vec4 avRoad,avPave,avLawn;uniform vec4 lawnZ[8];uniform sampler2D tWall;uniform float wallsOn;uniform vec3 sunL,sunC,ambT,ambB,fogC;uniform float night;uniform vec4 lampP[12];
+precision highp float;varying vec3 vn,vw,vc;varying float kind;uniform vec3 eye;uniform float indoor,fogFar,shadowOn,time,groundOn,openMode;uniform vec2 ceil;uniform sampler2D detail,shadowMap,tRoad,tPave,tLawn,tOpen;uniform mat4 lvp;uniform vec4 avRoad,avPave,avLawn;uniform vec4 lawnZ[8];uniform sampler2D tWall;uniform float wallsOn;uniform vec3 sunL,sunC,ambT,ambB,fogC;uniform float night;uniform vec4 lampP[12];uniform vec4 roomL[32];uniform float roomR[32];uniform float roomOn,roomSplit;
+#define ROOM_AMB .72
+#define ROOM_LAMP 1.25
+
 // is this point in the sun? Look it up in the picture of the town taken from the sun's side: 1 = lit, 0 = in shadow
 float lit(vec3 p,float slope){vec4 q=lvp*vec4(p,1.);vec3 s=q.xyz*.5+.5;if(s.x<0.||s.x>1.||s.y<0.||s.y>1.||s.z>1.)return 1.;float b=.0009+.003*slope,t=0.,e=1.25/2048.;
   for(int i=-1;i<=1;i++)for(int j=-1;j<=1;j++)t+=texture2D(shadowMap,s.xy+vec2(float(i),float(j))*e).r+b>s.z?1.:0.;float edge=max(abs(s.x-.5),abs(s.y-.5))*2.;return mix(t/9.,1.,smoothstep(.8,1.,edge));}       // nine samples, for a soft edge
@@ -151,6 +157,9 @@ void main(){vec3 n=normalize(vn),v=normalize(eye-vw),c=vc,col;if(!gl_FrontFacing
   float d=tile?dt.r:wood?dt.g:cloth?dt.b:dt.a;
   c*=tile?.84+.3*d:wood?.68+.6*d:cloth?.8+.38*d:metal?.86+.26*d:.93+.13*d;
   if(indoor>.5){
+    if(roomOn>.5){float S=0.;for(int i=0;i<32;i++){vec4 l=roomL[i];if(l.w<=0.)continue;if(roomSplit>.5&&((l.y>3.4&&vw.y<3.25&&vw.z<-2.3)||(l.y<3.2&&vw.y>3.28)))continue;
+      vec3 dv=l.xyz-vw;float d2=dot(dv,dv),rr=roomR[i]*.8;S+=l.w*max(.25,dot(n,dv)*inversesqrt(d2+1e-4))/(1.+d2/(rr*rr));}
+      vec3 lit=ROOM_AMB*vec3(.9,.94,1.02)+2.*S*ROOM_LAMP*vec3(1.05,.99,.9);c*=min(lit,vec3(2.1));c=mix(c,c*c*(3.-2.*min(c,vec3(1.))),.3);}       /* pools of lamplight on floors and walls */
     if(tile){vec2 g=abs(fract(vw.xz/.8)-.5);c=mix(c,c*.7,smoothstep(.485,.5,max(g.x,g.y)));vec3 r=reflect(-v,n);float fr=.07+.5*pow(1.-max(dot(n,v),0.),3.);col=c+vec3(1.,.97,.9)*lamps(vw,r)*fr*(.6+.6*d)+vec3(.6,.7,.8)*fr*.1;}
     else if(metal){vec3 r=reflect(-v,n);float f=1.-max(dot(n,v),0.);col=c*(.8+.45*f*f)+vec3(1.,.95,.85)*lamps(vw,r)*.45;}
     else if(wood){float f=1.-max(dot(n,v),0.);col=c*(1.+.2*f*f);}
@@ -177,7 +186,7 @@ void main(){vec3 n=normalize(vn),v=normalize(eye-vw),c=vc,col;if(!gl_FrontFacing
   if(water){vec2 w1=texture2D(detail,vw.xz*.035+vec2(time*.012,time*.008)).ra,w2=texture2D(detail,vw.xz*.09-vec2(time*.02,time*.011)).ra;n=normalize(vec3((w1.x+w2.x-1.)*.22,1.,(w1.y+w2.y-1.)*.22));}      // ripples that drift
   float dl=dot(n,L),sun=max(dl,0.),sh=shadowOn>.5?lit(vw+n*.06,1.-sun):1.;sun*=sh;
   vec3 shade=mix(ambB,ambT,.5+.5*n.y)*(.86+.14*sh);col=c*(shade+sunC*sun);
-  if(night>.01){vec3 lc=vec3(0.);for(int i=0;i<12;i++){vec4 l=lampP[i];if(l.w>0.){vec3 dv=l.xyz-vw;float dd=dot(dv,dv);lc+=vec3(1.,.8,.52)*l.w*max(dot(n,normalize(dv)),0.)*(30./(dd+5.))*smoothstep(24.,9.,sqrt(dd));}}col+=c*lc*night;}
+  if(night>.01&&distance(eye,vw)<75.){vec3 lc=vec3(0.);for(int i=0;i<12;i++){vec4 l=lampP[i];if(l.w>0.){vec3 dv=l.xyz-vw;float dd=dot(dv,dv);if(dd>576.)continue;lc+=vec3(1.,.8,.52)*l.w*max(dot(n,normalize(dv)),0.)*(30./(dd+5.))*smoothstep(24.,9.,sqrt(dd));}}col+=c*lc*night;}
   if(metal){vec3 r=reflect(-v,n);col=c*(dot(ambT,vec3(.33))*1.03+.75*sun*length(sunC))+sunC*pow(max(dot(r,L),0.),20.)*.8*sh;}
   if(kind>.5&&kind<1.5){vec3 gv=vc;vec2 gg=vec2(abs(n.x)>abs(n.z)?vw.z:vw.x,vw.y);if(wallsOn>.5&&!water&&abs(n.y)<.35)gv*=1.+(texture2D(tWall,gg/10.8).a-.5)*2.;float f=pow(1.-max(dot(n,v),0.),2.5);vec3 r=reflect(-v,n);vec3 sky=mix(fogC*1.05,mix(fogC,ambT,.5)*.9,clamp(r.y*1.4+.15,0.,1.));col=mix(gv*(.45+.2*sh),sky,(water?.5:.35)+.5*f)+pow(max(dot(r,L),0.),water?140.:40.)*(water?1.4:.5)*sh;}
     if(night>.01&&!water&&abs(n.y)<.35&&kind>.5&&kind<1.5){vec2 cell=floor(vec2(abs(n.x)>abs(n.z)?vw.z:vw.x,vw.y)/1.2);float hsh=fract(sin(dot(cell,vec2(12.9898,78.233)))*43758.5453);if(hsh>.62)col+=vec3(1.,.83,.56)*.42*night*(.55+.7*fract(hsh*7.));}
@@ -299,6 +308,11 @@ function updateLight(){if(NOW-lightAt<.5&&lightAt>=0)return;lightAt=NOW;const s=
   LIGHT.sunTint=mixv([1,.9,.7],[1,.55,.25],gold);LIGHT.cloud=mixv(mixv([.14,.16,.22],[1,.99,.97],day),[1,.68,.55],gold*.75);LIGHT.sunVis=sstep(-3,1,e);LIGHT.stars=1-sstep(-12,-3,e);LIGHT.night=1-sstep(-4,6,e);
   if(typeof SHADOW!=="undefined")SHADOW.dark=e<2.5}
 // send the light to a lighting program (buildings, trees or characters). Inside buildings, daylight-like light.
+// the room's lamps nearest the eye, for drawing an interior
+const ROOMU=new Float32Array(128),ROOMR=new Float32Array(32).fill(1);
+function setRoom(S,eye,indoor){const on=!!(indoor&&S.lights&&ROOMLIGHT);gl.uniform1f(TOWN.u.roomOn,on?1:0);if(!on)return;
+  const L=S.lights.map(l=>[l,(l[0]-eye[0])**2+(l[1]-eye[1])**2+(l[2]-eye[2])**2]).sort((a,b)=>a[1]-b[1]).slice(0,32);ROOMU.fill(0);ROOMR.fill(1);
+  L.forEach(([l],i)=>{ROOMU[i*4]=l[0];ROOMU[i*4+1]=l[1];ROOMU[i*4+2]=l[2];ROOMU[i*4+3]=l[3];ROOMR[i]=l[4]||4});gl.uniform4fv(TOWN.u["roomL[0]"],ROOMU);gl.uniform1fv(TOWN.u["roomR[0]"],ROOMR);gl.uniform1f(TOWN.u.roomSplit,S.split?1:0)}
 function setLight(P,inside){const L=inside?DAYLIGHT:(LIGHT.force||LIGHT);gl.uniform3fv(P.u.sunL,L.dir);gl.uniform3fv(P.u.sunC,L.sun);gl.uniform3fv(P.u.ambT,L.ambT);gl.uniform3fv(P.u.ambB,L.ambB);gl.uniform3fv(P.u.fogC,L.fog);
   gl.uniform1f(P.u.night,inside?0:L.night);if(P.u["lampP[0]"])gl.uniform4fv(P.u["lampP[0]"],L.lamps)}
 
@@ -395,7 +409,7 @@ function drawProps(G,VP){gl.useProgram(PROPP.p);gl.disable(gl.CULL_FACE);gl.unif
   for(const g of G){const D=PROPDATA[g.id];if(!D||!D.tex)continue;gl.bindTexture(gl.TEXTURE_2D,D.tex);for(const c of g.chunks){gl.bindBuffer(gl.ARRAY_BUFFER,c.p);gl.enableVertexAttribArray(PROPP.a.p);gl.vertexAttribPointer(PROPP.a.p,3,gl.FLOAT,false,0,0);
     gl.bindBuffer(gl.ARRAY_BUFFER,c.u);gl.enableVertexAttribArray(PROPP.a.uv);gl.vertexAttribPointer(PROPP.a.uv,2,gl.FLOAT,false,0,0);gl.bindBuffer(gl.ARRAY_BUFFER,c.l);gl.enableVertexAttribArray(PROPP.a.l);gl.vertexAttribPointer(PROPP.a.l,1,gl.FLOAT,false,0,0);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,c.i);gl.drawElements(gl.TRIANGLES,c.count,gl.UNSIGNED_SHORT,0)}}gl.disableVertexAttribArray(PROPP.a.uv);gl.disableVertexAttribArray(PROPP.a.l)}
-function drawScene(S,VP,eye,indoor){if(S.props){const P=S.props;S.props=null;drawScene(S,VP,eye,indoor);S.props=P;drawProps(P,VP);return}if(S.twoSided)gl.disable(gl.CULL_FACE);else gl.enable(gl.CULL_FACE);gl.useProgram(TOWN.p);gl.uniformMatrix4fv(TOWN.u.vp,false,VP);gl.uniformMatrix4fv(TOWN.u.model,false,S.model||IDENT);gl.uniform3fv(TOWN.u.eye,eye);gl.uniform1f(TOWN.u.indoor,indoor?1:0);gl.uniform2fv(TOWN.u.ceil,S.ceil||[3.2,6.4]);gl.uniform1f(TOWN.u.fogFar,S.fogFar||1500);gl.uniform1f(TOWN.u.time,NOW);setLight(TOWN,indoor);const shOn=!indoor&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark&&!S.noShadow;gl.uniform1f(TOWN.u.shadowOn,shOn?1:0);if(shOn)gl.uniformMatrix4fv(TOWN.u.lvp,false,SHADOW.lvp);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,SHADOW.tex||DETAIL);gl.uniform1i(TOWN.u.shadowMap,2);
+function drawScene(S,VP,eye,indoor){if(S.props){const P=S.props;S.props=null;drawScene(S,VP,eye,indoor);S.props=P;drawProps(P,VP);return}if(S.twoSided)gl.disable(gl.CULL_FACE);else gl.enable(gl.CULL_FACE);gl.useProgram(TOWN.p);gl.uniformMatrix4fv(TOWN.u.vp,false,VP);gl.uniformMatrix4fv(TOWN.u.model,false,S.model||IDENT);gl.uniform3fv(TOWN.u.eye,eye);gl.uniform1f(TOWN.u.indoor,indoor?1:0);gl.uniform2fv(TOWN.u.ceil,S.ceil||[3.2,6.4]);gl.uniform1f(TOWN.u.fogFar,S.fogFar||1500);gl.uniform1f(TOWN.u.time,NOW);setLight(TOWN,indoor);setRoom(S,eye,indoor);const shOn=!indoor&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark&&!S.noShadow;gl.uniform1f(TOWN.u.shadowOn,shOn?1:0);if(shOn)gl.uniformMatrix4fv(TOWN.u.lvp,false,SHADOW.lvp);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,SHADOW.tex||DETAIL);gl.uniform1i(TOWN.u.shadowMap,2);
   const gOn=!indoor&&GROUND.ready;gl.uniform1f(TOWN.u.groundOn,gOn?1:0);if(gOn)GROUND.bind();
   gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,DETAIL);gl.uniform1i(TOWN.u.detail,1);gl.activeTexture(gl.TEXTURE0);drawList(TOWN,S.bufs);
   if(S.sg.length){gl.disable(gl.CULL_FACE);gl.useProgram(SIGN.p);gl.uniformMatrix4fv(SIGN.u.vp,false,VP);gl.bindBuffer(gl.ARRAY_BUFFER,signUV);gl.enableVertexAttribArray(SIGN.a.uv);gl.vertexAttribPointer(SIGN.a.uv,2,gl.FLOAT,false,0,0);
@@ -901,6 +915,23 @@ const PLANS={};
    Summit Junction; Okpanam Road north to the State House and the GRA; Ibusa Road west to Koka
    Junction; Summit Road south to the Township; the Benin–Asaba Expressway round the west and
    south, with the airport and the border gate; Quarters at Cable Point by the river. */
+/* ---- the National Treasury: a classical central bank. Stone podium and steps, six columns carrying a pediment,
+   a dome behind, tall windows, bronze doors, flags. Front faces +z. ---- */
+function treasuryBuilding(){const ST="#e9e3d4",ST2="#d8d0bd",BASE="#bdb6a6",BR="#7a5a26",GL="#2f4a66";
+  box(0,0,0,32,.06,27,"#cfc7b3",K.tile);                                                           // forecourt paving
+  box(0,0,-.5,28,.85,20,BASE);steps(20,5,10,ST2);                                                   // podium and front steps
+  box(0,.85,-2,24,9.2,14,ST);box(0,10.05,-2,24.6,.5,14.6,ST2);box(0,10.55,-2,23.4,1.1,13.4,ST);         // the main block, cornice and attic
+  for(const s of[-1,1])for(let k=0;k<3;k++){for(const y of[1.9,6])box(s*12.03,.85+y,-7+k*4.6,.06,3.2,1.5,GL,K.glass);for(const y of[1.75,5.85])box(s*12.05,.85+y,-7+k*4.6,.1,.15,1.8,ST2)}
+  for(const x of[-7.2,-3.6,3.6,7.2])for(const y of[1.9,6])box(x,.85+y,5.03,1.5,3.2,.06,GL,K.glass);
+  box(0,.85,5.04,3.2,4.6,.1,"#3a2a12");box(-.8,.95,5.1,1.5,4.3,.06,BR,K.gold);box(.8,.95,5.1,1.5,4.3,.06,BR,K.gold);box(0,5.55,5.1,3.6,.3,.12,ST2);   // bronze doors
+  for(let k=0;k<6;k++){const x=-9+k*3.6;box(x,.85,7.6,1.3,.35,1.3,ST2);cyl(x,1.2,7.6,.48,8,ST,16,.42);box(x,9.2,7.6,1.3,.35,1.3,ST2)}   // six columns
+  box(0,9.55,7,21,.9,5.4,ST);plate(0,9.62,9.73,13,.62,"NATIONAL TREASURY","#e9e3d4","#5a4520");
+  at(0,7,Math.PI/2,()=>gable(0,10.45,0,5.4,2.4,20.6,ST,.15));                                        // the pediment
+  discZ(0,11.35,9.76,.7,"#c9a227",K.gold,24);
+  for(let k=0;k<5;k++)cyl(0,11.65+k*.55,-3,4.2*Math.cos(k*.33),.6,k<4?"#8fb3a3":"#c9a227",24);cyl(0,14.4,-3,.18,1.2,"#c9a227",8);   // the dome, copper green with a gold top
+  for(const s of[-1,1]){flag(s*13.2,11.5,9.5);box(s*4.2,0,13,1.1,1.6,1.1,ST2);box(s*4.2,1.6,13,1.3,.2,1.3,ST)}
+  solidBox(0,-.5,28,20)}
+
 PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2,offS=d=>SW/2+4.2+d/2,RIV=246;MODERN=true;
   MAPD.lawnZones=[[-155,-235,205,-12],[-45,-45,45,45],[10,-14,240,40]];        // lawns: the government district and GRA, the centre, and Nnebisi Road to the bridgeMAPD.land="#bcdba4";
   quad([-460,-.02,340],[RIV-6,-.02,340],[RIV-6,-.02,-340],[-460,-.02,-340],hex(GRASS),K.open);
@@ -967,6 +998,8 @@ PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2
     for(const[cx,cz]of[[164,0],[0,97]])for(const[sx,sz,t]of[[-1,-1,0],[1,-1,-Math.PI/2],[1,1,Math.PI],[-1,1,Math.PI/2]])put("p_traffic_light",cx+sx*9.5,cz+sz*9.5,t,.8,.6);
     // billboards facing traffic on the expressway and on Nnebisi Road towards the bridge
     put("p_billboard",-190,-48,Math.PI*.82,5,1.2);put("p_billboard",-140,108,Math.PI*1.15,5,1.2);put("p_billboard",205,-12,-Math.PI/2,5,1.2)}
+  /* ---- the National Treasury, on DBS Road between Immigration and Cambridge University, facing the road ---- */
+  {const tx=76.5,tz=-83;at(tx,tz,Math.PI,()=>treasuryBuilding());yardBox(tx,tz,32,27);SP.treasury=doorAt(tx,tz,Math.PI,12.1);mark("National Treasury",tx,tz-15,"#b45309")}
   // trees, shrubs and flower beds on all the open ground between the plots
   plantOpenGround(-236,-196,RIV-12,176,130);MODERN=false};
 
@@ -1118,17 +1151,24 @@ function capture(fn){BAKE=null;CLEAR_GLASS=false;reset();fn();return upload()}
 /* Indoors, each corner of every surface is lit once, here: by the ceiling lamps near it, and
    darkened where furniture stands on the floor. The room is built twice: first to learn where
    the furniture is, then for real. */
+let ROOMLIGHT=true;
 function captureLit(fn,lights,split,ceilH){BAKE=null;CLEAR_GLASS=true;reset();WALLS=[];SHADOWS=[];fn();const sh=SHADOWS.slice(),wl=WALLS.filter(w=>w[4]!==-1);
   const sm=v=>{v=Math.max(0,Math.min(1,v));return v*v*(3-2*v)};
-  BAKE=(x,y,z,nx,ny,nz)=>{let L=.5;for(const l of lights){if(split&&((l[1]>3.4&&y<3.25&&z<-2.3)||(l[1]<3.2&&y>3.28)))continue;      // the gallery floor blocks light between levels
-      const dx=l[0]-x,dy=l[1]-y,dz=l[2]-z,d2=dx*dx+dy*dy+dz*dz,d=Math.sqrt(d2)||1;L+=l[3]*Math.max(.3,(nx*dx+ny*dy+nz*dz)/d)/(1+d2/(l[4]*l[4]))}
+  /* the room's own shading: darker under furniture, along the foot and head of every wall */
+  const shadeOf=(x,y,z,nx,ny,nz)=>{let F=1;
     const up=split&&y>3.25,level=up?1:0,base=up?y-3.3:y;
     if(Math.abs(ny)>.9){                                   // floors and ceilings: darker where furniture stands, and along the foot and head of every wall
-      if(ny>0&&base<.25)for(const b of sh){const ax=Math.max(b[0]-x,0,x-b[2]),az=Math.max(b[1]-z,0,z-b[3]);L*=1-.5*Math.exp(-Math.hypot(ax,az)/.22)}
-      if(base<.25||ny<0){let near=9;for(const w of wl){if(w[4]!==undefined&&w[4]!==level)continue;const ax=Math.max(w[0]-x,0,x-w[2]),az=Math.max(w[1]-z,0,z-w[3]),dd=Math.hypot(ax,az);if(dd<near)near=dd}L*=1-.3*Math.exp(-near/.38)}}
-    else{L*=.7+.3*sm(base/.55);if(ceilH)L*=.86+.14*sm((ceilH-y)/.45)}      // everything upright: darker towards the floor, and just under the ceiling
-    return Math.min(1.06,L)};
-  reset();WALLS=[];SHADOWS=[];PROPI=[];fn();const bake=BAKE,pi=PROPI;PROPI=null;BAKE=null;const out=upload();if(pi.length)out.props=uploadProps(pi,bake);CLEAR_GLASS=false;return out}
+      if(ny>0&&base<.25)for(const b of sh){const ax=Math.max(b[0]-x,0,x-b[2]),az=Math.max(b[1]-z,0,z-b[3]);F*=1-.5*Math.exp(-Math.hypot(ax,az)/.22)}
+      if(base<.25||ny<0){let near=9;for(const w of wl){if(w[4]!==undefined&&w[4]!==level)continue;const ax=Math.max(w[0]-x,0,x-w[2]),az=Math.max(w[1]-z,0,z-w[3]),dd=Math.hypot(ax,az);if(dd<near)near=dd}F*=1-.3*Math.exp(-near/.38)}}
+    else{F*=.7+.3*sm(base/.55);if(ceilH)F*=.86+.14*sm((ceilH-y)/.45)}      // everything upright: darker towards the floor, and just under the ceiling
+    return F};
+  /* the full light at a point: the lamps and the shading together (used for furniture, which keeps its baked light) */
+  const fullLight=(x,y,z,nx,ny,nz)=>{let L=.5;for(const l of lights){if(split&&((l[1]>3.4&&y<3.25&&z<-2.3)||(l[1]<3.2&&y>3.28)))continue;      // the gallery floor blocks light between levels
+      const dx=l[0]-x,dy=l[1]-y,dz=l[2]-z,d2=dx*dx+dy*dy+dz*dz,d=Math.sqrt(d2)||1;L+=l[3]*Math.max(.3,(nx*dx+ny*dy+nz*dz)/d)/(1+d2/(l[4]*l[4]))}
+    return Math.min(1.06,L*shadeOf(x,y,z,nx,ny,nz))};
+  /* surfaces keep only the shading and a base light of .5; the lamps are added for every point on screen as the room is drawn */
+  BAKE=ROOMLIGHT?(x,y,z,nx,ny,nz)=>.5*shadeOf(x,y,z,nx,ny,nz):fullLight;
+  reset();WALLS=[];SHADOWS=[];PROPI=[];fn();const pi=PROPI;PROPI=null;BAKE=null;const out=upload();if(pi.length)out.props=uploadProps(pi,fullLight);if(ROOMLIGHT){out.lights=lights;out.split=!!split}CLEAR_GLASS=false;return out}
 
 /* ---------------------------------- shared pieces ---------------------------------- */
 function floorGrid(x0,z0,x1,z1,y,color,kind,step){const c=hex(color),s=step||1;for(let x=x0;x<x1-1e-6;x+=s)for(let z=z0;z<z1-1e-6;z+=s){const xa=Math.min(x+s,x1),za=Math.min(z+s,z1);quad([x,y,za],[xa,y,za],[xa,y,z],[x,y,z],c,kind)}}
@@ -1581,12 +1621,12 @@ function hWindowBand(x0,z0,x1,z1,face){const L=Math.hypot(x1-x0,z1-z0),cx=(x0+x1
 /* ---- walls with doorways, worked out from a list of rooms ----
    Rooms are rectangles on a half-metre grid. Every room edge becomes wall, except where a door or a
    window says otherwise; shared walls are only built once. */
-function hWalls(rooms,openings,col){const S=new Set(),k=(d,a,b)=>d+","+a+","+b;
+function hWalls(rooms,openings,col,stripe,skirt){stripe=stripe||HTEAL;skirt=skirt||"#94a3b8";const S=new Set(),k=(d,a,b)=>d+","+a+","+b;
   for(const r of rooms){for(let i=r[0]*2;i<r[2]*2;i++){S.add(k("h",r[1]*2,i));S.add(k("h",r[3]*2,i))}for(let i=r[1]*2;i<r[3]*2;i++){S.add(k("v",r[0]*2,i));S.add(k("v",r[2]*2,i))}}
   for(const o of openings){const[x,z,dir,w]=o;const a=Math.round(((dir==="h"?x:z)-w/2)*2),b=Math.round(((dir==="h"?x:z)+w/2)*2);for(let i=a;i<b;i++)S.delete(k(dir,Math.round((dir==="h"?z:x)*2),i))}
   const runs={h:new Map(),v:new Map()};for(const s of S){const[d,a,b]=s.split(",");const m=runs[d];if(!m.has(+a))m.set(+a,[]);m.get(+a).push(+b)}
   for(const[d,m]of Object.entries(runs))for(const[a,list]of m){list.sort((p,q)=>p-q);let s0=list[0],prev=list[0];for(let i=1;i<=list.length;i++){if(i<list.length&&list[i]===prev+1){prev=list[i];continue}
-      const p0=s0/2,p1=(prev+1)/2,L=p1-p0,m=(p0+p1)/2;if(d==="h"){wallRun(p0,a/2,p1,a/2,0,HC,col);box(m,.95,a/2,L,.1,.24,HTEAL);box(m,0,a/2,L,.14,.23,"#94a3b8")}else{wallRun(a/2,p0,a/2,p1,0,HC,col);box(a/2,.95,m,.24,.1,L,HTEAL);box(a/2,0,m,.23,.14,L,"#94a3b8")}if(i<list.length){s0=list[i];prev=list[i]}}}
+      const p0=s0/2,p1=(prev+1)/2,L=p1-p0,m=(p0+p1)/2;if(d==="h"){wallRun(p0,a/2,p1,a/2,0,HC,col);box(m,.95,a/2,L,.1,.24,stripe);box(m,0,a/2,L,.14,.23,skirt)}else{wallRun(a/2,p0,a/2,p1,0,HC,col);box(a/2,.95,m,.24,.1,L,stripe);box(a/2,0,m,.23,.14,L,skirt)}if(i<list.length){s0=list[i];prev=list[i]}}}
   for(const o of openings){const[x,z,dir,w,kind]=o;if(kind==="window"){if(dir==="h"){box(x,0,z,w,1.0,.2,col);box(x,1.0,z,w,1.25,.06,"#dbeafe",K.glass);box(x,2.25,z,w,HC-2.25,.2,col);box(x,1.0,z,w,.05,.5,"#cbd5e1");WALLS.push([x-w/2,z-.15,x+w/2,z+.15])}
       else{box(x,0,z,.2,1.0,w,col);box(x,1.0,z,.06,1.25,w,"#dbeafe",K.glass);box(x,2.25,z,.2,HC-2.25,w,col);box(x,1.0,z,.5,.05,w,"#cbd5e1");WALLS.push([x-.15,z-w/2,x+.15,z+w/2])}}
     else if(dir==="h"){box(x,2.35,z,w,HC-2.35,.2,col);for(const s of[-1,1])box(x+s*(w/2+.04),0,z,.08,2.4,.26,HSTEEL);box(x,2.35,z,w+.16,.08,.26,HSTEEL)}
@@ -1656,6 +1696,47 @@ function hFurnish(F,T){const t=F.n;
   }}
 const HLIGHTS={};
 function hospLights(F){const f=F.foot,L=[];for(let x=f[0]+2;x<f[2];x+=4)for(let z=f[1]+2;z<f[3];z+=4)L.push([x,HC-.2,z,.19,4.2]);return L}
+/* ================================ the National Treasury, inside ================================
+   Staff only, as in Discord. Three rooms with the Discord server's own access:
+   Delta Central Bank (Bank Governor, Minister of Finance, Chief of Staff, Vice President, President) where the Governor
+   prints and distributes money at the terminal on the desk; Reserve Office (Bank Governor, Minister of Finance) with the
+   reserves terminal; Banks Escalations (Bank Governor, Minister of Finance, state Banking Directors, Governors and SSGs). */
+const TRS_ALL=["bankgov","minister","cos","vp","president","director","governor","ssg"],TRS_CB=["bankgov","minister","cos","vp","president"],TRS_RES=["bankgov","minister"],TRS_ESC=["bankgov","minister","director","governor","ssg"];
+const TNAVY="#0b1a36",TGOLD="#c9a227",TWALL="#efe9dc",TFLOOR="#d9d3c4";
+const TRS={foot:[-15,-11,15,11],rooms:[[-6,1,6,11],[-15,1,-6,11],[6,1,15,11],[-15,-11,15,1]],
+  doors:[{x:0,z:11,dir:"h",w:3},{x:-6,z:6,dir:"v",w:1.6,who:TRS_ESC,name:"BANKS ESCALATIONS",side:1},{x:6,z:6,dir:"v",w:1.6,who:TRS_RES,name:"RESERVE OFFICE",side:-1},{x:0,z:1,dir:"h",w:2.4,who:TRS_CB,name:"DELTA CENTRAL BANK",side:1}],
+  terminals:[{x:0,z:-7.4,kind:"cb",label:"Use the Central Bank terminal"},{x:10.5,z:7.6,kind:"res",label:"Use the reserves terminal"}]};
+function tPanel(x,z){box(x,HC-.05,z,1.2,.05,.6,"#fffdf4",K.glow);box(x,HC-.03,z,1.34,.03,.74,TGOLD,K.gold)}
+function trsFurnish(){
+  // entrance hall: the seal in the floor, flags, a security desk, the institution's name
+  cyl(0,.006,6,2.3,.012,TNAVY,40);cyl(0,.012,6,1.9,.012,TGOLD,40,1.9,K.gold);cyl(0,.018,6,1.6,.012,TNAVY,40);
+  plate(0,2.85,1.14,9,.5,"NATIONAL TREASURY  •  DELTA CENTRAL BANK",TNAVY,"#f5d76e");for(const s of[-1,1])flag(s*4.8,2.2,3.1);
+  serviceCounter(-3.6,9.2,3.2,Math.PI,false);prop("office_chair",-3.6,9.95,0)||workChair(-3.6,9.9,Math.PI);palmPot(4.8,10.2);palmPot(-5.2,1.8);for(const x of[-4,4])tPanel(x,4);tPanel(0,8);
+  // Delta Central Bank: the Governor's desk with the terminal, the operations boards, seats for the President and officials
+  if(!prop("office_desk",0,-8.2,Math.PI))desk(0,-8.2,Math.PI,2.2,"#5b3a1e",TGOLD);prop("office_chair",0,-9.15,Math.PI)||chair(0,-9.15,0,"#161b22");
+  box(-.5,.79,-8.35,.6,.4,.05,"#111827");box(-.5,.83,-8.32,.54,.32,.01,"#0e2a44",K.glow);box(.45,.79,-8.35,.6,.4,.05,"#111827");box(.45,.83,-8.32,.54,.32,.01,"#0e2a44",K.glow);
+  for(const[x,t]of[[-8,"PRINTING ORDERS"],[8,"DISTRIBUTION ORDERS"]])hScreenWall(x,1.6,-10.86,5,1.5,t);plate(0,2.95,-10.86,7.5,.48,"DELTA CENTRAL BANK",TNAVY,"#f5d76e");for(const s of[-1,1])flag(s*2.2,-10.4,3.1);
+  if(!prop("meeting_table",-9.5,-3.6,0,[.9,.8,.9]))box(-9.5,.72,-3.6,2.2,.06,1,"#5b3a1e");for(const x of[-10.3,-8.7]){prop("office_chair",x,-2.7,0)||chair(x,-2.7,Math.PI,"#475569");prop("office_chair",x,-4.5,Math.PI)||chair(x,-4.5,0,"#475569")}
+  sofa(10,-1.2,Math.PI,3);lowTable(10,-3);palmPot(14,-10.2);palmPot(-14,-10.2);for(const x of[-11,-5,0,5,11])for(const z of[-8,-3])tPanel(x,z);
+  // Reserve Office: the vault door, filing cabinets, the reserves terminal
+  at(14.85,5.5,-Math.PI/2,()=>{discZ(0,1.55,0,1.35,"#9ca3af",K.gold,32);discZ(0,1.55,.06,1.05,"#6b7280",0,32);for(let k=0;k<6;k++){const a=k*Math.PI/3;box(Math.cos(a)*.5,1.55+Math.sin(a)*.5,.12,.12,.12,.08,"#d1d5db",K.gold)}});
+  plate(14.86,3.1,5.5,2.8,.4,"RESERVE VAULT",TNAVY,"#f5d76e",-Math.PI/2);
+  if(!prop("office_desk",10.5,8.6,0))workDesk(10.5,8.6,0,1.6);prop("office_chair",10.5,9.5,0)||workChair(10.5,9.5,Math.PI);box(10.5,.79,8.75,.6,.4,.05,"#111827");box(10.5,.83,8.72,.54,.32,.01,"#0e2a44",K.glow);
+  for(const z of[2.2,2.8,3.4])prop("filing_cabinet",14.55,z,-Math.PI/2);tPanel(10.5,4);tPanel(10.5,8);
+  // Banks Escalations: a meeting room
+  if(!prop("meeting_table",-10.5,6,Math.PI/2,[.9,.8,.9]))box(-10.5,.72,6,1,.06,2.2,"#5b3a1e");for(const z of[5.2,6.8]){prop("office_chair",-11.5,z,-Math.PI/2);prop("office_chair",-9.5,z,Math.PI/2)}
+  hScreenWall(-14.86,1.6,6,3.2,1.2,"BANKS ESCALATIONS",Math.PI/2);tPanel(-10.5,4);tPanel(-10.5,8)}
+let TRS_CACHE=null;
+function trsOf(){if(TRS_CACHE)return TRS_CACHE;const f=TRS.foot,L=[];for(let x=f[0]+2;x<f[2];x+=4)for(let z=f[1]+2;z<f[3];z+=4)L.push([x,HC-.2,z,.2,4.2]);
+  const lit=fn=>{const s=captureLit(fn,L,false,HC);s.ceil=[HC,HC];return s};
+  const scene=lit(()=>{floorGrid(f[0],f[1],f[2],f[3],0,TFLOOR,K.tile,1);ceilGrid(f[0],f[1],f[2],f[3],HC,"#ffffff",2);hWalls(TRS.rooms,TRS.doors.map(d=>[d.x,d.z,d.dir,d.w]),TWALL,TGOLD,TNAVY);
+    for(const d of TRS.doors)if(d.name)hSign(d.x,d.z,d.dir,d.side,d.name,TNAVY);entrance(0,0,10.9,2.9,2.6,Math.PI,true);plate(0,2.9,10.85,2.6,.34,"EXIT",TNAVY,"#ffffff",Math.PI);trsFurnish()}),walls=WALLS.slice(),gates=[],doors=[];
+  const leaf=(d,open)=>{const w=d.w;if(d.dir==="h"){if(open)box(d.x,2.3,d.z,w,.04,.08,TGOLD);else{box(d.x,0,d.z,w,2.3,.07,"#5b3a1e");box(d.x+w*.38,1.0,d.z,.05,.05,.12,TGOLD,K.gold)}}
+    else{if(open)box(d.x,2.3,d.z,.08,.04,w,TGOLD);else{box(d.x,0,d.z,.07,2.3,w,"#5b3a1e");box(d.x,1.0,d.z+w*.38,.12,.05,.05,TGOLD,K.gold)}}};
+  for(const d of TRS.doors){if(!d.who)continue;gates.push({who:d.who,r:d.dir==="h"?[d.x-d.w/2,d.z-.2,d.x+d.w/2,d.z+.2]:[d.x-.2,d.z-d.w/2,d.x+.2,d.z+d.w/2],msg:d.name+": you do not have access."});
+    doors.push({who:d.who,shut:lit(()=>leaf(d,false)),open:lit(()=>leaf(d,true))})}
+  return TRS_CACHE={scene,walls,gates,doors,title:"National Treasury"}}
+
 const HOSP_CACHE={};
 function hospOf(n,townName){const key=n+":"+townName;if(HOSP_CACHE[key])return HOSP_CACHE[key];const F=HFLOORS.find(q=>q.n===n),f=F.foot,lights=hospLights(F);
   const lit=fn=>{const s=captureLit(fn,lights,false,HC);s.ceil=[HC,HC];return s};
@@ -1893,7 +1974,7 @@ const ROLES=[["newcomer","a new arrival (no certificate)"],["citizen","a citizen
   ["teller","a bank teller"],["manager","the Bank Manager"],["director","the Bank Director"],["visitor","a visitor for the Bank Director"],
   ["officer","an immigration officer"],["deputy","the Deputy Comptroller-General"],["cg","the Comptroller-General"],
   ["governor","the Governor"],["ssg","the Secretary to the State Government"],["council","a State Council member"],["govvisitor","a Government Visitor"],
-  ["president","the President"],["vp","the Vice President"],["cos","the Chief of Staff"],["minister","the Minister of Finance"],["fedcouncil","a Federal Council member"],["villavisitor","a President Villa Visitor"],
+  ["president","the President"],["vp","the Vice President"],["cos","the Chief of Staff"],["minister","the Minister of Finance"],["bankgov","the Bank Governor"],["fedcouncil","a Federal Council member"],["villavisitor","a President Villa Visitor"],
   ["md","the Medical Director"],["surgeon","a Surgeon"],["doctor","a Doctor"],["nurse","a Nurse"],["pharmacist","a Pharmacist"],["labsci","a Laboratory Scientist"],["dentist","a Dentist"],["patsvc","Patient Services Staff"],
   ["outpatient","a citizen: Outpatient"],["inpatient","a citizen: Hospitalized"],["dentalpt","a citizen: Dental patient"],["insurgery","a citizen: In surgery"]];
 const cam={x:0,y:9,z:46,yaw:0,pitch:-.08},me={x:0,y:0,z:50,yaw:0,pitch:.03,role:"newcomer",cert:null,inside:false,entered:false,gender:"",outfit:"",town:"Asaba"},input={x:0,y:0,run:false},keys={};
@@ -1909,7 +1990,7 @@ const MOVECFG={accel:9,decel:11,speedScale:1},VEL={x:0,z:0};
 const CAMCFG={dist:3.4,height:1.5,sensX:.0024,sensY:.002,touchSens:.005,deadZone:.15,follow:12,turn:10,minDist:1.4,maxDist:8,pitchMin:-1.0,pitchMax:.55};
 const VIEW={yaw:0,pitch:-.12,dist:CAMCFG.dist,cur:CAMCFG.dist,tx:0,ty:0,tz:0,snap:true},jump={y:0,v:0,t:-1};
 // the outer walls of the building you are in: the camera never goes past them
-function outsideRoom(x,z){const r=scene==="bank"?[-17,-10,17,10]:scene==="gov"&&GV?[-G_LW/2,GV.end,G_LW/2,G_LD]:scene==="hosp"&&HV?HV.F.foot:scene==="imm"?[-15,-11,15,11]:null;return!!r&&(x<r[0]+.2||x>r[2]-.2||z<r[1]+.2||z>r[3]-.2)}
+function outsideRoom(x,z){const r=scene==="bank"?[-17,-10,17,10]:scene==="gov"&&GV?[-G_LW/2,GV.end,G_LW/2,G_LD]:scene==="hosp"&&HV?HV.F.foot:scene==="trs"?[-15,-11,15,11]:scene==="imm"?[-15,-11,15,11]:null;return!!r&&(x<r[0]+.2||x>r[2]-.2||z<r[1]+.2||z>r[3]-.2)}
 // where the camera sits and what it looks at. It orbits a point above the character, catches up smoothly, and is pulled in front of any wall behind.
 function followCam(x,y,z,wallAt,maxY){const H=CAMCFG.height+jump.y;
   if(!view3){const cp=Math.cos(VIEW.pitch),e=[x,y+1.62+jump.y,z];VIEW.snap=true;return[e,[e[0]-Math.sin(VIEW.yaw)*cp,e[1]+Math.sin(VIEW.pitch),e[2]-Math.cos(VIEW.yaw)*cp]]}
@@ -1947,20 +2028,47 @@ function floorAt(x,z,y){if(scene!=="bank")return 0;if(x>14.3&&z<=4.1&&z>=-2)retu
 function blocked(x,z){const r=.32,hit=w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r;
   if(scene==="border"){for(const w of BORDER_WALLS)if(hit(w))return true;return false}
   if(scene==="imm"){for(const w of IMM_WALLS){if(w[4]===-1)continue;if(hit(w))return true}for(const g of IMM_GATES)if(!immCan(g.key)&&hit(g.r)){toast(g.msg);return true}return x>15-r||z<-11+r}
+  if(scene==="trs"){for(const w of TV.walls)if(hit(w))return true;for(const g of TV.gates)if(!allowed(g.who)&&hit(g.r)){toast(g.msg);return true}return x<-15+r||x>15-r||z<-11+r||(z>11-r&&Math.abs(x)>1.4)}
   if(scene==="hosp"){for(const w of HV.walls)if(hit(w))return true;for(const g of HV.gates)if(!allowed(g.who)&&hit(g.r)){toast(g.msg);return true}const f=HV.F.foot,g0=HV.F.n===0;return x<f[0]+r||(x>f[2]-r&&!(g0&&Math.abs(z-4)<1.4))||z<f[1]+r||(z>f[3]-r&&!(g0&&Math.abs(x)<1.8))}
   if(scene==="gov"){for(const w of GV.walls)if(hit(w))return true;for(const g of GV.gates)if(!allowed(g.who)&&hit(g.r)){toast(g.msg);return true}return Math.abs(x)>G_LW/2-r||z<GV.end+r}
   const level=me.y>1.6?1:0;for(const w of BANK_WALLS){if(w[4]!==undefined&&w[4]!==level)continue;if(hit(w))return true}
   if(x<-17+r||x>17-r||z<-10+r)return true;if(level===1&&z>-2.2&&!(x>14.3))return true;
   for(const g of BANK_GATES)if(g.level===level&&!bankCan(g.key)&&hit(g.r)){toast(g.msg);return true}return false}
 const nearViolet=()=>scene==="imm"&&Math.hypot(me.x-VIOLET.x,me.z-2.6)<2.4;
-const actNow=()=>{if(nearViolet())return"talk";if(scene==="hosp"&&HV){const L=HV.F.lift;return me.z<L.doorZ+2.4&&Math.abs(me.x-L.x)<2.6?"lift":null}if(scene!=="town"||flying)return null;const C=townOf(me.town).car;if(!C)return null;return driving?(Math.abs(C.v)<1.5?"out":null):Math.hypot(cam.x-C.x,cam.z-C.z)<3.6?"drive":null};
-function doAct(){const a=actNow();if(a==="lift")return liftMenu();const T=townOf(me.town),C=T.car;if(a==="talk")talk("hello");else if(a==="drive"){driving=true;cam.pitch=0;toast(touch?"Driving: push the stick up to go, down to brake, sideways to steer.":"Driving: W to go, S to brake and reverse, A and D to steer. Press F to get out.")}
+const actNow=()=>{if(nearViolet())return"talk";if(scene==="trs"){const T=TRS.terminals.find(q=>Math.hypot(me.x-q.x,me.z-q.z)<1.6);return T?"term_"+T.kind:null}if(scene==="hosp"&&HV){const L=HV.F.lift;return me.z<L.doorZ+2.4&&Math.abs(me.x-L.x)<2.6?"lift":null}if(scene!=="town"||flying)return null;const C=townOf(me.town).car;if(!C)return null;return driving?(Math.abs(C.v)<1.5?"out":null):Math.hypot(cam.x-C.x,cam.z-C.z)<3.6?"drive":null};
+function doAct(){const a=actNow();if(a==="lift")return liftMenu();if(a&&a.startsWith("term_"))return trsTerminal(a.slice(5));const T=townOf(me.town),C=T.car;if(a==="talk")talk("hello");else if(a==="drive"){driving=true;cam.pitch=0;toast(touch?"Driving: push the stick up to go, down to brake, sideways to steer.":"Driving: W to go, S to brake and reverse, A and D to steer. Press F to get out.")}
   else if(a==="out"){driving=false;C.v=0;const rx=Math.cos(C.yaw),rz=-Math.sin(C.yaw);for(const s of[-1,1]){const x=C.x+rx*1.9*s,z=C.z+rz*1.9*s;if(!T.blocks.some(w=>x>w[0]-.4&&x<w[2]+.4&&z>w[1]-.4&&z<w[3]+.4)){cam.x=x;cam.z=z;break}}}}
 const GPU=(()=>{try{const e=gl.getExtension("WEBGL_debug_renderer_info");return e?String(gl.getParameter(e.UNMASKED_RENDERER_WEBGL)).replace(/ANGLE \(|\)$/g,"").slice(0,34):"graphics unknown"}catch(x){return"graphics unknown"}})();
 // what each door in a town leads to
 // the lift: choose a floor
 function liftMenu(){choosing=true;const el=document.getElementById("choose");el.hidden=false;el.innerHTML=`<div class="card"><h1>Lift</h1><p>${STATES[me.town].hosp}. Choose a floor.</p><div class="looks">${HFLOORS.map(f=>`<button class="look ${f.n===HFLOOR_N?"on":""}" data-floor="${f.n}"><b style="font-size:22px">${f.n===0?"G":f.n}</b><span style="font-weight:500;font-size:12.5px;opacity:.8">${f.name}</span></button>`).join("")}</div><button class="go" data-stay="1">Stay on this floor</button></div>`}
-const DOORWAYS={hosp:()=>toHosp(0,false),bank:()=>toBank(),imm:()=>STATES[me.town].capital?toImm(true):toast("This state immigration office has no inside yet. Registration is at the Immigration Authority in Asaba."),
+/* ---- the Treasury terminals. The Bank Governor prints and distributes at the Central Bank terminal; the Minister of
+   Finance and the Governor see the reserves. Orders and balances live in the database, which also checks the role. ---- */
+let cbTimer=null,cbKind="cb",cbMsg="";
+const kfmt=v=>"K"+Number(v||0).toLocaleString("en-GB");
+async function cbCall(fn,body){await freshToken();return supa("/rest/v1/rpc/"+fn,{method:"POST",auth:true,body:body||{}})}
+function cbClose(){clearInterval(cbTimer);cbTimer=null}
+function trsTerminal(kind){cbKind=kind;cbMsg="";choosing=true;const el=document.getElementById("choose");el.hidden=false;
+  const head=kind==="cb"?"Delta Central Bank":"Reserve Office",shell=body=>`<div class="card cbcard"><h1>${head}</h1>${body}<button class="go" data-stay="1">Close</button></div>`;
+  if(typeof AUTH==="undefined"||!AUTH.user||AUTH.offline){el.innerHTML=shell(`<p>This terminal works on the live game with a signed-in account whose role on the server is Bank Governor or Minister of Finance.</p>`);return}
+  if(!TRS_RES.includes(me.role)){el.innerHTML=shell(`<p>Only the Bank Governor and the Minister of Finance can use this terminal.</p>`);return}
+  el.innerHTML=shell(`<div id="cbBody"><p>Loading the reserves...</p></div>`);cbRefresh();cbClose();cbTimer=setInterval(()=>{if(document.getElementById("cbBody"))cbRefresh();else cbClose()},5000)}
+async function cbRefresh(){const box_=document.getElementById("cbBody");if(!box_)return;let d;try{d=await cbCall("cb_status")}catch(e){box_.innerHTML=`<p class="amsg err">${esc(e.message)}</p>`;return}
+  const order=me.role==="bankgov"&&cbKind==="cb",now=Date.now(),rows=(d.orders||[]).map(o=>{const pct=Math.round(100*o.settled/o.amount),left=Math.max(0,Math.ceil((o.amount-o.settled)/o.rate));
+      return `<tr><td>${o.kind==="print"?"Print":"To "+esc(o.state)}</td><td>${kfmt(o.amount)}</td><td><i class="cbbar"><em style="width:${pct}%"></em></i>${pct}%</td><td>${o.done?"done":left+" min"}</td></tr>`}).join("");
+  const keepAmt=(document.getElementById("cbAmt")||{}).value||"",keepDist=(document.getElementById("cbDAmt")||{}).value||"",keepSt=(document.getElementById("cbSt")||{}).value||"Asaba";
+  box_.innerHTML=`<div class="cbres"><div><span>National Reserve</span><b>${kfmt(d.reserve)}</b></div>${(d.states||[]).map(s=>`<div><span>${esc(s.state)}</span><b>${kfmt(s.balance)}</b></div>`).join("")}<div><span>In transit</span><b>${kfmt(d.transit)}</b></div></div>
+    ${order?`<div class="cbform"><label class="lab">Print new money (K20,000 a minute)</label><div class="cbrow"><input id="cbAmt" inputmode="numeric" placeholder="Amount" value="${esc(keepAmt)}"><button class="btn2s" data-cb="print">Print</button></div>
+      <label class="lab">Send to a state (K100,000 a minute)</label><div class="cbrow"><select id="cbSt">${["Asaba","Warri","Ozoro","Agbor"].map(s=>`<option ${s===keepSt?"selected":""}>${s}</option>`).join("")}</select><input id="cbDAmt" inputmode="numeric" placeholder="Amount" value="${esc(keepDist)}"><button class="btn2s" data-cb="dist">Send</button></div></div>`:""}
+    <p class="amsg">${esc(cbMsg)}</p>${rows?`<table class="cbt"><tr><th>Order</th><th>Amount</th><th>Progress</th><th>Left</th></tr>${rows}</table>`:`<p>No orders yet.</p>`}`}
+async function cbAction(what){const amt=s=>Math.round(+String(s||"").replace(/[^0-9.]/g,""));try{
+  if(what==="print"){const a=amt(document.getElementById("cbAmt").value);if(!(a>0))throw new Error("Enter an amount to print.");await cbCall("cb_print",{p_amount:a});cbMsg="Printing "+kfmt(a)+": done in about "+Math.ceil(a/20000)+" minutes.";document.getElementById("cbAmt").value=""}
+  if(what==="dist"){const a=amt(document.getElementById("cbDAmt").value),s=document.getElementById("cbSt").value;if(!(a>0))throw new Error("Enter an amount to send.");await cbCall("cb_distribute",{p_state:s,p_amount:a});cbMsg="Sending "+kfmt(a)+" to "+s+": arrives over about "+Math.ceil(a/100000)+" minutes.";document.getElementById("cbDAmt").value=""}
+  }catch(e){cbMsg=e.message}cbRefresh()}
+
+let TV=null;
+const toTrs=()=>fadeTo("National Treasury",()=>{TV=trsOf();stand("trs",{x:0,z:9.4,yaw:0})});
+const DOORWAYS={treasury:()=>{if(!allowed(TRS_ALL)){toast("The National Treasury is open only to its officials: the Bank Governor, the Minister of Finance, the President, the Vice President, the Chief of Staff, and state Governors, SSGs and Banking Directors.");return}toTrs()},hosp:()=>toHosp(0,false),bank:()=>toBank(),imm:()=>STATES[me.town].capital?toImm(true):toast("This state immigration office has no inside yet. Registration is at the Immigration Authority in Asaba."),
   gov:()=>toGov("state","gov"),air:()=>departures(),
   fed:()=>allowed(ALL_FED)?toGov("federal","fed"):toast(GOV_SPEC.federal().noEntry),villa:()=>allowed(VILLA3)?toGov("villa","villa"):toast(GOV_SPEC.villa().noEntry),
   villa1:()=>allowed(VILLA3)?toGov("villa","villa1"):toast(GOV_SPEC.villa().noEntry),villa2:()=>allowed(VILLA3)?toGov("villa","villa2"):toast(GOV_SPEC.villa().noEntry)};
@@ -2010,20 +2118,21 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
       if(scene==="border"){if(Math.abs(me.x)<1.5&&me.z<12.4&&me.z>11)toImm(false)}
       else if(scene==="imm"){if(Math.abs(me.x)<1.5&&me.z>10.55)toBorder(false);else if(me.x<-15.3&&immCan("city"))toTown(me.entered?"Asaba":(me.cert&&STATES[me.cert.state]?me.cert.state:"Asaba"),"imm",me.entered?"Asaba":"Welcome to "+(me.cert?me.cert.state:"Asaba")+", your home state",9)}
       else if(scene==="gov"){if(Math.abs(me.x)<1.5&&me.z>G_LD-.45)toTown(me.town,govSpot)}
+      else if(scene==="trs"){if(Math.abs(me.x)<1.4&&me.z>10.75)toTown(me.town,"treasury")}
       else if(scene==="hosp"){if(HV.F.n===0&&((Math.abs(me.x)<1.8&&me.z>8.75)||(me.x>15.75&&Math.abs(me.z-4)<1.4)))toTown(me.town,"hosp")}
       else if(me.y<.5&&Math.abs(me.x)<1.5&&me.z>9.55)toTown(me.town,"bank")}
     if(talking){const ey=me.y+1.62,cp=Math.cos(me.pitch);eye=[me.x,ey,me.z];to=[me.x-Math.sin(me.yaw)*cp,ey+Math.sin(me.pitch),me.z-Math.cos(me.yaw)*cp]}
-    else[eye,to]=followCam(me.x,me.y,me.z,(x,z)=>outsideRoom(x,z)||((x,z)=>scene==="border"?BORDER_WALLS.some(w=>x>w[0]-.2&&x<w[2]+.2&&z>w[1]-.2&&z<w[3]+.2):(scene==="imm"?IMM_WALLS:scene==="gov"?GV.walls:scene==="hosp"?HV.walls:BANK_WALLS).some(w=>w[4]!==-1&&(scene!=="bank"||w[4]===undefined||w[4]===(me.y>1.6?1:0))&&x>w[0]-.2&&x<w[2]+.2&&z>w[1]-.2&&z<w[3]+.2))(x,z),scene==="bank"?(me.y>1.6?6.1:3.0):scene==="gov"?3.5:scene==="hosp"?3.35:scene==="imm"?3.9:99)}
-  {const a=actNow(),el=document.getElementById("act");el.hidden=!a||talking||busy||choosing||mapOpen;if(a)el.textContent=a==="lift"?"Use the lift":a==="talk"?"Talk to Violet":a==="drive"?"Drive the car":"Get out";}
+    else[eye,to]=followCam(me.x,me.y,me.z,(x,z)=>outsideRoom(x,z)||((x,z)=>scene==="border"?BORDER_WALLS.some(w=>x>w[0]-.2&&x<w[2]+.2&&z>w[1]-.2&&z<w[3]+.2):(scene==="imm"?IMM_WALLS:scene==="gov"?GV.walls:scene==="hosp"?HV.walls:scene==="trs"?TV.walls:BANK_WALLS).some(w=>w[4]!==-1&&(scene!=="bank"||w[4]===undefined||w[4]===(me.y>1.6?1:0))&&x>w[0]-.2&&x<w[2]+.2&&z>w[1]-.2&&z<w[3]+.2))(x,z),scene==="bank"?(me.y>1.6?6.1:3.0):scene==="gov"?3.5:scene==="hosp"?3.35:scene==="imm"?3.9:99)}
+  {const a=actNow(),el=document.getElementById("act");el.hidden=!a||talking||busy||choosing||mapOpen;if(a)el.textContent=a==="term_cb"?"Use the Central Bank terminal":a==="term_res"?"Use the reserves terminal":a==="lift"?"Use the lift":a==="talk"?"Talk to Violet":a==="drive"?"Drive the car":"Get out";}
   const w=cv.clientWidth,h=cv.clientHeight,dpr=Math.min(window.devicePixelRatio||1,quality);if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
-  const fly=scene==="town",indoor=scene==="bank"||scene==="imm"||scene==="gov"||scene==="hosp",fovNow=fly?(w>h?.85:1.05):(w>h?1.05:1.25),PMs=PLAYERS[me.gender]||PLAYERS.Female;
+  const fly=scene==="town",indoor=scene==="bank"||scene==="imm"||scene==="gov"||scene==="hosp"||scene==="trs",fovNow=fly?(w>h?.85:1.05):(w>h?1.05:1.25),PMs=PLAYERS[me.gender]||PLAYERS.Female;
   // the sun's picture first: the town near you, the car, and your own character all cast shadows
   if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE)lists.push([CARSCENE.bufs,mul(trans(T.car.x,0,T.car.z),rotY(T.car.yaw+Math.PI))]);
     shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing){gl.colorMask(true,true,true,true);WALKER.draw(PMs,lvp,cam.x,jump.y,cam.z,cam.yaw,gait,t,null,"");gl.colorMask(false,false,false,false)}})}
   gl.viewport(0,0,cv.width,cv.height);const VP=mul(persp(fovNow,w/h,fly?.25:.08,800),look(eye,to,[0,1,0]));
   gl.clearColor(LIGHT.fog[0],LIGHT.fog[1],LIGHT.fog[2],1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);if(!indoor)drawSky(eye,to,fovNow,w/h);
   if(T)GROUND.zones=T.map.lawnZones||[];
-  const parts=scene==="town"?townParts(T):scene==="border"?[BORDER]:scene==="bank"?[bankOf(me.town)].concat(BANK_DOORS.map(d=>bankCan(d.key)?d.open:d.shut)):scene==="hosp"?[HV.scene].concat(HV.doors.map(d=>allowed(d.who)?d.open:d.shut)):scene==="gov"?[GV.scene].concat(GV.doors.map(d=>allowed(d.who)?d.open:d.shut)):[IMM_IN].concat(IMM_DOORS.map(d=>immCan(d.key)?d.open:d.shut));
+  const parts=scene==="town"?townParts(T):scene==="border"?[BORDER]:scene==="bank"?[bankOf(me.town)].concat(BANK_DOORS.map(d=>bankCan(d.key)?d.open:d.shut)):scene==="hosp"?[HV.scene].concat(HV.doors.map(d=>allowed(d.who)?d.open:d.shut)):scene==="trs"?[TV.scene].concat(TV.doors.map(d=>allowed(d.who)?d.open:d.shut)):scene==="gov"?[GV.scene].concat(GV.doors.map(d=>allowed(d.who)?d.open:d.shut)):[IMM_IN].concat(IMM_DOORS.map(d=>immCan(d.key)?d.open:d.shut));
   if(scene==="imm"&&me.cert&&me.role==="citizen"&&!me.entered)parts.push(GUIDE);
   for(const S of parts)drawScene(S,VP,eye,indoor);if(scene==="imm"&&CAST.violet)WALKER.draw(CAST.violet,VP,VIOLET.x,0,VIOLET.z,Math.PI,{p:0,run:0,amt:0,idle:talking?"f_talk":"f_idle"},t,null,"");
   if(scene==="town"&&T.trees)drawTrees(T.trees,VP,eye,flying?null:c=>TREEVIS(c)&&Math.hypot(c.cx-cam.x,c.cz-cam.z)<125,flying?1500:150);       // beyond about 125 m the haze has swallowed the trees
@@ -2033,11 +2142,12 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE)drawSceneClear(CARSCENE,VP,eye,t);
   if(scene==="town"&&frames%3===0)drawMini(T);document.getElementById("mini").hidden=scene!=="town"||choosing;
   frames++;acc+=real;if(acc>=.5){const fps=frames/acc;document.getElementById("fps").textContent=Math.round(fps);frames=0;acc=0;let tris2=0;const tris=scene==="town"?0:parts.reduce((s,S)=>s+S.tris,0)+(scene==="imm"?15450:0);
-    if(scene==="town")tris2=parts.reduce((s,S)=>s+S.bufs.concat(S.clear).reduce((q,x)=>q+x.n/3,0),0);const info=document.getElementById("info");info.textContent=({town:me.town,border:"The border gate",bank:"Inside "+STATES[me.town].bank,imm:"Inside Immigration",gov:GV?GV.title:"",hosp:HV?HV.title:""})[scene]+", "+Math.round((scene==="town"?tris2:tris)/1000)+"k triangles, "+cv.width+"x"+cv.height;info.appendChild(document.createElement("br"));info.appendChild(document.createTextNode(GPU));
+    if(scene==="town")tris2=parts.reduce((s,S)=>s+S.bufs.concat(S.clear).reduce((q,x)=>q+x.n/3,0),0);const info=document.getElementById("info");info.textContent=({town:me.town,border:"The border gate",bank:"Inside "+STATES[me.town].bank,imm:"Inside Immigration",gov:GV?GV.title:"",hosp:HV?HV.title:"",trs:"Inside the National Treasury"})[scene]+", "+Math.round((scene==="town"?tris2:tris)/1000)+"k triangles, "+cv.width+"x"+cv.height;info.appendChild(document.createElement("br"));info.appendChild(document.createTextNode(GPU));
     {const key=scene+"/"+me.town;if(key!==QSET.key){QSET.key=key;QSET.until=t+5}}const calm=t>QSET.until&&!busy&&!choosing;
     if(t-QSET.capAt>45&&QSET.cap<QMAX){QSET.cap=Math.min(QMAX,QSET.cap+.1);QSET.capAt=t}
-    if(calm&&fps<48&&quality>.5){slow++;fast=0;if(slow>=2){QSET.cap=Math.max(.5,quality-.05);QSET.capAt=t;quality=Math.max(.5,quality-.15);slow=0}}
-    else if(calm&&fps>=56&&quality<Math.min(QMAX,QSET.cap)-.001){fast++;slow=0;if(fast>=3){quality=Math.min(QMAX,QSET.cap,quality+.1);fast=0}}else{slow=0;fast=0}
+    const settled=t-(QSET.changed||0)>6;
+    if(calm&&fps<50&&quality>.5){slow++;fast=0;if(slow>=3&&settled){QSET.cap=Math.max(.5,quality-.05);QSET.capAt=t;quality=Math.max(.5,quality-.1);QSET.changed=t;slow=0}}
+    else if(calm&&fps>=58&&quality<Math.min(QMAX,QSET.cap)-.001){fast++;slow=0;if(fast>=4&&settled){quality=Math.min(QMAX,QSET.cap,quality+.1);QSET.changed=t;fast=0}}else{slow=0;fast=0}
     if(calm&&t>8&&fps<42&&TREE_NEAR>-30&&scene==="town"){treeLow=(treeLow||0)+1;if(treeLow>=6){TREE_NEAR=-30;treeLow=0}}else treeLow=0;       // first, every tree switches to its light version
     if(calm&&t>8&&fps<24&&SHADOW.on&&scene==="town"){lowFor=(lowFor||0)+1;if(lowFor>=6){SHADOW.on=false;toast("Shadows were switched off to keep the game smooth. You can turn them back on in Testing.")}}else lowFor=0}}       // shadows are the first thing to go on a slow machine        // lower the sharpness until it runs smoothly
 /* The Certificate of Birth: the same document the Discord bot issues, drawn to the same layout
@@ -2248,13 +2358,13 @@ function ui(){guide();const el=document.getElementById("picks");el.innerHTML="";
     add(SHADOW.on?"Shadows: on":"Shadows: off",()=>{SHADOW.on=!SHADOW.on;ui()},SHADOW.on);{const T=[null,7,12,17.5,18.6,19.2,22],k=T.indexOf(TIMEOVR),f=h=>String(Math.floor(h)).padStart(2,"0")+":"+String(Math.round(h%1*60)).padStart(2,"0");add("Time: "+(TIMEOVR===null?"real ("+f(watHours())+")":f(TIMEOVR)),()=>{TIMEOVR=T[(k+1)%T.length];lightAt=-1;ui()})}add("Ground: "+["all lawns","mixed","all red earth"][GROUND.mode],()=>{GROUND.mode=(GROUND.mode+1)%3;ui()});
     if(scene==="town"){add(flying?"Flying: on":"Flying: off",()=>{flying=!flying;if(!flying)cam.y=1.7;ui()},flying);if(flying)add("See from above",()=>Object.assign(cam,{x:cam.x,y:380,z:cam.z+10,pitch:-1.54}));
       for(const st of Object.keys(STATES))if(st!==me.town)add("Go to "+st,()=>{clearRoute();toTown(st,"imm",st,9)})}
-    if(scene==="bank")add("Leave the bank",()=>toTown(me.town,"bank"));if(scene==="gov")add("Leave the building",()=>toTown(me.town,govSpot));if(scene==="hosp")add("Leave the hospital",()=>toTown(me.town,"hosp"));
+    if(scene==="bank")add("Leave the bank",()=>toTown(me.town,"bank"));if(scene==="gov")add("Leave the building",()=>toTown(me.town,govSpot));if(scene==="hosp")add("Leave the hospital",()=>toTown(me.town,"hosp"));if(scene==="trs")add("Leave the Treasury",()=>toTown(me.town,"treasury"));
     if(me.role==="newcomer")add("Skip registration",()=>{pickDefault();choosing=false;document.getElementById("choose").hidden=true;me.role="citizen";me.cert=Object.assign({},SAMPLE);closeTalk();toTown("Asaba","imm","Asaba",9)});
     else if(scene==="imm"||scene==="border")add("Go to the town",()=>toTown(me.entered?me.town:(me.cert&&STATES[me.cert.state]?me.cert.state:"Asaba"),"imm",null,9));
     add("Start again at the border",()=>toBorder(true))}
   const walk=touch?"Left thumb: move. Drag elsewhere to look around, pinch to zoom. Hold Run to run. ":"W A S D move, Shift runs, Space jumps. Click the scene to look around with the mouse (Esc frees it); the wheel zooms; V switches view. ";
   document.getElementById("tip").textContent={town:walk+(touch?"":"Hold Shift to run. ")+"Tap the round map for directions. Blue doorways lead inside. Walk up to the red car to drive it.",
-    border:walk+"Go through the gate and into the blue doorway marked Arrivals.",imm:walk+(touch?"Walk up to Violet to talk to her.":"Walk up to Violet and press E to talk to her."),bank:walk+"The blue doorway is the way out.",gov:walk+"The blue doorway is the way out.",hosp:walk+"The lifts are at the back of the lobby; walk up to them to change floor. The blue doorways lead out."}[scene]}
+    border:walk+"Go through the gate and into the blue doorway marked Arrivals.",imm:walk+(touch?"Walk up to Violet to talk to her.":"Walk up to Violet and press E to talk to her."),bank:walk+"The blue doorway is the way out.",gov:walk+"The blue doorway is the way out.",trs:walk+"Walk up to a desk terminal to use it. The blue doorway leads out.",hosp:walk+"The lifts are at the back of the lobby; walk up to them to change floor. The blue doorways lead out."}[scene]}
 /* The airport's departures board: choose a state and fly there. */
 function departures(){choosing=true;const el=document.getElementById("choose");el.hidden=false;
   el.innerHTML=`<div class="card"><h1>${STATES[me.town].air}</h1><p>Departures. Choose where to fly. You arrive outside that state's airport.</p><div class="lab">Flights today</div>
@@ -2271,7 +2381,7 @@ function chooser(){chooserOn=true;choosing=true;const el=document.getElementById
 document.getElementById("choose").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const shut=()=>{choosing=false;document.getElementById("choose").hidden=true};
   if(b.dataset.g){pick.gender=b.dataset.g;pick.outfit="";chooser()}else if(b.dataset.o){pick.outfit=b.dataset.o;chooser()}
   else if(b.dataset.go){chooserOn=false;me.gender=pick.gender;me.outfit=pick.outfit;const c=ROSTER[me.gender].find(q=>q.key===me.outfit);if(c)PLAYERS[me.gender]=c.m;shut();guide()}
-  else if(b.dataset.floor!==undefined){const n=+b.dataset.floor;shut();if(n!==HFLOOR_N)toHosp(n,true)}else if(b.dataset.auth)authClick(b.dataset.auth);else if(b.dataset.stay)shut();else if(b.dataset.fly){const to=b.dataset.fly;shut();toTown(to,"air","Flying to "+to+"...",16)}});
+  else if(b.dataset.floor!==undefined){const n=+b.dataset.floor;shut();if(n!==HFLOOR_N)toHosp(n,true)}else if(b.dataset.cb)cbAction(b.dataset.cb);else if(b.dataset.auth)authClick(b.dataset.auth);else if(b.dataset.stay)shut();else if(b.dataset.fly){const to=b.dataset.fly;shut();toTown(to,"air","Flying to "+to+"...",16)}});
 const guide0=guide;guide=function(){guide0();if(choosing)document.getElementById("guide").hidden=true};
 /* ================================ accounts and saving ================================
    Players sign in with email and password. Their citizen (name, certificate, cash, home state, where they
