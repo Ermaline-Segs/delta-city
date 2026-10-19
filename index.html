@@ -35,6 +35,19 @@ html,body{overscroll-behavior:none}canvas,.stick,.tbtn{touch-action:none}
 .choose .cbcard{max-width:560px}.cbres{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin:8px 0 12px}.cbres div{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0}.cbres b{font-variant-numeric:tabular-nums}
 .cbrow{display:flex;gap:8px}.cbrow input,.cbrow select{flex:1;font:inherit;font-size:15px;padding:9px 10px;border-radius:10px;border:1px solid var(--line);min-width:0}.btn2s{font:inherit;font-weight:800;padding:9px 14px;border-radius:10px;border:0;background:#FBBF24;color:#1a1206;cursor:pointer}
 .cbt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}.cbt th,.cbt td{text-align:left;padding:5px 4px;border-bottom:1px solid var(--line)}.cbbar{display:inline-block;width:70px;height:7px;background:rgba(128,128,128,.25);border-radius:9px;margin-right:6px;vertical-align:middle}.cbbar em{display:block;height:100%;background:#16a34a;border-radius:9px}
+#dash{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:4;display:flex;align-items:center;gap:14px;background:rgba(11,26,54,.86);color:#fff;border:1px solid rgba(251,191,36,.38);border-radius:16px;padding:8px 16px;font-family:system-ui,sans-serif;user-select:none}
+#dash .dsp{text-align:center;cursor:pointer;min-width:62px}#dash .dsp b{display:block;font-size:30px;line-height:1;font-variant-numeric:tabular-nums}#dash .dsp span{font-size:11px;opacity:.75}
+#dash .dgear span{display:inline-block;width:20px;text-align:center;font-weight:800;opacity:.35}#dash .dgear span.on{opacity:1;color:#FBBF24}
+#dash .drpm{width:90px;height:7px;border-radius:9px;background:rgba(255,255,255,.15);overflow:hidden}#dash .drpm i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#facc15 70%,#ef4444)}
+#dash .dico span{margin:0 3px;opacity:.22;font-weight:800}#dash .dico span.on{opacity:1;color:#22c55e}#dash #dHz.on{color:#f59e0b}#dash #dLt.on{color:#93c5fd}#dash #dLt.hi{color:#60a5fa}#dash #dHb.on{color:#ef4444}
+#dash .dmsg{position:absolute;left:50%;bottom:110%;transform:translateX(-50%);white-space:nowrap;background:rgba(0,0,0,.7);padding:5px 12px;border-radius:9px;font-size:14px;opacity:0;transition:opacity .2s}#dash .dmsg.on{opacity:1}
+body.driving .stick,body.driving .tbtn{display:none!important}#dpad{position:fixed;inset:0;z-index:3;pointer-events:none;touch-action:none}
+#wheel{position:fixed;left:calc(18px + env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));width:150px;height:150px;pointer-events:auto;touch-action:none}
+#wheelIn{width:100%;height:100%;border-radius:50%;border:14px solid rgba(20,24,32,.78);box-sizing:border-box;position:relative;transition:transform .12s}#wheelIn i{position:absolute;left:50%;top:50%;width:70%;height:12px;background:rgba(20,24,32,.78);transform:translate(-50%,-50%);border-radius:6px}
+#pedals{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));pointer-events:auto;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+#pedals .drow{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;max-width:62vw}#pedals button{font:700 12px system-ui,sans-serif;padding:7px 9px;border-radius:9px;border:1px solid rgba(255,255,255,.6);background:rgba(15,31,51,.55);color:#fff;touch-action:none}#pedals button.on{background:#FBBF24;color:#1a1206}
+#pedals .ped{width:84px;height:96px;font-size:14px;border-radius:14px}#pedals .ped.thr{background:rgba(22,163,74,.6)}#pedals .ped.brk{background:rgba(185,28,28,.6)}
+body.driving.touch #dash{bottom:auto;top:calc(10px + env(safe-area-inset-top,0px))}
 .cashpill{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));top:calc(58px + env(safe-area-inset-top,0px));z-index:3;background:rgba(15,31,51,.92);color:#fff;font-weight:800;font-size:17px;padding:8px 16px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.3);letter-spacing:.3px}
 .choose .auth input{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg,#fff);color:var(--ink)}
 .choose .amsg{min-height:20px;margin:10px 0 0;font-size:14px}.choose .amsg.err{color:#b91c1c}
@@ -313,6 +326,13 @@ const ROOMU=new Float32Array(128),ROOMR=new Float32Array(32).fill(1);
 function setRoom(S,eye,indoor){const on=!!(indoor&&S.lights&&ROOMLIGHT);gl.uniform1f(TOWN.u.roomOn,on?1:0);if(!on)return;
   const L=S.lights.map(l=>[l,(l[0]-eye[0])**2+(l[1]-eye[1])**2+(l[2]-eye[2])**2]).sort((a,b)=>a[1]-b[1]).slice(0,32);ROOMU.fill(0);ROOMR.fill(1);
   L.forEach(([l],i)=>{ROOMU[i*4]=l[0];ROOMU[i*4+1]=l[1];ROOMU[i*4+2]=l[2];ROOMU[i*4+3]=l[3];ROOMR[i]=l[4]||4});gl.uniform4fv(TOWN.u["roomL[0]"],ROOMU);gl.uniform1fv(TOWN.u["roomR[0]"],ROOMR);gl.uniform1f(TOWN.u.roomSplit,S.split?1:0)}
+/* Doors that open: a door you may use opens as you come within about 2.5 m and closes when you have gone. Hospital
+   doors slide into the wall; others swing away from you, about their hinge. Doors you may not use stay shut. */
+function doorParts(list){const out=[];for(const d of list){const ok=allowed(d.who);if(d.x===undefined){out.push(ok?d.open:d.shut);continue}
+    const near=Math.hypot(me.x-d.x,me.z-d.z)<2.6,goal=ok&&near?1:0;if(!(d.f>.01))d.sw=d.dir==="h"?(me.z>d.z?1:-1):(me.x<d.x?1:-1);d.f=(d.f||0)+(goal-(d.f||0))*Math.min(1,dtNow*5);
+    if(d.f>.985){out.push(d.open);continue}d.shut.model=d.f<.01?null:doorMatrix(d);out.push(d.shut)}return out}
+function doorMatrix(d){const f=d.f*d.f*(3-2*d.f),w=d.w;if(d.mode==="slide")return d.dir==="h"?trans(w*.98*f,0,0):trans(0,0,w*.98*f);
+  const a=f*1.6*d.sw,hx=d.dir==="h"?d.x-w/2:d.x,hz=d.dir==="h"?d.z:d.z-w/2;return mul(trans(hx,0,hz),mul(rotY(a),trans(-hx,0,-hz)))}
 function setLight(P,inside){const L=inside?DAYLIGHT:(LIGHT.force||LIGHT);gl.uniform3fv(P.u.sunL,L.dir);gl.uniform3fv(P.u.sunC,L.sun);gl.uniform3fv(P.u.ambT,L.ambT);gl.uniform3fv(P.u.ambB,L.ambB);gl.uniform3fv(P.u.fogC,L.fog);
   gl.uniform1f(P.u.night,inside?0:L.night);if(P.u["lampP[0]"])gl.uniform4fv(P.u["lampP[0]"],L.lamps)}
 
@@ -1588,9 +1608,9 @@ const GOV_CACHE={};
 function govOf(kind,st){const key=kind==="state"?"state:"+st:kind;if(GOV_CACHE[key])return GOV_CACHE[key];const S=GOV_SPEC[kind](st),lights=govLights(S),plan=govPlan(S);
   const lit=fn=>{const s=captureLit(fn,lights,false,G_CEIL);s.ceil=[G_CEIL,G_CEIL];return s},scene=lit(()=>govInside(S)),walls=WALLS.slice(),gates=[],doors=[];
   const leaf=(x,z,open,side,color)=>{if(open)box(x+side*.12,0,z-.75-.62,.07,2.15,1.24,color);else{box(x,0,z,.08,2.15,1.36,color);box(x-side*.07,1,z+.5,.05,.07,.07,S.pal.trim,K.gold)}};
-  for(const r of plan.rooms){const x=r.side*G_SP;gates.push({who:r.who,r:[x-.18,r.zc-.7,x+.18,r.zc+.7],msg:r.plate+": you do not have access to this room."});doors.push({who:r.who,shut:lit(()=>leaf(x,r.zc,false,r.side,S.pal.wood)),open:lit(()=>leaf(x,r.zc,true,r.side,S.pal.wood))})}
+  for(const r of plan.rooms){const x=r.side*G_SP;gates.push({who:r.who,r:[x-.18,r.zc-.7,x+.18,r.zc+.7],msg:r.plate+": you do not have access to this room."});doors.push({who:r.who,shut:lit(()=>leaf(x,r.zc,false,r.side,S.pal.wood)),open:lit(()=>leaf(x,r.zc,true,r.side,S.pal.wood)),x,z:r.zc,dir:"v",w:1.36,mode:"swing"})}
   if(S.head){gates.push({who:S.head.who,r:[-.8,-plan.SL-.18,.8,-plan.SL+.18],msg:S.head.plate+": you do not have access to this chamber."});
-    doors.push({who:S.head.who,shut:lit(()=>{box(0,0,-plan.SL,1.56,2.2,.08,S.pal.wood,K.wood);box(.6,1,-plan.SL+.07,.07,.07,.05,S.pal.trim,K.gold)}),open:lit(()=>{box(-1.6,0,-plan.SL-.16,1.5,2.2,.07,S.pal.wood,K.wood)})})}
+    doors.push({who:S.head.who,shut:lit(()=>{box(0,0,-plan.SL,1.56,2.2,.08,S.pal.wood,K.wood);box(.6,1,-plan.SL+.07,.07,.07,.05,S.pal.trim,K.gold)}),open:lit(()=>{box(-1.6,0,-plan.SL-.16,1.5,2.2,.07,S.pal.wood,K.wood)}),x:0,z:-plan.SL,dir:"h",w:1.56,mode:"swing"})}
   return GOV_CACHE[key]={S,scene,walls,gates,doors,end:plan.end,title:S.title}}
 
 /* ================================ the hospital ================================
@@ -1755,7 +1775,7 @@ function trsOf(){if(TRS_CACHE)return TRS_CACHE;const f=TRS.foot,L=[];for(let x=f
   const leaf=(d,open)=>{const w=d.w;if(d.dir==="h"){if(open)box(d.x,2.3,d.z,w,.04,.08,TGOLD);else{box(d.x,0,d.z,w,2.3,.07,"#5b3a1e");box(d.x+w*.38,1.0,d.z,.05,.05,.12,TGOLD,K.gold)}}
     else{if(open)box(d.x,2.3,d.z,.08,.04,w,TGOLD);else{box(d.x,0,d.z,.07,2.3,w,"#5b3a1e");box(d.x,1.0,d.z+w*.38,.12,.05,.05,TGOLD,K.gold)}}};
   for(const d of TRS.doors){if(!d.who)continue;gates.push({who:d.who,r:d.dir==="h"?[d.x-d.w/2,d.z-.2,d.x+d.w/2,d.z+.2]:[d.x-.2,d.z-d.w/2,d.x+.2,d.z+d.w/2],msg:d.name+": you do not have access."});
-    doors.push({who:d.who,shut:lit(()=>leaf(d,false)),open:lit(()=>leaf(d,true))})}
+    doors.push({who:d.who,shut:lit(()=>leaf(d,false)),open:lit(()=>leaf(d,true)),x:d.x,z:d.z,dir:d.dir,w:d.w,mode:"swing"})}
   return TRS_CACHE={scene,walls,gates,doors,title:"National Treasury"}}
 
 const HOSP_CACHE={};
@@ -1769,7 +1789,7 @@ function hospOf(n,townName){const key=n+":"+townName;if(HOSP_CACHE[key])return H
   const leaf=(d,open)=>{const w=d.w,col="#e2e8f0",tr="#94a3b8";if(d.dir==="h"){if(open)box(d.x,2.3,d.z,w,.04,.08,tr);else{box(d.x,0,d.z,w,2.3,.07,col);box(d.x,1.3,d.z,w*.3,.6,.08,"#bfdbfe",K.glass);box(d.x+w*.38,1.0,d.z,.05,.05,.12,tr)}}
     else{if(open)box(d.x,2.3,d.z,.08,.04,w,tr);else{box(d.x,0,d.z,.07,2.3,w,col);box(d.x,1.3,d.z,.08,.6,w*.3,"#bfdbfe",K.glass);box(d.x,1.0,d.z+w*.38,.12,.05,.05,tr)}}};
   for(const d of F.doors){if(!d.who)continue;gates.push({who:d.who,r:d.dir==="h"?[d.x-d.w/2,d.z-.2,d.x+d.w/2,d.z+.2]:[d.x-.2,d.z-d.w/2,d.x+.2,d.z+d.w/2],msg:(d.name||"This room")+": you do not have access."});
-    doors.push({who:d.who,shut:lit(()=>leaf(d,false)),open:lit(()=>leaf(d,true))})}
+    doors.push({who:d.who,shut:lit(()=>leaf(d,false)),open:lit(()=>leaf(d,true)),x:d.x,z:d.z,dir:d.dir,w:d.w,mode:"slide"})}
   return HOSP_CACHE[key]={F,scene,walls,gates,doors,title:townName+": "+F.name}}
 
 /* ============================ people who walk ============================
@@ -2060,8 +2080,115 @@ function blocked(x,z){const r=.32,hit=w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r;
   for(const g of BANK_GATES)if(g.level===level&&!bankCan(g.key)&&hit(g.r)){toast(g.msg);return true}return false}
 const nearViolet=()=>scene==="imm"&&Math.hypot(me.x-VIOLET.x,me.z-2.6)<2.4;
 const actNow=()=>{if(nearViolet())return"talk";if(scene==="trs"){const T=TRS.terminals.find(q=>Math.hypot(me.x-q.x,me.z-q.z)<1.6);return T?"term_"+T.kind:null}if(scene==="hosp"&&HV){const L=HV.F.lift;return me.z<L.doorZ+2.4&&Math.abs(me.x-L.x)<2.6?"lift":null}if(scene!=="town"||flying)return null;const C=townOf(me.town).car;if(!C)return null;return driving?(Math.abs(C.v)<1.5?"out":null):Math.hypot(cam.x-C.x,cam.z-C.z)<3.6?"drive":null};
-function doAct(){const a=actNow();if(a==="lift")return liftMenu();if(a&&a.startsWith("term_"))return trsTerminal(a.slice(5));const T=townOf(me.town),C=T.car;if(a==="talk")talk("hello");else if(a==="drive"){driving=true;cam.pitch=0;toast(touch?"Driving: push the stick up to go, down to brake, sideways to steer.":"Driving: W to go, S to brake and reverse, A and D to steer. Press F to get out.")}
-  else if(a==="out"){driving=false;C.v=0;const rx=Math.cos(C.yaw),rz=-Math.sin(C.yaw);for(const s of[-1,1]){const x=C.x+rx*1.9*s,z=C.z+rz*1.9*s;if(!T.blocks.some(w=>x>w[0]-.4&&x<w[2]+.4&&z>w[1]-.4&&z<w[3]+.4)){cam.x=x;cam.z=z;break}}}}
+function doAct(){const a=actNow();if(a==="lift")return liftMenu();if(a&&a.startsWith("term_"))return trsTerminal(a.slice(5));const T=townOf(me.town),C=T.car;if(a==="talk")talk("hello");else if(a==="drive"){driving=true;cam.pitch=0;Object.assign(VEH,{gear:"P",orbit:0,lastVY:VIEW.yaw,camPos:null,hand:false,ind:"off"});sndStart();if(!CARL.low)buildCarLights();
+    toast(touch?"Driving: hold GO to drive and BRAKE to stop; drag the wheel to steer. Tap R to reverse, Exit to get out.":"Driving: W go, S brake, A and D steer, Space handbrake. Gears 1 to 4: P R N D. Q and R indicators, G hazards, H lights, C camera, F horn. E to get out.")}
+  else if(a==="out"){driving=false;C.v=0;VEH.gear="P";VEH.ind="off";vehicleLetGo();sndUpdate(false);dashUpdate();const rx=Math.cos(C.yaw),rz=-Math.sin(C.yaw);for(const s of[-1,1]){const x=C.x+rx*1.9*s,z=C.z+rz*1.9*s;if(!T.blocks.some(w=>x>w[0]-.4&&x<w[2]+.4&&z>w[1]-.4&&z<w[3]+.4)){cam.x=x;cam.z=z;break}}}}
+/* ================================ driving ================================
+   One vehicle state shared by the physics, the keyboard, the touch controls, the lights, the sound, the camera and the
+   dashboard, so they always agree. Automatic gears: P, R, N, D. The car must be stopped to go into Park or to change
+   between Drive and Reverse. Settings per car in VEH.cfg (top speed in m/s, acceleration, braking, steering, grip). */
+const VEH={gear:"P",steer:0,hand:false,ind:"off",lights:0,horn:false,cam:0,mph:false,roll:0,pitch:0,rpm:.12,slip:0,jolt:0,thr:0,brk:0,orbit:0,orbitAt:0,lastVY:null,blink:0,blinkOn:false,lastV:0,
+  touch:{steer:0,thr:0,brk:0},model:null,camPos:null,
+  cfg:{vmax:52,accel:5.4,rev:7,brake:10,steerMax:.62,base:2.65,grip:8.6,creep:1.3,len:2.21,wid:1.02}};
+const mrotX=a=>{const c=Math.cos(a),s=Math.sin(a);return new Float32Array([1,0,0,0,0,c,s,0,0,-s,c,0,0,0,0,1])};
+const mrotZ=a=>{const c=Math.cos(a),s=Math.sin(a);return new Float32Array([c,s,0,0,-s,c,0,0,0,0,1,0,0,0,0,1])};
+// the car's lamps, built once: headlights (low and high), tail, brake, reverse, and the indicators on each side
+const CARL={};
+function buildCarLights(){const mk=fn=>{BAKE=null;CLEAR_GLASS=false;CELL=0;reset();fn();const s=upload();s.twoSided=true;return s};const L=VEH.cfg.len,Wd=VEH.cfg.wid;
+  CARL.low=mk(()=>{for(const s of[-1,1])box(s*.68,.66,L+.02,.36,.1,.05,"#fffbe6",K.glow)});
+  CARL.high=mk(()=>{for(const s of[-1,1]){box(s*.68,.66,L+.02,.36,.1,.05,"#ffffff",K.glow);box(s*.68,.78,L,.3,.06,.05,"#dbeafe",K.glow)}});
+  CARL.tail=mk(()=>{for(const s of[-1,1])box(s*.7,.78,-L-.02,.36,.08,.05,"#a01818",K.glow)});
+  CARL.brake=mk(()=>{for(const s of[-1,1])box(s*.7,.78,-L-.04,.44,.14,.06,"#ff1a1a",K.glow);box(0,1.2,-1.25,.5,.05,.05,"#ff1a1a",K.glow)});
+  CARL.rev=mk(()=>{for(const s of[-1,1])box(s*.42,.66,-L-.04,.18,.09,.06,"#ffffff",K.glow)});
+  for(const[k,s]of[["indL",1],["indR",-1]])CARL[k]=mk(()=>{box(s*(Wd-.06),.66,L,.16,.1,.06,"#ffb020",K.glow);box(s*(Wd-.02),.78,-L-.02,.16,.1,.06,"#ffb020",K.glow);box(s*(Wd+.02),.95,.55,.04,.06,.16,"#ffb020",K.glow)})}
+/* ---- sound, made in the browser: engine, horn, indicator click, tyre noise. Replace with recorded sounds later. ---- */
+const SND={ctx:null};
+function sndStart(){if(SND.ctx)return;try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const c=SND.ctx=new A(),out=c.createGain();out.gain.value=.55;out.connect(c.destination);SND.out=out;
+  const lp=c.createBiquadFilter();lp.type="lowpass";lp.frequency.value=900;SND.eg=c.createGain();SND.eg.gain.value=0;lp.connect(SND.eg);SND.eg.connect(out);
+  SND.o1=c.createOscillator();SND.o1.type="sawtooth";SND.o2=c.createOscillator();SND.o2.type="square";const g2=c.createGain();g2.gain.value=.35;SND.o1.connect(lp);SND.o2.connect(g2);g2.connect(lp);SND.o1.start();SND.o2.start();SND.lp=lp;
+  SND.hg=c.createGain();SND.hg.gain.value=0;SND.hg.connect(out);for(const f of[392,494]){const o=c.createOscillator();o.type="square";o.frequency.value=f;o.connect(SND.hg);o.start()}
+  const nb=c.createBuffer(1,c.sampleRate,c.sampleRate),d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;SND.noise=nb;
+  const n=c.createBufferSource();n.buffer=nb;n.loop=true;const bp=c.createBiquadFilter();bp.type="bandpass";bp.frequency.value=1400;bp.Q.value=2;SND.tg=c.createGain();SND.tg.gain.value=0;n.connect(bp);bp.connect(SND.tg);SND.tg.connect(out);n.start()}catch(e){SND.ctx=null}}
+function sndClick(){const c=SND.ctx;if(!c)return;try{const s=c.createBufferSource(),g=c.createGain();s.buffer=SND.noise;g.gain.setValueAtTime(.12,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.03);s.connect(g);g.connect(SND.out);s.start();s.stop(c.currentTime+.04)}catch(e){}}
+function sndUpdate(on){const c=SND.ctx;if(!c)return;const t=c.currentTime,k=.08;
+  SND.eg.gain.setTargetAtTime(on?.05+.07*VEH.thr:0,t,k);const f=34+VEH.rpm*120;SND.o1.frequency.setTargetAtTime(f,t,k);SND.o2.frequency.setTargetAtTime(f*.5,t,k);SND.lp.frequency.setTargetAtTime(500+VEH.rpm*1400,t,k);
+  SND.hg.gain.setTargetAtTime(on&&VEH.horn?.09:0,t,.02);SND.tg.gain.setTargetAtTime(on?Math.min(.14,VEH.slip*.12+(VEH.brk>.5&&Math.abs(VEH.lastV)>8?.05:0)):0,t,.05)}
+/* ---- the physics, once a frame ---- */
+function vehicleStep(C,T,dt){const cfg=VEH.cfg,hitT=(x,z,r)=>T.blocks.some(w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r);
+  VEH.thr=Math.max(keys.w||keys.arrowup?1:0,VEH.touch.thr);VEH.brk=Math.max(keys.s||keys.arrowdown?1:0,VEH.touch.brk);const steerIn=clamp((keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+VEH.touch.steer,-1,1),hand=VEH.hand||!!keys[" "];
+  const v0=C.v,still=Math.abs(C.v)<.3;
+  if(VEH.gear==="P"&&VEH.thr>0&&still&&!VEH.brk){VEH.gear="D";dashToast("Drive")}
+  if(VEH.brk&&still&&VEH.gear==="D"&&!VEH.revHint){VEH.revHint=true;dashToast(touch?"Stopped. Press R to reverse.":"Stopped. Press 2 (or R on screen) to reverse.")}if(!still)VEH.revHint=false;
+  let a=0;if(VEH.gear==="D"){a+=VEH.thr*cfg.accel*Math.max(0,1-Math.max(0,C.v)/cfg.vmax);if(!VEH.thr&&!VEH.brk&&!hand&&C.v<cfg.creep)a+=1.1}
+  if(VEH.gear==="R"){a-=VEH.thr*cfg.accel*.75*Math.max(0,1-Math.max(0,-C.v)/cfg.rev);if(!VEH.thr&&!VEH.brk&&!hand&&-C.v<cfg.creep*.7)a-=.8}
+  C.v+=a*dt;const dec=VEH.brk*cfg.brake+(hand?5.5:0)+(VEH.gear==="P"?14:0)+.3+.0024*C.v*C.v+(VEH.gear==="N"?.2:0);if(C.v){const s=Math.sign(C.v);C.v-=s*Math.min(Math.abs(C.v),dec*dt)}
+  // steering: full lock at walking pace, less as speed rises; it returns to centre when let go
+  const target=steerIn*cfg.steerMax/(1+Math.abs(C.v)/14);VEH.steer+=(target-VEH.steer)*Math.min(1,dt*(steerIn?5:6.5));
+  let yr=C.v*Math.tan(VEH.steer)/cfg.base;const maxYr=cfg.grip/Math.max(2,Math.abs(C.v))*(hand&&Math.abs(C.v)>6?1.7:1);VEH.slip=Math.max(0,Math.abs(yr)-maxYr)/(maxYr||1);yr=clamp(yr,-maxYr,maxYr);C.yaw-=yr*dt;
+  // moving, and bumping into things: the car's outline is checked at its corners and sides
+  const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),rx=-fz,rz=fx,nx=C.x+fx*C.v*dt,nz=C.z+fz*C.v*dt;let hit=false;
+  for(const[l,w]of[[cfg.len,cfg.wid],[cfg.len,-cfg.wid],[-cfg.len,cfg.wid],[-cfg.len,-cfg.wid],[cfg.len,0],[-cfg.len,0],[0,cfg.wid],[0,-cfg.wid]])if(hitT(nx+fx*l+rx*w,nz+fz*l+rz*w,.12)){hit=true;break}
+  if(hit){VEH.jolt=Math.min(1,Math.abs(C.v)/12);if(Math.abs(C.v)>3)dashToast("Bump!");C.v*=-.18}else{C.x=nx;C.z=nz}
+  // the body: leans out on corners, dips under braking, lifts under acceleration
+  const lat=C.v*yr,lon=(C.v-v0)/Math.max(dt,1e-3);VEH.roll+=(clamp(lat*.011,-.07,.07)-VEH.roll)*Math.min(1,dt*6);VEH.pitch+=(clamp(-lon*.006,-.05,.05)-VEH.pitch)*Math.min(1,dt*5);VEH.jolt*=Math.max(0,1-dt*5);
+  // the engine: five automatic gears; the needle rises through each one and drops at the change
+  const sp=Math.abs(C.v),step=cfg.vmax/5,gi=Math.min(4,Math.floor(sp/step)),frac=(sp-gi*step)/step;{const want=(VEH.gear==="D"||VEH.gear==="R")&&sp>.5?.18+.72*frac*(.55+.45*VEH.thr)+.05*gi:.12+.3*VEH.thr*(VEH.gear==="N"||VEH.gear==="P"?1:.4);VEH.rpm+=(Math.min(1,want)-VEH.rpm)*Math.min(1,dt*6)}
+  // indicators blink at 1.5 per second; clicks while blinking
+  VEH.blink+=dt;const on=(VEH.blink*1.5)%1<.5;if(VEH.ind!=="off"&&on!==VEH.blinkOn)sndClick();VEH.blinkOn=on;
+  // an indicator cancels itself once the turn it signalled is complete
+  if(VEH.ind==="left"||VEH.ind==="right"){VEH.indTurn=(VEH.indTurn||0)+yr*dt*(VEH.ind==="left"?-1:1);if(VEH.indTurn<-.9&&Math.abs(VEH.steer)<.05){VEH.ind="off";VEH.indTurn=0}}
+  VEH.lastV=C.v;VEH.model=mul(mul(trans(C.x,0,C.z),rotY(C.yaw+Math.PI)),mul(mrotX(VEH.pitch+VEH.jolt*.03*Math.sin(NOW*40)),mrotZ(VEH.roll)));sndUpdate(true)}
+// the car's lamps to draw this frame
+function carLamps(driven){const L=[],night=LIGHT.night>.05;if(!CARL.low)return L;const on=driven&&(VEH.ind==="hazard"||VEH.ind==="left"||VEH.ind==="right")&&VEH.blinkOn;
+  if(VEH.lights===1)L.push(CARL.low);if(VEH.lights===2)L.push(CARL.high);if(VEH.lights>0)L.push(CARL.tail);if(driven&&VEH.brk>.1)L.push(CARL.brake);if(driven&&VEH.gear==="R")L.push(CARL.rev);
+  if(on&&(VEH.ind==="left"||VEH.ind==="hazard"))L.push(CARL.indL);if(on&&(VEH.ind==="right"||VEH.ind==="hazard"))L.push(CARL.indR);return L}
+// headlights light the road at night: two lights ahead of the car, further and brighter on high beam
+function carHeadlightLamps(C){if(!C||!VEH.lights||LIGHT.night<.05)return[];const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),d=VEH.lights===2?13:7,s=VEH.lights===2?1.8:1.25,rx=-fz,rz=fx;
+  return[[C.x+fx*d+rx*.8,1.1,C.z+fz*d+rz*.8,s],[C.x+fx*d-rx*.8,1.1,C.z+fz*d-rz*.8,s]]}
+/* ---- controls ---- */
+function setGear(g){const C=townOf(me.town).car;if(!C)return;const still=Math.abs(C.v)<.4;
+  if((g==="P"||(g==="R"&&VEH.gear!=="R")||(g==="D"&&VEH.gear==="R"))&&!still){dashToast("Stop the car first");return}VEH.gear=g;dashUpdate(true)}
+function indicate(k){VEH.ind=VEH.ind===k?"off":k;VEH.indTurn=0;VEH.blink=0;dashUpdate(true)}
+function cycleLights(){VEH.lights=(VEH.lights+1)%3;dashToast(["Lights off","Low beam","High beam"][VEH.lights])}
+function driveKey(k,down){if(!driving)return false;if(!down){if(k==="f")VEH.horn=false;return k==="f"}
+  if(k==="q"){indicate("left");return true}if(k==="r"){indicate("right");return true}if(k==="g"){indicate("hazard");return true}if(k==="h"){cycleLights();return true}
+  if(k==="c"){VEH.cam=(VEH.cam+1)%3;VEH.orbit=0;dashToast(["Chase camera","Close camera","Driver's seat"][VEH.cam]);return true}if(k==="f"){VEH.horn=true;return true}
+  const G={"1":"P","2":"R","3":"N","4":"D"}[k];if(G){setGear(G);return true}return false}
+/* ---- the dashboard: speed, gear, revs, indicators, lights, handbrake ---- */
+const dash=document.createElement("div");dash.id="dash";dash.hidden=true;dash.innerHTML=`<div class="dsp"><b id="dSpd">0</b><span id="dUnit">km/h</span></div><div class="dgear">${["P","R","N","D"].map(g=>`<span data-g="${g}">${g}</span>`).join("")}</div>
+  <div class="drpm"><i id="dRpm"></i></div><div class="dico"><span id="dIL">◀</span><span id="dHz">⚠</span><span id="dIR">▶</span><span id="dLt">◐</span><span id="dHb">(P)</span></div><div class="dmsg" id="dMsg"></div>`;document.body.appendChild(dash);
+dash.querySelector(".dsp").addEventListener("click",()=>{VEH.mph=!VEH.mph;dashUpdate(true)});
+let dashMsgT=0;function dashToast(t){const m=document.getElementById("dMsg");m.textContent=t;m.classList.add("on");dashMsgT=NOW+1.6}
+function dashUpdate(){if(!driving){dash.hidden=true;return}const C=townOf(me.town).car;if(!C)return;dash.hidden=false;const kmh=Math.abs(C.v)*3.6;
+  document.getElementById("dSpd").textContent=Math.round(VEH.mph?kmh*.6214:kmh);document.getElementById("dUnit").textContent=VEH.mph?"mph":"km/h";
+  for(const s of dash.querySelectorAll(".dgear span"))s.classList.toggle("on",s.dataset.g===VEH.gear);document.getElementById("dRpm").style.width=Math.round(clamp(VEH.rpm,0,1)*100)+"%";
+  const bl=VEH.blinkOn;document.getElementById("dIL").classList.toggle("on",bl&&(VEH.ind==="left"||VEH.ind==="hazard"));document.getElementById("dIR").classList.toggle("on",bl&&(VEH.ind==="right"||VEH.ind==="hazard"));
+  document.getElementById("dHz").classList.toggle("on",VEH.ind==="hazard");const lt=document.getElementById("dLt");lt.classList.toggle("on",VEH.lights>0);lt.classList.toggle("hi",VEH.lights===2);lt.textContent=VEH.lights===2?"◉":"◐";
+  document.getElementById("dHb").classList.toggle("on",VEH.hand||!!keys[" "]);if(NOW>dashMsgT)document.getElementById("dMsg").classList.remove("on")}
+/* ---- touch: a steering wheel bottom left; brake and accelerator pedals bottom right; buttons along the top of the pedals ---- */
+const dpad=document.createElement("div");dpad.id="dpad";dpad.hidden=true;dpad.innerHTML=`<div id="wheel"><div id="wheelIn"><i></i></div></div>
+  <div id="pedals"><div class="drow">${["P","R","N","D"].map(g=>`<button data-dg="${g}">${g}</button>`).join("")}<button data-dk="hand" id="dHand">Handbrake</button></div>
+  <div class="drow"><button data-dk="left">◀</button><button data-dk="hazard">⚠</button><button data-dk="right">▶</button><button data-dk="lights">Lights</button><button data-dk="cam">Camera</button><button data-dk="horn" id="dHorn">Horn</button><button data-dk="exit">Exit</button></div>
+  <div class="drow peds"><button id="pBrk" class="ped brk">BRAKE</button><button id="pThr" class="ped thr">GO</button></div></div>`;document.body.appendChild(dpad);
+{const wheel=document.getElementById("wheel"),wIn=document.getElementById("wheelIn");let wid=null,wx=0;
+  wheel.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();wid=e.pointerId;wx=e.clientX;wheel.setPointerCapture(e.pointerId)});
+  wheel.addEventListener("pointermove",e=>{if(e.pointerId!==wid)return;const s=clamp((e.clientX-wx)/70,-1,1);VEH.touch.steer=s;wIn.style.transform=`rotate(${s*120}deg)`});
+  const wEnd=e=>{if(e.pointerId!==wid)return;wid=null;VEH.touch.steer=0;wIn.style.transform=""};for(const ev of["pointerup","pointercancel","lostpointercapture"])wheel.addEventListener(ev,wEnd);
+  for(const[id,key]of[["pThr","thr"],["pBrk","brk"],["dHorn","horn"]]){const b=document.getElementById(id);b.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();b.setPointerCapture(e.pointerId);if(key==="horn")VEH.horn=true;else VEH.touch[key]=1;b.classList.add("on")});
+    const end=()=>{if(key==="horn")VEH.horn=false;else VEH.touch[key]=0;b.classList.remove("on")};for(const ev of["pointerup","pointercancel","lostpointercapture"])b.addEventListener(ev,end)}
+  dpad.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.dg)setGear(b.dataset.dg);const k=b.dataset.dk;if(!k)return;
+    if(k==="hand"){VEH.hand=!VEH.hand;b.classList.toggle("on",VEH.hand)}if(k==="left"||k==="right"||k==="hazard")indicate(k);if(k==="lights")cycleLights();if(k==="cam"){VEH.cam=(VEH.cam+1)%3;VEH.orbit=0}if(k==="exit"&&actNow()==="out")doAct();else if(k==="exit")dashToast("Stop the car first")})}
+function vehicleLetGo(){VEH.touch.steer=VEH.touch.thr=VEH.touch.brk=0;VEH.horn=false;for(const b of dpad.querySelectorAll(".on"))if(b.id!=="dHand")b.classList.remove("on")}
+
+// the car's drawing position: with its body motion while driven
+function carModel(C){return driving&&VEH.model?VEH.model:mul(trans(C.x,0,C.z),rotY(C.yaw+Math.PI))}
+// the driving camera: chase, close, or the driver's seat. Drag (or the mouse) to look around; it swings back behind after a moment.
+function vehicleCam(C,wallAt,dt){if(VEH.lastVY===null)VEH.lastVY=VIEW.yaw;const dv=VIEW.yaw-VEH.lastVY;if(Math.abs(dv)>1e-4){VEH.orbit+=dv;VEH.orbitAt=NOW}VEH.lastVY=VIEW.yaw;if(NOW-VEH.orbitAt>2.5)VEH.orbit*=Math.max(0,1-dt*2.5);
+  const yaw=C.yaw+VEH.orbit,fx=-Math.sin(yaw),fz=-Math.cos(yaw),cfx=-Math.sin(C.yaw),cfz=-Math.cos(C.yaw);
+  if(VEH.cam===2){const lx=-Math.cos(C.yaw),lz=Math.sin(C.yaw),e=[C.x+lx*.36-cfx*.25,1.08,C.z+lz*.36-cfz*.25];VEH.camPos=null;return[e,[e[0]+fx,1.1+Math.sin(VIEW.pitch)*.6,e[2]+fz]]}
+  const dist=VEH.cam===1?4.6:7.4,up=VEH.cam===1?1.85:2.6;let k=1;for(let q=.15;q<=1;q+=.15)if(wallAt(C.x-fx*dist*q,C.z-fz*dist*q)){k=Math.max(.2,q-.15);break}
+  const want=[C.x-fx*dist*k,up*(.6+.4*k),C.z-fz*dist*k];if(!VEH.camPos)VEH.camPos=want.slice();const s=1-Math.exp(-dt*7);for(let i=0;i<3;i++)VEH.camPos[i]+=(want[i]-VEH.camPos[i])*s;
+  return[VEH.camPos.slice(),[C.x+cfx*3,1.15,C.z+cfz*3]]}
 const GPU=(()=>{try{const e=gl.getExtension("WEBGL_debug_renderer_info");return e?String(gl.getParameter(e.UNMASKED_RENDERER_WEBGL)).replace(/ANGLE \(|\)$/g,"").slice(0,34):"graphics unknown"}catch(x){return"graphics unknown"}})();
 // what each door in a town leads to
 // the lift: choose a floor
@@ -2115,7 +2242,8 @@ const DOORWAYS={treasury:()=>{if(!allowed(TRS_ALL)){toast("The National Treasury
   villa1:()=>allowed(VILLA3)?toGov("villa","villa1"):toast(GOV_SPEC.villa().noEntry),villa2:()=>allowed(VILLA3)?toGov("villa","villa2"):toast(GOV_SPEC.villa().noEntry)};
 let doorCool=0;
 function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.016,dt=Math.min(.05,real);last=t;NOW=t;updateLight();
-  if(scene==="town"&&LIGHT.night>0){const T0=townOf(me.town),L=(T0.map.lamps||[]).map(p=>[p,(p[0]-cam.x)**2+(p[2]-cam.z)**2]).sort((a,b)=>a[1]-b[1]).slice(0,12);LIGHT.lamps.fill(0);L.forEach(([p],i)=>LIGHT.lamps.set([p[0],p[1],p[2],1],i*4))}
+  document.body.classList.toggle("driving",driving);dpad.hidden=!(driving&&touch);if(frames%3===0)dashUpdate();if(!driving)sndUpdate(false);
+  if(scene==="town"&&LIGHT.night>0){const T0=townOf(me.town),hl=carHeadlightLamps(T0.car),L=(T0.map.lamps||[]).map(p=>[p,(p[0]-cam.x)**2+(p[2]-cam.z)**2]).sort((a,b)=>a[1]-b[1]).slice(0,12-hl.length);LIGHT.lamps.fill(0);hl.forEach((p,i)=>LIGHT.lamps.set(p,i*4));L.forEach(([p],i)=>LIGHT.lamps.set([p[0],p[1],p[2],1],(i+hl.length)*4))}
   /* ---- moving on foot ----
      W and S move along the way the camera faces (flattened onto the ground), A and D to its side; together they move
      diagonally, never faster than straight. The mouse turns the camera, not the body. The body turns smoothly: towards
@@ -2138,8 +2266,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   const sx=VEL.x*dt,sz=VEL.z*dt;
   if(scene==="town"){
     const C=T.car,hitT=(x,z,r)=>T.blocks.some(w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r);
-    if(driving&&C){if(!busy&&!mapOpen){C.v+=(iy>0?(C.v<0?16:8):iy<0?(C.v>0?-18:-6):0)*dt;C.v*=1-Math.min(1,(iy?.25:1.1)*dt);C.v=clamp(C.v,-7,26);C.yaw-=clamp(input.x+(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),-1,1)*clamp(C.v/7,-1,1)*1.35*dt;
-        const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),nx=C.x+fx*C.v*dt,nz=C.z+fz*C.v*dt;if(hitT(nx+fx*2*Math.sign(C.v||1),nz+fz*2*Math.sign(C.v||1),.9)||hitT(nx,nz,1))C.v*=-.25;else{C.x=nx;C.z=nz}}
+    if(driving&&C){if(!busy&&!mapOpen)vehicleStep(C,T,dt);
       cam.x=C.x;cam.z=C.z;cam.yaw=C.yaw;cam.y=1.7;if(route)followRoute(t)}
     else if(!busy&&!choosing&&!mapOpen){
       if(flying){cam.yaw=VIEW.yaw;cam.pitch=VIEW.pitch;const sp=(runHeld()?16:6)*dt;cam.x+=dx0*sp;cam.z+=dz0*sp;cam.y=clamp(cam.y+((keys.e?1:0)-(keys.q?1:0))*sp*(1+cam.y/20),1.2,420)}
@@ -2151,7 +2278,8 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     if(route)aimArrow();
     if(driving||flying){
     const cp=Math.cos(cam.pitch),fx=-Math.sin(cam.yaw),fz=-Math.cos(cam.yaw);
-    if(flying||!view3){const ey=driving?1.12:cam.y;eye=[cam.x+(driving?fx*.1:0),ey,cam.z+(driving?fz*.1:0)];to=[eye[0]+fx*cp,ey+Math.sin(cam.pitch),eye[2]+fz*cp]}
+    if(driving)[eye,to]=vehicleCam(T.car,(x,z)=>hitT(x,z,.25),dt);
+    else if(flying||!view3){const ey=driving?1.12:cam.y;eye=[cam.x+(driving?fx*.1:0),ey,cam.z+(driving?fz*.1:0)];to=[eye[0]+fx*cp,ey+Math.sin(cam.pitch),eye[2]+fz*cp]}
     else{const dist=driving?7.6:3.5,up=driving?2.7:1.55,lift=clamp(.32-cam.pitch,0,1.2);let k=1;for(let q=.15;q<=1;q+=.15)if(hitT(cam.x-fx*dist*q,cam.z-fz*dist*q,.25)){k=Math.max(.15,q-.15);break}       // the camera stays this side of any wall behind you
       eye=[cam.x-fx*dist*k,up+lift*dist*.55*k,cam.z-fz*dist*k];to=[cam.x+fx*4,up-.15,cam.z+fz*4]}}
     else[eye,to]=followCam(cam.x,TGY,cam.z,(x,z)=>hitT(x,z,.25),99)}
@@ -2169,19 +2297,20 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   const w=cv.clientWidth,h=cv.clientHeight,dpr=Math.min(window.devicePixelRatio||1,quality);if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
   const fly=scene==="town",indoor=scene==="bank"||scene==="imm"||scene==="gov"||scene==="hosp"||scene==="trs",fovNow=fly?(w>h?.85:1.05):(w>h?1.05:1.25),PMs=PLAYERS[me.gender]||PLAYERS.Female;
   // the sun's picture first: the town near you, the car, and your own character all cast shadows
-  if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE)lists.push([CARSCENE.bufs,mul(trans(T.car.x,0,T.car.z),rotY(T.car.yaw+Math.PI))]);
+  if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE)lists.push([CARSCENE.bufs,carModel(T.car)]);
     shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing){gl.colorMask(true,true,true,true);WALKER.draw(PMs,lvp,cam.x,TGY+jump.y,cam.z,cam.yaw,gait,t,null,"");gl.colorMask(false,false,false,false)}})}
   gl.viewport(0,0,cv.width,cv.height);const VP=mul(persp(fovNow,w/h,fly?.25:.08,800),look(eye,to,[0,1,0]));
   gl.clearColor(LIGHT.fog[0],LIGHT.fog[1],LIGHT.fog[2],1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);if(!indoor)drawSky(eye,to,fovNow,w/h);
   if(T)GROUND.zones=T.map.lawnZones||[];
-  const parts=scene==="town"?townParts(T):scene==="border"?[BORDER]:scene==="bank"?[bankOf(me.town)].concat(BANK_DOORS.map(d=>bankCan(d.key)?d.open:d.shut)):scene==="hosp"?[HV.scene].concat(HV.doors.map(d=>allowed(d.who)?d.open:d.shut)):scene==="trs"?[TV.scene].concat(TV.doors.map(d=>allowed(d.who)?d.open:d.shut)):scene==="gov"?[GV.scene].concat(GV.doors.map(d=>allowed(d.who)?d.open:d.shut)):[IMM_IN].concat(IMM_DOORS.map(d=>immCan(d.key)?d.open:d.shut));
+  const parts=scene==="town"?townParts(T):scene==="border"?[BORDER]:scene==="bank"?[bankOf(me.town)].concat(BANK_DOORS.map(d=>bankCan(d.key)?d.open:d.shut)):scene==="hosp"?[HV.scene].concat(doorParts(HV.doors)):scene==="trs"?[TV.scene].concat(doorParts(TV.doors)):scene==="gov"?[GV.scene].concat(doorParts(GV.doors)):[IMM_IN].concat(IMM_DOORS.map(d=>immCan(d.key)?d.open:d.shut));
   if(scene==="imm"&&me.cert&&me.role==="citizen"&&!me.entered)parts.push(GUIDE);
   for(const S of parts)drawScene(S,VP,eye,indoor);if(scene==="imm"&&CAST.violet)WALKER.draw(CAST.violet,VP,VIOLET.x,0,VIOLET.z,Math.PI,{p:0,run:0,amt:0,idle:talking?"f_talk":"f_idle"},t,null,"");
   if(scene==="town"&&T.trees)drawTrees(T.trees,VP,eye,flying?null:c=>TREEVIS(c)&&Math.hypot(c.cx-cam.x,c.cz-cam.z)<125,flying?1500:150);       // beyond about 125 m the haze has swallowed the trees
-  if(scene==="town"&&T.car&&CARSCENE){CARSCENE.model=mul(trans(T.car.x,0,T.car.z),rotY(T.car.yaw+Math.PI));CARSCENE.fogFar=flying?1500:150;drawScene(CARSCENE,VP,eye,false)}
+  if(scene==="town"&&T.car&&CARSCENE&&!(driving&&VEH.cam===2)){CARSCENE.model=carModel(T.car);       /* from the driver's seat the body is hidden until cars with interiors arrive */
+    CARSCENE.fogFar=flying?1500:150;CARSCENE.twoSided=!(driving&&VEH.cam===2);drawScene(CARSCENE,VP,eye,false);for(const L of carLamps(driving)){L.model=CARSCENE.model;L.fogFar=CARSCENE.fogFar;drawScene(L,VP,eye,false)}}
   {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing;      // your own character, seen from behind
     if(show){const town=scene==="town";WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:me.y)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"")}}
-  for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE)drawSceneClear(CARSCENE,VP,eye,t);
+  for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE&&!(driving&&VEH.cam===2))drawSceneClear(CARSCENE,VP,eye,t);
   if(scene==="town"&&frames%3===0)drawMini(T);document.getElementById("mini").hidden=scene!=="town"||choosing;
   frames++;acc+=real;if(acc>=.5){const fps=frames/acc;document.getElementById("fps").textContent=Math.round(fps);frames=0;acc=0;let tris2=0;const tris=scene==="town"?0:parts.reduce((s,S)=>s+S.tris,0)+(scene==="imm"?15450:0);
     if(scene==="town")tris2=parts.reduce((s,S)=>s+S.bufs.concat(S.clear).reduce((q,x)=>q+x.n/3,0),0);const info=document.getElementById("info");info.textContent=({town:me.town,border:"The border gate",bank:"Inside "+STATES[me.town].bank,imm:"Inside Immigration",gov:GV?GV.title:"",hosp:HV?HV.title:"",trs:"Inside the National Treasury"})[scene]+", "+Math.round((scene==="town"?tris2:tris)/1000)+"k triangles, "+cv.width+"x"+cv.height;info.appendChild(document.createElement("br"));info.appendChild(document.createTextNode(GPU));
@@ -2359,7 +2488,7 @@ function followRoute(t){if(Math.hypot(cam.x-route.place.x,cam.z-route.place.z)<9
 /* ================================ controls ================================ */
 let touch=matchMedia("(pointer:coarse)").matches;document.body.classList.toggle("touch",touch);
 const typing=e=>e.target&&(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.tagName==="SELECT");
-addEventListener("keydown",e=>{if(typing(e))return;const k=e.key.toLowerCase();keys[k]=true;if(k===" "){e.preventDefault();doJump()}if(/^[wasd]$|^arrow/.test(k))setTouchMode(false);if(k==="m"&&scene==="town"&&!choosing&&!mapOpen&&!talking)openMap();if((k==="e"||k==="enter"||k==="f")&&actNow()&&!talking&&!busy)doAct();if(k==="v"&&!talking){view3=!view3;ui()}if(k==="escape"&&talking)closeTalk()});addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false});
+addEventListener("keydown",e=>{if(typing(e))return;const k=e.key.toLowerCase();keys[k]=true;if(driving&&!busy&&driveKey(k,true)){e.preventDefault();return}if(driving&&k==="e"&&!actNow()){dashToast("Stop the car first");return}if(k===" "){e.preventDefault();doJump()}if(/^[wasd]$|^arrow/.test(k))setTouchMode(false);if(k==="m"&&scene==="town"&&!choosing&&!mapOpen&&!talking)openMap();if((k==="e"||k==="enter"||k==="f")&&actNow()&&!talking&&!busy)doAct();if(k==="v"&&!talking){view3=!view3;ui()}if(k==="escape"&&talking)closeTalk()});addEventListener("keyup",e=>{const k=e.key.toLowerCase();keys[k]=false;driveKey(k,false)});
 const stick=document.getElementById("stick"),knob=document.getElementById("knob");let stickId=null,lookId=null,lx=0,ly=0;
 function stickMove(e){const r=stick.getBoundingClientRect();let dx=(e.clientX-r.left-r.width/2)/(r.width/2),dy=(e.clientY-r.top-r.height/2)/(r.height/2);const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}const L=Math.min(1,l),dz=CAMCFG.deadZone,g=L<dz?0:(L-dz)/(1-dz)/(L||1);input.x=dx*g;input.y=-dy*g;knob.style.transform=`translate(${dx*37}px,${dy*37}px)`}
 stick.addEventListener("pointerdown",e=>{stickId=e.pointerId;stick.setPointerCapture(e.pointerId);stickMove(e);e.stopPropagation()});stick.addEventListener("pointermove",e=>{if(e.pointerId===stickId)stickMove(e)});
@@ -2386,7 +2515,7 @@ jumpBtn.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation(
 function setTouchMode(on){if(on===touch)return;touch=on;document.body.classList.toggle("touch",on);if(!on){input.x=input.y=0;input.run=false;knob.style.transform=""}ui()}
 addEventListener("pointerdown",e=>{if(e.pointerType==="touch")setTouchMode(true);else if(e.pointerType==="mouse")setTouchMode(false)},true);
 // losing focus, switching apps or an interrupted gesture lets go of everything held
-function letGo(){for(const k in keys)keys[k]=false;input.x=input.y=0;input.run=false;stickId=lookId=null;pinch.clear();pinchD=0;knob.style.transform="";runBtn.classList.remove("on")}
+function letGo(){vehicleLetGo();for(const k in keys)keys[k]=false;input.x=input.y=0;input.run=false;stickId=lookId=null;pinch.clear();pinchD=0;knob.style.transform="";runBtn.classList.remove("on")}
 addEventListener("blur",letGo);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")letGo()});
 document.addEventListener("gesturestart",e=>e.preventDefault());
 // when the mouse is freed with Esc, say how to get it back
