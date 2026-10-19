@@ -31,6 +31,8 @@ declare
   v_vals   text := '';
   v_reason text := left(coalesce(nullif(trim(p_reason), ''), 'Service'), 200);
   c        text;
+  v        text;
+  r        record;
 begin
   if v_uid is null then
     raise exception 'Sign in to pay.';
@@ -75,38 +77,41 @@ begin
     raise exception 'No account for % in state_accounts.', p_state;     -- rolls back the cash taken above
   end if;
 
-  -- the ledger: one row, in whichever of the usual columns this table has
-  for c in
-    select x.col from (values
-      ('kind'), ('type'), ('action'), ('amount'), ('state'), ('state_name'), ('reason'), ('note'), ('memo'),
-      ('description'), ('owner'), ('user_id'), ('citizen'), ('by_owner'), ('name'), ('by_name')) as x(col)
-    where exists (select 1 from information_schema.columns
-                  where table_schema = 'public' and table_name = 'ledger' and column_name = x.col)
+  -- the ledger: one row. Every column is filled from its name (and cast to its type); columns with a default
+  -- that we do not recognise are left to their default. A required column we cannot fill stops the payment.
+  for r in
+    select column_name::text as col, udt_name::text as typ, is_nullable = 'NO' and column_default is null as must
+      from information_schema.columns
+     where table_schema = 'public' and table_name = 'ledger' and is_generated = 'NEVER' and is_identity = 'NO'
+     order by ordinal_position
   loop
-    -- one column for each meaning: the first that exists
-    if (c in ('type', 'action') and v_cols ~ '(^|,)kind(,|$)')
-       or (c = 'action' and v_cols ~ '(^|,)type(,|$)')
-       or (c = 'state_name' and v_cols ~ '(^|,)state(,|$)')
-       or (c in ('note', 'memo', 'description') and v_cols ~ '(^|,)(reason|note|memo)(,|$)')
-       or (c in ('user_id', 'citizen', 'by_owner') and v_cols ~ '(^|,)(owner|user_id|citizen)(,|$)')
-       or (c = 'by_name' and v_cols ~ '(^|,)name(,|$)') then
+    c := lower(r.col);
+    v := case
+      when c ~ '^(from|src|source|payer)_?(kind|type)$'                              then 'citizen'
+      when c ~ '^(to|dst|dest|target|payee)_?(kind|type)$'                           then 'state'
+      when c ~ '^(from|src|source|payer)_?(id|owner|user|user_id|uid|citizen|ref|account)$' then v_uid::text
+      when c ~ '^(from|src|source|payer)_?(name|label)$'                             then coalesce(v_name, '')
+      when c ~ '^(to|dst|dest|target|payee)_?(id|ref|account|state|state_name|name|label)$' then p_state
+      when c ~ '^(kind|type|action|category|txn_type|tx_type)$'                      then 'service'
+      when c ~ '^(amount|value|sum|total|cash|amount_k)$'                             then p_amount::text
+      when c ~ '^(state|state_name)$'                                                then p_state
+      when c ~ '^(reason|note|notes|memo|description|details|detail|label|message)$' then v_reason
+      when c ~ '^(owner|user_id|uid|citizen|citizen_id|actor|actor_id|by_owner|by|by_id|player|player_id)$' then v_uid::text
+      when c ~ '^(name|by_name|actor_name|citizen_name|player_name)$'                then coalesce(v_name, '')
+      else null end;
+    if v is null then
+      if r.must then
+        raise exception 'pay_service cannot fill the ledger column "%" (type %). Tell the developer its name and what it holds.', r.col, r.typ;
+      end if;
       continue;
     end if;
-    v_cols := v_cols || case when v_cols = '' then '' else ',' end || c;
-    v_vals := v_vals || case when v_vals = '' then '' else ',' end || case
-      when c in ('kind', 'type', 'action') then quote_literal('service')
-      when c = 'amount' then p_amount::text
-      when c in ('state', 'state_name') then quote_literal(p_state)
-      when c in ('reason', 'note', 'memo', 'description') then quote_literal(v_reason)
-      when c in ('owner', 'user_id', 'citizen', 'by_owner') then quote_literal(v_uid::text)
-      when c in ('name', 'by_name') then quote_literal(coalesce(v_name, ''))
-    end;
+    v_cols := v_cols || case when v_cols = '' then '' else ',' end || quote_ident(r.col);
+    v_vals := v_vals || case when v_vals = '' then '' else ',' end || quote_literal(v) || '::' || quote_ident(r.typ);
   end loop;
   if v_cols = '' then
     raise exception 'The ledger table has none of the expected columns.';
   end if;
-  execute format('insert into ledger (%s) values (%s)',
-    (select string_agg(quote_ident(x), ',') from unnest(string_to_array(v_cols, ',')) as x), v_vals);
+  execute format('insert into ledger (%s) values (%s)', v_cols, v_vals);
 
   return jsonb_build_object('ok', true, 'cash', v_cash - p_amount, 'state', p_state, 'amount', p_amount);
 end;
