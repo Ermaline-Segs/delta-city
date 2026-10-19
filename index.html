@@ -2348,7 +2348,7 @@ let clockT=0;function clockTick(){const el=document.getElementById("clock");if(!
 function sndBeep(f,d){const c=SND.ctx;if(!c)return;try{const o=c.createOscillator(),g=c.createGain();o.frequency.value=f;g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g);g.connect(SND.out);o.start();o.stop(c.currentTime+d+.02)}catch(e){}}
 
 // the car's drawing position: with its body motion while driven
-function carModel(C){return TOW&&TOW.C===C&&TOW.carM?TOW.carM:driving&&VEH.model?VEH.model:mul(trans(C.x,0,C.z),rotY(C.yaw+Math.PI))}
+function carModel(C){return TOW&&TOW.C===C&&TOW.carM?TOW.carM:driving&&VEH.model?VEH.model:C.dmg&&C.dmg.job?mul(trans(C.x,jobLift(C),C.z),rotY(C.yaw+Math.PI)):mul(trans(C.x,0,C.z),rotY(C.yaw+Math.PI))}
 // the driving camera: chase, close, or the driver's seat. Drag (or the mouse) to look around; it swings back behind after a moment.
 function vehicleCam(C,wallAt,dt){if(VEH.lastVY===null)VEH.lastVY=VIEW.yaw;const dv=VIEW.yaw-VEH.lastVY;if(Math.abs(dv)>1e-4){VEH.orbit+=dv;VEH.orbitAt=NOW}VEH.lastVY=VIEW.yaw;if(NOW-VEH.orbitAt>2.5)VEH.orbit*=Math.max(0,1-dt*2.5);
   const yaw=C.yaw+VEH.orbit,fx=-Math.sin(yaw),fz=-Math.cos(yaw),cfx=-Math.sin(C.yaw),cfz=-Math.cos(C.yaw);
@@ -2717,11 +2717,12 @@ function carUIInit(){if(CARUI.door)return;const mk=(id,svg,label,fn)=>{const b=d
   CARUI.door=mk("doorBtn",ico('<path d="M5 20V9l5-5h9v16z"/><path d="M5 11h14"/><path d="M14 15h3"/><path d="M10 4v7"/>'),"Get In",()=>driving?carExit():carEnter());
   CARUI.cond=mk("condBtn",ico('<path d="M3 16v-3l2-5h14l2 5v3H3z"/><circle cx="7.5" cy="16.5" r="1.8"/><circle cx="16.5" cy="16.5" r="1.8"/><path d="M12 9.5v3"/>'),"Car condition",carPanel);
   CARUI.fuel=mk("fuelBtn",ico('<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8l3 2v8a1.5 1.5 0 0 0 3 0v-7l-3-3"/>'),"Refuel",refuelPanel);
+  CARUI.job=mk("jobTag",ico('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>')," ",()=>repairPanel());
   CARUI.bay=mk("bayBtn",ico('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>'),"Repair bay",repairPanel)}
 function carUIPlace(el,p,VP,w,h,label){const x=VP[0]*p[0]+VP[4]*p[1]+VP[8]*p[2]+VP[12],y=VP[1]*p[0]+VP[5]*p[1]+VP[9]*p[2]+VP[13],q=VP[3]*p[0]+VP[7]*p[1]+VP[11]*p[2]+VP[15];
   if(q<=.1){el.hidden=true;return}const sx=(x/q*.5+.5)*w,sy=(1-(y/q*.5+.5))*h;if(sx<-40||sx>w+40||sy<-40||sy>h+40){el.hidden=true;return}
   el.hidden=false;el.style.left=Math.round(sx)+"px";el.style.top=Math.round(sy)+"px";if(label){const s=el.querySelector("span");if(s.textContent!==label)s.textContent=label}}
-function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,CARUI.fuel];CARUI.near=false;
+function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,CARUI.fuel,CARUI.job];CARUI.near=false;
   if(scene!=="town"||flying||busy||choosing||mapOpen||talking||CARSEQ||TOW){for(const b of all)b.hidden=true;return}
   const C=T.car;let door=false,cond=false,bay=false;
   if(C){const dr=carDoors(C).driver,hp=carPt(C,dr.handle),D=C.dmg;
@@ -2729,7 +2730,7 @@ function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,
       if(Math.hypot(C.x-cam.x,C.z-cam.z)<5.5){carUIPlace(CARUI.cond,[C.x,1.75,C.z],VP,w,h);cond=true}}}
   const W=T.workshop;if(W&&!driving&&Math.hypot(W.x-cam.x,W.z-cam.z)<7.5){carUIPlace(CARUI.bay,[W.x-W.fx*1.2,2.2,W.z-W.fz*1.2],VP,w,h);bay=true}
   let fuel=false;const pump=C&&stationPump(T,C);if(pump&&Math.abs(C.v)<.3&&(driving||Math.hypot(C.x-cam.x,C.z-cam.z)<5)){carUIPlace(CARUI.fuel,[pump.p[0],1.9,pump.p[1]],VP,w,h,C.dmg&&C.dmg.refuel?"Refuelling...":"Refuel");fuel=true}
-  if(!door)CARUI.door.hidden=true;if(!cond)CARUI.cond.hidden=true;if(!bay)CARUI.bay.hidden=true;if(!fuel)CARUI.fuel.hidden=true}
+  mechTag(T,VP,w,h);if(!door)CARUI.door.hidden=true;if(!cond)CARUI.cond.hidden=true;if(!bay)CARUI.bay.hidden=true;if(!fuel)CARUI.fuel.hidden=true}
 
 /* ---- the car's condition, read from its damage record ---- */
 const CARPARTS=[["engine","Engine",.2],["chassis","Chassis",.15],["susp","Suspension",.1],["radiator","Radiator",.08],["bumperF","Front bumper",.06],["bumperR","Rear bumper",.05],
@@ -2782,17 +2783,17 @@ async function payService(amount,state,reason){if(typeof AUTH==="undefined"||!AU
 
 /* ---- repairs: each damaged part, priced and timed from its damage, or everything at once. Prices in kobo-free
    naira at full damage, and minutes of real time at full damage. ---- */
-const REPAIRS=[["engine","Engine",25000,12],["chassis","Chassis straightening",15000,10],["susp","Suspension",7000,7],["radiator","Radiator",4500,5],
-  ["bumperF","Front bumper",3500,4],["bumperR","Rear bumper",3000,3],["bonnet","Bonnet",4000,4],["grille","Grille",1800,2],["trunk","Boot lid",3000,3],
-  ["sideL","Left side panels",4500,5],["sideR","Right side panels",4500,5],["under","Underbody",3500,4]];
-function repairItems(D){const L=[];for(const[k,name,price,mins]of REPAIRS){const v=D[k]||0;if(v<.03)continue;L.push({k,name,price:Math.max(500,Math.round(price*v/100)*100),mins:Math.max(1,Math.round(mins*v))})}
-  for(const[k,name]of[["hlL","Left headlight"],["hlR","Right headlight"],["tlL","Left tail light"],["tlR","Right tail light"]])if(D[k])L.push({k,name,price:k[0]==="h"?2500:1200,mins:k[0]==="h"?2:1});
-  for(let i=0;i<4;i++)if(D.flat[i]||D.tyre[i]>.25)L.push({k:"ty"+i,name:"New tyre, "+TYRENAME[i]+(D.flat[i]?" (burst)":""),price:3500,mins:1});
-  if(D.coolant<.97)L.push({k:"coolant",name:"Coolant refill",price:Math.max(300,Math.round(1500*(1-D.coolant)/100)*100),mins:1});return L}
-const repairFull=L=>({price:Math.round(L.reduce((s,q)=>s+q.price,0)*.9/100)*100,mins:Math.max(1,Math.round(L.reduce((s,q)=>s+q.mins,0)*.7))});
+const REPAIRS=[["engine","Engine",75000,12],["chassis","Chassis straightening",45000,10],["susp","Suspension",21000,7],["radiator","Radiator",13500,5],
+  ["bumperF","Front bumper",10500,4],["bumperR","Rear bumper",9000,3],["bonnet","Bonnet",12000,4],["grille","Grille",5500,2],["trunk","Boot lid",9000,3],
+  ["sideL","Left side panels",13500,5],["sideR","Right side panels",13500,5],["under","Underbody",10500,4]];
+function repairItems(D){const L=[];for(const[k,name,price,mins]of REPAIRS){const v=D[k]||0;if(v<.03)continue;L.push({k,name,price:Math.max(1500,Math.round(price*v/500)*500),mins:Math.max(1,Math.round(mins*v))})}
+  for(const[k,name]of[["hlL","Left headlight"],["hlR","Right headlight"],["tlL","Left tail light"],["tlR","Right tail light"]])if(D[k])L.push({k,name,price:k[0]==="h"?7500:3500,mins:k[0]==="h"?2:1});
+  for(let i=0;i<4;i++)if(D.flat[i]||D.tyre[i]>.25)L.push({k:"ty"+i,name:"New tyre, "+TYRENAME[i]+(D.flat[i]?" (burst)":""),price:10500,mins:1});
+  if(D.coolant<.97)L.push({k:"coolant",name:"Coolant refill",price:Math.max(1000,Math.round(4500*(1-D.coolant)/500)*500),mins:1});return L}
+const repairFull=L=>({price:Math.round(L.reduce((s,q)=>s+q.price,0)*.9/500)*500,mins:Math.max(1,Math.round(L.reduce((s,q)=>s+q.mins,0)*.7))});
 function repairPanel(){const T=townOf(me.town),W=T.workshop,C=T.car;if(!W)return;choosing=true;const el=document.getElementById("choose");el.hidden=false;const D=C?carD(C):null;
   const inBay=C&&Math.hypot(C.x-W.x,C.z-W.z)<2.2&&Math.abs(C.v)<.3,shell=b=>`<div class="card rpcard"><h1>${esc(W.name)}</h1><p class="cdsub">Repair bay &middot; payments go to the ${esc(W.st)} State account</p>${b}<button class="go ghost" data-stay="1">Close</button></div>`;
-  if(D&&D.job){el.innerHTML=shell(`<p>Your car is being repaired: ${esc(D.job.names)}.</p><p class="cdhealth"><b>${mmss(D.job.until-Date.now())}</b><span>until it is ready</span></p><p>You cannot drive it until the work is finished. You can leave and come back; the time keeps running.</p>`);return}
+  if(D&&D.job){const ms=mechState(W,D.job,Date.now());el.innerHTML=shell(`<p>Your car is being repaired: ${esc(D.job.names)}.</p><p>The mechanic is ${ms.walking?"going to":"working on"} the <b>${esc(JOBNAME(ms.k).toLowerCase())}</b> (part ${ms.step+1} of ${ms.steps}).</p><p class="cdhealth"><b>${mmss(D.job.until-Date.now())}</b><span>until it is ready</span></p><p>You cannot drive it until the work is finished. You can leave and come back; the time keeps running.</p>`);return}
   if(!inBay){el.innerHTML=shell(`<p>Drive your car into the bay, between the yellow lines, and stop. Then come to the mechanic here to choose repairs.</p>`);return}
   const L=repairItems(D);if(!L.length){el.innerHTML=shell(`<p>Your car needs no repairs.</p>`);return}const F=repairFull(L);
   el.innerHTML=shell(`<p>Choose the repairs you want. You pay only for those.</p><div class="rplist">${L.map(q=>`<label class="rprow"><input type="checkbox" data-rpi="${q.k}"><span>${esc(q.name)}</span><b>${kfmt(q.price)}</b><i>${q.mins} min</i></label>`).join("")}
@@ -2808,15 +2809,68 @@ async function repairAct(what){const T=townOf(me.town),C=T.car,W=T.workshop,msg=
   if(what!=="pay"||!C||!W)return;const D=carD(C);if(D.job)return;const R=repairChosen();if(!R.items.length)return;const btn=document.getElementById("rpPay");btn.disabled=true;msg.classList.remove("err");msg.textContent="Paying "+kfmt(R.price)+"...";
   try{await payService(R.price,W.st,"Car repair at "+W.name+": "+R.names)}catch(e){msg.textContent=e.message;msg.classList.add("err");btn.disabled=false;return}
   // paid: the job is written down at once, so a reload cannot lose it
-  D.job={id:Date.now(),st:W.st,items:R.items,names:R.names,price:R.price,until:Date.now()+R.mins*60000};D.shop=true;crashSave(true);repairPanel();toast("Paid "+kfmt(R.price)+". Your car will be ready in "+R.mins+" minutes.")}
+  const mins={};for(const q of repairItems(D))mins[q.k]=q.mins;D.job={id:Date.now(),st:W.st,items:R.items,names:R.names,price:R.price,start:Date.now(),until:Date.now()+R.mins*60000,mins,done:[]};jobPlan(D.job);D.shop=true;crashSave(true);choosing=false;document.getElementById("choose").hidden=true;toast("Paid "+kfmt(R.price)+". The mechanic is starting work; your car will be ready in "+R.mins+" minutes.")}
 // a finished repair: the chosen parts are made good, once (the job is removed and saved in the same step)
-function repairFinish(C){const D=carD(C),J=D.job;if(!J)return;for(const k of J.items){if(k==="coolant"){D.coolant=1;D.temp=90;D.hot=0}else if(k.startsWith("ty")){D.tyre[+k[2]]=0;D.flat[+k[2]]=0}else if(k in D)D[k]=0}
-  const zone={F:["bumperF","bonnet","grille"],R:["bumperR","trunk"],L:["sideL"],Rs:["sideR"]};D.dents=D.dents.filter(d=>(zone[d.zone]||[]).some(k=>D[k]>.02));
+function repairFinish(C){const D=carD(C),J=D.job;if(!J)return;for(const k of J.items)if(!(J.done||[]).includes(k))jobApply(D,k);
   if(J.items.includes("radiator")&&D.coolant>=.97)D.temp=90;D.dead=D.engine>=.85||D.chassis>=.9||D.susp>=.95;D.hot=0;D.job=null;D.lastJob=J.id;D.ver++;crashSave(true);return J}
-let jobT=0;function repairTick(){if(NOW-jobT<1)return;jobT=NOW;for(const[st,T]of Object.entries(TOWNS)){const C=T.car;if(!C||!C.dmg||!C.dmg.job)continue;if(Date.now()>=C.dmg.job.until){const J=repairFinish(C);if(st===me.town&&scene==="town")toast("Your car is ready at the "+((T.workshop||{}).name||"workshop")+": "+J.names+".")}}}
+let jobT=0;function repairTick(){if(NOW-jobT<1)return;jobT=NOW;const now=Date.now();for(const[st,T]of Object.entries(TOWNS)){const C=T.car;if(!C||!C.dmg||!C.dmg.job)continue;const D=C.dmg,J=D.job,here=st===me.town&&scene==="town";J.done=J.done||[];let changed=false;
+    for(const q of jobPlan(J))if(now>=q.t1&&now<J.until&&!J.done.includes(q.k)){jobApply(D,q.k);J.done.push(q.k);changed=true;if(here)toast("Mechanic: "+JOBNAME(q.k).toLowerCase()+" done.")}
+    if(now>=J.until){const F=repairFinish(C);if(here)toast("Your car is ready at the "+((T.workshop||{}).name||"workshop")+": "+F.names+".")}else if(changed)crashSave(true)}}
+/* ---- the mechanic at work. A paid job is a plan of steps, one for each part, each with its own share of the time. For each
+   step the mechanic walks round the car to that part and works on it there; wheels, suspension, chassis and underbody are
+   done with the car up on the lift. Each part is made good when its step ends, so the car mends piece by piece. Where the
+   mechanic stands and what the mechanic does is worked out from the plan and the clock alone, so it is the same after a reload and
+   for anyone watching. (When workshops become player businesses, a player mechanic would carry out these same steps.) ---- */
+const JOBSPOT={engine:[0,3],radiator:[.35,3],bonnet:[-.35,3],grille:[0,3],bumperF:[-.5,3],coolant:[.6,3],hlL:[.75,3],hlR:[-.75,3],
+  bumperR:[0,-3],trunk:[.4,-3],tlL:[.75,-3],tlR:[-.75,-3],sideL:[1.75,.8],sideR:[-1.75,.8],ty0:[1.75,1.35],ty1:[-1.75,1.35],ty2:[1.75,-1.35],ty3:[-1.75,-1.35],
+  susp:[1.75,-.3],chassis:[-1.75,-.3],under:[1.75,.3]};
+const JOBLIFT=new Set(["susp","chassis","under","ty0","ty1","ty2","ty3"]),JOBSPARK=new Set(["bumperF","bumperR","bonnet","grille","trunk","sideL","sideR","chassis","under"]);
+const JOBNAME=k=>(REPAIRS.find(r=>r[0]===k)||[0,{hlL:"Left headlight",hlR:"Right headlight",tlL:"Left tail light",tlR:"Right tail light",coolant:"Coolant"}[k]||(k.startsWith("ty")?"Tyre, "+TYRENAME[+k[2]]:k)])[1];
+// the plan: each part's share of the job's time, in the order the mechanic goes round the car (front, left, rear, right, then the lift)
+function jobPlan(J){if(J.plan)return J.plan;const order=["coolant","radiator","engine","bonnet","grille","bumperF","hlL","hlR","sideL","trunk","bumperR","tlL","tlR","sideR","ty0","ty2","ty3","ty1","susp","under","chassis"],
+    ks=J.items.slice().sort((a,b)=>order.indexOf(a)-order.indexOf(b)),w=ks.map(k=>(J.mins&&J.mins[k])||1),sum=w.reduce((s,v)=>s+v,0),start=J.start||J.until-ks.length*60000;let t=start;
+  J.plan=ks.map((k,i)=>{const t0=t;t+=(J.until-start)*w[i]/sum;return{k,t0,t1:i===ks.length-1?J.until:t}});return J.plan}
+// round the car: the mechanic keeps to a rectangle 3.5 m by 6 m around it, measured as a distance along its edge
+const MA=1.75,MB=3,MP=4*MA+4*MB,
+  perimU=([x,z])=>z>=MB-.01?MA-x:x<=-MA+.01?2*MA+(MB-z):z<=-MB+.01?2*MA+2*MB+(x+MA):4*MA+2*MB+(z+MB),
+  perimP=u=>{u=((u%MP)+MP)%MP;if(u<2*MA)return[MA-u,MB];u-=2*MA;if(u<2*MB)return[-MA,MB-u];u-=2*MB;if(u<2*MA)return[-MA+u,-MB];u-=2*MA;return[MA,-MB+u]};
+const MECH_HOME=[MA,-MB],MECH_SPEED=1.25;
+// where the mechanic is now, and what the mechanic is doing; with the lift's height
+function mechState(W,J,now){const P=jobPlan(J);let i=P.findIndex(s=>now<s.t1);if(i<0)i=P.length-1;const S=P[i],prev=i?JOBSPOT[P[i-1].k]:MECH_HOME,spot=JOBSPOT[S.k]||MECH_HOME;
+  const u0=perimU(prev),u1=perimU(spot);let d=u1-u0;if(d>MP/2)d-=MP;if(d<-MP/2)d+=MP;const tt=Math.max(0,(now-S.t0)/1000),walk=Math.abs(d)/MECH_SPEED,f=Math.min(1,tt/(walk||1e-6));
+  const lp=perimP(u0+d*f),up=k=>JOBLIFT.has(k),lifted=up(S.k),wasUp=i>0&&up(P[i-1].k),nextUp=i+1<P.length&&up(P[i+1].k),r=(x,a,b)=>clamp((x-a)/(b-a),0,1);
+  let lift=lifted?(wasUp?1:r(tt,0,5)):0;if(lifted&&!nextUp)lift=Math.min(lift,r((S.t1-now)/1000,0,5));if(!lifted&&wasUp)lift=1-r(tt,0,5);
+  const C={x:W.x,z:W.z,yaw:W.yaw},q=carPt(C,[lp[0],0,lp[1]]),walking=f<1;let yaw;
+  if(walking){const a=perimP(u0+d*f+Math.sign(d)*.3),qa=carPt(C,[a[0],0,a[1]]);yaw=Math.atan2(-(qa[0]-q[0]),-(qa[2]-q[2]))}else yaw=Math.atan2(-(W.x-q[0]),-(W.z-q[2]));
+  return{x:q[0],z:q[2],yaw,walking,dist:Math.abs(d)*f,k:S.k,step:i,steps:P.length,pct:clamp((now-S.t0)/(S.t1-S.t0),0,1),lift:lift*1.45,spark:!walking&&JOBSPARK.has(S.k)}}
+const jobLift=C=>{const T=townOf(me.town),W=T&&T.workshop,J=C.dmg&&C.dmg.job;return W&&J&&T.car===C?mechState(W,J,Date.now()).lift:0};
+// the lift beside the bay (two posts, and arms that rise with the car), sparks, and the mechanic
+let LIFTSCENE=null,ARMSCENE=null,SPARKSCENE=null;
+function mechScenes(){if(LIFTSCENE)return;const keep=[BAKE,CLEAR_GLASS,CELL];BAKE=null;CLEAR_GLASS=false;CELL=0;
+  reset();for(const s of[-1,1]){box(s*1.5,0,0,.6,.04,.6,"#4b5563",K.gold);box(s*1.5,0,0,.26,2.7,.26,"#c81e1e",K.gold);box(s*1.5,2.7,0,.34,.1,.34,"#1f2937")}box(0,2.7,0,3.3,.12,.18,"#c81e1e",K.gold);LIFTSCENE=upload();
+  reset();for(const s of[-1,1])for(const z of[-1.1,1.1])box(s*.95,.02,z,1.1,.07,.2,"#9aa3ad",K.gold);for(const s of[-1,1])box(s*1.42,.02,0,.2,.12,2.5,"#c81e1e",K.gold);ARMSCENE=upload();
+  reset();for(let i=0;i<14;i++){const a=i*2.4,r=.04+(i%5)*.05;box(Math.cos(a)*r,(i%7)*.04,Math.sin(a)*r,.025,.025,.025,i%3?"#ffd166":"#fff3b0",K.glow)}SPARKSCENE=upload();
+  [BAKE,CLEAR_GLASS,CELL]=keep}
+let mechClank=0;
+function mechDraw(T,VP,eye,t){const W=T.workshop;if(!W||Math.hypot(W.x-cam.x,W.z-cam.z)>70)return;mechScenes();const C=T.car,J=C&&C.dmg&&C.dmg.job,M=CAST.mech||PLAYERS.Male;
+  const base=mul(trans(W.x,0,W.z),rotY(W.yaw+Math.PI));LIFTSCENE.model=base;LIFTSCENE.fogFar=150;drawScene(LIFTSCENE,VP,eye,false);
+  const S=J?mechState(W,J,Date.now()):null;ARMSCENE.model=mul(trans(W.x,S?S.lift:0,W.z),rotY(W.yaw+Math.PI));ARMSCENE.fogFar=150;drawScene(ARMSCENE,VP,eye,false);
+  if(!M)return;
+  if(!S){const q=carPt({x:W.x,z:W.z,yaw:W.yaw},[MA+.6,0,-MB-.3]);WALKER.draw(M,VP,q[0],0,q[2],Math.atan2(-(W.x-q[0]),-(W.z-q[2])),{p:0,run:0,amt:0,idle:"m_idle"},t,null,"");return}
+  const cyc=WALKER.cycle(M,0),sp=(M.speed&&M.speed.walk)||MECH_SPEED;
+  WALKER.draw(M,VP,S.x,0,S.z,S.yaw,S.walking?{p:S.dist/sp/cyc,run:0,amt:1,wf:1}:{p:0,run:0,amt:0,idle:"m_talk"},t,null,"");
+  if(S.spark&&Math.sin(t*9)>-.2){const fx=-Math.sin(S.yaw),fz=-Math.cos(S.yaw),k=.8+.4*Math.abs(Math.sin(t*23));SPARKSCENE.model=mul(mul(trans(S.x+fx*.55,.75+.1*Math.sin(t*17),S.z+fz*.55),rotY(t*7)),new Float32Array([k,0,0,0,0,k,0,0,0,0,k,0,0,0,0,1]));SPARKSCENE.fogFar=150;drawScene(SPARKSCENE,VP,eye,false)}
+  if(!S.walking&&SND.ctx&&NOW-mechClank>(S.spark?.35:1.3)&&Math.hypot(S.x-cam.x,S.z-cam.z)<25){mechClank=NOW+Math.random()*.4;sndBeep(S.spark?1800+Math.random()*900:420+Math.random()*200,.05)}}
+// the tag over the car: which part, how far along, and the time left
+function mechTag(T,VP,w,h){const el=CARUI.job,W=T.workshop,C=T.car,J=C&&C.dmg&&C.dmg.job;if(!W||!J||Math.hypot(W.x-cam.x,W.z-cam.z)>40){el.hidden=true;return}
+  const S=mechState(W,J,Date.now());carUIPlace(el,[W.x,2.2+S.lift,W.z],VP,w,h,`${JOBNAME(S.k)} ${S.walking?"…":Math.round(S.pct*100)+"%"} · ${S.step+1}/${S.steps} · ${mmss(J.until-Date.now())}`)}
+// each part is made good when its step ends; the whole job closes at its end time
+function jobApply(D,k){if(k==="coolant"){D.coolant=1;D.temp=90;D.hot=0}else if(k.startsWith("ty")){D.tyre[+k[2]]=0;D.flat[+k[2]]=0}else if(k in D)D[k]=0;
+  const zone={F:["bumperF","bonnet","grille"],R:["bumperR","trunk"],L:["sideL"],Rs:["sideR"]};D.dents=D.dents.filter(d=>(zone[d.zone]||[]).some(q=>D[q]>.02));D.ver++}
+
 
 /* ---- the tow truck: paid, and it takes the car to the state's workshop (it does not repair it) ---- */
-const towPrice=(C,W)=>Math.round((2500+6*Math.hypot(C.x-W.x,C.z-W.z))/100)*100;
+const towPrice=(C,W)=>Math.round((6000+15*Math.hypot(C.x-W.x,C.z-W.z))/500)*500;
 function towCar(){towPanel()}
 function towPanel(){const T=townOf(me.town),C=T.car,W=T.workshop;if(!C||!W||TOW)return;choosing=true;const el=document.getElementById("choose");el.hidden=false;
   const there=Math.hypot(C.x-W.x,C.z-W.z)<3;el.innerHTML=`<div class="card rpcard"><h1>Tow truck</h1>${there?`<p>Your car is already at the ${esc(W.name)}.</p>`:`<p>A tow truck takes your car to the ${esc(W.name)}, where you can choose repairs. It does not repair the car.</p>
@@ -3095,6 +3149,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   if(scene==="town"&&T.car&&CARSCENE&&!(driving&&VEH.cam===2)){CARSCENE.model=carModel(T.car);       /* from the driver's seat the body is hidden until cars with interiors arrive */
     CARSCENE.fogFar=flying?1500:150;CARSCENE.twoSided=!(driving&&VEH.cam===2);drawScene(CARSCENE,VP,eye,false);for(const L of carLamps(driving)){L.model=CARSCENE.model;L.fogFar=CARSCENE.fogFar;drawScene(L,VP,eye,false)}}
     if(scene==="town")dynDraw(T,VP,eye);
+    if(scene==="town")mechDraw(T,VP,eye,t);
     if(TOW&&TOW.truckM&&scene==="town"){TOWTRUCK.model=TOW.truckM;TOWTRUCK.fogFar=150;drawScene(TOWTRUCK,VP,eye,false);towPeople(VP,t)}
   {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing&&!TOW;      // your own character, seen from behind
     if(show){const town=scene==="town";WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:me.y)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"")}}
@@ -3411,7 +3466,7 @@ function startAuth(){const s=stored();if(s&&s.refresh){AUTH.refresh=s.refresh;ch
 
 loadGround();loadTrees();loadProps();ui();startAuth();requestAnimationFrame(frame);
 const FCLIPS={idle:"f_idle",walk:"f_walk",jog:"f_jog",back:"f_back",jback:"f_jback",sl:"f_strafe_l",sr:"f_strafe_r",jsl:"f_jstrafe_l",jsr:"f_jstrafe_r",jump:"f_jump"};
-Promise.resolve().then(()=>{WALKER.init();return Promise.all([WALKER.load("girl",FCLIPS),WALKER.load("henry",{idle:"m_idle",walk:"m_walk",jog:"m_jog",back:"m_back",sl:"m_strafe_l",sr:"m_strafe_r",jsl:"m_jstrafe_l",jsr:"m_jstrafe_r",jump:"m_jump"}),WALKER.load("c_party2",FCLIPS),WALKER.load("c_club",FCLIPS)])}).then(([w,h,p2,club])=>{CAST.violet=w;
+Promise.resolve().then(()=>{WALKER.init();return Promise.all([WALKER.load("girl",FCLIPS),WALKER.load("henry",{idle:"m_idle",walk:"m_walk",jog:"m_jog",back:"m_back",sl:"m_strafe_l",sr:"m_strafe_r",jsl:"m_jstrafe_l",jsr:"m_jstrafe_r",jump:"m_jump"}),WALKER.load("c_party2",FCLIPS),WALKER.load("c_club",FCLIPS)])}).then(([w,h,p2,club])=>{CAST.violet=w;CAST.mech=h;
   // everyone a player can choose, by gender. The first in each list is the default.
   ROSTER.Male=[];       /* Henry is hidden for now. His model stays in the page; to bring him back, list him here again: {key:"henry",name:"Henry",m:h} */
   ROSTER.Female=[{key:"party",name:"Zoey",m:p2},{key:"club",name:"Tracy",m:club}];PLAYERS.Male=h;PLAYERS.Female=p2;
