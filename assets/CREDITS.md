@@ -98,6 +98,13 @@ From the [Microsoft Rocketbox avatar library](https://github.com/microsoft/Micro
 | `characters/Pilot_Female_02.glb` | `Assets/Avatars/Professions/Pilot_Female_02` | 8,458 | 1.78 m |
 | `characters/Military_Female_02.glb` | `Assets/Avatars/Professions/Military_Female_02` | 12,957 | 1.78 m |
 | `characters/Fire_Female_02.glb` | `Assets/Avatars/Professions/Fire_Female_02` | 11,932 | 1.86 m |
+| `characters/Construction_Male_06.glb` | `Assets/Avatars/Professions/Construction_Male_06` | 9,498 | 1.85 m |
+| `characters/Construction_Female_01.glb` | `Assets/Avatars/Professions/Construction_Female_01` | 8,662 | 1.77 m |
+| `characters/Pilot_Male_03.glb` | `Assets/Avatars/Professions/Pilot_Male_03` | 7,816 | 1.85 m |
+| `characters/Security_Male_01.glb` | `Assets/Avatars/Professions/Security_Male_01` | 9,515 | 1.83 m |
+| `characters/Police_Male_01.glb` | `Assets/Avatars/Professions/Police_Male_01` | 8,687 | 1.81 m |
+| `characters/Police_Male_04.glb` | `Assets/Avatars/Professions/Police_Male_04` | 12,858 | 1.82 m |
+| `characters/Military_Male_06.glb` | `Assets/Avatars/Professions/Military_Male_06` | 7,386 | 1.82 m |
 
 Each `.png` next to a `.glb` is a front-view render of the converted file.
 
