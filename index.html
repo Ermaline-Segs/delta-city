@@ -470,7 +470,7 @@ function offRoad(x,z,m){for(let pass=0;pass<4;pass++){let moved=false;
       if(dd<need){const L=Math.sqrt(L2),nx=dd>1e-3?dx/dd:-vz/L,nz=dd>1e-3?dz/dd:vx/L;x=px+nx*need;z=pz+nz*need;moved=true}}
     for(const c of MAPD.rounds||[]){const dx=x-c.x,dz=z-c.z,dd=Math.hypot(dx,dz)||1;if(dd<c.r+m+.5&&dd>c.r*.6){x=c.x+dx/dd*(c.r+m+.5);z=c.z+dz/dd*(c.r+m+.5);moved=true}}
     if(!moved)break}return[x,z]}
-function lamp(x,z,turn){at(x,z,turn,()=>{solidBox(0,0,.32,.32);if(MAPD&&MAPD.lamps&&CELL){const w=wpt(1.35,0);MAPD.lamps.push([w[0],5.6,w[1]])}cyl(0,0,0,.09,6,"#3a4048",6,.06);box(.7,5.95,0,1.5,.08,.1,"#3a4048");box(1.35,5.82,0,.5,.12,.22,"#f3efd8")})}
+function lamp(x,z,turn){at(x,z,turn,()=>{if(dynHere("lamp",.32,.32))return;solidBox(0,0,.32,.32);if(MAPD&&MAPD.lamps&&CELL){const w=wpt(1.35,0);MAPD.lamps.push([w[0],5.6,w[1]])}cyl(0,0,0,.09,6,"#3a4048",6,.06);box(.7,5.95,0,1.5,.08,.1,"#3a4048");box(1.35,5.82,0,.5,.12,.22,"#f3efd8")})}
 function flag(x,z,h){solidBox(x,z,.3,.3);cyl(x,0,z,.07,h,"#d9dde2",6,.05);box(x+.75,h-1.05,z,1.5,.33,.03,"#00a86b");box(x+.75,h-1.38,z,1.5,.33,.03,"#ffffff");box(x+.75,h-.72,z,1.5,.33,.03,"#f5c542")}
 function steps(w,n,z0,color){for(let k=0;k<n;k++)box(0,0,z0+(n-k)*.34-.17,w+ (n-k)*.5,(k+1)*.17,.34,color||"#cfcabd")}
 
@@ -517,7 +517,7 @@ function modern(o){const w=o.w,d=o.d,fl=o.floors||3,fh=3.6,h=fl*fh,base=.6;
   for(const s of[-1,1])box(s*(ew/2+3),0,d/2+4.5,5,.5,2.2,"#3f8f4d")}                      // clipped hedges
 
 /* ================================ what to show ================================ */
-const BUILDINGS=[];let MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[]},BLOCKS=[];
+const BUILDINGS=[];let MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]},BLOCKS=[];
 const KINDS=[[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Border/,"Transport","🚧"],[/Port\b/,"Transport","⚓"],[/Transport/,"Transport","🚌"],
   [/Federal/,"Government","🏛"],[/Villa\b/,"Government","🏰"],[/State Government/,"Government","🏛"],[/Court/,"Government","⚖"],[/Police/,"Government","🛡"],[/Immigration/,"Government","🛂"],[/Agricultur|Resources|Food/,"Government","🌿"],
   [/Bank/,"Services","🏦"],[/Hospital/,"Services","✚"],[/University/,"Services","🎓"],[/Utilities/,"Services","⚡"],[/Housing/,"Services","🏠"],[/Hotel|Guest|Suites|Hyatti/,"Services","🛏"]];
@@ -1018,7 +1018,7 @@ PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2
   /* ---- street life: a market, shops, a church, bus stops, parked cars, benches, bins, billboards ---- */
   if(typeof PROPS_ON!=="undefined"&&PROPS_ON){const has=id=>!!document.getElementById(id),onRoad=(x,z,m)=>MAPD.roads.some(r=>{const vx=r.x1-r.x0,vz=r.z1-r.z0,L2=vx*vx+vz*vz||1,s=Math.max(0,Math.min(1,((x-r.x0)*vx+(z-r.z0)*vz)/L2));return Math.hypot(x-r.x0-vx*s,z-r.z0-vz*s)<r.w/2+m})||(MAPD.rounds||[]).some(c=>Math.hypot(x-c.x,z-c.z)<c.r+m),
     SOLID={p_bench:[1.8,.7],p_waste_bin:[.7,.4],p_signboard:[.6,.55],p_billboard:[5,1.2],p_traffic_light:[.8,.6],p_bus_stop:[3.6,1.6],p_market_stall:[2.4,2.9]},
-    put=(id,x,z,turn,w,d)=>{if(!has(id))return;const s=SOLID[id]||[w||.6,d||.6];w=w||s[0];d=d||s[1];[x,z]=offRoad(x,z,Math.max(w,d)/2+.35);at(x,z,turn,()=>{placeModel(id);solidBox(0,0,w,d)})};
+    put=(id,x,z,turn,w,d)=>{if(!has(id))return;const s=SOLID[id]||[w||.6,d||.6];w=w||s[0];d=d||s[1];[x,z]=offRoad(x,z,Math.max(w,d)/2+.35);at(x,z,turn,()=>{if(DYNPROP[id]&&dynHere(DYNPROP[id],w,d))return;placeModel(id);solidBox(0,0,w,d)})};
     // the market: between the hospital and DLA Road, beside Township and Cable Point
     const mx=137,mz=66;box(mx,.06,mz,40,.06,36,"#d9dcdd",K.tile);yardBox(mx,mz,40,36);mark("Asaba Market",mx,mz+20,"#b45309");
     for(let r=0;r<3;r++)for(let c=0;c<5;c++)put("p_market_stall",mx-12+c*6,mz-9+r*8,Math.PI,2.4,2.9);
@@ -1038,6 +1038,9 @@ PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2
     for(const[cx,cz]of[[164,0],[0,97]])for(const[sx,sz,t]of[[-1,-1,0],[1,-1,-Math.PI/2],[1,1,Math.PI],[-1,1,Math.PI/2]])put("p_traffic_light",cx+sx*9.5,cz+sz*9.5,t,.8,.6);
     // billboards facing traffic on the expressway and on Nnebisi Road towards the bridge
     put("p_billboard",-190,-48,Math.PI*.82,5,1.2);put("p_billboard",-140,108,Math.PI*1.15,5,1.2);put("p_billboard",205,-12,-Math.PI/2,5,1.2)}
+  /* ---- fire hydrants along the pavements of the main roads, about every 60 m, on alternating sides ---- */
+  for(const r of MAPD.roads){if(r.bridge||r.w<8||r.w>10)continue;const L=Math.hypot(r.x1-r.x0,r.z1-r.z0);if(L<60)continue;const ux=(r.x1-r.x0)/L,uz=(r.z1-r.z0)/L;
+    for(let s=24,k=0;s<L-20;s+=60,k++){const sd=k%2?1:-1,o=r.w/2+.6,x=r.x0+ux*s-uz*o*sd,z=r.z0+uz*s+ux*o*sd;if(BLOCKS.some(b=>x>b[0]-.7&&x<b[2]+.7&&z>b[1]-.7&&z<b[3]+.7))continue;at(x,z,0,()=>dynHere("hydrant",.42,.42))}}
   /* ---- the National Treasury, on DBS Road between Immigration and Cambridge University, facing the road ---- */
   {const tx=76.5,tz=-83;at(tx,tz,Math.PI,()=>treasuryBuilding());yardBox(tx,tz,32,27);SP.treasury=doorAt(tx,tz,Math.PI,5.4);for(let i=TREES.inst.length-1;i>=0;i--){const t=TREES.inst[i];if(Math.abs(t[1]-tx)<8&&t[2]<tz-12&&t[2]>tz-24)TREES.inst.splice(i,1)}for(let i=BLOCKS.length-1;i>=0;i--){const b=BLOCKS[i];if(b[2]-b[0]<1.2&&Math.abs((b[0]+b[2])/2-tx)<8&&(b[1]+b[3])/2<tz-12&&(b[1]+b[3])/2>tz-24)BLOCKS.splice(i,1)}
    mark("National Treasury",tx,tz-15,"#b45309");
@@ -1144,7 +1147,7 @@ function townSpecs(st,C){const G="#3f86b3";if(C.capital)return{
     util:{name:C.util,short:"Utilities",w:16,d:9,floors:1,wall:"#f3ecc8",band:"#a67a05",zinc:ZINC.silver,roof:"gable",yardW:32,yardD:26},
     agri:{name:C.agri,short:"Agriculture",w:16,d:9,floors:1,wall:"#e3efd2",band:"#476f12",zinc:ZINC.green,roof:"hip",yardW:30,yardD:24}}}
 // build one state's town. Returns where its doors are, so the game knows where people go in and come out.
-function buildTown(st){const C=STATES[st],SP={};BUILDINGS.length=0;MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
+function buildTown(st){const C=STATES[st],SP={};BUILDINGS.length=0;MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
   const R0=9,R1=17,W=9,LEN=110,start=R1-.6;roundabout(R0,R1);
   for(let k=0;k<4;k++)road(Math.sin(k*Math.PI/2)*(start+LEN/2),-Math.cos(k*Math.PI/2)*(start+LEN/2),W,LEN,-k*Math.PI/2);
   const off=d=>W/2+4.2+d/2;                                    // how far a plot's centre sits from the middle of its road
@@ -2127,8 +2130,9 @@ function vehicleStep(C,T,dt){const cfg=VEH.cfg,hitT=(x,z,r)=>T.blocks.some(w=>x>
   const target=steerIn*cfg.steerMax/(1+Math.abs(C.v)/14);VEH.steer+=(target-VEH.steer)*Math.min(1,dt*(steerIn?5:6.5));
   let yr=C.v*Math.tan(VEH.steer)/cfg.base;const maxYr=cfg.grip/Math.max(2,Math.abs(C.v))*(hand&&Math.abs(C.v)>6?1.7:1);VEH.slip=Math.max(0,Math.abs(yr)-maxYr)/(maxYr||1);yr=clamp(yr,-maxYr,maxYr);C.yaw-=yr*dt;
   // moving, and bumping into things: the car's outline is checked at its corners and sides
-  const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),rx=-fz,rz=fx,nx=C.x+fx*C.v*dt,nz=C.z+fz*C.v*dt;let hit=false;
-  for(const[l,w]of[[cfg.len,cfg.wid],[cfg.len,-cfg.wid],[-cfg.len,cfg.wid],[-cfg.len,-cfg.wid],[cfg.len,0],[-cfg.len,0],[0,cfg.wid],[0,-cfg.wid]])if(hitT(nx+fx*l+rx*w,nz+fz*l+rz*w,.12)){hit=true;break}
+  const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),rx=-fz,rz=fx,nx=C.x+fx*C.v*dt,nz=C.z+fz*C.v*dt;let hit=false;{const dh=dynHit(T,nx,nz,C.yaw,Math.abs(C.v),cfg);if(dh){C.v*=dh.slow;VEH.jolt=Math.min(1,VEH.jolt+.5)}}
+  {const near=T.blocks.filter(w=>w[2]>nx-7&&w[0]<nx+7&&w[3]>nz-7&&w[1]<nz+7),inB=(x,z)=>near.some(w=>x>w[0]-.1&&x<w[2]+.1&&z>w[1]-.1&&z<w[3]+.1);       /* the whole outline, every 40 cm, so thin posts and trunks are never missed */
+   if(near.length)outer:for(let l=-cfg.len;l<=cfg.len+.01;l+=.4)for(const w of(Math.abs(l)>cfg.len-.21?[-cfg.wid,-.6,-.2,.2,.6,cfg.wid]:[-cfg.wid,cfg.wid]))if(inB(nx+fx*l+rx*w,nz+fz*l+rz*w)){hit=true;break outer}}
   if(hit){VEH.jolt=Math.min(1,Math.abs(C.v)/12);if(Math.abs(C.v)>3)dashToast("Bump!");C.v*=-.18}else{C.x=nx;C.z=nz}
   // the body: leans out on corners, dips under braking, lifts under acceleration
   const lat=C.v*yr,lon=(C.v-v0)/Math.max(dt,1e-3);VEH.roll+=(clamp(lat*.011,-.07,.07)-VEH.roll)*Math.min(1,dt*6);VEH.pitch+=(clamp(-lon*.006,-.05,.05)-VEH.pitch)*Math.min(1,dt*5);VEH.jolt*=Math.max(0,1-dt*5);
@@ -2190,6 +2194,56 @@ function vehicleCam(C,wallAt,dt){if(VEH.lastVY===null)VEH.lastVY=VIEW.yaw;const 
   const dist=VEH.cam===1?4.6:7.4,up=VEH.cam===1?1.85:2.6;let k=1;for(let q=.15;q<=1;q+=.15)if(wallAt(C.x-fx*dist*q,C.z-fz*dist*q)){k=Math.max(.2,q-.15);break}
   const want=[C.x-fx*dist*k,up*(.6+.4*k),C.z-fz*dist*k];if(!VEH.camPos)VEH.camPos=want.slice();const s=1-Math.exp(-dt*7);for(let i=0;i<3;i++)VEH.camPos[i]+=(want[i]-VEH.camPos[i])*s;
   return[VEH.camPos.slice(),[C.x+cfx*3,1.15,C.z+cfz*3]]}
+/* ================================ street objects that react ================================
+   Street lamps (lit from dusk to dawn), traffic lights (green, amber, red, the cross street opposite), fire hydrants,
+   benches, bins, bus stops and signboards are separate objects, not part of the town's fixed geometry. A car that hits
+   one faster than walking pace knocks it over (a hydrant bursts and sprays water); after DYN.REPAIR seconds it is put
+   right again. Damage is seen only by the player who caused it, until the game has shared multiplayer state. */
+const DYN={mesh:null,REPAIR:1800,PERIOD:30,
+  types:{lamp:{name:"street lamp",fall:1.5,slow:.7},bench:{name:"bench",fall:1.5,slow:.85},bin:{name:"bin",fall:1.5,slow:.92},bus:{name:"bus stop",fall:.45,slow:.75},sign:{name:"signboard",fall:1.5,slow:.92},
+    tlight:{name:"traffic light",fall:1.45,slow:.72},hydrant:{name:"fire hydrant",burst:true,slow:.8}}};
+const DYNPROP={p_bench:"bench",p_waste_bin:"bin",p_bus_stop:"bus",p_signboard:"sign",p_traffic_light:"tlight"};
+// while a town is being built: record this object (here, in the current placement) and its solid outline
+function dynHere(type,w,d){if(!(CELL&&MAPD&&MAPD.dyn))return false;const o=wpt(0,0),f=wpt(0,1),yaw=Math.atan2(f[0]-o[0],f[1]-o[1]);solidBox(0,0,w,d);
+  const b=BLOCKS[BLOCKS.length-1],rec={type,x:o[0],z:o[1],yaw,b,box0:b.slice(0,4),state:0};       /* the object holds its own outline (the list can be reordered later) */if(type==="lamp"){const h=wpt(1.35,0);rec.hx=h[0];rec.hz=h[1]}MAPD.dyn.push(rec);return true}
+// the shapes, made once
+function dynMeshes(){if(DYN.mesh)return DYN.mesh;const mk=fn=>{BAKE=null;CLEAR_GLASS=false;CELL=0;reset();fn();return upload()},M={};
+  const pole=()=>{cyl(0,0,0,.09,6,"#3a4048",6,.06);box(.7,5.95,0,1.5,.08,.1,"#3a4048")};
+  M.lamp_on=mk(()=>{pole();box(1.35,5.82,0,.5,.12,.22,"#fff4cf",K.glow)});M.lamp_off=mk(()=>{pole();box(1.35,5.82,0,.5,.12,.22,"#d9d6c8")});
+  for(const[k,id]of[["bench","p_bench"],["bin","p_waste_bin"],["bus","p_bus_stop"],["sign","p_signboard"]])M[k]=mk(()=>{if(document.getElementById(id))placeModel(id)});
+  const tl=lit=>mk(()=>{cyl(0,0,0,.09,3.1,"#2b2f36",8,.08);box(0,2.75,.05,.42,1.12,.3,"#1f2329");box(0,3.87,.05,.5,.06,.36,"#1f2329");
+    [["r","#ff2a2a",3.62],["a","#ffb020",3.31],["g","#22e06b",3.0]].forEach(([k,c,y])=>{cyl(0,y,.21,.12,.02,lit===k?c:"#2a2d33",14,.12,lit===k?K.glow:0);box(0,y+.14,.26,.3,.04,.12,"#1f2329")})});
+  M.tl_r=tl("r");M.tl_a=tl("a");M.tl_g=tl("g");
+  const hyd=whole=>mk(()=>{cyl(0,0,0,.2,.08,"#9ca3af",12);cyl(0,.08,0,.15,whole?.55:.3,"#d11f1f",12);if(whole){cyl(0,.63,0,.17,.06,"#d11f1f",12);cyl(0,.69,0,.1,.12,"#f5c542",10,.04)}
+    for(const s of[-1,1])box(s*.17,.35,0,.12,.1,.1,"#f5c542");if(!whole)cyl(0,.004,0,1.6,.008,"#5b7d99",24)});
+  M.hydrant=hyd(true);M.hydrant_burst=hyd(false);M.drop=mk(()=>box(0,0,0,.11,.11,.11,"#d6ecff"));return DYN.mesh=M}
+// a rotation about a level axis (ax, 0, az), for tipping something over
+function mrotAxis(ax,az,a){const c=Math.cos(a),s=Math.sin(a),t=1-c;return new Float32Array([t*ax*ax+c,s*az,t*ax*az,0, -s*az,c,s*ax,0, t*ax*az,-s*ax,t*az*az+c,0, 0,0,0,1])}
+function dynModel(o){const base=mul(trans(o.x,0,o.z),rotY(o.yaw));if(o.state!==1)return base;const T=DYN.types[o.type],k=Math.min(1,(NOW-o.t0)/.7),a=k*k*T.fall;
+  return mul(mul(trans(o.x,0,o.z),mrotAxis(o.dz,-o.dx,a)),rotY(o.yaw))}
+function dynMesh(o,M){if(o.type==="lamp")return LIGHT.night>.05&&o.state===0?M.lamp_on:M.lamp_off;if(o.type==="hydrant")return o.state?M.hydrant_burst:M.hydrant;
+  if(o.type==="tlight"){if(o.state)return M.tl_r;const fx=Math.sin(o.yaw),alongX=Math.abs(fx)>.7,ph=((NOW+(alongX?DYN.PERIOD/2:0))%DYN.PERIOD)/DYN.PERIOD;return ph<.4?M.tl_g:ph<.5?M.tl_a:M.tl_r}return M[o.type]}
+// put anything broken more than DYN.REPAIR seconds ago right again
+function dynRepair(T){const L=T.map.dyn||[];for(const o of L)if(o.state&&NOW-o.at>DYN.REPAIR){o.state=0;o.b.splice(0,4,...o.box0)}}
+// the standing street lamps' heads, for lighting the road at night
+function dynLamps(T){const L=T.map.dyn||[],out=[];for(const o of L)if(o.type==="lamp"&&o.state===0)out.push([o.hx,5.6,o.hz]);return out.length?out:(T.map.lamps||[])}
+/* a car at (x, z), facing yaw, moving at speed v: knock over anything standing in its outline (true if it did) */
+function dynHit(T,x,z,yaw,v,cfg){if(v<3)return false;const L=T.map.dyn||[],fx=-Math.sin(yaw),fz=-Math.cos(yaw);let hit=null;
+  // the car's outline, a little ahead of where it is going, against each standing object's whole footprint
+  for(const o of L){if(o.state)continue;const B=o.box0,cx=(B[0]+B[2])/2,cz=(B[1]+B[3])/2,hx=(B[2]-B[0])/2,hz=(B[3]-B[1])/2,dx=cx-x,dz=cz-z;if(dx*dx+dz*dz>64)continue;
+    // the object's footprint, seen from the car: the reach of its corners along and across the car
+    const al=dx*fx+dz*fz,sd=-dx*fz+dz*fx,ra=hx*Math.abs(fx)+hz*Math.abs(fz),rs=hx*Math.abs(fz)+hz*Math.abs(fx);if(Math.abs(al)<cfg.len+.2+ra&&Math.abs(sd)<cfg.wid+.1+rs){hit=o;break}}
+  if(!hit)return false;const T0=DYN.types[hit.type],dir=Math.sign(v)||1;hit.at=NOW;hit.t0=NOW;
+  if(T0.burst)hit.state=2;else{hit.state=1;const vx=fx*dir,vz=fz*dir,l=Math.hypot(vx,vz)||1;hit.dx=vx/l;hit.dz=vz/l}hit.b.splice(0,4,1e9,1e9,1e9,1e9)
+  if(hit.type==="lamp"){const T2=townOf(me.town);if(T2.map.lamps)T2.map.lamps=T2.map.lamps.filter(p=>Math.hypot(p[0]-hit.hx,p[2]-hit.hz)>.5)}
+  dashToast(T0.burst?"You hit a fire hydrant. It's spraying water!":"You knocked over a "+T0.name+"!");return {slow:T0.slow}}
+/* drawing: the objects near the eye; water from any burst hydrant */
+function dynDraw(T,VP,eye){const L=T.map.dyn;if(!L||!L.length)return;const M=dynMeshes();if(NOW%2<.05)dynRepair(T);
+  for(const o of L){const dx=o.x-eye[0],dz=o.z-eye[2];if(dx*dx+dz*dz>150*150)continue;const S=dynMesh(o,M);if(!S)continue;S.model=dynModel(o);S.fogFar=T.scene.fogFar;drawScene(S,VP,eye,false);
+    if(o.type==="hydrant"&&o.state===2&&dx*dx+dz*dz<90*90){const D=M.drop;D.fogFar=S.fogFar;for(let i=0;i<30;i++){const p=(NOW*1.15+i/30)%1,a=i*2.399,r=p*1.3*(.6+.4*((i*7)%5)/5);
+        D.model=trans(o.x+Math.cos(a)*r,.55+p*5.2-p*p*5.4,o.z+Math.sin(a)*r);drawScene(D,VP,eye,false)}}}}
+function dynShadows(T,lists,cx,cz){const L=T.map.dyn;if(!L||!DYN.mesh)return;for(const o of L){const dx=o.x-cx,dz=o.z-cz;if(dx*dx+dz*dz>62*62)continue;const S=dynMesh(o,DYN.mesh);if(S)lists.push([S.bufs,dynModel(o)])}}
+
 const GPU=(()=>{try{const e=gl.getExtension("WEBGL_debug_renderer_info");return e?String(gl.getParameter(e.UNMASKED_RENDERER_WEBGL)).replace(/ANGLE \(|\)$/g,"").slice(0,34):"graphics unknown"}catch(x){return"graphics unknown"}})();
 // what each door in a town leads to
 // the lift: choose a floor
@@ -2290,7 +2344,7 @@ const DOORWAYS={treasury:()=>{if(!allowed(TRS_ALL)){toast("The National Treasury
 let doorCool=0;
 function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.016,dt=Math.min(.05,real);last=t;NOW=t;updateLight();
   document.body.classList.toggle("driving",driving);dpad.hidden=!(driving&&touch);if(frames%3===0)dashUpdate();if(!driving)sndUpdate(false);
-  if(scene==="town"&&LIGHT.night>0){const T0=townOf(me.town),hl=carHeadlightLamps(T0.car),L=(T0.map.lamps||[]).map(p=>[p,(p[0]-cam.x)**2+(p[2]-cam.z)**2]).sort((a,b)=>a[1]-b[1]).slice(0,12-hl.length);LIGHT.lamps.fill(0);hl.forEach((p,i)=>LIGHT.lamps.set(p,i*4));L.forEach(([p],i)=>LIGHT.lamps.set([p[0],p[1],p[2],1],(i+hl.length)*4))}
+  if(scene==="town"&&LIGHT.night>0){const T0=townOf(me.town),hl=carHeadlightLamps(T0.car),L=dynLamps(T0).map(p=>[p,(p[0]-cam.x)**2+(p[2]-cam.z)**2]).sort((a,b)=>a[1]-b[1]).slice(0,12-hl.length);LIGHT.lamps.fill(0);hl.forEach((p,i)=>LIGHT.lamps.set(p,i*4));L.forEach(([p],i)=>LIGHT.lamps.set([p[0],p[1],p[2],1],(i+hl.length)*4))}
   /* ---- moving on foot ----
      W and S move along the way the camera faces (flattened onto the ground), A and D to its side; together they move
      diagonally, never faster than straight. The mouse turns the camera, not the body. The body turns smoothly: towards
@@ -2344,7 +2398,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   const w=cv.clientWidth,h=cv.clientHeight,dpr=Math.min(window.devicePixelRatio||1,quality);if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
   const fly=scene==="town",indoor=scene==="bank"||scene==="imm"||scene==="gov"||scene==="hosp"||scene==="trs",fovNow=fly?(w>h?.85:1.05):(w>h?1.05:1.25),PMs=PLAYERS[me.gender]||PLAYERS.Female;
   // the sun's picture first: the town near you, the car, and your own character all cast shadows
-  if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE)lists.push([CARSCENE.bufs,carModel(T.car)]);
+  if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE)lists.push([CARSCENE.bufs,carModel(T.car)]);dynShadows(T,lists,cam.x,cam.z);
     shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing){gl.colorMask(true,true,true,true);WALKER.draw(PMs,lvp,cam.x,TGY+jump.y,cam.z,cam.yaw,gait,t,null,"");gl.colorMask(false,false,false,false)}})}
   gl.viewport(0,0,cv.width,cv.height);const VP=mul(persp(fovNow,w/h,fly?.25:.08,800),look(eye,to,[0,1,0]));
   gl.clearColor(LIGHT.fog[0],LIGHT.fog[1],LIGHT.fog[2],1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);if(!indoor)drawSky(eye,to,fovNow,w/h);
@@ -2355,6 +2409,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   if(scene==="town"&&T.trees)drawTrees(T.trees,VP,eye,flying?null:c=>TREEVIS(c)&&Math.hypot(c.cx-cam.x,c.cz-cam.z)<125,flying?1500:150);       // beyond about 125 m the haze has swallowed the trees
   if(scene==="town"&&T.car&&CARSCENE&&!(driving&&VEH.cam===2)){CARSCENE.model=carModel(T.car);       /* from the driver's seat the body is hidden until cars with interiors arrive */
     CARSCENE.fogFar=flying?1500:150;CARSCENE.twoSided=!(driving&&VEH.cam===2);drawScene(CARSCENE,VP,eye,false);for(const L of carLamps(driving)){L.model=CARSCENE.model;L.fogFar=CARSCENE.fogFar;drawScene(L,VP,eye,false)}}
+    if(scene==="town")dynDraw(T,VP,eye);
   {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing;      // your own character, seen from behind
     if(show){const town=scene==="town";WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:me.y)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"")}}
   for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE&&!(driving&&VEH.cam===2))drawSceneClear(CARSCENE,VP,eye,t);
