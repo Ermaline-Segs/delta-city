@@ -1,0 +1,1034 @@
+[
+ {
+  "item": "male_casualsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_casual_suit_01_khaki",
+  "file": "outfits/male_casualsuit01__toigo_male_casual_suit_01_khaki.jpg",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 34871,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_casualsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_casual_suit_01_purple_shirt",
+  "file": "outfits/male_casualsuit01__toigo_male_casual_suit_01_purple_shirt.png",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 244235,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_casualsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_casual_suit_01_purple_shirt_with_black_jeans",
+  "file": "outfits/male_casualsuit01__toigo_male_casual_suit_01_purple_shirt_with_black_jeans.png",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 198655,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_casualsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_casual_suit_01_red_shirt_with_black_jeans",
+  "file": "outfits/male_casualsuit01__toigo_male_casual_suit_01_red_shirt_with_black_jeans.png",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 201171,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_casualsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_casual_suit_01_teal_shirt_with_black_jeans",
+  "file": "outfits/male_casualsuit01__toigo_male_casual_suit_01_teal_shirt_with_black_jeans.png",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 195479,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_casualsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_casual_suit_01_white_shirt",
+  "file": "outfits/male_casualsuit01__toigo_male_casual_suit_01_white_shirt.jpg",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 38293,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_casualsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_casual_suit_01_yellow_shirt",
+  "file": "outfits/male_casualsuit01__toigo_male_casual_suit_01_yellow_shirt.png",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 250917,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_elegantsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_elegant_suit_blue_pinstripe_with_paisley_tie",
+  "file": "outfits/male_elegantsuit01__toigo_male_elegant_suit_blue_pinstripe_with_paisley_tie.png",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 36623,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_elegantsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_elegant_suit_blue_with_red_striped_tie",
+  "file": "outfits/male_elegantsuit01__toigo_male_elegant_suit_blue_with_red_striped_tie.jpg",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 16938,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_elegantsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_elegant_suit_brown",
+  "file": "outfits/male_elegantsuit01__toigo_male_elegant_suit_brown.jpg",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 18764,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_elegantsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_elegant_suit_burgundy",
+  "file": "outfits/male_elegantsuit01__toigo_male_elegant_suit_burgundy.jpg",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 14572,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_elegantsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_elegant_suit_eggplant",
+  "file": "outfits/male_elegantsuit01__toigo_male_elegant_suit_eggplant.jpg",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 14131,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_elegantsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_elegant_suit_gray",
+  "file": "outfits/male_elegantsuit01__toigo_male_elegant_suit_gray.jpg",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 14318,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_elegantsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_elegant_suit_gray_pinstripe_with_paisley_tie",
+  "file": "outfits/male_elegantsuit01__toigo_male_elegant_suit_gray_pinstripe_with_paisley_tie.png",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 28493,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_elegantsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_elegant_suit_olive",
+  "file": "outfits/male_elegantsuit01__toigo_male_elegant_suit_olive.jpg",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 17828,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "male_elegantsuit01",
+  "category": "outfits",
+  "variant": "toigo_male_elegant_suit_teal",
+  "file": "outfits/male_elegantsuit01__toigo_male_elegant_suit_teal.jpg",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 17714,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "toigo_suit_with_jacket_and_bowtie",
+  "category": "outfits",
+  "variant": "toigo_suit_with_jacket_and_bowtie_blue_and_gold",
+  "file": "outfits/toigo_suit_with_jacket_and_bowtie__toigo_suit_with_jacket_and_bowtie_blue_and_gold.png",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 199786,
+  "source_pack": "suits01"
+ },
+ {
+  "item": "toigo_suit_with_jacket_and_bowtie",
+  "category": "outfits",
+  "variant": "toigo_suit_with_jacket_and_bowtie_blue_and_red",
+  "file": "outfits/toigo_suit_with_jacket_and_bowtie__toigo_suit_with_jacket_and_bowtie_blue_and_red.png",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 143015,
+  "source_pack": "suits01"
+ },
+ {
+  "item": "toigo_suit_with_jacket_and_bowtie",
+  "category": "outfits",
+  "variant": "toigo_suit_with_jacket_and_bowtie_brown",
+  "file": "outfits/toigo_suit_with_jacket_and_bowtie__toigo_suit_with_jacket_and_bowtie_brown.png",
+  "size": [
+   512,
+   512
+  ],
+  "bytes": 128746,
+  "source_pack": "suits01"
+ },
+ {
+  "item": "bob01",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_01_blood_copper",
+  "file": "hair/bob01__elvaerwyn_bob_01_blood_copper.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 738740,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob01",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_01_dark_lime_gold",
+  "file": "hair/bob01__elvaerwyn_bob_01_dark_lime_gold.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 995295,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob01",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_01_flat_black",
+  "file": "hair/bob01__elvaerwyn_bob_01_flat_black.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 582965,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob01",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_01_gothic_brown",
+  "file": "hair/bob01__elvaerwyn_bob_01_gothic_brown.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1032510,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob01",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_01_new_gold",
+  "file": "hair/bob01__elvaerwyn_bob_01_new_gold.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1036890,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob01",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_01_old_gold",
+  "file": "hair/bob01__elvaerwyn_bob_01_old_gold.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 972222,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob01",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_01_old_world_mermaid",
+  "file": "hair/bob01__elvaerwyn_bob_01_old_world_mermaid.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1453169,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob01",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_01_veronika",
+  "file": "hair/bob01__elvaerwyn_bob_01_veronika.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 994308,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob02",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_02_50s_cherrybomb",
+  "file": "hair/bob02__elvaerwyn_bob_02_50s_cherrybomb.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 683638,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob02",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_02_candy_fushia",
+  "file": "hair/bob02__elvaerwyn_bob_02_candy_fushia.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 761565,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob02",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_02_honey_blonde",
+  "file": "hair/bob02__elvaerwyn_bob_02_honey_blonde.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 757717,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob02",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_02_platinum",
+  "file": "hair/bob02__elvaerwyn_bob_02_platinum.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 489552,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob02",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_02_pumpkin",
+  "file": "hair/bob02__elvaerwyn_bob_02_pumpkin.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 739403,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob02",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_02_retro_black",
+  "file": "hair/bob02__elvaerwyn_bob_02_retro_black.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 694350,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob02",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_02_retro_grey",
+  "file": "hair/bob02__elvaerwyn_bob_02_retro_grey.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 896557,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob02",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_02_retro_oilslickster",
+  "file": "hair/bob02__elvaerwyn_bob_02_retro_oilslickster.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1025237,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob02",
+  "category": "hair",
+  "variant": "elvaerwyn_bob_02_tangerine",
+  "file": "hair/bob02__elvaerwyn_bob_02_tangerine.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 791930,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob02",
+  "category": "hair",
+  "variant": "jartur69_bob02_dark_blond",
+  "file": "hair/bob02__jartur69_bob02_dark_blond.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 605619,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob02",
+  "category": "hair",
+  "variant": "jartur69_bob02_dark_ginger",
+  "file": "hair/bob02__jartur69_bob02_dark_ginger.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 430262,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob02",
+  "category": "hair",
+  "variant": "jartur69_bob02_ginger",
+  "file": "hair/bob02__jartur69_bob02_ginger.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 514128,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "bob02",
+  "category": "hair",
+  "variant": "jartur69_bob02_light_ginger",
+  "file": "hair/bob02__jartur69_bob02_light_ginger.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 670064,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "braid01",
+  "category": "hair",
+  "variant": "toigo_braid01_ash",
+  "file": "hair/braid01__toigo_braid01_ash.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 790861,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "braid01",
+  "category": "hair",
+  "variant": "toigo_braid01_black",
+  "file": "hair/braid01__toigo_braid01_black.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 674811,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "braid01",
+  "category": "hair",
+  "variant": "toigo_braid01_fuchsia",
+  "file": "hair/braid01__toigo_braid01_fuchsia.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 694280,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "braid01",
+  "category": "hair",
+  "variant": "toigo_braid01_ginger",
+  "file": "hair/braid01__toigo_braid01_ginger.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 703341,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "braid01",
+  "category": "hair",
+  "variant": "toigo_braid01_golden",
+  "file": "hair/braid01__toigo_braid01_golden.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 829678,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "braid01",
+  "category": "hair",
+  "variant": "toigo_braid01_gray",
+  "file": "hair/braid01__toigo_braid01_gray.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 368666,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "braid01",
+  "category": "hair",
+  "variant": "toigo_braid01_red",
+  "file": "hair/braid01__toigo_braid01_red.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 572233,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "braid01",
+  "category": "hair",
+  "variant": "toigo_braid01_strawberry",
+  "file": "hair/braid01__toigo_braid01_strawberry.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 660069,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "braid01",
+  "category": "hair",
+  "variant": "toigo_braid01_teal",
+  "file": "hair/braid01__toigo_braid01_teal.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 614867,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "braid01",
+  "category": "hair",
+  "variant": "toigo_braid01_violet",
+  "file": "hair/braid01__toigo_braid01_violet.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 736660,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "long01",
+  "category": "hair",
+  "variant": "joepal_long_01_blond",
+  "file": "hair/long01__joepal_long_01_blond.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 773113,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "long01",
+  "category": "hair",
+  "variant": "punkduck_blond_for_long01",
+  "file": "hair/long01__punkduck_blond_for_long01.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1329684,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "long01",
+  "category": "hair",
+  "variant": "toigo_long_01_ash",
+  "file": "hair/long01__toigo_long_01_ash.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 829082,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "long01",
+  "category": "hair",
+  "variant": "toigo_long_01_black",
+  "file": "hair/long01__toigo_long_01_black.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 548080,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "long01",
+  "category": "hair",
+  "variant": "toigo_long_01_fuchsia",
+  "file": "hair/long01__toigo_long_01_fuchsia.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 849936,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "long01",
+  "category": "hair",
+  "variant": "toigo_long_01_ginger",
+  "file": "hair/long01__toigo_long_01_ginger.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 721111,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "long01",
+  "category": "hair",
+  "variant": "toigo_long_01_gray",
+  "file": "hair/long01__toigo_long_01_gray.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 620209,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "long01",
+  "category": "hair",
+  "variant": "toigo_long_01_red",
+  "file": "hair/long01__toigo_long_01_red.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 639029,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "long01",
+  "category": "hair",
+  "variant": "toigo_long_01_teal",
+  "file": "hair/long01__toigo_long_01_teal.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 661227,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "long01",
+  "category": "hair",
+  "variant": "toigo_long_01_violet",
+  "file": "hair/long01__toigo_long_01_violet.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 756905,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "ponytail01",
+  "category": "hair",
+  "variant": "dariush086_ponytail01_black",
+  "file": "hair/ponytail01__dariush086_ponytail01_black.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 761907,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "ponytail01",
+  "category": "hair",
+  "variant": "dariush086_ponytail01_brown",
+  "file": "hair/ponytail01__dariush086_ponytail01_brown.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 916878,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "ponytail01",
+  "category": "hair",
+  "variant": "dariush086_ponytail01_gold",
+  "file": "hair/ponytail01__dariush086_ponytail01_gold.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 731778,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "ponytail01",
+  "category": "hair",
+  "variant": "dariush086_ponytail01_green",
+  "file": "hair/ponytail01__dariush086_ponytail01_green.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 918902,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "ponytail01",
+  "category": "hair",
+  "variant": "dariush086_ponytail01_pink",
+  "file": "hair/ponytail01__dariush086_ponytail01_pink.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1015605,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "ponytail01",
+  "category": "hair",
+  "variant": "dariush086_ponytail01_platinum",
+  "file": "hair/ponytail01__dariush086_ponytail01_platinum.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 803731,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "ponytail01",
+  "category": "hair",
+  "variant": "dariush086_ponytail01_red",
+  "file": "hair/ponytail01__dariush086_ponytail01_red.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1005525,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "ponytail01",
+  "category": "hair",
+  "variant": "dariush086_ponytail01_violet",
+  "file": "hair/ponytail01__dariush086_ponytail01_violet.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 880918,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "ponytail01",
+  "category": "hair",
+  "variant": "mtknife_ponytail01_deep_red",
+  "file": "hair/ponytail01__mtknife_ponytail01_deep_red.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1245296,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short01",
+  "category": "hair",
+  "variant": "jartur69_short01_brown",
+  "file": "hair/short01__jartur69_short01_brown.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1342230,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short01",
+  "category": "hair",
+  "variant": "jartur69_short01_dark_ginger",
+  "file": "hair/short01__jartur69_short01_dark_ginger.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1282675,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short01",
+  "category": "hair",
+  "variant": "jartur69_short01_rustbrown",
+  "file": "hair/short01__jartur69_short01_rustbrown.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1242849,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short02",
+  "category": "hair",
+  "variant": "bogdan666_short_02_brown",
+  "file": "hair/short02__bogdan666_short_02_brown.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 967708,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short02",
+  "category": "hair",
+  "variant": "bogdan666_short_02_gray",
+  "file": "hair/short02__bogdan666_short_02_gray.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1008808,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short02",
+  "category": "hair",
+  "variant": "bogdan666_short_02_red",
+  "file": "hair/short02__bogdan666_short_02_red.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 928651,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short02",
+  "category": "hair",
+  "variant": "culturalibre_short_02_green",
+  "file": "hair/short02__culturalibre_short_02_green.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 70161,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short02",
+  "category": "hair",
+  "variant": "jartur69_short02_blond",
+  "file": "hair/short02__jartur69_short02_blond.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1087294,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short02",
+  "category": "hair",
+  "variant": "jartur69_short02_blond_for_female",
+  "file": "hair/short02__jartur69_short02_blond_for_female.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1036561,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short04",
+  "category": "hair",
+  "variant": "toigo_short_04_auburn",
+  "file": "hair/short04__toigo_short_04_auburn.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1039896,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short04",
+  "category": "hair",
+  "variant": "toigo_short_04_blonde",
+  "file": "hair/short04__toigo_short_04_blonde.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1175403,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short04",
+  "category": "hair",
+  "variant": "toigo_short_04_blue",
+  "file": "hair/short04__toigo_short_04_blue.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1133242,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short04",
+  "category": "hair",
+  "variant": "toigo_short_04_brown",
+  "file": "hair/short04__toigo_short_04_brown.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 973346,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short04",
+  "category": "hair",
+  "variant": "toigo_short_04_ginger",
+  "file": "hair/short04__toigo_short_04_ginger.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1118907,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short04",
+  "category": "hair",
+  "variant": "toigo_short_04_gray",
+  "file": "hair/short04__toigo_short_04_gray.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1013551,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short04",
+  "category": "hair",
+  "variant": "toigo_short_04_green",
+  "file": "hair/short04__toigo_short_04_green.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1132979,
+  "source_pack": "makehuman_system_assets"
+ },
+ {
+  "item": "short04",
+  "category": "hair",
+  "variant": "toigo_short_04_violet",
+  "file": "hair/short04__toigo_short_04_violet.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "bytes": 1041305,
+  "source_pack": "makehuman_system_assets"
+ }
+]

@@ -1,0 +1,782 @@
+{
+ "skins": [
+  {
+   "file": "skins/01_old_caucasian_male.jpg",
+   "name": "old_caucasian_male",
+   "lightness": 197.7,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 183399
+  },
+  {
+   "file": "skins/02_toigo_light_skin_male_with_goth_makeup.jpg",
+   "name": "toigo_light_skin_male_with_goth_makeup",
+   "lightness": 191.1,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins02",
+   "author": "",
+   "bytes": 122073
+  },
+  {
+   "file": "skins/03_old_caucasian_female.jpg",
+   "name": "old_caucasian_female",
+   "lightness": 190.7,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 159236
+  },
+  {
+   "file": "skins/04_middleage_asian_female.jpg",
+   "name": "middleage_asian_female",
+   "lightness": 184.3,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 113930
+  },
+  {
+   "file": "skins/05_toigo_light_skin_male_with_eyeliner.jpg",
+   "name": "toigo_light_skin_male_with_eyeliner",
+   "lightness": 183.5,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins02",
+   "author": "",
+   "bytes": 134814
+  },
+  {
+   "file": "skins/06_toigo_light_skin_male_with_emo_eyes.jpg",
+   "name": "toigo_light_skin_male_with_emo_eyes",
+   "lightness": 183.5,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins02",
+   "author": "",
+   "bytes": 134881
+  },
+  {
+   "file": "skins/07_young_caucasian_male.jpg",
+   "name": "young_caucasian_male",
+   "lightness": 183.3,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 136899
+  },
+  {
+   "file": "skins/08_toigo_light_skin_male_freckles.jpg",
+   "name": "toigo_light_skin_male_freckles",
+   "lightness": 182.9,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins02",
+   "author": "",
+   "bytes": 172634
+  },
+  {
+   "file": "skins/09_onlytheghosts_middle_aged_eurasian_female.jpg",
+   "name": "onlytheghosts_middle_aged_eurasian_female",
+   "lightness": 182.1,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 121598
+  },
+  {
+   "file": "skins/10_middleage_asian_male.jpg",
+   "name": "middleage_asian_male",
+   "lightness": 181.6,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 141264
+  },
+  {
+   "file": "skins/11_toigo_light_skin_male_ginger.jpg",
+   "name": "toigo_light_skin_male_ginger",
+   "lightness": 180.5,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins02",
+   "author": "",
+   "bytes": 246177
+  },
+  {
+   "file": "skins/12_mindfront_aksel_skin.jpg",
+   "name": "mindfront_aksel_skin",
+   "lightness": 179.1,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins02",
+   "author": "",
+   "bytes": 135685
+  },
+  {
+   "file": "skins/13_middleage_caucasian_male.jpg",
+   "name": "middleage_caucasian_male",
+   "lightness": 179.1,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 135182
+  },
+  {
+   "file": "skins/14_middleage_caucasian_female.jpg",
+   "name": "middleage_caucasian_female",
+   "lightness": 178.5,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 129247
+  },
+  {
+   "file": "skins/15_onlytheghosts_old_eurasian_female.jpg",
+   "name": "onlytheghosts_old_eurasian_female",
+   "lightness": 177.6,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 159387
+  },
+  {
+   "file": "skins/16_ken1138_caucasian_male_tattooed_skin.jpg",
+   "name": "ken1138_caucasian_male_tattooed_skin",
+   "lightness": 177.3,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins02",
+   "author": "",
+   "bytes": 149116
+  },
+  {
+   "file": "skins/17_onlytheghosts_young_eurasian_female.jpg",
+   "name": "onlytheghosts_young_eurasian_female",
+   "lightness": 175.0,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 135386
+  },
+  {
+   "file": "skins/18_young_caucasian_female.jpg",
+   "name": "young_caucasian_female",
+   "lightness": 174.6,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 147675
+  },
+  {
+   "file": "skins/19_onlytheghosts_old_eurasian_male.jpg",
+   "name": "onlytheghosts_old_eurasian_male",
+   "lightness": 174.3,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins02",
+   "author": "",
+   "bytes": 172648
+  },
+  {
+   "file": "skins/20_young_asian_female.jpg",
+   "name": "young_asian_female",
+   "lightness": 174.1,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 121790
+  },
+  {
+   "file": "skins/21_young_caucasian_male2.jpg",
+   "name": "young_caucasian_male2",
+   "lightness": 172.9,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 129585
+  },
+  {
+   "file": "skins/22_young_asian_male.jpg",
+   "name": "young_asian_male",
+   "lightness": 172.8,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 129275
+  },
+  {
+   "file": "skins/23_young_caucasian_female2.jpg",
+   "name": "young_caucasian_female2",
+   "lightness": 170.8,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 121229
+  },
+  {
+   "file": "skins/24_flower-angel_red_head_skin.jpg",
+   "name": "flower-angel_red_head_skin",
+   "lightness": 170.8,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 126320
+  },
+  {
+   "file": "skins/25_darthfurby_caucasian_female.jpg",
+   "name": "darthfurby_caucasian_female",
+   "lightness": 170.8,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 121822
+  },
+  {
+   "file": "skins/26_toigo_light_skin_female_ginger_with_makeup.jpg",
+   "name": "toigo_light_skin_female_ginger_with_makeup",
+   "lightness": 169.4,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 194054
+  },
+  {
+   "file": "skins/27_toigo_light_skin_female_ginger_2.jpg",
+   "name": "toigo_light_skin_female_ginger_2",
+   "lightness": 169.4,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 229629
+  },
+  {
+   "file": "skins/28_toigo_light_skin_female_ginger.jpg",
+   "name": "toigo_light_skin_female_ginger",
+   "lightness": 169.4,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 193899
+  },
+  {
+   "file": "skins/29_nyloseth_zoeyskin.jpg",
+   "name": "nyloseth_zoeyskin",
+   "lightness": 169.4,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 193911
+  },
+  {
+   "file": "skins/30_toigo_light_skin_with_makeup.jpg",
+   "name": "toigo_light_skin_with_makeup",
+   "lightness": 165.8,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 118903
+  },
+  {
+   "file": "skins/31_toigo_light_skin_female_with_violet_makeup.jpg",
+   "name": "toigo_light_skin_female_with_violet_makeup",
+   "lightness": 164.5,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 114893
+  },
+  {
+   "file": "skins/32_toigo_light_skin_female_freckles.jpg",
+   "name": "toigo_light_skin_female_freckles",
+   "lightness": 164.5,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 166488
+  },
+  {
+   "file": "skins/33_toigo_light_skin_female_bronze.jpg",
+   "name": "toigo_light_skin_female_bronze",
+   "lightness": 164.2,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 98415
+  },
+  {
+   "file": "skins/34_old_asian_female.jpg",
+   "name": "old_asian_female",
+   "lightness": 163.1,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 162276
+  },
+  {
+   "file": "skins/35_toigo_light_skin_male_bronze.jpg",
+   "name": "toigo_light_skin_male_bronze",
+   "lightness": 159.1,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins02",
+   "author": "",
+   "bytes": 129940
+  },
+  {
+   "file": "skins/36_toigo_light_skin_with_natural_makeup.jpg",
+   "name": "toigo_light_skin_with_natural_makeup",
+   "lightness": 155.5,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 114382
+  },
+  {
+   "file": "skins/37_old_asian_male.jpg",
+   "name": "old_asian_male",
+   "lightness": 149.7,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 163413
+  },
+  {
+   "file": "skins/38_toigo_light_skin_female_bronze_with_makeup.jpg",
+   "name": "toigo_light_skin_female_bronze_with_makeup",
+   "lightness": 143.9,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 109717
+  },
+  {
+   "file": "skins/39_cutoff3d_indian_female_skin.jpg",
+   "name": "cutoff3d_indian_female_skin",
+   "lightness": 138.0,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 153320
+  },
+  {
+   "file": "skins/40_rehmanpolanski_skin_viking_tattoos.jpg",
+   "name": "rehmanpolanski_skin_viking_tattoos",
+   "lightness": 136.3,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins02",
+   "author": "",
+   "bytes": 157048
+  },
+  {
+   "file": "skins/41_skalldyrssuppe_creamy_female.jpg",
+   "name": "skalldyrssuppe_creamy_female",
+   "lightness": 125.9,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 109335
+  },
+  {
+   "file": "skins/42_callharvey3d_midtoned_female.jpg",
+   "name": "callharvey3d_midtoned_female",
+   "lightness": 121.5,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 105617
+  },
+  {
+   "file": "skins/43_cutoff3d_indian_female_enhanced.jpg",
+   "name": "cutoff3d_indian_female_enhanced",
+   "lightness": 80.8,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins01",
+   "author": "",
+   "bytes": 156630
+  },
+  {
+   "file": "skins/44_mindfront_skin_male_african_middleage.jpg",
+   "name": "mindfront_skin_male_african_middleage",
+   "lightness": 73.8,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "skins02",
+   "author": "",
+   "bytes": 174013
+  },
+  {
+   "file": "skins/45_young_african_female.jpg",
+   "name": "young_african_female",
+   "lightness": 72.9,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 113283
+  },
+  {
+   "file": "skins/46_old_african_male.jpg",
+   "name": "old_african_male",
+   "lightness": 72.9,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 127736
+  },
+  {
+   "file": "skins/47_middleage_african_female.jpg",
+   "name": "middleage_african_female",
+   "lightness": 72.9,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 105953
+  },
+  {
+   "file": "skins/48_middleage_african_male.jpg",
+   "name": "middleage_african_male",
+   "lightness": 71.2,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 110932
+  },
+  {
+   "file": "skins/49_young_african_male.jpg",
+   "name": "young_african_male",
+   "lightness": 61.6,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 110235
+  },
+  {
+   "file": "skins/50_old_african_female.jpg",
+   "name": "old_african_female",
+   "lightness": 61.3,
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 112120
+  }
+ ],
+ "eyes": [
+  {
+   "file": "eyes/blue.jpg",
+   "name": "blue",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 84691
+  },
+  {
+   "file": "eyes/bluegreen.jpg",
+   "name": "bluegreen",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 91625
+  },
+  {
+   "file": "eyes/bobby_03_diffuse_amber_eyes.jpg",
+   "name": "bobby_03_diffuse_amber_eyes",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "system_eye_materials01",
+   "author": "",
+   "bytes": 68449
+  },
+  {
+   "file": "eyes/bobby_03_diffuse_blue_eyes.jpg",
+   "name": "bobby_03_diffuse_blue_eyes",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "system_eye_materials01",
+   "author": "",
+   "bytes": 69545
+  },
+  {
+   "file": "eyes/bobby_03_diffuse_grey_eyes.jpg",
+   "name": "bobby_03_diffuse_grey_eyes",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "system_eye_materials01",
+   "author": "",
+   "bytes": 70878
+  },
+  {
+   "file": "eyes/bobby_03_diffuse_hazel_eyes.jpg",
+   "name": "bobby_03_diffuse_hazel_eyes",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "system_eye_materials01",
+   "author": "",
+   "bytes": 69563
+  },
+  {
+   "file": "eyes/bobby_03_diffuse_sea_breeze_eyes.jpg",
+   "name": "bobby_03_diffuse_sea_breeze_eyes",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "system_eye_materials01",
+   "author": "",
+   "bytes": 72102
+  },
+  {
+   "file": "eyes/brown.jpg",
+   "name": "brown",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 71534
+  },
+  {
+   "file": "eyes/brownlight.jpg",
+   "name": "brownlight",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 89069
+  },
+  {
+   "file": "eyes/deepblue.jpg",
+   "name": "deepblue",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 81224
+  },
+  {
+   "file": "eyes/green.jpg",
+   "name": "green",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 79915
+  },
+  {
+   "file": "eyes/grey.jpg",
+   "name": "grey",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 81623
+  },
+  {
+   "file": "eyes/ice.jpg",
+   "name": "ice",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 82967
+  },
+  {
+   "file": "eyes/lightblue.jpg",
+   "name": "lightblue",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "makehuman_system_assets",
+   "author": "",
+   "bytes": 97667
+  },
+  {
+   "file": "eyes/mindfront_brown_eye_02.jpg",
+   "name": "mindfront_brown_eye_02",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "system_eye_materials01",
+   "author": "",
+   "bytes": 87802
+  },
+  {
+   "file": "eyes/nyloseth_sapphire_blue_eyes.jpg",
+   "name": "nyloseth_sapphire_blue_eyes",
+   "size": [
+    1024,
+    1024
+   ],
+   "pack": "system_eye_materials01",
+   "author": "",
+   "bytes": 91142
+  }
+ ]
+}
