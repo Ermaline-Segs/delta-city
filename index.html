@@ -41,7 +41,9 @@ html,body{overscroll-behavior:none}canvas,.stick,.tbtn{touch-action:none}
 #dash .dgear span{display:inline-block;width:20px;text-align:center;font-weight:800;opacity:.35}#dash .dgear span.on{opacity:1;color:#FBBF24}
 #dash .drpm{width:90px;height:7px;border-radius:9px;background:rgba(255,255,255,.15);overflow:hidden}#dash .drpm i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#facc15 70%,#ef4444)}
 #dash .dico span{margin:0 3px;opacity:.22;font-weight:800}#dash .dico span.on{opacity:1;color:#22c55e}#dash #dHz.on{color:#f59e0b}#dash #dLt.on{color:#93c5fd}#dash #dLt.hi{color:#60a5fa}#dash #dHb.on{color:#ef4444}
+#dash .dwarn span{margin:0 3px;opacity:.22;font-weight:800;font-size:11px}#dash .dwarn span.on{opacity:1;color:#f59e0b}#dash .dwarn span.bad{opacity:1;color:#ef4444}#dash #dTow{border:0;border-radius:9px;background:#f59e0b;color:#111;font-weight:800;padding:6px 10px;font-size:13px}
 #dash .dmsg{position:absolute;left:50%;bottom:110%;transform:translateX(-50%);white-space:nowrap;background:rgba(0,0,0,.7);padding:5px 12px;border-radius:9px;font-size:14px;opacity:0;transition:opacity .2s}#dash .dmsg.on{opacity:1}
+#dash .dmsg{white-space:normal;width:max-content;max-width:min(92vw,520px);text-align:center;line-height:1.3}
 body.driving .stick,body.driving .tbtn{display:none!important}#dpad{position:fixed;inset:0;z-index:3;pointer-events:none;touch-action:none}
 #wheel{position:fixed;left:calc(18px + env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));width:150px;height:150px;pointer-events:auto;touch-action:none}
 #wheelIn{width:100%;height:100%;border-radius:50%;border:14px solid rgba(20,24,32,.78);box-sizing:border-box;position:relative;transition:transform .12s}#wheelIn i{position:absolute;left:50%;top:50%;width:70%;height:12px;background:rgba(20,24,32,.78);transform:translate(-50%,-50%);border-radius:6px}
@@ -232,7 +234,7 @@ const chunks=[],chunksT=[];let cur=null,M=ident(),BAKE=null,CLEAR_GLASS=false,CE
 /* While a town is being built (CELL > 0), each surface is filed under the square of ground it stands
    on. Very large surfaces (the ground, a river) are kept apart and always drawn. */
 const TREES={data:null,inst:[],tex:[]};
-function addTree(sp,x,z,H){const w=wpt(x,z),a=(((w[0]*12.9898+w[1]*78.233)%6.2832)+6.2832)%6.2832;TREES.inst.push([sp,w[0],w[1],H,a]);const t=sp==="shrub"?.45:.28;BLOCKS.push([w[0]-t,w[1]-t,w[0]+t,w[1]+t])}
+function addTree(sp,x,z,H){const w=wpt(x,z),a=(((w[0]*12.9898+w[1]*78.233)%6.2832)+6.2832)%6.2832;TREES.inst.push([sp,w[0],w[1],H,a]);const t=sp==="shrub"?.45:.28,b=[w[0]-t,w[1]-t,w[0]+t,w[1]+t];BLOCKS.push(b);BTAG.set(b,{k:"tree",t:TREES.inst[TREES.inst.length-1]})}
 const K={glass:1/255,tile:2/255,road:3/255,glow:4/255,wood:5/255,fabric:6/255,gold:7/255,holo:9/255,grass:10/255,open:11/255};
 // which list a surface goes in: see-through things (the entrance marker, and glass indoors) are kept apart
 function target(kind,need,wx,wz,span){const k=Math.round((kind||0)*255),clear=k===9||(k===1&&CLEAR_GLASS);
@@ -382,14 +384,14 @@ function loadTrees(){const el=document.getElementById("trees");if(!el)return;con
     return{leaf:p.leaf,cut:p.cut,tex:p.tex,P,N:new Int8Array(b64u8(p.nor).buffer),U:f32(p.uv),I,LI:L}})};
   TREES.tex=d.textures.map(url=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array(4));const im=new Image();
     im.onload=()=>{gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,im);gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR)};im.src=url;return t})}
-function uploadTrees(){const C=new Map(),G=60,mk=(d,t)=>{const b=gl.createBuffer();gl.bindBuffer(t||gl.ARRAY_BUFFER,b);gl.bufferData(t||gl.ARRAY_BUFFER,d,gl.STATIC_DRAW);return b};let tris=0,lite=0,count=0;
-  for(const[sp,x,z,H,a]of TREES.inst){const S=TREES.data[sp];if(!S)continue;count++;const gx=Math.floor(x/G),gz=Math.floor(z/G),key=gx+","+gz;let cell=C.get(key);if(!cell){cell={cx:(gx+.5)*G,cz:(gz+.5)*G,m:new Map()};C.set(key,cell)}
+function uploadTrees(list,xf){const C=new Map(),G=60,mk=(d,t)=>{const b=gl.createBuffer();gl.bindBuffer(t||gl.ARRAY_BUFFER,b);gl.bufferData(t||gl.ARRAY_BUFFER,d,gl.STATIC_DRAW);return b};let tris=0,lite=0,count=0;
+  for(const[sp,x,z,H,a]of list||TREES.inst){const S=TREES.data[sp];if(!S)continue;count++;const gx=Math.floor(x/G),gz=Math.floor(z/G),key=gx+","+gz;let cell=C.get(key);if(!cell){cell={cx:(gx+.5)*G,cz:(gz+.5)*G,m:new Map()};C.set(key,cell)}
     const ca=Math.cos(a),sa=Math.sin(a);S.parts.forEach((p,pi)=>{const id=sp+pi;let g=cell.m.get(id);if(!g){g={tex:p.tex,leaf:p.leaf,cut:p.cut,chunks:[]};cell.m.set(id,g)}const nv=p.P.length/3;let ch=g.chunks[g.chunks.length-1];
       if(!ch||ch.nv+nv>65000){ch={nv:0,P:[],N:[],U:[],I:[],LI:[]};g.chunks.push(ch)}const base=ch.nv;
-      for(let v=0;v<nv;v++){const px=p.P[v*3]*H,py=p.P[v*3+1]*H,pz=p.P[v*3+2]*H,nx=p.N[v*4]/127,ny=p.N[v*4+1]/127,nz=p.N[v*4+2]/127;ch.P.push(x+px*ca+pz*sa,py,z-px*sa+pz*ca);ch.N.push(nx*ca+nz*sa,ny,-nx*sa+nz*ca);ch.U.push(p.U[v*2],p.U[v*2+1])}
+      for(let v=0;v<nv;v++){const px=p.P[v*3]*H,py=p.P[v*3+1]*H,pz=p.P[v*3+2]*H,nx=p.N[v*4]/127,ny=p.N[v*4+1]/127,nz=p.N[v*4+2]/127;if(xf)ch.P.push(...xf(x+px*ca+pz*sa,py,z-px*sa+pz*ca));else ch.P.push(x+px*ca+pz*sa,py,z-px*sa+pz*ca);ch.N.push(nx*ca+nz*sa,ny,-nx*sa+nz*ca);ch.U.push(p.U[v*2],p.U[v*2+1])}
       for(let i=0;i<p.I.length;i++)ch.I.push(p.I[i]+base);for(let i=0;i<p.LI.length;i++)ch.LI.push(p.LI[i]+base);ch.nv+=nv})}
   const cells=[];for(const cell of C.values()){const mats=[];for(const g of cell.m.values())mats.push({tex:g.tex,leaf:g.leaf,cut:g.cut,bufs:g.chunks.map(ch=>{tris+=ch.I.length/3;lite+=ch.LI.length/3;return{p:mk(new Float32Array(ch.P)),n:mk(new Float32Array(ch.N)),u:mk(new Float32Array(ch.U)),i:mk(new Uint16Array(ch.I),gl.ELEMENT_ARRAY_BUFFER),count:ch.I.length,li:mk(new Uint16Array(ch.LI),gl.ELEMENT_ARRAY_BUFFER),lcount:ch.LI.length}})});cells.push({cx:cell.cx,cz:cell.cz,mats})}
-  TREES.inst=[];return{cells,tris,lite,count}}
+  if(!list)TREES.inst=[];return{cells,tris,lite,count}}
 const TREE_LIT=`float lit(vec3 p,float slope){vec4 q=lvp*vec4(p,1.);vec3 s=q.xyz*.5+.5;if(s.x<0.||s.x>1.||s.y<0.||s.y>1.||s.z>1.)return 1.;float b=.0012+.003*slope,t=0.,e=1.25/2048.;
   for(int i=-1;i<=1;i++)for(int j=-1;j<=1;j++)t+=texture2D(shadowMap,s.xy+vec2(float(i),float(j))*e).r+b>s.z?1.:0.;float edge=max(abs(s.x-.5),abs(s.y-.5))*2.;return mix(t/9.,1.,smoothstep(.8,1.,edge));}`;
 const TREEP=program("attribute vec3 p,n;attribute vec2 uv;uniform mat4 vp;varying vec3 vw,vn;varying vec2 vu;void main(){vw=p;vn=n;vu=uv;gl_Position=vp*vec4(p,1.);}",
@@ -454,7 +456,7 @@ function windowsRow(w,d,y,count,sides,ww,wh,skipMiddle){for(let k=0;k<count;k++)
   const n=Math.max(1,Math.round(count*d/w));if(sides)for(let k=0;k<n;k++){const z=-d/2+(k+.5)*d/n;windowX(w/2,y,z,ww,wh,1);windowX(-w/2,y,z,ww,wh,-1)}}
 function fence(w,d,color,gateW,height,solidGate){const c=color,h=height||1.5,t=.22,pill=(x,z)=>{box(x,0,z,.45,h+.35,.45,c);box(x,h+.35,z,.6,.12,.6,"#e9e4d6")};
   box(0,0,-d/2,w,h,t,c);box(-w/2,0,0,t,h,d,c);box(w/2,0,0,t,h,d,c);const side=(w-gateW)/2;box(-w/2+side/2,0,d/2,side,h,t,c);box(w/2-side/2,0,d/2,side,h,t,c);
-  solidBox(0,-d/2,w,.5);solidBox(-w/2,0,.5,d);solidBox(w/2,0,.5,d);solidBox(-w/2+side/2,d/2,side,.5);solidBox(w/2-side/2,d/2,side,.5);
+  SOLIDTAG="cwall";solidBox(0,-d/2,w,.5);solidBox(-w/2,0,.5,d);solidBox(w/2,0,.5,d);solidBox(-w/2+side/2,d/2,side,.5);solidBox(w/2-side/2,d/2,side,.5);SOLIDTAG=null;
   for(const x of[-w/2,w/2])for(const z of[-d/2,d/2])pill(x,z);pill(-gateW/2,d/2);pill(gateW/2,d/2);
   for(let x=-w/2+4;x<w/2-1;x+=4){if(Math.abs(x)>gateW/2+1)pill(x,d/2);pill(x,-d/2)}for(let z=-d/2+4;z<d/2-1;z+=4){pill(-w/2,z);pill(w/2,z)}
   // gate leaves, swung inwards: iron bars, or solid panels for a private house
@@ -524,7 +526,8 @@ const KINDS=[[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Borde
 const mark=(name,x,z,color)=>{const w=wpt(x,z),k=KINDS.find(q=>q[0].test(name))||[0,"Districts","📍"];MAPD.places.push({name,x:w[0],z:w[1],color:color||"#14263D",group:k[1],icon:k[2]})};
 const nameRoad=(name,x,z)=>MAPD.places.push({name,x,z,color:"#4b5563",group:"Roads",icon:"🛣",road:true});
 let YARDS=[],MODERN=false,PROPS_ON=true;const yardBox=(x,z,w,d)=>{let x0=1e9,z0=1e9,x1=-1e9,z1=-1e9;for(const[a,b]of[[-w/2,-d/2],[w/2,-d/2],[w/2,d/2],[-w/2,d/2]]){const q=wpt(x+a,z+b);x0=Math.min(x0,q[0]);x1=Math.max(x1,q[0]);z0=Math.min(z0,q[1]);z1=Math.max(z1,q[1])}YARDS.push([x0,z0,x1,z1])};
-const solidBox=(x,z,w,d)=>{let x0=1e9,z0=1e9,x1=-1e9,z1=-1e9;for(const[a,b]of[[-w/2,-d/2],[w/2,-d/2],[w/2,d/2],[-w/2,d/2]]){const q=wpt(x+a,z+b);x0=Math.min(x0,q[0]);x1=Math.max(x1,q[0]);z0=Math.min(z0,q[1]);z1=Math.max(z1,q[1])}BLOCKS.push([x0,z0,x1,z1])};
+const BTAG=new WeakMap(),DYNOF=new WeakMap();let SOLIDTAG=null;      // what a solid outline belongs to: a tag for fixed geometry (see CRASH), the object for street objects
+const solidBox=(x,z,w,d)=>{let x0=1e9,z0=1e9,x1=-1e9,z1=-1e9;for(const[a,b]of[[-w/2,-d/2],[w/2,-d/2],[w/2,d/2],[-w/2,d/2]]){const q=wpt(x+a,z+b);x0=Math.min(x0,q[0]);x1=Math.max(x1,q[0]);z0=Math.min(z0,q[1]);z1=Math.max(z1,q[1])}const b=[x0,z0,x1,z1];BLOCKS.push(b);if(SOLIDTAG)BTAG.set(b,SOLIDTAG)};
 const HOME_BODY={villa:[19,10,3,-3],luxury:[13,9,0,0],estate:[9,8,0,0],flats:[16,8,0,0],bungalow:[10,8,0,0],semi:[13,7,0,0],onebed:[9,6,0,0],selfcon:[14,4.6,0,0],singleroom:[7.4,13,0,-1]};
 /* ==================================== homes ====================================
    Nine kinds, three for each living area. Every home is drawn around its own plot,
@@ -644,7 +647,7 @@ const F_NAVY="#14263D",F_IVORY="#E9E5DC",F_GOLD="#B99A5D",F_CHAR="#3a3f45",S_TEA
 function discF(x,y,z,r,color,kind,n){const c=hex(color),N=n||24;for(let k=0;k<N;k++){const a=k/N*6.2832,b=(k+1)/N*6.2832;tri([x,y,z],[x+Math.cos(a)*r,y+Math.sin(a)*r,z],[x+Math.cos(b)*r,y+Math.sin(b)*r,z],c,kind)}}
 function conifer(x,z,h){cyl(x,0,z,.12,.5,"#5b4634",6);cyl(x,.4,z,h*.24,h*.5,"#2f7a4a",9,h*.12);cyl(x,.4+h*.38,z,h*.17,h*.62,"#37885a",9,0)}
 function shrub(x,z,r){if(TREES.data&&CELL)return addTree("shrub",x,z,r*1.35);cyl(x,0,z,r,r*.7,"#3f8f4d",8,r*.75);cyl(x,r*.7,z,r*.75,r*.45,"#4a9c58",8,r*.2)}
-function fenceRun(x,z,len,along,post,cap){solidBox(x,z,along?len:.5,along?.5:len);box(x,0,z,along?len:.34,.6,along?.34:len,"#e3e5e6");for(let k=0;k<=len/1.5;k++){const q=-len/2+k*1.5;box(along?x+q:x,.6,along?z:z+q,.07,1.3,.07,post)}box(x,1.9,z,along?len:.08,.07,along?.08:len,post);box(x,1.25,z,along?len:.06,.05,along?.06:len,post);
+function fenceRun(x,z,len,along,post,cap){SOLIDTAG="kerb";solidBox(x,z,along?len:.5,along?.5:len);SOLIDTAG=null;box(x,0,z,along?len:.34,.6,along?.34:len,"#e3e5e6");for(let k=0;k<=len/1.5;k++){const q=-len/2+k*1.5;box(along?x+q:x,.6,along?z:z+q,.07,1.3,.07,post)}box(x,1.9,z,along?len:.08,.07,along?.08:len,post);box(x,1.25,z,along?len:.06,.05,along?.06:len,post);
   for(let q=-len/2;q<=len/2+.01;q+=Math.max(6,len/Math.max(1,Math.round(len/8)))){box(along?x+q:x,0,along?z:z+q,.7,2.3,.7,"#eceae4");box(along?x+q:x,2.3,along?z:z+q,.86,.16,.86,cap)}}
 
 /* A State Government House: two storeys of warm ivory stone, tall teal-tinted windows between
@@ -1042,7 +1045,7 @@ PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2
   for(const r of MAPD.roads){if(r.bridge||r.w<8||r.w>10)continue;const L=Math.hypot(r.x1-r.x0,r.z1-r.z0);if(L<60)continue;const ux=(r.x1-r.x0)/L,uz=(r.z1-r.z0)/L;
     for(let s=24,k=0;s<L-20;s+=60,k++){const sd=k%2?1:-1,o=r.w/2+.6,x=r.x0+ux*s-uz*o*sd,z=r.z0+uz*s+ux*o*sd;if(BLOCKS.some(b=>x>b[0]-.7&&x<b[2]+.7&&z>b[1]-.7&&z<b[3]+.7))continue;at(x,z,0,()=>dynHere("hydrant",.42,.42))}}
   /* ---- the National Treasury, on DBS Road between Immigration and Cambridge University, facing the road ---- */
-  {const tx=76.5,tz=-83;at(tx,tz,Math.PI,()=>treasuryBuilding());yardBox(tx,tz,32,27);SP.treasury=doorAt(tx,tz,Math.PI,5.4);for(let i=TREES.inst.length-1;i>=0;i--){const t=TREES.inst[i];if(Math.abs(t[1]-tx)<8&&t[2]<tz-12&&t[2]>tz-24)TREES.inst.splice(i,1)}for(let i=BLOCKS.length-1;i>=0;i--){const b=BLOCKS[i];if(b[2]-b[0]<1.2&&Math.abs((b[0]+b[2])/2-tx)<8&&(b[1]+b[3])/2<tz-12&&(b[1]+b[3])/2>tz-24)BLOCKS.splice(i,1)}
+  {const tx=76.5,tz=-83;at(tx,tz,Math.PI,()=>treasuryBuilding());yardBox(tx,tz,32,27);SP.treasury=doorAt(tx,tz,Math.PI,5.4);for(let i=TREES.inst.length-1;i>=0;i--){const t=TREES.inst[i];if(Math.abs(t[1]-tx)<8&&t[2]<tz-12&&t[2]>tz-24)TREES.inst.splice(i,1)}for(let i=BLOCKS.length-1;i>=0;i--){const b=BLOCKS[i];if(!DYNOF.get(b)&&b[2]-b[0]<1.2&&Math.abs((b[0]+b[2])/2-tx)<8&&(b[1]+b[3])/2<tz-12&&(b[1]+b[3])/2>tz-24)BLOCKS.splice(i,1)}
    mark("National Treasury",tx,tz-15,"#b45309");
    MAPD.raised.push({x0:tx-14,x1:tx+14,z0:tz-11.2,z1:tz+10.5,h:.93,rz0:tz-11.2,rz1:tz-9.5})}       // the podium is raised .93 m; its steps rise from the forecourt (world -z is the front here)
   // trees, shrubs and flower beds on all the open ground between the plots
@@ -2064,7 +2067,7 @@ let scene="border",busy=false,talking=false,choosing=true,flying=false,testOpen=
    The first seconds in a new place (while a town is built or a building loads) do not count. */
 const QMAX=Math.min(window.devicePixelRatio||1,1.25),QSET={key:"",until:0,cap:Math.min(window.devicePixelRatio||1,1.25),capAt:0};      /* cap: just below the last level that proved too much; raised again after 45 s, to try higher */
 const SAMPLE={no:"DC-ASB-0001",name:"Sample Citizen",dob:"01 September 1996",gender:"Female",state:"Asaba",date:"10 October 2026"};
-const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);t.scene=upload();CELL=0;t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t}return TOWNS[st]}
+const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400)}
 function fadeTo(text,change){if(busy)return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
 const stand=(s,o)=>{scene=s;me.inside=s==="imm";Object.assign(me,{y:0,pitch:.03},o||{});SNAPCAM=true};
@@ -2080,7 +2083,7 @@ const toGov=(kind,spot)=>fadeTo(GOV_SPEC[kind](me.town).title,()=>{GV=govOf(kind
 const toTown=(st,spot,text,dist,pos)=>fadeTo(text||st,()=>{me.town=st;driving=false;const T=townOf(st),d=T.spots[spot]||T.spots.imm;TGY=0;scene="town";me.inside=false;me.entered=true;Object.assign(cam,pos?{x:pos.x,y:1.7,z:pos.z,yaw:pos.yaw||0,pitch:0}:{x:d.x+d.fx*(dist||5),y:1.7,z:d.z+d.fz*(dist||5),yaw:Math.atan2(-d.fx,-d.fz),pitch:0});SNAPCAM=true;if(!T.car)parkCar(T)});
 // one car, parked at the kerb of the road nearest to where you arrive
 function parkCar(T){let best=null;for(const r of T.map.roads){if(r.bridge)continue;const vx=r.x1-r.x0,vz=r.z1-r.z0,L=Math.hypot(vx,vz),t=clamp(((cam.x-r.x0)*vx+(cam.z-r.z0)*vz)/(L*L),.08,.92),x=r.x0+vx*t,z=r.z0+vz*t,d=Math.hypot(cam.x-x,cam.z-z);if(!best||d<best.d)best={d,x,z,ux:vx/L,uz:vz/L,w:r.w}}
-  if(!best)return;const side=((cam.x-best.x)*-best.uz+(cam.z-best.z)*best.ux)>=0?1:-1,off=best.w/2-1.4;T.car={x:best.x-best.uz*side*off,z:best.z+best.ux*side*off,yaw:Math.atan2(-best.ux,-best.uz),v:0}}
+  if(!best)return;const side=((cam.x-best.x)*-best.uz+(cam.z-best.z)*best.ux)>=0?1:-1,off=best.w/2-1.4;T.car={x:best.x-best.uz*side*off,z:best.z+best.ux*side*off,yaw:Math.atan2(-best.ux,-best.uz),v:0};if(T.savedCar){T.car.dmg=T.savedCar;T.savedCar=null}}
 // how high the bank's floor is where you stand: its stairs rise from the hall to the gallery
 function floorAt(x,z,y){if(scene!=="bank")return 0;if(x>14.3&&z<=4.1&&z>=-2)return clamp((4-z)/6,0,1)*HALL.mezz;if(y>1.6&&z<-1.9)return HALL.mezz;return 0}
 function blocked(x,z){const r=.32,hit=w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r;
@@ -2093,8 +2096,8 @@ function blocked(x,z){const r=.32,hit=w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r;
   if(x<-17+r||x>17-r||z<-10+r)return true;if(level===1&&z>-2.2&&!(x>14.3))return true;
   for(const g of BANK_GATES)if(g.level===level&&!bankCan(g.key)&&hit(g.r)){toast(g.msg);return true}return false}
 const nearViolet=()=>scene==="imm"&&Math.hypot(me.x-VIOLET.x,me.z-2.6)<2.4;
-const actNow=()=>{if(nearViolet())return"talk";if(scene==="trs"){const T=TRS.terminals.find(q=>Math.hypot(me.x-q.x,me.z-q.z)<1.6);return T?"term_"+T.kind:null}if(scene==="hosp"&&HV){const L=HV.F.lift;return me.z<L.doorZ+2.4&&Math.abs(me.x-L.x)<2.6?"lift":null}if(scene!=="town"||flying)return null;const C=townOf(me.town).car;if(!C)return null;return driving?(Math.abs(C.v)<1.5?"out":null):Math.hypot(cam.x-C.x,cam.z-C.z)<3.6?"drive":null};
-function doAct(){const a=actNow();if(a==="lift")return liftMenu();if(a&&a.startsWith("term_"))return trsTerminal(a.slice(5));const T=townOf(me.town),C=T.car;if(a==="talk")talk("hello");else if(a==="drive"){driving=true;cam.pitch=0;Object.assign(VEH,{gear:"P",orbit:0,lastVY:VIEW.yaw,camPos:null,hand:false,ind:"off"});sndStart();if(!CARL.low)buildCarLights();
+const actNow=()=>{if(nearViolet())return"talk";if(scene==="trs"){const T=TRS.terminals.find(q=>Math.hypot(me.x-q.x,me.z-q.z)<1.6);return T?"term_"+T.kind:null}if(scene==="hosp"&&HV){const L=HV.F.lift;return me.z<L.doorZ+2.4&&Math.abs(me.x-L.x)<2.6?"lift":null}if(scene!=="town"||flying)return null;if(!driving&&dynValve(townOf(me.town)))return"valve";const C=townOf(me.town).car;if(!C)return null;return driving?(Math.abs(C.v)<1.5?"out":null):Math.hypot(cam.x-C.x,cam.z-C.z)<3.6?"drive":null};
+function doAct(){const a=actNow();if(a==="valve")return shutValve();if(a==="lift")return liftMenu();if(a&&a.startsWith("term_"))return trsTerminal(a.slice(5));const T=townOf(me.town),C=T.car;if(a==="talk")talk("hello");else if(a==="drive"){driving=true;setTimeout(carBase,600);cam.pitch=0;Object.assign(VEH,{gear:"P",orbit:0,lastVY:VIEW.yaw,camPos:null,hand:false,ind:"off"});sndStart();if(!CARL.low)buildCarLights();
     toast(touch?"Driving: hold GO to drive and BRAKE to stop; drag the wheel to steer. Tap R to reverse, Exit to get out.":"Driving: W go, S brake, A and D steer, Space handbrake. Gears 1 to 4: P R N D. Q and R indicators, G hazards, H lights, C camera, F horn. E to get out.")}
   else if(a==="out"){driving=false;C.v=0;VEH.gear="P";VEH.ind="off";vehicleLetGo();sndUpdate(false);dashUpdate();const rx=Math.cos(C.yaw),rz=-Math.sin(C.yaw);for(const s of[-1,1]){const x=C.x+rx*1.9*s,z=C.z+rz*1.9*s;if(!T.blocks.some(w=>x>w[0]-.4&&x<w[2]+.4&&z>w[1]-.4&&z<w[3]+.4)){cam.x=x;cam.z=z;break}}}}
 /* ================================ driving ================================
@@ -2109,10 +2112,12 @@ const mrotZ=a=>{const c=Math.cos(a),s=Math.sin(a);return new Float32Array([c,s,0
 // the car's lamps, built once: headlights (low and high), tail, brake, reverse, and the indicators on each side
 const CARL={};
 function buildCarLights(){const mk=fn=>{BAKE=null;CLEAR_GLASS=false;CELL=0;reset();fn();const s=upload();s.twoSided=true;return s};const L=VEH.cfg.len,Wd=VEH.cfg.wid;
+  for(const[k,s]of[["L",1],["R",-1]]){CARL["low"+k]=mk(()=>box(s*.68,.66,L+.02,.36,.1,.05,"#fffbe6",K.glow));CARL["high"+k]=mk(()=>{box(s*.68,.66,L+.02,.36,.1,.05,"#ffffff",K.glow);box(s*.68,.78,L,.3,.06,.05,"#dbeafe",K.glow)});
+    CARL["tail"+k]=mk(()=>box(s*.7,.78,-L-.02,.36,.08,.05,"#a01818",K.glow));CARL["brake"+k]=mk(()=>box(s*.7,.78,-L-.04,.44,.14,.06,"#ff1a1a",K.glow))}
   CARL.low=mk(()=>{for(const s of[-1,1])box(s*.68,.66,L+.02,.36,.1,.05,"#fffbe6",K.glow)});
   CARL.high=mk(()=>{for(const s of[-1,1]){box(s*.68,.66,L+.02,.36,.1,.05,"#ffffff",K.glow);box(s*.68,.78,L,.3,.06,.05,"#dbeafe",K.glow)}});
   CARL.tail=mk(()=>{for(const s of[-1,1])box(s*.7,.78,-L-.02,.36,.08,.05,"#a01818",K.glow)});
-  CARL.brake=mk(()=>{for(const s of[-1,1])box(s*.7,.78,-L-.04,.44,.14,.06,"#ff1a1a",K.glow);box(0,1.2,-1.25,.5,.05,.05,"#ff1a1a",K.glow)});
+  CARL.brake=mk(()=>{for(const s of[-1,1])box(s*.7,.78,-L-.04,.44,.14,.06,"#ff1a1a",K.glow);box(0,1.2,-1.25,.5,.05,.05,"#ff1a1a",K.glow)});CARL.brakeTop=mk(()=>box(0,1.2,-1.25,.5,.05,.05,"#ff1a1a",K.glow));
   CARL.rev=mk(()=>{for(const s of[-1,1])box(s*.42,.66,-L-.04,.18,.09,.06,"#ffffff",K.glow)});
   for(const[k,s]of[["indL",1],["indR",-1]])CARL[k]=mk(()=>{box(s*(Wd-.06),.66,L,.16,.1,.06,"#ffb020",K.glow);box(s*(Wd-.02),.78,-L-.02,.16,.1,.06,"#ffb020",K.glow);box(s*(Wd+.02),.95,.55,.04,.06,.16,"#ffb020",K.glow)})}
 /* ---- sound, made in the browser: engine, horn, indicator click, tyre noise. Replace with recorded sounds later. ---- */
@@ -2128,22 +2133,24 @@ function sndUpdate(on){const c=SND.ctx;if(!c)return;const t=c.currentTime,k=.08;
   SND.eg.gain.setTargetAtTime(on?.05+.07*VEH.thr:0,t,k);const f=34+VEH.rpm*120;SND.o1.frequency.setTargetAtTime(f,t,k);SND.o2.frequency.setTargetAtTime(f*.5,t,k);SND.lp.frequency.setTargetAtTime(500+VEH.rpm*1400,t,k);
   SND.hg.gain.setTargetAtTime(on&&VEH.horn?.09:0,t,.02);SND.tg.gain.setTargetAtTime(on?Math.min(.14,VEH.slip*.12+(VEH.brk>.5&&Math.abs(VEH.lastV)>8?.05:0)):0,t,.05)}
 /* ---- the physics, once a frame ---- */
-function vehicleStep(C,T,dt){const cfg=VEH.cfg,hitT=(x,z,r)=>T.blocks.some(w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r);
+function vehicleStep(C,T,dt){const cfg=VEH.cfg,pw=carEngine(C,dt),wet=dynWet(T,C.x,C.z),hitT=(x,z,r)=>T.blocks.some(w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r);
   VEH.thr=Math.max(keys.w||keys.arrowup?1:0,VEH.touch.thr);VEH.brk=Math.max(keys.s||keys.arrowdown?1:0,VEH.touch.brk);const steerIn=clamp((keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+VEH.touch.steer,-1,1),hand=VEH.hand||!!keys[" "];
   const v0=C.v,still=Math.abs(C.v)<.3;
   if(VEH.gear==="P"&&VEH.thr>0&&still&&!VEH.brk){VEH.gear="D";dashToast("Drive")}
   if(VEH.brk&&still&&VEH.gear==="D"&&!VEH.revHint){VEH.revHint=true;dashToast(touch?"Stopped. Press R to reverse.":"Stopped. Press 2 (or R on screen) to reverse.")}if(!still)VEH.revHint=false;
-  let a=0;if(VEH.gear==="D"){a+=VEH.thr*cfg.accel*Math.max(0,1-Math.max(0,C.v)/cfg.vmax);if(!VEH.thr&&!VEH.brk&&!hand&&C.v<cfg.creep)a+=1.1}
-  if(VEH.gear==="R"){a-=VEH.thr*cfg.accel*.75*Math.max(0,1-Math.max(0,-C.v)/cfg.rev);if(!VEH.thr&&!VEH.brk&&!hand&&-C.v<cfg.creep*.7)a-=.8}
-  C.v+=a*dt;const dec=VEH.brk*cfg.brake+(hand?5.5:0)+(VEH.gear==="P"?14:0)+.3+.0024*C.v*C.v+(VEH.gear==="N"?.2:0);if(C.v){const s=Math.sign(C.v);C.v-=s*Math.min(Math.abs(C.v),dec*dt)}
+  if(!pw&&VEH.thr&&NOW>(VEH.deadMsg||0)){VEH.deadMsg=NOW+4;dashToast(touch?"The engine won't run. Tap Tow truck.":"The engine won't run. Press T for a tow truck.",3)}
+  let a=0;if(VEH.gear==="D"){a+=VEH.thr*cfg.accel*pw*Math.max(0,1-Math.max(0,C.v)/cfg.vmax);if(!VEH.thr&&!VEH.brk&&!hand&&C.v<cfg.creep&&pw)a+=1.1}
+  if(VEH.gear==="R"){a-=VEH.thr*cfg.accel*pw*.75*Math.max(0,1-Math.max(0,-C.v)/cfg.rev);if(!VEH.thr&&!VEH.brk&&!hand&&-C.v<cfg.creep*.7&&pw)a-=.8}
+  C.v+=a*dt;const dec=VEH.brk*cfg.brake*(1-.35*wet)+(hand?5.5:0)+(VEH.gear==="P"?14:0)+.3+.0024*C.v*C.v+(VEH.gear==="N"?.2:0);if(C.v){const s=Math.sign(C.v);C.v-=s*Math.min(Math.abs(C.v),dec*dt)}
   // steering: full lock at walking pace, less as speed rises; it returns to centre when let go
   const target=steerIn*cfg.steerMax/(1+Math.abs(C.v)/14);VEH.steer+=(target-VEH.steer)*Math.min(1,dt*(steerIn?5:6.5));
-  let yr=C.v*Math.tan(VEH.steer)/cfg.base;const maxYr=cfg.grip/Math.max(2,Math.abs(C.v))*(hand&&Math.abs(C.v)>6?1.7:1);VEH.slip=Math.max(0,Math.abs(yr)-maxYr)/(maxYr||1);yr=clamp(yr,-maxYr,maxYr);C.yaw-=yr*dt;
-  // moving, and bumping into things: the car's outline is checked at its corners and sides
-  const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),rx=-fz,rz=fx,nx=C.x+fx*C.v*dt,nz=C.z+fz*C.v*dt;let hit=false;{const dh=dynHit(T,nx,nz,C.yaw,Math.abs(C.v),cfg);if(dh){C.v*=dh.slow;VEH.jolt=Math.min(1,VEH.jolt+.5)}}
-  {const near=T.blocks.filter(w=>w[2]>nx-7&&w[0]<nx+7&&w[3]>nz-7&&w[1]<nz+7),inB=(x,z)=>near.some(w=>x>w[0]-.1&&x<w[2]+.1&&z>w[1]-.1&&z<w[3]+.1);       /* the whole outline, every 40 cm, so thin posts and trunks are never missed */
-   if(near.length)outer:for(let l=-cfg.len;l<=cfg.len+.01;l+=.4)for(const w of(Math.abs(l)>cfg.len-.21?[-cfg.wid,-.6,-.2,.2,.6,cfg.wid]:[-cfg.wid,cfg.wid]))if(inB(nx+fx*l+rx*w,nz+fz*l+rz*w)){hit=true;break outer}}
-  if(hit){VEH.jolt=Math.min(1,Math.abs(C.v)/12);if(Math.abs(C.v)>3)dashToast("Bump!");C.v*=-.18}else{C.x=nx;C.z=nz}
+  let yr=C.v*Math.tan(VEH.steer)/cfg.base;const maxYr=cfg.grip*(1-.45*wet)/Math.max(2,Math.abs(C.v))*(hand&&Math.abs(C.v)>6?1.7:1);VEH.slip=Math.max(0,Math.abs(yr)-maxYr)/(maxYr||1);yr=clamp(yr,-maxYr,maxYr);C.yaw-=yr*dt;if(VEH.spin){C.yaw+=VEH.spin*dt;VEH.spin*=Math.max(0,1-dt*3.2);if(Math.abs(VEH.spin)<.01)VEH.spin=0}       // the turn an off-centre blow gave the car dies away as the tyres grip
+  // moving, and running into things: the car's outline is checked at its corners and sides
+  const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),rx=-fz,rz=fx,nx=C.x+fx*C.v*dt,nz=C.z+fz*C.v*dt;let hit=null;
+  {const near=T.blocks.concat(T.vblocks||[]).filter(w=>w[2]>nx-7&&w[0]<nx+7&&w[3]>nz-7&&w[1]<nz+7),inB=(x,z)=>near.find(w=>x>w[0]-.1&&x<w[2]+.1&&z>w[1]-.1&&z<w[3]+.1);       /* the whole outline, every 40 cm, so thin posts and trunks are never missed */
+   if(near.length)outer:for(let l=-cfg.len;l<=cfg.len+.01;l+=.4)for(const w of(Math.abs(l)>cfg.len-.21?[-cfg.wid,-.6,-.2,.2,.6,cfg.wid]:[-cfg.wid,cfg.wid])){const px=nx+fx*l+rx*w,pz=nz+fz*l+rz*w,b=inB(px,pz);if(b){hit=[b,px,pz];break outer}}}
+  // something solid in the way: the collision works out what happens to the car and to it, and if it gave way the car carries on
+  if(hit){if(crashAt(T,C,hit[0],hit[1],hit[2],cfg)){C.x=nx;C.z=nz}}else{C.x=nx;C.z=nz}
   // the body: leans out on corners, dips under braking, lifts under acceleration
   const lat=C.v*yr,lon=(C.v-v0)/Math.max(dt,1e-3);VEH.roll+=(clamp(lat*.011,-.07,.07)-VEH.roll)*Math.min(1,dt*6);VEH.pitch+=(clamp(-lon*.006,-.05,.05)-VEH.pitch)*Math.min(1,dt*5);VEH.jolt*=Math.max(0,1-dt*5);
   // the engine: five automatic gears; the needle rises through each one and drops at the change
@@ -2155,31 +2162,34 @@ function vehicleStep(C,T,dt){const cfg=VEH.cfg,hitT=(x,z,r)=>T.blocks.some(w=>x>
   VEH.lastV=C.v;VEH.model=mul(mul(trans(C.x,0,C.z),rotY(C.yaw+Math.PI)),mul(mrotX(VEH.pitch+VEH.jolt*.03*Math.sin(NOW*40)),mrotZ(VEH.roll)));sndUpdate(true)}
 // the car's lamps to draw this frame
 function carLamps(driven){const L=[],night=LIGHT.night>.05;if(!CARL.low)return L;const on=driven&&(VEH.ind==="hazard"||VEH.ind==="left"||VEH.ind==="right")&&VEH.blinkOn;
-  if(VEH.lights===1)L.push(CARL.low);if(VEH.lights===2)L.push(CARL.high);if(VEH.lights>0)L.push(CARL.tail);if(driven&&VEH.brk>.1)L.push(CARL.brake);if(driven&&VEH.gear==="R")L.push(CARL.rev);
+  const D=(townOf(me.town).car||{}).dmg||{},side=(k,on)=>{for(const s of["L","R"])if(on&&!D[(k==="low"||k==="high"?"hl":"tl")+s])L.push(CARL[k+s])};
+  side("low",VEH.lights===1);side("high",VEH.lights===2);side("tail",VEH.lights>0);side("brake",driven&&VEH.brk>.1);if(driven&&VEH.brk>.1)L.push(CARL.brakeTop);if(driven&&VEH.gear==="R")L.push(CARL.rev);
   if(on&&(VEH.ind==="left"||VEH.ind==="hazard"))L.push(CARL.indL);if(on&&(VEH.ind==="right"||VEH.ind==="hazard"))L.push(CARL.indR);return L}
 // headlights light the road at night: two lights ahead of the car, further and brighter on high beam
 function carHeadlightLamps(C){if(!C||!VEH.lights||LIGHT.night<.05)return[];const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),d=VEH.lights===2?13:7,s=VEH.lights===2?1.8:1.25,rx=-fz,rz=fx;
-  return[[C.x+fx*d+rx*.8,1.1,C.z+fz*d+rz*.8,s],[C.x+fx*d-rx*.8,1.1,C.z+fz*d-rz*.8,s]]}
+  const D=C.dmg||{},out=[];if(!D.hlR)out.push([C.x+fx*d+rx*.8,1.1,C.z+fz*d+rz*.8,s]);if(!D.hlL)out.push([C.x+fx*d-rx*.8,1.1,C.z+fz*d-rz*.8,s]);return out}
 /* ---- controls ---- */
 function setGear(g){const C=townOf(me.town).car;if(!C)return;const still=Math.abs(C.v)<.4;
   if((g==="P"||(g==="R"&&VEH.gear!=="R")||(g==="D"&&VEH.gear==="R"))&&!still){dashToast("Stop the car first");return}VEH.gear=g;dashUpdate(true)}
 function indicate(k){VEH.ind=VEH.ind===k?"off":k;VEH.indTurn=0;VEH.blink=0;dashUpdate(true)}
 function cycleLights(){VEH.lights=(VEH.lights+1)%3;dashToast(["Lights off","Low beam","High beam"][VEH.lights])}
 function driveKey(k,down){if(!driving)return false;if(!down){if(k==="f")VEH.horn=false;return k==="f"}
-  if(k==="q"){indicate("left");return true}if(k==="r"){indicate("right");return true}if(k==="g"){indicate("hazard");return true}if(k==="h"){cycleLights();return true}
+  if(k==="q"){indicate("left");return true}if(k==="r"){indicate("right");return true}if(k==="g"){indicate("hazard");return true}if(k==="h"){cycleLights();return true}if(k==="t"){const C=townOf(me.town).car;if(C&&C.dmg&&C.dmg.ver)towCar();return true}
   if(k==="c"){VEH.cam=(VEH.cam+1)%3;VEH.orbit=0;dashToast(["Chase camera","Close camera","Driver's seat"][VEH.cam]);return true}if(k==="f"){VEH.horn=true;return true}
   const G={"1":"P","2":"R","3":"N","4":"D"}[k];if(G){setGear(G);return true}return false}
 /* ---- the dashboard: speed, gear, revs, indicators, lights, handbrake ---- */
 const dash=document.createElement("div");dash.id="dash";dash.hidden=true;dash.innerHTML=`<div class="dsp"><b id="dSpd">0</b><span id="dUnit">km/h</span></div><div class="dgear">${["P","R","N","D"].map(g=>`<span data-g="${g}">${g}</span>`).join("")}</div>
-  <div class="drpm"><i id="dRpm"></i></div><div class="dico"><span id="dIL">◀</span><span id="dHz">⚠</span><span id="dIR">▶</span><span id="dLt">◐</span><span id="dHb">(P)</span></div><div class="dmsg" id="dMsg"></div>`;document.body.appendChild(dash);
+  <div class="drpm"><i id="dRpm"></i></div><div class="dico"><span id="dIL">◀</span><span id="dHz">⚠</span><span id="dIR">▶</span><span id="dLt">◐</span><span id="dHb">(P)</span></div><div class="dwarn"><span id="dEng" title="Engine">ENG</span><span id="dTmp" title="Engine temperature">TEMP</span></div><button id="dTow" hidden>Tow truck</button><div class="dmsg" id="dMsg"></div>`;document.body.appendChild(dash);
 dash.querySelector(".dsp").addEventListener("click",()=>{VEH.mph=!VEH.mph;dashUpdate(true)});
-let dashMsgT=0;function dashToast(t){const m=document.getElementById("dMsg");m.textContent=t;m.classList.add("on");dashMsgT=NOW+1.6}
+document.getElementById("dTow").addEventListener("click",e=>{e.stopPropagation();towCar()});
+let dashMsgT=0;function dashToast(t,dur){const m=document.getElementById("dMsg");m.textContent=t;m.classList.add("on");dashMsgT=NOW+(dur||1.6)}
 function dashUpdate(){if(!driving){dash.hidden=true;return}const C=townOf(me.town).car;if(!C)return;dash.hidden=false;const kmh=Math.abs(C.v)*3.6;
   document.getElementById("dSpd").textContent=Math.round(VEH.mph?kmh*.6214:kmh);document.getElementById("dUnit").textContent=VEH.mph?"mph":"km/h";
   for(const s of dash.querySelectorAll(".dgear span"))s.classList.toggle("on",s.dataset.g===VEH.gear);document.getElementById("dRpm").style.width=Math.round(clamp(VEH.rpm,0,1)*100)+"%";
   const bl=VEH.blinkOn;document.getElementById("dIL").classList.toggle("on",bl&&(VEH.ind==="left"||VEH.ind==="hazard"));document.getElementById("dIR").classList.toggle("on",bl&&(VEH.ind==="right"||VEH.ind==="hazard"));
   document.getElementById("dHz").classList.toggle("on",VEH.ind==="hazard");const lt=document.getElementById("dLt");lt.classList.toggle("on",VEH.lights>0);lt.classList.toggle("hi",VEH.lights===2);lt.textContent=VEH.lights===2?"◉":"◐";
-  document.getElementById("dHb").classList.toggle("on",VEH.hand||!!keys[" "]);if(NOW>dashMsgT)document.getElementById("dMsg").classList.remove("on")}
+  document.getElementById("dHb").classList.toggle("on",VEH.hand||!!keys[" "]);const D=C.dmg;document.getElementById("dEng").className=D&&(D.dead||D.engine>.4)?"bad":D&&(D.engine>.1||D.radiator>.15)?"on":"";
+  document.getElementById("dTmp").className=D&&D.temp>125?"bad":D&&D.temp>108?"on":"";document.getElementById("dTow").hidden=!(D&&D.ver);if(NOW>dashMsgT)document.getElementById("dMsg").classList.remove("on")}
 /* ---- touch: a steering wheel bottom left; brake and accelerator pedals bottom right; buttons along the top of the pedals ---- */
 const dpad=document.createElement("div");dpad.id="dpad";dpad.hidden=true;dpad.innerHTML=`<div id="wheel"><div id="wheelIn"><i></i></div></div>
   <div id="pedals"><div class="drow">${["P","R","N","D"].map(g=>`<button data-dg="${g}">${g}</button>`).join("")}<button data-dk="hand" id="dHand">Handbrake</button></div>
@@ -2204,18 +2214,50 @@ function vehicleCam(C,wallAt,dt){if(VEH.lastVY===null)VEH.lastVY=VIEW.yaw;const 
   const dist=VEH.cam===1?4.6:7.4,up=VEH.cam===1?1.85:2.6;let k=1;for(let q=.15;q<=1;q+=.15)if(wallAt(C.x-fx*dist*q,C.z-fz*dist*q)){k=Math.max(.2,q-.15);break}
   const want=[C.x-fx*dist*k,up*(.6+.4*k),C.z-fz*dist*k];if(!VEH.camPos)VEH.camPos=want.slice();const s=1-Math.exp(-dt*7);for(let i=0;i<3;i++)VEH.camPos[i]+=(want[i]-VEH.camPos[i])*s;
   return[VEH.camPos.slice(),[C.x+cfx*3,1.15,C.z+cfz*3]]}
-/* ================================ street objects that react ================================
-   Street lamps (lit from dusk to dawn), traffic lights (green, amber, red, the cross street opposite), fire hydrants,
-   benches, bins, bus stops and signboards are separate objects, not part of the town's fixed geometry. A car that hits
-   one faster than walking pace knocks it over (a hydrant bursts and sprays water); after DYN.REPAIR seconds it is put
-   right again. Damage is seen only by the player who caused it, until the game has shared multiplayer state. */
-const DYN={mesh:null,REPAIR:1800,PERIOD:30,
-  types:{lamp:{name:"street lamp",fall:1.5,slow:.7},bench:{name:"bench",fall:1.5,slow:.85},bin:{name:"bin",fall:1.5,slow:.92},bus:{name:"bus stop",fall:.45,slow:.75},sign:{name:"signboard",fall:1.5,slow:.92},
-    tlight:{name:"traffic light",fall:1.45,slow:.72},hydrant:{name:"fire hydrant",burst:true,slow:.8}}};
+/* ================================ collisions: the car and whatever it hits ================================
+   Every collision works out two separate outcomes, one for the car and one for the thing it hit, from the car's mass,
+   its closing speed (the part of its velocity heading into the object, so the angle of impact counts), the place of
+   contact on the car, and the object's own material and strength.
+
+   Street objects (lamps, traffic lights, signboards, hydrants, benches, bins, bus stops) are separate objects, not part
+   of the town's fixed geometry, and each one is a variant of its kind (a lamp may be a standard, a breakaway or a
+   reinforced pole), picked from where it stands so it is always the same one. Walls, compound walls, kerb fences and
+   trees are part of the fixed geometry; they are told apart by a tag on their solid outline.
+
+   Strengths are impact energies E = ½·m·v² of the closing speed, in kJ. The car is CRASH.MASS kg, so 10 km/h is about
+   5 kJ, 30 km/h 49, 50 km/h 135 and 80 km/h 346. Below `mark` an object is untouched, from `mark` it is scuffed, from
+   `bend` it bends and stays bent, from `brk` it breaks. A loose object (fixed:false) is shoved instead, by momentum.
+   The severity of a collision (minor, moderate, severe, extreme) is the worse of two things: the jolt the car took (its
+   change of speed, in the bands of CRASH.SEV, m/s) and what became of the object. It names the collision in the messages.
+
+   Damage stays until repaired: street objects, wall marks and fallen trees are put right CRASH.REPAIR seconds (of real
+   time) after they were damaged, and a car is repaired by calling the tow truck. Both are kept in this browser, so
+   they survive a reload. Damage is seen only by the player who caused it, until the game has shared multiplayer state. */
+const CRASH={MASS:1400,SEV:[4.5,9,14],REPAIR:1800,COOL:.35,KEY:"dc_crash_v1",
+  // fixed geometry, by tag. rigid: how little it gives (1: not at all). w: how wide the contact is on the car's front (m).
+  fixed:{wall:{name:"building wall",mat:"concrete",e:.12,w:1.6,marks:true},cwall:{name:"compound wall",mat:"masonry",e:.1,w:1.6,marks:true},
+    kerb:{name:"kerb fence",mat:"concrete",e:.08,w:1.6,low:true,marks:true},fallen:{name:"fallen pole",mat:"steel",e:.05,w:1.6,low:true}},
+  // trees: a mature tree stands; a shrub is flattened from `brk`; a young tree falls from `brk`
+  tree:{mature:{e:.05,w:.45},shrub:{brk:3},young:{brk:55}}};
+const DYN={mesh:null,PERIOD:30,
+  types:{
+    lamp:{name:"street lamp",fall:1.5,len:6,w:.35,v:[["standard",.55,{mark:2,bend:18,brk:60,mass:180}],["breakaway",.3,{mark:2,bend:1e9,brk:9,mass:150}],["reinforced",.15,{mark:3,bend:45,brk:160,mass:260}]]},
+    tlight:{name:"traffic light",fall:1.45,len:3.9,w:.35,v:[["standard",.7,{mark:3,bend:28,brk:95,mass:220}],["reinforced",.3,{mark:4,bend:60,brk:200,mass:320}]]},
+    sign:{name:"signboard",fall:1.5,len:2.4,w:.35,v:[["light",.6,{mark:1,bend:5,brk:22,mass:40}],["mounted",.4,{mark:3,bend:25,brk:80,mass:120}]]},
+    hydrant:{name:"fire hydrant",low:true,w:.4,v:[["standard",.6,{mark:3,bend:14,brk:34,mass:120}],["old",.25,{mark:2,bend:8,brk:16,mass:110}],["breakaway",.15,{mark:2,bend:1e9,brk:11,mass:90}]]},
+    bench:{name:"bench",w:1.2,tipV:4,v:[["light",.45,{fixed:false,mass:35}],["wooden",.35,{fixed:false,mass:45,split:1.2,wood:true}],["reinforced",.2,{mark:4,bend:1e9,brk:75,mass:320,wood:true}]]},
+    bin:{name:"bin",w:.6,tipV:2.5,v:[["plastic",.7,{fixed:false,mass:14}],["concrete",.3,{mark:6,bend:1e9,brk:150,mass:260,concrete:true}]]},
+    bus:{name:"bus stop",fall:.9,w:1.6,v:[["standard",1,{mark:6,bend:22,brk:90,mass:420,glass:true}]]}},
+  debris:[],marks:[]};
 const DYNPROP={p_bench:"bench",p_waste_bin:"bin",p_bus_stop:"bus",p_signboard:"sign",p_traffic_light:"tlight"};
+const SEVN=["Minor","Moderate","Severe","Extreme"],sevOf=dv=>dv<CRASH.SEV[0]?0:dv<CRASH.SEV[1]?1:dv<CRASH.SEV[2]?2:3;
+const mscale=(x,y,z)=>new Float32Array([x,0,0,0,0,y,0,0,0,0,z,0,0,0,0,1]);
 // while a town is being built: record this object (here, in the current placement) and its solid outline
 function dynHere(type,w,d){if(!(CELL&&MAPD&&MAPD.dyn))return false;const o=wpt(0,0),f=wpt(0,1),yaw=Math.atan2(f[0]-o[0],f[1]-o[1]);solidBox(0,0,w,d);
-  const b=BLOCKS[BLOCKS.length-1],rec={type,x:o[0],z:o[1],yaw,b,box0:b.slice(0,4),state:0};       /* the object holds its own outline (the list can be reordered later) */if(type==="lamp"){const h=wpt(1.35,0);rec.hx=h[0];rec.hz=h[1]}MAPD.dyn.push(rec);return true}
+  const b=BLOCKS[BLOCKS.length-1],rec={type,x:o[0],z:o[1],yaw,b,box0:b.slice(0,4),state:0,i:MAPD.dyn.length};       /* the object holds its own outline (the list can be reordered later) */if(type==="lamp"){const h=wpt(1.35,0);rec.hx=h[0];rec.hz=h[1]}MAPD.dyn.push(rec);DYNOF.set(b,rec);return true}
+// this object's variant and strengths, picked from where it stands
+function dynProps(o){if(o.P)return o.P;const T=DYN.types[o.type],h=((Math.sin(o.x*12.9898+o.z*78.233)*43758.5453)%1+1)%1;let acc=0,pick=T.v[0];for(const v of T.v){acc+=v[1];if(h<acc){pick=v;break}}
+  o.variant=pick[0];return o.P=Object.assign({fixed:true,mark:0,bend:1e9,brk:1e9},pick[2])}
 // the shapes, made once
 function dynMeshes(){if(DYN.mesh)return DYN.mesh;const mk=fn=>{BAKE=null;CLEAR_GLASS=false;CELL=0;reset();fn();return upload()},M={};
   const pole=()=>{cyl(0,0,0,.09,6,"#3a4048",6,.06);box(.7,5.95,0,1.5,.08,.1,"#3a4048")};
@@ -2223,36 +2265,256 @@ function dynMeshes(){if(DYN.mesh)return DYN.mesh;const mk=fn=>{BAKE=null;CLEAR_G
   for(const[k,id]of[["bench","p_bench"],["bin","p_waste_bin"],["bus","p_bus_stop"],["sign","p_signboard"]])M[k]=mk(()=>{if(document.getElementById(id))placeModel(id)});
   const tl=lit=>mk(()=>{cyl(0,0,0,.09,3.1,"#2b2f36",8,.08);box(0,2.75,.05,.42,1.12,.3,"#1f2329");box(0,3.87,.05,.5,.06,.36,"#1f2329");
     [["r","#ff2a2a",3.62],["a","#ffb020",3.31],["g","#22e06b",3.0]].forEach(([k,c,y])=>{cyl(0,y,.21,.12,.02,lit===k?c:"#2a2d33",14,.12,lit===k?K.glow:0);box(0,y+.14,.26,.3,.04,.12,"#1f2329")})});
-  M.tl_r=tl("r");M.tl_a=tl("a");M.tl_g=tl("g");
+  M.tl_r=tl("r");M.tl_a=tl("a");M.tl_g=tl("g");M.tl_off=tl("");M.stump=mk(()=>{cyl(0,0,0,.1,.32,"#3a4048",6,.07);cyl(0,.32,0,.07,.06,"#8a8f96",6,.05)});
   const hyd=whole=>mk(()=>{cyl(0,0,0,.2,.08,"#9ca3af",12);cyl(0,.08,0,.15,whole?.55:.3,"#d11f1f",12);if(whole){cyl(0,.63,0,.17,.06,"#d11f1f",12);cyl(0,.69,0,.1,.12,"#f5c542",10,.04)}
-    for(const s of[-1,1])box(s*.17,.35,0,.12,.1,.1,"#f5c542");if(!whole)cyl(0,.004,0,1.6,.008,"#5b7d99",24)});
-  M.hydrant=hyd(true);M.hydrant_burst=hyd(false);M.drop=mk(()=>box(0,0,0,.11,.11,.11,"#d6ecff"));return DYN.mesh=M}
+    for(const s of[-1,1])box(s*.17,.35,0,.12,.1,.1,"#f5c542")});
+  M.hydrant=hyd(true);M.hydrant_burst=hyd(false);M.drop=mk(()=>box(0,0,0,.11,.11,.11,"#d6ecff"));
+  M.puddle=mk(()=>{cyl(0,0,0,1,.012,"#3b4d60",36)});// steam and smoke: see-through, drawn like glass
+  const puff=c=>mk(()=>{CLEAR_GLASS=true;cyl(0,-.1,0,.07,.06,c,9,.13,K.glass);cyl(0,-.04,0,.13,.08,c,9,.13,K.glass);cyl(0,.04,0,.13,.06,c,9,.07,K.glass);CLEAR_GLASS=false});M.puff=puff("#f4f7fa");M.smoke=puff("#3d4148");
+  // debris: planks and legs of a bench, glass, concrete chunks, a hydrant's top, leaves
+  M.plank=mk(()=>box(0,-.025,0,.95,.05,.13,"#8b5e34",K.wood));M.leg=mk(()=>box(0,-.2,0,.08,.4,.42,"#2f343b"));M.shard=mk(()=>box(0,-.004,0,.22,.008,.16,"#cfe6f2",K.glass));
+  M.chunk=mk(()=>box(0,-.08,0,.2,.16,.17,"#a9a59b"));M.cap=mk(()=>{cyl(0,-.12,0,.16,.24,"#d11f1f",10);cyl(0,.12,0,.1,.1,"#f5c542",8)});M.leaf=mk(()=>box(0,0,0,.14,.01,.09,"#3f8f4d"));
+  M.binbody=mk(()=>box(0,-.2,0,.5,.4,.5,"#2f6b3a"));
+  return DYN.mesh=M}
 // a rotation about a level axis (ax, 0, az), for tipping something over
 function mrotAxis(ax,az,a){const c=Math.cos(a),s=Math.sin(a),t=1-c;return new Float32Array([t*ax*ax+c,s*az,t*ax*az,0, -s*az,c,s*ax,0, t*ax*az,-s*ax,t*az*az+c,0, 0,0,0,1])}
-function dynModel(o){const base=mul(trans(o.x,0,o.z),rotY(o.yaw));if(o.state!==1)return base;const T=DYN.types[o.type],k=Math.min(1,(NOW-o.t0)/.7),a=k*k*T.fall;
-  return mul(mul(trans(o.x,0,o.z),mrotAxis(o.dz,-o.dx,a)),rotY(o.yaw))}
-function dynMesh(o,M){if(o.type==="lamp")return LIGHT.night>.05&&o.state===0?M.lamp_on:M.lamp_off;if(o.type==="hydrant")return o.state?M.hydrant_burst:M.hydrant;
-  if(o.type==="tlight"){if(o.state)return M.tl_r;const fx=Math.sin(o.yaw),alongX=Math.abs(fx)>.7,ph=((NOW+(alongX?DYN.PERIOD/2:0))%DYN.PERIOD)/DYN.PERIOD;return ph<.4?M.tl_g:ph<.5?M.tl_a:M.tl_r}return M[o.type]}
-// put anything broken more than DYN.REPAIR seconds ago right again
-function dynRepair(T){const L=T.map.dyn||[];for(const o of L)if(o.state&&NOW-o.at>DYN.REPAIR){o.state=0;o.b.splice(0,4,...o.box0)}}
+/* where an object is drawn. Standing: upright, or bent over towards o.dx, o.dz, and swaying briefly after a knock it
+   withstood. Knocked over: shoved ahead of the car (o.push metres, over the first quarter second) and tipping at once,
+   fast at first and settling as it lands, so the car never passes through it while it still stands. Loose and shoved:
+   wherever its slide has taken it, turned, and tipped over if it was hit hard enough. */
+function dynModel(o){const T=DYN.types[o.type];
+  if(o.state===1){const e=NOW-o.t0,k=Math.min(1,e/.55),a=(1-(1-k)*(1-k)*(1-k))*(o.fall||T.fall),s=(o.push||0)*(1-Math.pow(1-Math.min(1,e/.25),2)),x=o.x+o.dx*s,z=o.z+o.dz*s;
+    return mul(mul(trans(x,0,z),mrotAxis(o.dz,-o.dx,a)),rotY(o.yaw))}
+  if(o.state===3)return mul(mul(trans(o.x,0,o.z),mrotAxis(o.tdz||0,-(o.tdx||0),o.tip||0)),rotY(o.yaw));
+  let a=o.bend||0;if(o.wob){const e=NOW-o.wob;if(e<1.4)a+=o.wobA*Math.exp(-e*3.2)*Math.sin(e*19);else o.wob=0}
+  const base=mul(trans(o.x,0,o.z),rotY(o.yaw));return a?mul(mul(trans(o.x,0,o.z),mrotAxis(o.dz,-o.dx,a)),rotY(o.yaw)):base}
+function dynMesh(o,M){if(o.state===4)return null;const bent=(o.bend||0)>.2;
+  if(o.type==="lamp")return LIGHT.night>.05&&o.state===0&&!bent?M.lamp_on:M.lamp_off;if(o.type==="hydrant")return o.state===2?M.hydrant_burst:M.hydrant;
+  if(o.type==="tlight"){if(o.state||bent)return M.tl_off;const fx=Math.sin(o.yaw),alongX=Math.abs(fx)>.7,ph=((NOW+(alongX?DYN.PERIOD/2:0))%DYN.PERIOD)/DYN.PERIOD;return ph<.4?M.tl_g:ph<.5?M.tl_a:M.tl_r}return M[o.type]}
 // the standing street lamps' heads, for lighting the road at night
-function dynLamps(T){const L=T.map.dyn||[],out=[];for(const o of L)if(o.type==="lamp"&&o.state===0)out.push([o.hx,5.6,o.hz]);return out.length?out:(T.map.lamps||[])}
-/* a car at (x, z), facing yaw, moving at speed v: knock over anything standing in its outline (true if it did) */
-function dynHit(T,x,z,yaw,v,cfg){if(v<3)return false;const L=T.map.dyn||[],fx=-Math.sin(yaw),fz=-Math.cos(yaw);let hit=null;
-  // the car's outline, a little ahead of where it is going, against each standing object's whole footprint
-  for(const o of L){if(o.state)continue;const B=o.box0,cx=(B[0]+B[2])/2,cz=(B[1]+B[3])/2,hx=(B[2]-B[0])/2,hz=(B[3]-B[1])/2,dx=cx-x,dz=cz-z;if(dx*dx+dz*dz>64)continue;
-    // the object's footprint, seen from the car: the reach of its corners along and across the car
-    const al=dx*fx+dz*fz,sd=-dx*fz+dz*fx,ra=hx*Math.abs(fx)+hz*Math.abs(fz),rs=hx*Math.abs(fz)+hz*Math.abs(fx);if(Math.abs(al)<cfg.len+.2+ra&&Math.abs(sd)<cfg.wid+.1+rs){hit=o;break}}
-  if(!hit)return false;const T0=DYN.types[hit.type],dir=Math.sign(v)||1;hit.at=NOW;hit.t0=NOW;
-  if(T0.burst)hit.state=2;else{hit.state=1;const vx=fx*dir,vz=fz*dir,l=Math.hypot(vx,vz)||1;hit.dx=vx/l;hit.dz=vz/l}hit.b.splice(0,4,1e9,1e9,1e9,1e9)
-  if(hit.type==="lamp"){const T2=townOf(me.town);if(T2.map.lamps)T2.map.lamps=T2.map.lamps.filter(p=>Math.hypot(p[0]-hit.hx,p[2]-hit.hz)>.5)}
-  dashToast(T0.burst?"You hit a fire hydrant. It's spraying water!":"You knocked over a "+T0.name+"!");return {slow:T0.slow}}
-/* drawing: the objects near the eye; water from any burst hydrant */
-function dynDraw(T,VP,eye){const L=T.map.dyn;if(!L||!L.length)return;const M=dynMeshes();if(NOW%2<.05)dynRepair(T);
-  for(const o of L){const dx=o.x-eye[0],dz=o.z-eye[2];if(dx*dx+dz*dz>150*150)continue;const S=dynMesh(o,M);if(!S)continue;S.model=dynModel(o);S.fogFar=T.scene.fogFar;drawScene(S,VP,eye,false);
-    if(o.type==="hydrant"&&o.state===2&&dx*dx+dz*dz<90*90){const D=M.drop;D.fogFar=S.fogFar;for(let i=0;i<30;i++){const p=(NOW*1.15+i/30)%1,a=i*2.399,r=p*1.3*(.6+.4*((i*7)%5)/5);
-        D.model=trans(o.x+Math.cos(a)*r,.55+p*5.2-p*p*5.4,o.z+Math.sin(a)*r);drawScene(D,VP,eye,false)}}}}
+function dynLamps(T){const L=T.map.dyn||[],out=[];for(const o of L)if(o.type==="lamp"&&o.state===0&&(o.bend||0)<=.2)out.push([o.hx,5.6,o.hz]);return out.length?out:(T.map.lamps||[])}
+
+/* ---------------------------------------- the car's damage ----------------------------------------
+   Each part from 0 (sound) to 1 (wrecked); headlights and tail lights are whole or broken. A damaged radiator leaks
+   coolant; once the coolant runs low the engine overheats, loses power, and seizes if it is kept running too hot.
+   A wrecked engine, chassis or suspension leaves the car undrivable. Dents change the car's shape where it was hit. */
+const carDmg0=()=>({bumperF:0,bumperR:0,bonnet:0,grille:0,trunk:0,sideL:0,sideR:0,hlL:0,hlR:0,tlL:0,tlR:0,radiator:0,engine:0,susp:0,chassis:0,under:0,coolant:1,temp:90,hot:0,dead:false,dents:[],ver:0});
+const carD=C=>C.dmg||(C.dmg=carDmg0());
+const clamp01=v=>v<0?0:v>1?1:v;
+/* apply an impact to the car: dv is the change in its speed (m/s) the blow caused, ct where and how it landed:
+   zone F (front), R (rear), L or R side (local x: + is the car's left), the contact width w, low for things under the bumper.
+   Returns what was damaged, in words. */
+function crashCar(C,dv,ct){const D=carD(C),was=JSON.stringify(D),s=dv,add=(k,v)=>{D[k]=clamp01(D[k]+Math.max(0,v))},narrow=ct.w<.6?1.35:ct.w<1.3?1:.8,said=[];
+  if(s<.6)return"";
+  if(ct.zone==="F"){add("bumperF",.04+(s-.8)*.09);add("grille",(s-3)*.09*(ct.low?.7:1));add(ct.low?"under":"bonnet",ct.low?(s-2)*.1:(s-3.5)*.08);if(ct.low)add("bonnet",(s-7)*.05);
+    for(const[k,side]of[["hlL",1],["hlR",-1]])if(!D[k]&&s>(ct.low?7:4.5)&&(ct.x*side>.2||s>(ct.w>1?6:8.5)))D[k]=1;
+    add("radiator",(s-(ct.low?3.5:5.5))*.1);add("engine",(s-9.5)*.09)}
+  else if(ct.zone==="R"){add("bumperR",.04+(s-.8)*.1);add("trunk",(s-3.5)*.09);for(const[k,side]of[["tlL",1],["tlR",-1]])if(!D[k]&&s>3.5&&(ct.x*side>.2||s>6))D[k]=1}
+  else add(ct.zone==="L"?"sideL":"sideR",.05+(s-.8)*.1);
+  add("susp",(s-7)*.07*(ct.low?1.3:1));add("chassis",(s-10)*.06);
+  const dep=clamp01((s-1.2)*.045*narrow)*.75;if(dep>.015)D.dents.push({zone:ct.zone,x:ct.x||0,z:ct.z||0,d:+dep.toFixed(3),w:Math.max(.25,ct.w*.5)});if(D.dents.length>12)D.dents.splice(0,D.dents.length-12);
+  if(!D.dead&&(D.engine>=.85||D.chassis>=.9||D.susp>=.95)){D.dead=true}
+  const P=JSON.parse(was);for(const[k,t]of[["bumperF","front bumper"],["bumperR","rear bumper"],["grille","grille"],["bonnet","bonnet"],["trunk","boot"],["sideL","left side"],["sideR","right side"],["under","underbody"],["susp","suspension"],["chassis","chassis"],["radiator","radiator"],["engine","engine"]]){
+    const a=P[k],b=D[k];if(b-a<.04)continue;const st=k==="radiator"?(b>.15?"leaking":"knocked"):b<.25?"scratched":b<.6?"dented":"badly damaged";said.push(t+" "+st)}
+  for(const[k,t]of[["hlL","left headlight"],["hlR","right headlight"],["tlL","left tail light"],["tlR","right tail light"]])if(D[k]&&!P[k])said.push(t+" smashed");
+  if(D.dead&&!P.dead)said.push("the car cannot drive on");
+  if(said.length||dep>.015)D.ver++;crashSave();return said.length?said.slice(0,4).join(", "):s<1.5?"a few scratches":""}
+// the car's shape with its dents, rebuilt only when the damage changes
+let CARBASE=null,CARSCENE0=null;
+const carKind=c=>c[0]>220&&c[1]>220?K.glow:c[0]>220?K.glow:c[0]>150&&c[1]<70?K.gold:c[0]<40&&c[2]>44?K.glass:0;
+function freeScene(S){if(!S)return;for(const b of S.own||S.bufs.concat(S.clear||[]))for(const k of["p","nn","c","i"])if(b[k])gl.deleteBuffer(b[k])}       // a dented car frees only its own parts, never the undamaged car's
+function carBase(){if(CARBASE)return;BAKE=null;CLEAR_GLASS=false;CELL=0;reset();placeModel("m_audi",carKind);CARBASE=chunks.map(c=>({p:new Float32Array(c.p),n:c.n,c:c.c,i:c.i}));reset()}
+/* the dented car is worked out one part per frame (so a crash never stalls the game), and shown once it is complete;
+   only the parts that changed are sent to the graphics chip again, the rest are the undamaged car's own */
+let CARJOB=null;
+function carMesh(C){const D=C&&C.dmg;if(!CARSCENE0)CARSCENE0=CARSCENE;if(!D||!D.ver){CARJOB=null;if(CARSCENE!==CARSCENE0){freeScene(CARSCENE);CARSCENE=CARSCENE0}return}if(CARSCENE.ver===D.ver&&CARSCENE.car===C)return;
+  if(!CARBASE){carBase();return}
+  if(!CARJOB||CARJOB.ver!==D.ver||CARJOB.car!==C){if(CARJOB)freeScene({bufs:CARJOB.own});CARJOB={ver:D.ver,car:C,ci:0,bufs:[],own:[]}}
+  const J=CARJOB,c=CARBASE[J.ci],L=VEH.cfg.len,Wd=VEH.cfg.wid,dents=D.dents;let changed=false;
+  {const p=c.p.slice(),col=c.c.slice(),moved=new Uint8Array(p.length/3);
+    for(let v=0;v<p.length/3;v++){let x=p[v*3],y=p[v*3+1],z=p[v*3+2],hit=0;
+      for(const d of dents){if(d.zone==="F"||d.zone==="R"){const s=d.zone==="F"?1:-1,zf=L-z*s,reach=d.d+.55;if(zf>reach)continue;const lx=x/Wd-d.x,wl=Math.exp(-lx*lx/(d.w*d.w/(Wd*Wd))),k=wl*(1-zf/reach),m=d.d*k;
+          if(m<.002)continue;z-=s*m*(1+.35*Math.sin(x*21+y*13));y+=(y>.8?m*.35*Math.sin(x*9+d.x*5):-m*.12)+m*.12*Math.sin(z*31+x*17);x*=1-m*.08;x+=m*.1*Math.sin(y*27+z*19);hit=Math.max(hit,k)}
+        else{const s=d.zone==="L"?1:-1,xf=Wd-x*s,reach=d.d+.3;if(xf>reach)continue;const lz=z-d.z,wl=Math.exp(-lz*lz/(d.w*d.w)),k=wl*(1-xf/reach),m=d.d*k;if(m<.002)continue;x-=s*m*(1+.3*Math.sin(z*23+y*15));y+=m*.1*Math.sin(z*29);hit=Math.max(hit,k)}}
+      if(hit>0){moved[v]=1;changed=true}p[v*3]=x;p[v*3+1]=y;p[v*3+2]=z;const o=v*4;
+      // broken headlights and tail lights go dark; dented metal is scuffed darker
+      const glow=Math.abs(col[o+3]-K.glow)<1e-4;if(glow&&((z>L-.5&&((x>0&&D.hlL)||(x<0&&D.hlR)))||(z<-L+.5&&((x>0&&D.tlL)||(x<0&&D.tlR))))){col[o]*=.25;col[o+1]*=.25;col[o+2]*=.27;col[o+3]=0;changed=true}
+      else if(hit>.15){const f=1-.45*Math.min(1,hit);col[o]*=f;col[o+1]*=f;col[o+2]*=f}}
+    let nn=c.n;for(let t=0;t<c.i.length;t+=3){const a=c.i[t],b=c.i[t+1],e=c.i[t+2];if(!moved[a]&&!moved[b]&&!moved[e])continue;if(nn===c.n)nn=c.n.slice();
+      const ux=p[b*3]-p[a*3],uy=p[b*3+1]-p[a*3+1],uz=p[b*3+2]-p[a*3+2],vx=p[e*3]-p[a*3],vy=p[e*3+1]-p[a*3+1],vz=p[e*3+2]-p[a*3+2];let nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,l=Math.hypot(nx,ny,nz)||1;
+      if(nx*c.n[a*3]+ny*c.n[a*3+1]+nz*c.n[a*3+2]<0)l*=-1;for(const q of[a,b,e]){nn[q*3]=nx/l;nn[q*3+1]=ny/l;nn[q*3+2]=nz/l}}
+    if(changed){reset();chunks.push({p,n:nn,c:col,i:c.i});const U=upload();J.bufs.push(U.bufs[0]);J.own.push(U.bufs[0]);reset()}else J.bufs.push(CARSCENE0.bufs[J.ci])}
+  if(++J.ci<CARBASE.length)return;
+  const S=Object.assign({},CARSCENE0,{bufs:J.bufs,own:J.own,ver:D.ver,car:C,twoSided:true});if(CARSCENE!==CARSCENE0)freeScene(CARSCENE);CARSCENE=S;CARJOB=null}
+/* each frame while driving: coolant leaks from a damaged radiator; with too little coolant the engine runs hot, loses
+   power above 125 °C, and seizes after eight seconds above 135 °C. Returns the engine's power, 0 to 1. */
+function carEngine(C,dt){const D=carD(C);if(D.dead)return 0;
+  if(D.radiator>.15)D.coolant=Math.max(0,D.coolant-D.radiator*.022*dt);
+  const want=90+Math.max(0,.65-D.coolant)/.65*62+(D.radiator>.6?12:0)+VEH.thr*6*(D.coolant<.5?1:0);D.temp+=(want-D.temp)*Math.min(1,dt*.12);
+  if(D.temp>135){D.hot+=dt;if(D.hot>8){D.engine=1;D.dead=true;D.ver++;dashToast("The engine has overheated and seized",3);crashSave();return 0}}else D.hot=Math.max(0,D.hot-dt*.5);
+  return (1-.72*D.engine)*(D.temp>125?.5:1)}
+// the tow truck: the car is taken away, repaired, and brought back to where it stood
+function towCar(){const T=townOf(me.town),C=T.car;if(!C)return;fadeTo("Tow truck",()=>{C.dmg=carDmg0();C.v=0;VEH.spin=0;carMesh(C);crashSave();dashToast("Your car was towed to a garage and repaired",3);dashUpdate(true)})}
+
+/* ---------------------------------------- the impact ---------------------------------------- */
+// the car's velocity after the blow removes dvn of its speed along n (car to object). Its wheels keep it rolling along
+// its heading, so the heading swings part of the way towards the new direction of travel; an off-centre blow spins it.
+function carImpulse(C,n,dvn,px,pz){const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),vx=fx*C.v-n[0]*dvn,vz=fz*C.v-n[1]*dvn,sp=Math.hypot(vx,vz);
+  if(sp>.4&&vx*fx+vz*fz>0){const want=Math.atan2(-vx,-vz),d=((want-C.yaw+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;C.yaw+=d*.55}
+  const gx=-Math.sin(C.yaw),gz=-Math.cos(C.yaw);C.v=vx*gx+vz*gz;
+  const m=CRASH.MASS,I=m*1.97,Jx=-n[0]*m*dvn,Jz=-n[1]*m*dvn,rx=px-C.x,rz=pz-C.z;VEH.spin=clamp((VEH.spin||0)+(rz*Jx-rx*Jz)/I,-2.2,2.2)}
+// where on the car a point of contact lies: zone, and the local side offset (+ left) or position along the side
+function carZone(C,px,pz,cfg){const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),rx=-fz,rz=fx,dx=px-C.x,dz=pz-C.z,al=dx*fx+dz*fz,sd=dx*rx+dz*rz;
+  if(Math.abs(al)>cfg.len-.3)return{zone:al>0?"F":"R",x:clamp(-sd/cfg.wid,-1,1),z:al,n:[fx*Math.sign(al),fz*Math.sign(al)]};
+  return{zone:sd<0?"L":"Rs",x:0,z:al,n:[rx*Math.sign(sd),rz*Math.sign(sd)]}}
+// say what happened, unless it was only a nudge, or the same thing was just said (a row of shrubs)
+let crashLast="",crashLastT=-9;
+function crashSay(dv,lvl,obj,car){const lv=Math.max(sevOf(dv),lvl);if(lv===0&&!car&&dv<1.2)return;const t=SEVN[lv]+" collision: "+obj+(car?". Car: "+car:"");if(t===crashLast&&NOW-crashLastT<2.5)return;crashLast=t;crashLastT=NOW;dashToast(t,3.2)}
+/* the car's outline touched solid block b at (px, pz). Work out both outcomes and change the car's motion.
+   Returns true if the object gave way and the car carries on through the space it held. */
+function crashAt(T,C,b,px,pz,cfg){const o=DYNOF.get(b),Z=carZone(C,px,pz,cfg),tag=b[4]==="v"?"fallen":BTAG.get(b),tree=tag&&tag.k==="tree";let n=Z.n;
+  if(!o&&!tree){const pX=Math.min(px-b[0],b[2]-px),pZ=Math.min(pz-b[1],b[3]-pz);n=pX<pZ?[px-b[0]<b[2]-px?1:-1,0]:[0,pz-b[1]<b[3]-pz?1:-1]}      // a wall: the face it struck
+  const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),vn=(fx*n[0]+fz*n[1])*C.v,key=o||(tree?tag.t:tag==="fallen"?b.owner:b);
+  if(tag==="fallen"&&Math.abs(C.v)>1.5){if(NOW-(key.rideAt||-9)>1.2){key.rideAt=NOW;const dv=Math.min(Math.abs(C.v)*.18,1.8);C.v-=Math.sign(C.v)*dv;VEH.jolt=Math.min(1,VEH.jolt+.6);
+    const car=crashCar(C,dv*.8,{zone:C.v>0?"F":"R",x:0,z:0,w:1.6,low:true});crashSay(dv,0,"you drove over the fallen "+(key.type?DYN.types[key.type].name:"tree"),car)}return true}
+  // resting or creeping against it (under 1 m/s), or still in contact from the blow a moment ago: no new damage, the car just does not move into it
+  if(vn<1||NOW-(key.hitAt||-9)<CRASH.COOL){if(vn>0)carImpulse(C,n,vn,px,pz);return false}
+  key.hitAt=NOW;const E=.5*CRASH.MASS*vn*vn/1000,h={n,vn,E,px,pz,zone:Z.zone,x:Z.x,z:Z.z};VEH.jolt=Math.min(1,VEH.jolt+vn/10);
+  if(o)return crashObject(T,C,o,h);if(tree)return crashTree(T,C,tag,b,h);
+  const F=CRASH.fixed[tag||"wall"]||CRASH.fixed.wall,dvn=(1+F.e)*vn;carImpulse(C,n,dvn,px,pz);const car=crashCar(C,dvn,{zone:Z.zone,x:Z.x,z:Z.z,w:F.w,low:F.low});
+  let obj="the "+F.name+(tag==="fallen"?" is in the way":" is unharmed"),lv=0;
+  if(F.marks&&E>=2){const kind=E<25?"scuff":E<90?"paint":"crack";wallMark(T,b,px,pz,n,kind,F.low);lv=kind==="scuff"?0:kind==="paint"?1:2;obj="the "+F.name+(kind==="scuff"?" has scuff marks":kind==="paint"?" has paint marks and scrapes":" is cracked, chips knocked off")+"; it stands"}
+  crashSay(dvn,lv,obj,car);return false}
+// a street object
+function crashObject(T,C,o,h){const P=dynProps(o),Ty=DYN.types[o.type],m=CRASH.MASS,{n,vn,E}=h;let dvn,obj,pass=false,lv=0;const ctW=Ty.w,low=!!Ty.low;
+  if(P.fixed===false){                                             // loose: shoved by momentum, with a little bounce
+    const mo=P.mass,e=.2,vo=(1+e)*m/(m+mo)*vn,Eo=.5*mo*vo*vo/1000;dvn=(1+e)*mo/(m+mo)*vn;
+    let lvl=0;if(P.split&&Eo>=P.split){dynSplit(T,o,n,vo,"wood");obj="the "+Ty.name+" split into pieces";lvl=1}
+    else{dynShove(o,n,vo,h);obj="the "+Ty.name+(vo>(Ty.tipV||3)?" was knocked over and tumbled away":vo>1.2?" slid away":" was nudged");lvl=vo>1.2?1:0}pass=true;lv=lvl}
+  else if(E>=P.brk){lv=P.brk>=60?2:1;const after=Math.sqrt(Math.max(0,vn*vn-2*P.brk*1000/m)),vc=after*m/(m+P.mass);dvn=vn-vc;pass=true;o.dx=n[0];o.dz=n[1];
+    if(o.type==="hydrant"){o.state=2;o.water={on:1,t0:Date.now(),r:0};dynSpray(T,o,"cap",1,n,vc+2);o.b.splice(0,4,1e9,1e9,1e9,1e9);obj="the hydrant broke off and is spraying water"}
+    else if(P.concrete){dynSplit(T,o,n,vc,"concrete");obj="the concrete "+Ty.name+" cracked apart"}
+    else if(P.fixed&&P.mass>250&&o.type==="bench"){dynShove(o,n,vc*1.05,h);obj="the heavy "+Ty.name+" broke from its fixings and was pushed"}
+    else{o.state=1;o.t0=NOW;o.push=Math.min(2.2,.22*Math.max(vc,3));o.b.splice(0,4,1e9,1e9,1e9,1e9);if(P.glass&&!o.glassGone){o.glassGone=1;dynSpray(T,o,"shard",10,n,vc)}
+      if(o.type==="lamp"&&T.map.lamps)T.map.lamps=T.map.lamps.filter(p=>Math.hypot(p[0]-o.hx,p[2]-o.hz)>.5);obj="the "+Ty.name+" snapped off and fell"}
+    dynDamaged(o)}
+  else if(E>=P.bend){lv=1;dvn=vn;const a=clamp(.12+.45*(E-P.bend)/Math.max(1,P.brk-P.bend),.12,.6);if(a>(o.bend||0)){o.bend=a;o.dx=n[0];o.dz=n[1]}if(o.type==="hydrant")o.leak=1;
+    if(P.glass&&!o.glassGone){o.glassGone=1;dynSpray(T,o,"shard",8,n,2)}obj="the "+Ty.name+" bent over"+(o.type==="hydrant"?" and is leaking":"")+(P.glass?"; its glass shattered":"");dynDamaged(o)}
+  else if(E>=P.mark){dvn=1.08*vn;o.scuff=1;o.wob=NOW;o.wobA=.05;o.dx=n[0];o.dz=n[1];obj="the "+Ty.name+" held, scuffed";dynDamaged(o)}
+  else{dvn=1.1*vn;o.wob=NOW;o.wobA=.015+.02*E/Math.max(1,P.mark);o.dx=n[0];o.dz=n[1];obj="the "+Ty.name+" held, unharmed"}
+  carImpulse(C,n,dvn,h.px,h.pz);const car=crashCar(C,dvn,{zone:h.zone,x:h.x,z:h.z,w:ctW,low});
+  crashSay(dvn,lv||0,obj+(o.variant&&o.variant!=="standard"?" ("+o.variant+")":""),car);return pass}
+// a loose object set moving at speed vo along n, turning if it was struck off-centre, and tipping over if struck hard
+function dynShove(o,n,vo,h){const P=dynProps(o),Ty=DYN.types[o.type];if(o.state!==3){o.state=3;o.x0=o.x;o.z0=o.z;o.yaw0=o.yaw;o.tip=0}
+  o.vx=n[0]*vo;o.vz=n[1]*vo;const off=((h.px-o.x)*-n[1]+(h.pz-o.z)*n[0]);o.w=clamp(-off*vo*1.6,-6,6);
+  if(vo>(Ty.tipV||3)&&!o.tipv&&!(o.tip>0)){o.tipv=2.5+vo*.25;o.tdx=n[0];o.tdz=n[1]}}
+// a breakable object comes apart: its pieces scatter from where it stood, with the speed the blow gave them
+function dynSplit(T,o,n,vo,kind){o.state=4;o.b.splice(0,4,1e9,1e9,1e9,1e9);const R=(i,k)=>((Math.sin(o.x*(7+i)+o.z*(3+k)+i*12.1)*9301.7)%1+1)%1;
+  const parts=kind==="wood"?[["plank",4],["leg",2]]:[["chunk",7]];let i=0;
+  for(const[mesh,cnt]of parts)for(let k=0;k<cnt;k++,i++){const sp=vo*(.45+.6*R(i,1)),ang=(R(i,2)-.5)*1.1,cs=Math.cos(ang),sn=Math.sin(ang);
+    DYN.debris.push({o,mesh,x:o.x+(R(i,3)-.5)*.6,y:.45+R(i,4)*.3,z:o.z+(R(i,5)-.5)*.6,vx:(n[0]*cs-n[1]*sn)*sp,vz:(n[1]*cs+n[0]*sn)*sp,vy:1+R(i,6)*Math.min(3,vo*.3),yaw:R(i,7)*6.28,rx:0,wy:(R(i,8)-.5)*9,wx:(R(i,9)-.5)*7,rest:0})}
+  dynTrim();dynDamaged(o)}
+// small pieces flung out: glass from a bus stop, the top of a hydrant
+function dynSpray(T,o,mesh,cnt,n,v){for(let i=0;i<cnt;i++){const a=(i/cnt-.5)*2.2,sp=v*(.3+.5*((i*37)%10)/10);
+  DYN.debris.push({o,mesh,x:o.x,y:mesh==="cap"?.7:1.2+((i*13)%10)/10,z:o.z,vx:(n[0]*Math.cos(a)-n[1]*Math.sin(a))*sp,vz:(n[1]*Math.cos(a)+n[0]*Math.sin(a))*sp,vy:mesh==="cap"?3+v*.2:.5,yaw:i,rx:0,wy:(i%5-2)*4,wx:(i%3-1)*6,rest:0})}dynTrim()}
+const dynTrim=()=>{if(DYN.debris.length>140)DYN.debris.splice(0,DYN.debris.length-140)};
+const dynDamaged=o=>{o.at=Date.now();crashSave()};
+
+/* ---------------------------------------- trees ---------------------------------------- */
+// a mature tree stands, though leaves fall and the bark is scarred; a shrub is flattened; a young tree can be knocked down
+function crashTree(T,C,tag,b,h){const t=tag.t,[sp,x,z,H]=t,{n,vn,E}=h,kind=sp==="shrub"?"shrub":(sp==="broad"&&H<4.6)||(sp==="palm"&&H<4.2)?"young":"mature";let dvn,obj,pass=false,lv=0;
+  if(kind!=="mature"&&E>=CRASH.tree[kind].brk){const mo=kind==="shrub"?60:350,after=Math.sqrt(Math.max(0,vn*vn-2*CRASH.tree[kind].brk*1000/CRASH.MASS));dvn=vn-after*CRASH.MASS/(CRASH.MASS+mo);pass=true;
+    treeFall(T,t,b,n,kind);obj=kind==="shrub"?"the shrub was flattened":"the young tree was knocked down";lv=kind==="shrub"?0:1}
+  else{dvn=(1+(kind==="mature"?CRASH.tree.mature.e:.15))*vn;obj=(kind==="shrub"?"the shrub":kind==="young"?"the young tree":"the tree")+" stands";
+    if(E>4)treeLeaves(t,Math.min(14,3+E/6));if(E>12&&kind!=="shrub"){wallMark(T,null,x-n[0]*.22,z-n[1]*.22,n,"bark");obj+=", bark scraped off";lv=1}}
+  carImpulse(C,n,dvn,h.px,h.pz);const car=crashCar(C,dvn,{zone:h.zone,x:h.x,z:h.z,w:kind==="shrub"?1.4:CRASH.tree.mature.w,low:false});crashSay(dvn,lv,obj,car);return pass}
+function treeLeaves(t,cnt){const[sp,x,z,H]=t;for(let i=0;i<cnt;i++)DYN.debris.push({o:null,mesh:"leaf",x:x+(Math.sin(i*7.1)*1.6),y:H*.6+((i*3)%5)*.3,z:z+Math.cos(i*5.3)*1.6,vx:Math.sin(i)*.4,vz:Math.cos(i*1.7)*.4,vy:0,yaw:i,rx:0,wy:(i%5-2)*2,wx:(i%3-1)*3,rest:0,leaf:1});dynTrim()}
+// the tree leaves its block of the town's trees (that block is rebuilt without it) and falls on its own, then lies there
+function treeFall(T,t,b,n,kind,done){b.splice(0,4,1e9,1e9,1e9,1e9);t.fall={dx:n[0],dz:n[1],a:kind==="shrub"?1.35:1.5,t0:done?NOW-9:NOW,kind,at:done||Date.now()};treeCell(T,t);if(!done)crashSave()}
+function treeCell(T,t){if(!T.trees||!T.treeInst)return;const G=60,gx=Math.floor(t[1]/G),gz=Math.floor(t[2]/G),cx=(gx+.5)*G,cz=(gz+.5)*G,keep=T.treeInst.filter(q=>!q.fall&&Math.floor(q[1]/G)===gx&&Math.floor(q[2]/G)===gz);
+  const i=T.trees.cells.findIndex(c=>c.cx===cx&&c.cz===cz);if(i>=0){treeFree(T.trees.cells[i]);T.trees.cells.splice(i,1)}if(keep.length){const R=uploadTrees(keep);T.trees.cells.push(...R.cells)}}
+const treeFree=c=>{for(const m of c.mats)for(const b of m.bufs)for(const k of["p","n","u","i","li"])if(b[k])gl.deleteBuffer(b[k])};
+// a fallen tree's own mesh, tilted about its foot: rebuilt each frame while it falls, then kept
+function treeDrawFallen(T,VP,eye){if(!T.treeInst)return;for(const t of T.treeInst){const f=t.fall;if(!f)continue;const e=NOW-f.t0,k=Math.min(1,e/1.3),a=k*k*f.a;
+  if(!f.mesh||f.k<1){if(f.mesh)f.mesh.cells.forEach(treeFree);const[,x,z]=t,ax=f.dz,az=-f.dx,c=Math.cos(a),s=Math.sin(a),q=1-c;
+    f.mesh=uploadTrees([t],(X,Y,Z)=>{const px=X-x,pz=Z-z;return[x+(q*ax*ax+c)*px+(-s*az)*Y+(q*ax*az)*pz,(s*az)*px+c*Y+(-s*ax)*pz,z+(q*ax*az)*px+(s*ax)*Y+(q*az*az+c)*pz]});f.k=k;
+    if(k>=1&&!f.laid&&t[0]!=="shrub"){f.laid=1;dynLay(T,t,x,z,f.dx,f.dz,t[3]*.85)}}
+  drawTrees(f.mesh,VP,eye,null,150)}}
+
+/* ---------------------------------------- marks on walls and trunks ---------------------------------------- */
+// a mark where the car struck: scuffs, paint and scrapes, cracks (with chips knocked off), or scraped bark
+function wallMark(T,b,px,pz,n,kind,low){const y=low?.25:kind==="bark"?.55:.5,list=T.marks||(T.marks=[]);if(list.length>40){const o=list.shift();if(o.mesh)freeScene(o.mesh)}
+  const m={x:px-n[0]*.03,z:pz-n[1]*.03,y,nx:n[0],nz:n[1],kind,at:Date.now()};list.push(m);if(kind==="crack")for(let i=0;i<4;i++)DYN.debris.push({o:null,mesh:"chunk",x:px-n[0]*.3,y:y+.2,z:pz-n[1]*.3,vx:-n[0]*(1+i*.4)+Math.sin(i*3)*.6,vz:-n[1]*(1+i*.4)+Math.cos(i*3)*.6,vy:1,yaw:i,rx:0,wy:i-1.5,wx:2-i,rest:0,small:1});crashSave()}
+function markMesh(m){if(m.mesh)return m.mesh;BAKE=null;CLEAR_GLASS=false;CELL=0;reset();const turn=Math.atan2(m.nx,m.nz);
+  at(m.x,m.z,turn,()=>{const dark="#2b2b2e",red="#a3221d",S=(x,y,w,h,c)=>box(x,y,-.01,w,h,.012,c);
+    if(m.kind==="scuff"){S(0,m.y,.7,.06,dark);S(.1,m.y+.1,.5,.04,"#55565b")}
+    else if(m.kind==="paint"){S(0,m.y,.9,.12,red);S(-.2,m.y+.14,.6,.05,dark);S(.15,m.y-.1,.5,.05,"#7a1915")}
+    else if(m.kind==="crack"){S(0,m.y,.55,.4,"#8f8b82");for(let i=0;i<6;i++){const a=i*1.05+.3;at(Math.cos(a)*.35,0,0,()=>box(0,m.y+Math.sin(a)*.3,-.012,.5,.025,.012,"#2a2724"))}}
+    else if(m.kind==="bark"){S(0,m.y,.28,.32,"#c9b48a")}});
+  const S=upload();return m.mesh=S}
+
+/* ---------------------------------------- each frame ---------------------------------------- */
+// a fallen pole or tree lies across the ground: a row of low blocks the car must go round (not the parts under the car now)
+function dynLay(T,owner,x,z,dx,dz,len){const V=T.vblocks||(T.vblocks=[]),C=T.car;for(let s=.6;s<len;s+=.5){const px=x+dx*s,pz=z+dz*s;if(C&&Math.hypot(px-C.x,pz-C.z)<2.6)continue;const b=[px-.16,pz-.16,px+.16,pz+.16,"v"];b.owner=owner;V.push(b)}}
+function dynUpdate(T,dt){const L=T.map.dyn||[];dt=Math.min(dt,.05);
+  for(const o of L){
+    if(o.state===1&&!o.laid&&NOW-o.t0>.6){o.laid=1;const T0=DYN.types[o.type];if(T0.len)dynLay(T,o,o.x+o.dx*(o.push||0),o.z+o.dz*(o.push||0),o.dx,o.dz,T0.len)}
+    if(o.state===3){const sp=Math.hypot(o.vx||0,o.vz||0);
+      if(sp>.01){const nx=o.x+o.vx*dt,nz=o.z+o.vz*dt,blocked=T.blocks.some(w=>w!==o.b&&!DYNOF.get(w)&&nx>w[0]&&nx<w[2]&&nz>w[1]&&nz<w[3]);       // it stops against walls and kerbs
+        if(blocked){o.vx*=-.15;o.vz*=-.15}else{o.x=nx;o.z=nz}const mu=(o.tip||0)>.6?9:4.5,k=Math.max(0,1-mu*dt/Math.max(sp,1e-3));o.vx*=k;o.vz*=k}
+      o.yaw+=(o.w||0)*dt;o.w=(o.w||0)*Math.max(0,1-dt*2.6);
+      if(o.tipv){o.tip=(o.tip||0)+o.tipv*dt;if(o.tip>=1.5){o.tip=1.5;o.tipv=0}}
+      const B=o.box0,hx=(B[2]-B[0])/2,hz=(B[3]-B[1])/2,c=Math.abs(Math.cos(o.yaw-o.yaw0)),s=Math.abs(Math.sin(o.yaw-o.yaw0)),ex=hx*c+hz*s,ez=hx*s+hz*c;o.b.splice(0,4,o.x-ex,o.z-ez,o.x+ex,o.z+ez);
+      if(sp<.01&&!o.tipv&&!o.saved){o.saved=1;crashSave()}else if(sp>.01)o.saved=0}
+    if(o.water){const W=o.water,age=(Date.now()-W.t0)/1000;if(W.on)W.r=Math.min(7,1+6*(1-Math.exp(-age/22)));else W.r=Math.max(0,(W.r0||W.r)*(1-(Date.now()-W.off)/120000))}
+    if(o.leak&&!o.water)o.lr=Math.min(1.8,(o.lr||.3)+dt*.04)}
+  for(const d of DYN.debris){if(d.rest)continue;d.vy-=(d.leaf?1.2:9.8)*dt;if(d.leaf){d.vy=Math.max(d.vy,-.9)}d.x+=d.vx*dt;d.y+=d.vy*dt;d.z+=d.vz*dt;d.yaw+=d.wy*dt;d.rx+=d.wx*dt;
+    if(d.y<=.02){d.y=.02;if(Math.abs(d.vy)>1.5&&!d.leaf){d.vy*=-.25;d.vx*=.55;d.vz*=.55;d.wx*=.5}else{d.vy=0;const k=Math.max(0,1-6*dt);d.vx*=k;d.vz*=k;d.wy*=k;d.wx=0;d.rx=Math.round(d.rx/Math.PI)*Math.PI;if(Math.hypot(d.vx,d.vz)<.05)d.rest=1}}}}
+// how wet the road is here, 0 to 1, from burst and leaking hydrants
+function dynWet(T,x,z){let w=0;for(const o of T.map.dyn||[]){if(o.type!=="hydrant")continue;const r=o.water?o.water.r:o.leak?o.lr||0:0;if(r<=0)continue;const d=Math.hypot(x-o.x,z-o.z);if(d<r)w=Math.max(w,1-.4*d/r)}return w}
+// on foot beside a burst hydrant: the valve that shuts the water off
+function dynValve(T){for(const o of T.map.dyn||[])if(o.type==="hydrant"&&o.water&&o.water.on&&Math.hypot(cam.x-o.x,cam.z-o.z)<2.4)return o;return null}
+function shutValve(){const T=townOf(me.town),o=dynValve(T);if(!o)return;o.water.on=0;o.water.off=Date.now();o.water.r0=o.water.r;crashSave();toast("You shut off the water supply. The road will dry out, and the hydrant stays broken until it is repaired.")}
+// put anything damaged more than CRASH.REPAIR seconds ago right again
+function dynRepair(T){const L=T.map.dyn||[],now=Date.now(),old=t=>t&&now-t>CRASH.REPAIR*1000;let any=false;
+  for(const o of L)if(o.at&&old(o.at)&&(o.state||o.bend||o.scuff||o.leak||o.water||o.glassGone)){any=true;if(o.state===3){o.x=o.x0;o.z=o.z0;o.yaw=o.yaw0}
+    Object.assign(o,{state:0,bend:0,scuff:0,leak:0,lr:0,water:null,glassGone:0,laid:0,tip:0,tipv:0,vx:0,vz:0,w:0,at:0});o.b.splice(0,4,...o.box0);
+    DYN.debris=DYN.debris.filter(d=>d.o!==o);if(T.vblocks)T.vblocks=T.vblocks.filter(b=>b.owner!==o)}
+  if(T.marks){const k=T.marks.filter(m=>!old(m.at));if(k.length!==T.marks.length){T.marks.filter(m=>old(m.at)).forEach(m=>freeScene(m.mesh));T.marks=k;any=true}}
+  if(T.treeInst)for(const t of T.treeInst)if(t.fall&&old(t.fall.at)){any=true;if(t.fall.mesh)t.fall.mesh.cells.forEach(treeFree);t.fall=null;const s=t[0]==="shrub"?.45:.28;const b=T.blocks.find(w=>BTAG.get(w)&&BTAG.get(w).t===t);if(b)b.splice(0,4,t[1]-s,t[2]-s,t[1]+s,t[2]+s);if(T.vblocks)T.vblocks=T.vblocks.filter(b=>b.owner!==t);treeCell(T,t)}
+  if(any)crashSave()}
+/* drawing: the objects near the eye, stumps, water, debris, marks, fallen trees, and steam or smoke from a damaged car */
+function dynDraw(T,VP,eye){const L=T.map.dyn;if(!L||!L.length)return;const M=dynMeshes();if(NOW%2<.05)dynRepair(T);const ff=T.scene.fogFar,put=(S,m)=>{S.model=m;S.fogFar=ff;drawScene(S,VP,eye,false)};
+  for(const o of L){const dx=o.x-eye[0],dz=o.z-eye[2],d2=dx*dx+dz*dz;if(d2>150*150)continue;const S=dynMesh(o,M);if(S)put(S,dynModel(o));
+    if(o.state===1&&(o.type==="lamp"||o.type==="tlight"||o.type==="sign"))put(M.stump,mul(trans(o.x,0,o.z),rotY(o.yaw)));
+    if(o.type==="hydrant"&&d2<90*90){const W=o.water,r=W?W.r:o.leak?o.lr||0:0;if(r>.05){put(M.puddle,mul(trans(o.x,.056,o.z),mscale(r,1,r)));const q=Math.min(r,.9);put(M.puddle,mul(trans(o.x,.126,o.z),mscale(q,1,q)))}       // on the road, and a pool on the pavement round the hydrant
+      const n=W&&W.on?30:o.leak&&!W?6:0,hgt=W&&W.on?5.2:.9,D=M.drop;for(let i=0;i<n;i++){const p=(NOW*1.15+i/n)%1,a=i*2.399,rr=p*(W?1.3:.5)*(.6+.4*((i*7)%5)/5);
+        put(D,trans(o.x+Math.cos(a)*rr,(W?.55:.4)+p*hgt-p*p*(hgt+.2),o.z+Math.sin(a)*rr))}}}
+  for(const d of DYN.debris){const dx=d.x-eye[0],dz=d.z-eye[2];if(dx*dx+dz*dz>80*80)continue;const S=M[d.mesh];if(!S)continue;put(S,mul(mul(trans(d.x,d.y,d.z),rotY(d.yaw)),mrotX(d.rx)))}
+  if(T.marks)for(const m of T.marks){const dx=m.x-eye[0],dz=m.z-eye[2];if(dx*dx+dz*dz>70*70)continue;const S=markMesh(m);S.model=IDENT;S.fogFar=ff;drawScene(S,VP,eye,false)}
+  treeDrawFallen(T,VP,eye);
+  const C=T.car,D=C&&C.dmg;if(D&&(D.radiator>.25||D.temp>112||D.engine>.45)){const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),hx=C.x+fx*(VEH.cfg.len-.6),hz=C.z+fz*(VEH.cfg.len-.6),smoke=D.engine>.45||D.dead,n=smoke?10:7;
+    for(let i=0;i<n;i++){const p=(NOW*(smoke?.55:.8)+i/n)%1,s=(.45+p*1.6)*(1-p*.3),S=smoke?M.smoke:M.puff;S.model=mul(mul(trans(hx+Math.sin(i*2.4)*.3+p*.6,1+p*1.8,hz+Math.cos(i*2.4)*.3),rotY(i*1.7+p*2.5)),mscale(s,s*.8,s));drawSceneClear(S,VP,eye,NOW)}}}
 function dynShadows(T,lists,cx,cz){const L=T.map.dyn;if(!L||!DYN.mesh)return;for(const o of L){const dx=o.x-cx,dz=o.z-cz;if(dx*dx+dz*dz>62*62)continue;const S=dynMesh(o,DYN.mesh);if(S)lists.push([S.bufs,dynModel(o)])}}
+
+/* ---------------------------------------- kept in this browser ---------------------------------------- */
+// the damage in every town that has been visited, and each town's car: saved after each collision and repair
+let CRASHSAVE=null;
+function crashSave(){if(CRASHSAVE)return;CRASHSAVE=setTimeout(()=>{CRASHSAVE=null;try{const out={};for(const[st,T]of Object.entries(TOWNS)){const dyn={};
+    for(const o of T.map.dyn||[])if(o.at)dyn[o.i]={s:o.state,b:o.bend||0,dx:o.dx||0,dz:o.dz||0,x:o.x,z:o.z,yaw:o.yaw,tip:o.tip||0,tdx:o.tdx||0,tdz:o.tdz||0,p:o.push||0,sc:o.scuff||0,lk:o.leak||0,g:o.glassGone||0,w:o.water?{on:o.water.on,t0:o.water.t0,off:o.water.off||0,r0:o.water.r0||0}:null,at:o.at,
+      d:DYN.debris.filter(d=>d.o===o&&d.rest).map(d=>[d.mesh,+d.x.toFixed(2),+d.z.toFixed(2),+d.yaw.toFixed(2)])};
+    const trees=(T.treeInst||[]).filter(t=>t.fall).map(t=>[+t[1].toFixed(2),+t[2].toFixed(2),t.fall.dx,t.fall.dz,t.fall.kind,t.fall.at]);
+    out[st]={dyn,marks:(T.marks||[]).map(m=>({x:m.x,z:m.z,y:m.y,nx:m.nx,nz:m.nz,kind:m.kind,at:m.at})),trees,car:T.car&&T.car.dmg?Object.assign({},T.car.dmg):null}}
+    localStorage.setItem(CRASH.KEY,JSON.stringify(out))}catch(e){}},400)}
+// a town just built: put back the damage it had
+function crashLoad(st,T){let all;try{all=JSON.parse(localStorage.getItem(CRASH.KEY)||"null")}catch(e){}const s=all&&all[st];if(!s)return;
+  for(const[i,v]of Object.entries(s.dyn||{})){const o=(T.map.dyn||[]).find(q=>q.i===+i);if(!o)continue;dynProps(o);Object.assign(o,{state:v.s,bend:v.b,dx:v.dx,dz:v.dz,tip:v.tip,tdx:v.tdx,tdz:v.tdz,push:v.p,scuff:v.sc,leak:v.lk,glassGone:v.g,at:v.at,t0:-99,laid:0});
+    if(v.s===3){o.x0=o.x;o.z0=o.z;o.yaw0=o.yaw;o.x=v.x;o.z=v.z;o.yaw=v.yaw;o.vx=o.vz=0;o.saved=1}
+    if(v.s===1||v.s===2||v.s===4)o.b.splice(0,4,1e9,1e9,1e9,1e9);if(v.w)o.water={on:v.w.on,t0:v.w.t0,off:v.w.off,r0:v.w.r0,r:0};
+    for(const[mesh,x,z,yaw]of v.d||[])DYN.debris.push({o,mesh,x,y:.02,z,yaw,rx:0,vx:0,vy:0,vz:0,wy:0,wx:0,rest:1})}
+  T.marks=(s.marks||[]).slice();
+  for(const[x,z,dx,dz,kind,at]of s.trees||[]){const t=(T.treeInst||[]).find(q=>Math.abs(q[1]-x)<.05&&Math.abs(q[2]-z)<.05);if(!t)continue;const b=T.blocks.find(w=>BTAG.get(w)&&BTAG.get(w).t===t);treeFall(T,t,b||[0,0,0,0],[dx,dz],kind,at)}
+  if(s.car)T.savedCar=s.car}
 
 const GPU=(()=>{try{const e=gl.getExtension("WEBGL_debug_renderer_info");return e?String(gl.getParameter(e.UNMASKED_RENDERER_WEBGL)).replace(/ANGLE \(|\)$/g,"").slice(0,34):"graphics unknown"}catch(x){return"graphics unknown"}})();
 // what each door in a town leads to
@@ -2377,6 +2639,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   const sx=VEL.x*dt,sz=VEL.z*dt;
   if(scene==="town"){
     const C=T.car,hitT=(x,z,r)=>T.blocks.some(w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r);
+    if(!busy&&!mapOpen)dynUpdate(T,dt);
     if(driving&&C){if(!busy&&!mapOpen)vehicleStep(C,T,dt);
       cam.x=C.x;cam.z=C.z;cam.yaw=C.yaw;cam.y=1.7;if(route)followRoute(t)}
     else if(!busy&&!choosing&&!mapOpen){
@@ -2404,7 +2667,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
       else if(me.y<.5&&Math.abs(me.x)<1.5&&me.z>9.55)toTown(me.town,"bank")}
     if(talking){const ey=me.y+1.62,cp=Math.cos(me.pitch);eye=[me.x,ey,me.z];to=[me.x-Math.sin(me.yaw)*cp,ey+Math.sin(me.pitch),me.z-Math.cos(me.yaw)*cp]}
     else[eye,to]=followCam(me.x,me.y,me.z,(x,z)=>outsideRoom(x,z)||((x,z)=>scene==="border"?BORDER_WALLS.some(w=>x>w[0]-.2&&x<w[2]+.2&&z>w[1]-.2&&z<w[3]+.2):(scene==="imm"?IMM_WALLS:scene==="gov"?GV.walls:scene==="hosp"?HV.walls:scene==="trs"?TV.walls:BANK_WALLS).some(w=>w[4]!==-1&&(scene!=="bank"||w[4]===undefined||w[4]===(me.y>1.6?1:0))&&x>w[0]-.2&&x<w[2]+.2&&z>w[1]-.2&&z<w[3]+.2))(x,z),scene==="bank"?(me.y>1.6?6.1:3.0):scene==="gov"?3.5:scene==="hosp"?3.35:scene==="imm"?3.9:99)}
-  {const a=actNow(),el=document.getElementById("act");el.hidden=!a||talking||busy||choosing||mapOpen;if(a)el.textContent=a==="term_cb"?"Use the Central Bank terminal":a==="term_res"?"Use the reserves terminal":a==="lift"?"Use the lift":a==="talk"?"Talk to Violet":a==="drive"?"Drive the car":"Get out";}
+  {const a=actNow(),el=document.getElementById("act");el.hidden=!a||talking||busy||choosing||mapOpen;if(a)el.textContent=a==="term_cb"?"Use the Central Bank terminal":a==="term_res"?"Use the reserves terminal":a==="lift"?"Use the lift":a==="talk"?"Talk to Violet":a==="valve"?"Shut off the water":a==="drive"?"Drive the car":"Get out";}
   const w=cv.clientWidth,h=cv.clientHeight,dpr=Math.min(window.devicePixelRatio||1,quality);if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
   const fly=scene==="town",indoor=scene==="bank"||scene==="imm"||scene==="gov"||scene==="hosp"||scene==="trs",fovNow=fly?(w>h?.85:1.05):(w>h?1.05:1.25),PMs=PLAYERS[me.gender]||PLAYERS.Female;
   // the sun's picture first: the town near you, the car, and your own character all cast shadows
@@ -2417,6 +2680,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   if(scene==="imm"&&me.cert&&me.role==="citizen"&&!me.entered)parts.push(GUIDE);
   for(const S of parts)drawScene(S,VP,eye,indoor);if(scene==="imm"&&CAST.violet)WALKER.draw(CAST.violet,VP,VIOLET.x,0,VIOLET.z,Math.PI,{p:0,run:0,amt:0,idle:talking?"f_talk":"f_idle"},t,null,"");
   if(scene==="town"&&T.trees)drawTrees(T.trees,VP,eye,flying?null:c=>TREEVIS(c)&&Math.hypot(c.cx-cam.x,c.cz-cam.z)<125,flying?1500:150);       // beyond about 125 m the haze has swallowed the trees
+  if(scene==="town"&&T.car&&CARSCENE)carMesh(T.car);
   if(scene==="town"&&T.car&&CARSCENE&&!(driving&&VEH.cam===2)){CARSCENE.model=carModel(T.car);       /* from the driver's seat the body is hidden until cars with interiors arrive */
     CARSCENE.fogFar=flying?1500:150;CARSCENE.twoSided=!(driving&&VEH.cam===2);drawScene(CARSCENE,VP,eye,false);for(const L of carLamps(driving)){L.model=CARSCENE.model;L.fogFar=CARSCENE.fogFar;drawScene(L,VP,eye,false)}}
     if(scene==="town")dynDraw(T,VP,eye);
