@@ -32,7 +32,8 @@ html,body{overscroll-behavior:none}canvas,.stick,.tbtn{touch-action:none}
 .trun{right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(30px + env(safe-area-inset-bottom,0px))}
 .tjump{width:66px;height:66px;right:calc(118px + env(safe-area-inset-right,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px))}
 @media (orientation:portrait){.tjump{right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(126px + env(safe-area-inset-bottom,0px))}}
-.choose .cbcard{max-width:560px}.cbres{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin:8px 0 12px}.cbres div{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0}.cbres b{font-variant-numeric:tabular-nums}
+.choose .cbcard{max-width:560px}.gcard{max-width:640px}.gtabs{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0 8px}.gtabs button{font:inherit;font-size:13px;font-weight:700;padding:6px 11px;border-radius:9px;border:1px solid var(--line);background:none;color:inherit;cursor:pointer}.gtabs button.on{background:#FBBF24;color:#1a1206;border-color:#FBBF24}
+#gBody{max-height:52vh;overflow:auto}#gBody h3{margin:12px 0 4px;font-size:14px}.grow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);font-size:13.5px}.grow>span:last-child{text-align:right}.grow i{opacity:.55}.gx{border:0;background:none;color:#b91c1c;font-weight:900;cursor:pointer}.gapp{padding:8px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px}.gapp select{font:inherit;font-size:13px;max-width:190px}.cbres{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin:8px 0 12px}.cbres div{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0}.cbres b{font-variant-numeric:tabular-nums}
 .cbrow{display:flex;gap:8px}.cbrow input,.cbrow select{flex:1;font:inherit;font-size:15px;padding:9px 10px;border-radius:10px;border:1px solid var(--line);min-width:0}.btn2s{font:inherit;font-weight:800;padding:9px 14px;border-radius:10px;border:0;background:#FBBF24;color:#1a1206;cursor:pointer}
 .cbt{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}.cbt th,.cbt td{text-align:left;padding:5px 4px;border-bottom:1px solid var(--line)}.cbbar{display:inline-block;width:70px;height:7px;background:rgba(128,128,128,.25);border-radius:9px;margin-right:6px;vertical-align:middle}.cbbar em{display:block;height:100%;background:#16a34a;border-radius:9px}
 #dash{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:4;display:flex;align-items:center;gap:14px;background:rgba(11,26,54,.86);color:#fff;border:1px solid rgba(251,191,36,.38);border-radius:16px;padding:8px 16px;font-family:system-ui,sans-serif;user-select:none}
@@ -2054,7 +2055,7 @@ const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400)}
 function fadeTo(text,change){if(busy)return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
 const stand=(s,o)=>{scene=s;me.inside=s==="imm";Object.assign(me,{y:0,pitch:.03},o||{});SNAPCAM=true};
-const allowed=who=>!who||me.role==="admin"||who.includes(me.role);       // the Chief Admin may enter and use everything
+const allowed=who=>!who||me.role==="admin"||who.includes(me.role)||(me.roles||[]).some(r=>who.includes(r));       // the Chief Admin may enter and use everything
 const toBorder=fresh=>fadeTo("The border gate",()=>{if(fresh){me.role="newcomer";me.cert=null;me.entered=false;form.name=form.dob=form.gender=form.state="";closeTalk();stand("border",{x:0,z:50,yaw:0});chooser()}else stand("border",{x:0,z:14.4,yaw:Math.PI})});
 const toImm=fromCity=>fadeTo("Delta City Immigration Authority",()=>stand("imm",fromCity?{x:-13.4,z:4.2,yaw:-Math.PI/2}:{x:0,z:9.6,yaw:0}));
 const toBank=()=>fadeTo(STATES[me.town].bank+": banking hall",()=>{bankOf(me.town);stand("bank",{x:0,z:8.4,yaw:0})});
@@ -2195,6 +2196,52 @@ const GPU=(()=>{try{const e=gl.getExtension("WEBGL_debug_renderer_info");return 
 function liftMenu(){choosing=true;const el=document.getElementById("choose");el.hidden=false;el.innerHTML=`<div class="card"><h1>Lift</h1><p>${STATES[me.town].hosp}. Choose a floor.</p><div class="looks">${HFLOORS.map(f=>`<button class="look ${f.n===HFLOOR_N?"on":""}" data-floor="${f.n}"><b style="font-size:22px">${f.n===0?"G":f.n}</b><span style="font-weight:500;font-size:12.5px;opacity:.8">${f.name}</span></button>`).join("")}</div><button class="go" data-stay="1">Stay on this floor</button></div>`}
 /* ---- the Treasury terminals. The Bank Governor prints and distributes at the Central Bank terminal; the Minister of
    Finance and the Governor see the reserves. Orders and balances live in the database, which also checks the role. ---- */
+/* ================================ the government ================================
+   As the Discord bot ran it: offices and jobs, appointed by the Chief Admin, the President, the Vice President and the
+   Chief of Staff; pay for 5 hours clocked in at the workplace each day. The database enforces every rule. */
+let GOVME=null,GOVL=null,govTab="National",govPick=null;
+async function govCall(fn,body){await freshToken();return supa("/rest/v1/rpc/"+fn,{method:"POST",auth:true,body:body||{}})}
+const govOn=()=>typeof AUTH!=="undefined"&&AUTH.user&&!AUTH.offline;
+// your posts decide which doors open to you, as well as your main role
+async function govRefresh(){if(!govOn())return;try{GOVME=await govCall("gov_me");if(GOVME.cash!=null){me.cash=+GOVME.cash;showCash()}me.roles=(GOVME.posts||[]).map(p=>p.key).filter(Boolean);
+  if(GOVME.today&&GOVME.today.clocked_in&&!govAtAnyWork())govClock(false,true);ui()}catch(e){}}
+setInterval(()=>{if(govOn()&&AUTH.char)govRefresh()},60000);
+// where each post is worked: inside its building, or at its building in town; state posts in their own state, national ones in Asaba
+const GOVPLACE={court:"court",police:"police",university:"universit",utilities:"utilit",transport:"transport",housing:"housing",agriculture:"agric"};
+function govAtWork(p){if(!p)return false;if(me.town!==(p.state||"Asaba"))return false;const w=p.workplace||"gov";
+  if(w==="hosp"||w==="trs"||w==="bank"||w==="gov")return scene===w;if(w==="imm")return scene==="imm"||scene==="border";
+  if(w.startsWith("place:")&&scene==="town"){const k=GOVPLACE[w.slice(6).toLowerCase()],P=townOf(me.town).map.places.find(q=>q.name.toLowerCase().includes(k));return !!P&&Math.hypot(cam.x-P.x,cam.z-P.z)<32}return false}
+const govAtAnyWork=()=>!!(GOVME&&(GOVME.posts||[]).some(govAtWork));
+setInterval(()=>{if(GOVME&&GOVME.today&&GOVME.today.clocked_in&&!govAtAnyWork())govClock(false,true)},10000);
+async function govClock(on,auto){try{const p=(GOVME.posts||[]).find(govAtWork);GOVME=await govCall("gov_clock",{p_in:on,p_workplace:p?p.title:(GOVME.today&&GOVME.today.workplace)||""});
+  toast(on?"Clocked in. Work 5 hours today to earn today's pay.":auto?"You left your workplace, so you were clocked out.":"Clocked out.");if(document.getElementById("gwBody"))govWorkDraw()}catch(e){toast(e.message)}}
+const hm=s=>{s=Math.max(0,Math.round(s||0));return Math.floor(s/3600)+"h "+String(Math.floor(s%3600/60)).padStart(2,"0")+"m"};
+/* ---- My work ---- */
+function govWork(){choosing=true;const el=document.getElementById("choose");el.hidden=false;el.innerHTML=`<div class="card cbcard"><h1>My work</h1><div id="gwBody"><p>Loading...</p></div><button class="go" data-stay="1">Close</button></div>`;
+  govRefresh().then(govWorkDraw)}
+function govWorkDraw(){const b=document.getElementById("gwBody");if(!b||!GOVME)return;const posts=GOVME.posts||[],t=GOVME.today||{seconds:0,clocked_in:false},here=posts.some(govAtWork);
+  b.innerHTML=posts.length?`<div class="cbres">${posts.map(p=>`<div><span>${esc(p.title)}${p.state?" · "+esc(p.state):""}</span><b>${kfmt(p.pay)}/day</b></div>`).join("")}</div>
+    <p><b>Today:</b> ${hm(t.seconds)} of 5h ${t.clocked_in?"· <b style='color:#16a34a'>clocked in</b>":""}</p>
+    ${t.clocked_in?`<button class="btn2s" data-gw="out">Clock out</button>`:here?`<button class="btn2s" data-gw="in">Clock in</button>`:`<p class="amsg">Go to your workplace to clock in: ${esc([...new Set(posts.map(p=>({hosp:"the hospital",trs:"the National Treasury",bank:"the bank",imm:"Immigration",gov:"your government building"}[p.workplace]||("the "+p.workplace.slice(6)+" building"))+" in "+(p.state||"Asaba")))].join(", or "))}.</p>`}
+    <p><b>Pension fund:</b> ${kfmt(GOVME.pension)}</p>${(GOVME.payslips||[]).length?`<table class="cbt"><tr><th>Day</th><th>Post</th><th>Pay</th><th></th></tr>${GOVME.payslips.map(s=>`<tr><td>${esc(s.work_date)}</td><td>${esc(s.title)}</td><td>${kfmt(s.net)}</td><td>${s.status==="paid"?"paid":"<span title='"+esc(s.status)+"'>unpaid</span>"}</td></tr>`).join("")}</table>`:"<p>No payslips yet. A day with 5 hours clocked is paid the next day.</p>"}`
+    :`<p>You don't hold a post yet. The President, the Vice President, the Chief of Staff or the Chief Admin can appoint you.</p>`}
+/* ---- the Government screen ---- */
+async function govScreen(){choosing=true;const el=document.getElementById("choose");el.hidden=false;
+  el.innerHTML=`<div class="card cbcard gcard"><h1>Government of Delta City</h1><div class="gtabs">${["National","Asaba","Warri","Ozoro","Agbor","Record"].map(t=>`<button data-gt="${t}">${t}</button>`).join("")}</div><div id="gBody"><p>Loading...</p></div><p class="amsg" id="gMsg"></p><button class="go" data-stay="1">Close</button></div>`;
+  try{GOVL=await govCall("gov_list");govDraw()}catch(e){document.getElementById("gBody").innerHTML=`<p class="amsg err">${esc(e.message)}</p>`}}
+function govDraw(){const b=document.getElementById("gBody");if(!b||!GOVL)return;for(const x of document.querySelectorAll(".gtabs button"))x.classList.toggle("on",x.dataset.gt===govTab);
+  if(govTab==="Record"){b.innerHTML=(GOVL.log||[]).length?`<table class="cbt">${GOVL.log.map(l=>`<tr><td>${esc((l.at||"").slice(0,10))}</td><td>${esc(l.owner_name||"")} ${esc(l.action)} <b>${esc(l.title)}</b>${l.state?" ("+esc(l.state)+")":""}${l.by_name?" by "+esc(l.by_name):""}</td></tr>`).join("")}</table>`:"<p>No appointments yet.</p>";return}
+  const nat=govTab==="National",st=nat?"":govTab,posts=(GOVL.posts||[]).filter(p=>nat?p.scope==="national":p.scope==="state"&&!(p.not_asaba&&st==="Asaba")&&!(p.asaba_only&&st!=="Asaba")),hold=t=>(GOVL.holders||[]).filter(h=>h.title===t&&h.state===st),can=GOVL.can_appoint;
+  const row=p=>{const H=hold(p.title);return `<div class="grow"><span>${esc(p.title)}</span><span>${H.length?H.map(h=>`${esc(h.name)}${can?` <button class="gx" data-gd="${esc(h.owner)}|${esc(p.title)}" title="Dismiss">×</button>`:""}`).join(", "):"<i>vacant</i>"}</span></div>`};
+  b.innerHTML=(can?`<div class="gapp"><b>Appoint or recruit</b><div class="cbrow"><input id="gFind" placeholder="Search a citizen by name or certificate"><button class="btn2s" data-ga="find">Find</button></div><div id="gFound"></div></div>`:"")+
+    `<h3>Offices</h3>${posts.filter(p=>p.kind==="office").map(row).join("")}<h3>Jobs</h3>${posts.filter(p=>p.kind==="job").map(row).join("")}`}
+async function govAct(what,arg){const m=document.getElementById("gMsg");try{
+  if(what==="find"){const q=(document.getElementById("gFind").value||"").trim();if(q.length<2)throw new Error("Type at least 2 letters");const r=await govCall("gov_find",{p_query:q});
+    document.getElementById("gFound").innerHTML=r.length?r.map(c=>`<div class="grow"><span>${esc(c.name)} <small>${esc(c.cert_no||"")} · ${esc(c.home_state)}</small></span><span><select data-gs="${esc(c.owner)}">${(GOVL.posts||[]).filter(p=>!(p.asaba_only&&c.home_state!=="Asaba")&&!(p.not_asaba&&p.scope==="state"&&c.home_state==="Asaba")).map(p=>`<option>${esc(p.title)}</option>`).join("")}</select> <button class="btn2s" data-ga="appoint" data-owner="${esc(c.owner)}">Appoint</button></span></div>`).join(""):"<p>No citizen found.</p>";return}
+  if(what==="appoint"){const sel=document.querySelector(`select[data-gs="${arg}"]`);const msg=await govCall("gov_appoint",{p_owner:arg,p_title:sel.value});m.className="amsg";m.textContent=msg}
+  if(what==="dismiss"){const[o,t]=arg.split("|");const msg=await govCall("gov_dismiss",{p_owner:o,p_title:t});m.className="amsg";m.textContent=msg}
+  GOVL=await govCall("gov_list");govDraw()}catch(e){m.className="amsg err";m.textContent=e.message}}
+
 let cbTimer=null,cbKind="cb",cbMsg="";
 const kfmt=v=>"K"+Number(v||0).toLocaleString("en-GB");
 async function cbCall(fn,body){await freshToken();return supa("/rest/v1/rpc/"+fn,{method:"POST",auth:true,body:body||{}})}
@@ -2523,7 +2570,7 @@ let wasLocked=false;document.addEventListener("pointerlockchange",()=>{const now
 // The only button at the top is Testing. It holds the controls that are for you, not for players.
 function ui(){guide();const el=document.getElementById("picks");el.innerHTML="";const add=(label,fn,on)=>{const bt=document.createElement("button");bt.textContent=label;bt.addEventListener("click",fn);if(on)bt.setAttribute("aria-pressed","true");el.appendChild(bt);return bt};
   if(scene!=="town"&&route)clearRoute();if(scene!=="town")closeMap();
-  add(view3?"View: behind me":"View: my eyes",()=>{view3=!view3;ui()});add(testOpen?"Close testing":"Testing",()=>{testOpen=!testOpen;ui()},testOpen);if(me.role==="admin"&&typeof AUTH!=="undefined"&&AUTH.user)add("Admin",()=>adminPanel());if(typeof AUTH!=="undefined"&&AUTH.user)add("Log out",logOut);
+  add(view3?"View: behind me":"View: my eyes",()=>{view3=!view3;ui()});add(testOpen?"Close testing":"Testing",()=>{testOpen=!testOpen;ui()},testOpen);if(me.role==="admin"&&typeof AUTH!=="undefined"&&AUTH.user)add("Admin",()=>adminPanel());if(typeof AUTH!=="undefined"&&AUTH.user&&!AUTH.offline){add("Government",govScreen);if(GOVME&&(GOVME.posts||[]).length)add("My work",govWork)}if(typeof AUTH!=="undefined"&&AUTH.user)add("Log out",logOut);
   if(testOpen){const sel=document.createElement("select");sel.className="who";sel.setAttribute("aria-label","Who you are");for(const[k,label]of ROLES){const o=document.createElement("option");o.value=k;o.textContent="You are: "+label;if(k===me.role)o.selected=true;sel.appendChild(o)}
     sel.addEventListener("change",()=>{const next=sel.value;if(next==="newcomer")return toBorder(true);const was=me.role;me.role=next;if(!me.cert)me.cert=Object.assign({},SAMPLE);if(was==="newcomer"&&scene!=="town"){pickDefault();choosing=false;document.getElementById("choose").hidden=true}ui()});el.appendChild(sel);
     add(SHADOW.on?"Shadows: on":"Shadows: off",()=>{SHADOW.on=!SHADOW.on;ui()},SHADOW.on);{const T=[null,7,12,17.5,18.6,19.2,22],k=T.indexOf(TIMEOVR),f=h=>String(Math.floor(h)).padStart(2,"0")+":"+String(Math.round(h%1*60)).padStart(2,"0");add("Time: "+(TIMEOVR===null?"real ("+f(watHours())+")":f(TIMEOVR)),()=>{TIMEOVR=T[(k+1)%T.length];lightAt=-1;ui()})}add("Ground: "+["all lawns","mixed","all red earth"][GROUND.mode],()=>{GROUND.mode=(GROUND.mode+1)%3;ui()});
@@ -2552,7 +2599,7 @@ function chooser(){chooserOn=true;choosing=true;const el=document.getElementById
 document.getElementById("choose").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const shut=()=>{choosing=false;document.getElementById("choose").hidden=true};
   if(b.dataset.g){pick.gender=b.dataset.g;pick.outfit="";chooser()}else if(b.dataset.o){pick.outfit=b.dataset.o;chooser()}
   else if(b.dataset.go){chooserOn=false;me.gender=pick.gender;me.outfit=pick.outfit;const c=ROSTER[me.gender].find(q=>q.key===me.outfit);if(c)PLAYERS[me.gender]=c.m;shut();guide()}
-  else if(b.dataset.floor!==undefined){const n=+b.dataset.floor;shut();if(n!==HFLOOR_N)toHosp(n,true)}else if(b.dataset.adm)adminAct(b.dataset.adm);else if(b.dataset.cb)cbAction(b.dataset.cb);else if(b.dataset.auth)authClick(b.dataset.auth);else if(b.dataset.stay)shut();else if(b.dataset.fly){const to=b.dataset.fly;shut();toTown(to,"air","Flying to "+to+"...",16)}});
+  else if(b.dataset.floor!==undefined){const n=+b.dataset.floor;shut();if(n!==HFLOOR_N)toHosp(n,true)}else if(b.dataset.adm)adminAct(b.dataset.adm);else if(b.dataset.gt){govTab=b.dataset.gt;govDraw()}else if(b.dataset.ga)govAct(b.dataset.ga,b.dataset.owner);else if(b.dataset.gd)govAct("dismiss",b.dataset.gd);else if(b.dataset.gw)govClock(b.dataset.gw==="in");else if(b.dataset.cb)cbAction(b.dataset.cb);else if(b.dataset.auth)authClick(b.dataset.auth);else if(b.dataset.stay)shut();else if(b.dataset.fly){const to=b.dataset.fly;shut();toTown(to,"air","Flying to "+to+"...",16)}});
 const guide0=guide;guide=function(){guide0();if(choosing)document.getElementById("guide").hidden=true};
 /* ================================ accounts and saving ================================
    Players sign in with email and password. Their citizen (name, certificate, cash, home state, where they
@@ -2582,7 +2629,7 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 const fmtDate=d=>{try{return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"})}catch(e){return d}};
 // a citizen from the server becomes the player in the game
 function becomeCitizen(c){AUTH.char=c;me.gender=c.gender;me.outfit=c.look||(ROSTER[c.gender][0]||{}).key;const r=ROSTER[c.gender].find(q=>q.key===me.outfit)||ROSTER[c.gender][0];if(r){PLAYERS[c.gender]=r.m;me.outfit=r.key}
-  me.role=c.role||"citizen";me.cash=+c.cash||0;me.cert={no:c.cert_no,name:c.name,dob:c.dob,gender:c.gender,state:c.home_state,date:fmtDate(c.cert_date)};me.entered=true;showCash()}
+  me.role=c.role||"citizen";me.cash=+c.cash||0;me.cert={no:c.cert_no,name:c.name,dob:c.dob,gender:c.gender,state:c.home_state,date:fmtDate(c.cert_date)};me.entered=true;showCash();govRefresh()}
 /* ---- the money in your hand, top right ---- */
 const cashEl=document.createElement("div");cashEl.className="cashpill";cashEl.hidden=true;document.body.appendChild(cashEl);
 function showCash(){if(AUTH.char){cashEl.textContent="K"+Number(me.cash||0).toLocaleString("en-GB");cashEl.hidden=false}else cashEl.hidden=true}
