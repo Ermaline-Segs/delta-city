@@ -1910,7 +1910,8 @@ async function load(id,clips){const src=JSON.parse(document.getElementById(id).t
   const parts=src.parts.map(p=>({name:p.name,verts:p.verts,count:p.count,cut:p.alpha==="OPAQUE"?0:.35,uvlo:p.uvlo,uvspan:p.uvspan,tex:p.tex===undefined?null:tex[p.tex],avg:p.tex===undefined?.5:src.textures[p.tex].avg,flat:p.flat,
     pos:new Uint16Array(bytes.buffer,p.pos,p.verts*3),p:mk(new Uint16Array(bytes.buffer,p.pos,p.verts*3)),n:mk(new Int8Array(bytes.buffer,p.nor,p.verts*4)),uv:mk(new Uint16Array(bytes.buffer,p.uv,p.verts*2)),j:mk(new Uint8Array(bytes.buffer,p.joints,p.verts*4)),w:mk(new Uint8Array(bytes.buffer,p.weights,p.verts*4)),i:mk(new Uint16Array(bytes.buffer,p.idx,p.count),gl.ELEMENT_ARRAY_BUFFER),paints:{}}));
   const bones=src.bones.map(b=>({name:b.name,parent:b.parent,local:new Float32Array(b.local),inv:new Float32Array(b.inv)})),index={};bones.forEach((b,i)=>index[b.name]=i);
-  const m={lo:src.lo,span:src.span,parts,bones,index,armDrop:src.armDrop||0,clips:Object.assign({idle:"idle",walk:"walk",jog:"jog"},clips||{})};WOMAN=m;measureLegs();m.LEG=LEG;m.speed={walk:gaitSpeed(0),run:gaitSpeed(1)};if(ANIM)prepare(m);return m}
+  return adopt({lo:src.lo,span:src.span,parts,bones,index,armDrop:src.armDrop||0,clips:Object.assign({idle:"idle",walk:"walk",jog:"jog"},clips||{})})}
+function adopt(m){WOMAN=m;measureLegs();m.LEG=LEG;m.speed={walk:gaitSpeed(0),run:gaitSpeed(1)};if(ANIM)prepare(m);return m}
 function use(m){WOMAN=m;LEG=m.LEG}
 /* ---- recorded movement ----
    The clips hold, for every frame and every main bone, how far that bone has turned in the world
@@ -2113,7 +2114,7 @@ function draw(m,VP,x,y,z,yaw,state,t,look,lookKey){use(m);let lift;if(ANIM&&m.re
     gl.activeTexture(gl.TEXTURE0);if(part.tex)gl.bindTexture(gl.TEXTURE_2D,part.tex);gl.uniform1i(P.u.t,0);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,part.i);gl.drawElements(gl.TRIANGLES,part.count,gl.UNSIGNED_SHORT,0)}
   for(const a of[P.a.j,P.a.w,P.a.paint,P.a.uv])gl.disableVertexAttribArray(a);
   const h=m.index.Head;return{model,head:mul(model,mul(W[h],m.bones[h].inv))}}
-return{ARMFIT,load,draw,init,blend,dbg:(m,list,raw)=>{use(m);const keep=armFit;if(raw)armFit=()=>false;poseClips(m,list,true,0);armFit=keep;return{W:W.slice(0,m.bones.length).map(w=>Array.from(w)),Q:Array.from(QB.slice(0,ANIM.bones.length*4)),D:DQ.slice(0,m.bones.length),names:ANIM.bones}},cycle:(m,run,back)=>ANIM&&m.rest?1/((1-run)/ANIM.clips[(back&&m.clips.back)||m.clips.walk].dur+run*m.jogRate/ANIM.clips[m.clips.jog].dur):1.06+(.71-1.06)*run}})();
+return{ARMFIT,load,adopt,draw,init,blend,dbg:(m,list,raw)=>{use(m);const keep=armFit;if(raw)armFit=()=>false;poseClips(m,list,true,0);armFit=keep;return{W:W.slice(0,m.bones.length).map(w=>Array.from(w)),Q:Array.from(QB.slice(0,ANIM.bones.length*4)),D:DQ.slice(0,m.bones.length),names:ANIM.bones}},cycle:(m,run,back)=>ANIM&&m.rest?1/((1-run)/ANIM.clips[(back&&m.clips.back)||m.clips.walk].dur+run*m.jogRate/ANIM.clips[m.clips.jog].dur):1.06+(.71-1.06)*run}})();
 
 /* ================================== playing ==================================
    A new player begins on foot at the border gate, and cannot reach any town until Violet has
@@ -2819,6 +2820,72 @@ function repairFinish(C){const D=carD(C),J=D.job;if(!J)return;for(const k of J.i
 let jobT=0;function repairTick(){if(NOW-jobT<1)return;jobT=NOW;const now=Date.now();for(const[st,T]of Object.entries(TOWNS)){const C=T.car;if(!C||!C.dmg||!C.dmg.job)continue;const D=C.dmg,J=D.job,here=st===me.town&&scene==="town";J.done=J.done||[];let changed=false;
     for(const q of jobPlan(J))if(now>=q.t1&&now<J.until&&!J.done.includes(q.k)){jobApply(D,q.k);J.done.push(q.k);changed=true;if(here)toast("Mechanic: "+JOBNAME(q.k).toLowerCase()+" done.")}
     if(now>=J.until){const F=repairFinish(C);if(here)toast("Your car is ready at the "+((T.workshop||{}).name||"workshop")+": "+F.names+".")}else if(changed)crashSave(true)}}
+/* ---- characters loaded from assets/characters (Rocketbox, "Bip01" skeleton), only when first needed. Each file is read,
+   its body is set in the rest pose in metres facing +z, its skeleton is cut down to the bones the recorded movements use
+   (fingers, face and eyes follow their hand or head) under the names the movements know, and a toe is added in front of
+   each foot. The result is the same kind of character as the ones built into the page, so WALKER walks it.
+   NPCMODEL(name) gives the character, or null while it is still loading (callers draw a stand-in meanwhile). ---- */
+const NPCS={},NPC_BONES={"Bip01 Pelvis":"Hips","Bip01 Spine":"Spine","Bip01 Spine1":"Spine1","Bip01 Spine2":"Spine2","Bip01 Neck":"Neck","Bip01 Head":"Head",
+  "Bip01 L Clavicle":"LeftShoulder","Bip01 L UpperArm":"LeftArm","Bip01 L Forearm":"LeftForeArm","Bip01 L Hand":"LeftHand","Bip01 L Thigh":"LeftUpLeg","Bip01 L Calf":"LeftLeg","Bip01 L Foot":"LeftFoot",
+  "Bip01 R Clavicle":"RightShoulder","Bip01 R UpperArm":"RightArm","Bip01 R Forearm":"RightForeArm","Bip01 R Hand":"RightHand","Bip01 R Thigh":"RightUpLeg","Bip01 R Calf":"RightLeg","Bip01 R Foot":"RightFoot"};
+const NPC_FEMALE=/Female/,NPC_MCLIPS={idle:"m_idle",walk:"m_walk",jog:"m_jog",back:"m_back",sl:"m_strafe_l",sr:"m_strafe_r",jsl:"m_jstrafe_l",jsr:"m_jstrafe_r",jump:"m_jump"};
+function NPCMODEL(name){const N=NPCS[name];if(N)return N.m||null;NPCS[name]={m:null};npcLoad(name).then(m=>{NPCS[name].m=m}).catch(e=>{console.warn("character "+name+": "+e.message);NPCS[name].failed=true});return null}
+// a 4x4 matrix the other way round (for the joints' rest positions)
+function minv(m){const a=m,o=new Float32Array(16),b=[a[0]*a[5]-a[1]*a[4],a[0]*a[6]-a[2]*a[4],a[0]*a[7]-a[3]*a[4],a[1]*a[6]-a[2]*a[5],a[1]*a[7]-a[3]*a[5],a[2]*a[7]-a[3]*a[6],a[8]*a[13]-a[9]*a[12],a[8]*a[14]-a[10]*a[12],a[8]*a[15]-a[11]*a[12],a[9]*a[14]-a[10]*a[13],a[9]*a[15]-a[11]*a[13],a[10]*a[15]-a[11]*a[14]];
+  const det=b[0]*b[11]-b[1]*b[10]+b[2]*b[9]+b[3]*b[8]-b[4]*b[7]+b[5]*b[6],r=1/det;
+  o[0]=(a[5]*b[11]-a[6]*b[10]+a[7]*b[9])*r;o[1]=(a[2]*b[10]-a[1]*b[11]-a[3]*b[9])*r;o[2]=(a[13]*b[5]-a[14]*b[4]+a[15]*b[3])*r;o[3]=(a[10]*b[4]-a[9]*b[5]-a[11]*b[3])*r;
+  o[4]=(a[6]*b[8]-a[4]*b[11]-a[7]*b[7])*r;o[5]=(a[0]*b[11]-a[2]*b[8]+a[3]*b[7])*r;o[6]=(a[14]*b[2]-a[12]*b[5]-a[15]*b[1])*r;o[7]=(a[8]*b[5]-a[10]*b[2]+a[11]*b[1])*r;
+  o[8]=(a[4]*b[10]-a[5]*b[8]+a[7]*b[6])*r;o[9]=(a[1]*b[8]-a[0]*b[10]-a[3]*b[6])*r;o[10]=(a[12]*b[4]-a[13]*b[2]+a[15]*b[0])*r;o[11]=(a[9]*b[2]-a[8]*b[4]-a[11]*b[0])*r;
+  o[12]=(a[5]*b[7]-a[4]*b[9]-a[6]*b[6])*r;o[13]=(a[0]*b[9]-a[1]*b[7]+a[2]*b[6])*r;o[14]=(a[13]*b[1]-a[12]*b[3]-a[14]*b[0])*r;o[15]=(a[8]*b[3]-a[9]*b[1]+a[10]*b[0])*r;return o}
+const trsMat=n=>{if(n.matrix)return new Float32Array(n.matrix);const[x,y,z,w]=n.rotation||[0,0,0,1],[sx,sy,sz]=n.scale||[1,1,1],[tx,ty,tz]=n.translation||[0,0,0];
+  return new Float32Array([(1-2*(y*y+z*z))*sx,2*(x*y+z*w)*sx,2*(x*z-y*w)*sx,0,2*(x*y-z*w)*sy,(1-2*(x*x+z*z))*sy,2*(y*z+x*w)*sy,0,2*(x*z+y*w)*sz,2*(y*z-x*w)*sz,(1-2*(x*x+y*y))*sz,0,tx,ty,tz,1])};
+async function npcLoad(name){const buf=await(await fetch("assets/characters/"+name+".glb")).arrayBuffer(),dv=new DataView(buf);if(dv.getUint32(0,true)!==0x46546C67)throw new Error("not a GLB file");
+  let off=12,J=null,BIN=null;while(off<buf.byteLength){const len=dv.getUint32(off,true),type=dv.getUint32(off+4,true);if(type===0x4E4F534A)J=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,off+8,len)));else if(type===0x004E4942)BIN=off+8;off+=8+len}
+  const acc=i=>{const a=J.accessors[i],bv=J.bufferViews[a.bufferView],n={SCALAR:1,VEC2:2,VEC3:3,VEC4:4,MAT4:16}[a.type],C={5126:Float32Array,5123:Uint16Array,5121:Uint8Array,5125:Uint32Array}[a.componentType],
+      st=bv.byteStride||n*C.BYTES_PER_ELEMENT,base=BIN+(bv.byteOffset||0)+(a.byteOffset||0),out=new Float32Array(a.count*n),src=new DataView(buf),rd={5126:(o)=>src.getFloat32(o,true),5123:(o)=>src.getUint16(o,true),5121:(o)=>src.getUint8(o),5125:(o)=>src.getUint32(o,true)}[a.componentType],
+      sc=a.normalized?{5123:65535,5121:255}[a.componentType]||1:1;for(let k=0;k<a.count;k++)for(let c=0;c<n;c++)out[k*n+c]=rd(base+k*st+c*C.BYTES_PER_ELEMENT)/sc;return out};
+  // where every node stands, in the world
+  const par=[],world=[];J.nodes.forEach((n,i)=>(n.children||[]).forEach(c=>par[c]=i));const W=i=>world[i]||(world[i]=par[i]===undefined?trsMat(J.nodes[i]):mul(W(par[i]),trsMat(J.nodes[i])));
+  const skin=J.skins[0],jn=skin.joints,ibm=acc(skin.inverseBindMatrices);
+  // the bones kept, in parent-first order, and for every joint the kept bone it follows
+  const keep=[];for(const k of jn){const nm=NPC_BONES[J.nodes[k].name];if(nm)keep.push({node:k,name:nm})}
+  const follow=jn.map(k=>{let n=k;while(n!==undefined&&!NPC_BONES[J.nodes[n].name])n=par[n];return n===undefined?keep[0].node:n});
+  // turn the whole figure to face +z if it does not already (the eyes are in front of the head)
+  const nodeOf=nm=>J.nodes.findIndex(n=>n.name===nm),head=W(nodeOf("Bip01 Head")),eye=W(nodeOf("Bip01 LEye")),turn=eye[14]-head[14]<0?rotY(Math.PI):ident();
+  const BW=keep.map(b=>mul(turn,W(b.node)));
+  // the body, posed by its own skin at rest, then given to the kept bones
+  const parts=[],images=await Promise.all((J.images||[]).map(im=>{const bv=J.bufferViews[im.bufferView],blob=new Blob([new Uint8Array(buf,BIN+(bv.byteOffset||0),bv.byteLength)],{type:im.mimeType});
+    return new Promise((ok,no)=>{const img=new Image(),u=URL.createObjectURL(blob);img.onload=()=>{URL.revokeObjectURL(u);ok(img)};img.onerror=()=>no(new Error("picture"));img.src=u})}));
+  const texs=images.map(im=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,im);const pot=v=>(v&(v-1))===0;
+    if(pot(im.width)&&pot(im.height)){gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR)}else{gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE)}return t});
+  const skinM=jn.map((k,i)=>mul(turn,mul(W(k),ibm.subarray(i*16,i*16+16)))),kIdx=new Map(keep.map((b,i)=>[b.node,i])),raw=[];let lo=[1e9,1e9,1e9],hi=[-1e9,-1e9,-1e9];
+  for(const mesh of J.meshes)for(const pr of mesh.primitives){const A=pr.attributes,P=acc(A.POSITION),N=acc(A.NORMAL),U=acc(A.TEXCOORD_0),Jt=acc(A.JOINTS_0),Wt=acc(A.WEIGHTS_0),I=acc(pr.indices),n=P.length/3;
+    const p=new Float32Array(n*3),nr=new Float32Array(n*3),jj=new Uint8Array(n*4),ww=new Uint8Array(n*4);
+    for(let v=0;v<n;v++){let x=0,y=0,z=0,a=0,b=0,c=0;const acc4=new Map();
+      for(let k=0;k<4;k++){const w=Wt[v*4+k];if(!w)continue;const M=skinM[Jt[v*4+k]],px=P[v*3],py=P[v*3+1],pz=P[v*3+2],nx=N[v*3],ny=N[v*3+1],nz=N[v*3+2];
+        x+=w*(M[0]*px+M[4]*py+M[8]*pz+M[12]);y+=w*(M[1]*px+M[5]*py+M[9]*pz+M[13]);z+=w*(M[2]*px+M[6]*py+M[10]*pz+M[14]);a+=w*(M[0]*nx+M[4]*ny+M[8]*nz);b+=w*(M[1]*nx+M[5]*ny+M[9]*nz);c+=w*(M[2]*nx+M[6]*ny+M[10]*nz);
+        const kb=kIdx.get(follow[Jt[v*4+k]]);acc4.set(kb,(acc4.get(kb)||0)+w)}
+      const l=Math.hypot(a,b,c)||1;p.set([x,y,z],v*3);nr.set([a/l,b/l,c/l],v*3);for(let q=0;q<3;q++){lo[q]=Math.min(lo[q],p[v*3+q]);hi[q]=Math.max(hi[q],p[v*3+q])}
+      const L=[...acc4].sort((u,t)=>t[1]-u[1]).slice(0,4),sum=L.reduce((s,e)=>s+e[1],0)||1;let left=255;L.forEach(([kb,w],k)=>{const q=k===L.length-1?left:Math.round(w/sum*255);jj[v*4+k]=kb;ww[v*4+k]=q;left-=q})}
+    const mat=J.materials[pr.material]||{},ti=mat.pbrMetallicRoughness&&mat.pbrMetallicRoughness.baseColorTexture,tex=ti?texs[J.textures[ti.index].source]:null;
+    raw.push({name:mat.name||mesh.name,p,nr,U,jj,ww,I,n,tex,cut:mat.alphaMode&&mat.alphaMode!=="OPAQUE"?.35:0})}
+  // the bones: names, parents (the nearest kept ancestor), rest pose; then a toe in front of each foot
+  const bones=keep.map((b,i)=>{let a=par[b.node];while(a!==undefined&&!kIdx.has(a))a=par[a];const pi=a===undefined?-1:kIdx.get(a);return{name:b.name,parent:pi,world:BW[i]}});
+  for(const s of["Left","Right"]){const fi=bones.findIndex(b=>b.name===s+"Foot"),F=bones[fi].world,w=new Float32Array(F);w[12]=F[12];w[13]=Math.max(.02,F[13]*.25);w[14]=F[14]+.13;bones.push({name:s+"ToeBase",parent:fi,world:w})}
+  for(const b of bones){b.local=b.parent<0?new Float32Array(b.world):mul(minv(bones[b.parent].world),b.world);b.inv=minv(b.world)}for(const b of bones)delete b.world;
+  const index={};bones.forEach((b,i)=>index[b.name]=i);
+  // packed the way the built-in characters are: positions in a box, normals and texture places in small numbers
+  lo=lo.map(v=>v-.05);const span=Math.max(hi[0]-lo[0],hi[1]-lo[1],hi[2]-lo[2])+.1,mk=(d,t)=>{const b=gl.createBuffer();gl.bindBuffer(t||gl.ARRAY_BUFFER,b);gl.bufferData(t||gl.ARRAY_BUFFER,d,gl.STATIC_DRAW);return b};
+  for(const r of raw){const q=new Uint16Array(r.n*3),nn=new Int8Array(r.n*4),uv=new Uint16Array(r.n*2);let ulo=[1e9,1e9],uhi=[-1e9,-1e9];for(let v=0;v<r.n;v++)for(let c=0;c<2;c++){ulo[c]=Math.min(ulo[c],r.U[v*2+c]);uhi[c]=Math.max(uhi[c],r.U[v*2+c])}
+    const us=[Math.max(1e-6,uhi[0]-ulo[0]),Math.max(1e-6,uhi[1]-ulo[1])];
+    for(let v=0;v<r.n;v++){for(let c=0;c<3;c++){q[v*3+c]=Math.round(clamp((r.p[v*3+c]-lo[c])/span,0,1)*65535);nn[v*4+c]=Math.round(r.nr[v*3+c]*127)}for(let c=0;c<2;c++)uv[v*2+c]=Math.round((r.U[v*2+c]-ulo[c])/us[c]*65535)}
+    parts.push({name:r.name,verts:r.n,count:r.I.length,cut:r.cut,uvlo:ulo,uvspan:us,tex:r.tex,avg:.5,flat:null,pos:q,p:mk(q),n:mk(nn),uv:mk(uv),j:mk(r.jj),w:mk(r.ww),i:mk(new Uint16Array(r.I),gl.ELEMENT_ARRAY_BUFFER),paints:{}})}
+  return WALKER.adopt({lo,span,parts,bones,index,armDrop:0,clips:NPC_FEMALE.test(name)?Object.assign({},FCLIPS):Object.assign({},NPC_MCLIPS)})}
+// who does which job: a mechanic for each workshop, a driver for each tow, and guards for the vans
+const NPC_ROLES={mechanic:{Asaba:"Construction_Male_03",Warri:"Construction_Female_01",Ozoro:"Construction_Male_06",Agbor:"Construction_Female_01"},
+  driver:["Male_Adult_12","Pilot_Male_03"],guard:["Security_Male_01","Police_Male_01","Police_Male_04","Military_Male_06"]};
+const npcFor=(role,key)=>{const r=NPC_ROLES[role],name=Array.isArray(r)?r[Math.abs(Math.floor(key||0))%r.length]:r[key]||Object.values(r)[0];return NPCMODEL(name)||CAST.mech||PLAYERS.Male}
+
 /* ---- the mechanic at work. A paid job is a plan of steps, one for each part, each with its own share of the time. For each
    step the mechanic walks round the car to that part and works on it there; wheels, suspension, chassis and underbody are
    done with the car up on the lift. Each part is made good when its step ends, so the car mends piece by piece. Where the
@@ -2855,13 +2922,13 @@ function mechScenes(){if(LIFTSCENE)return;const keep=[BAKE,CLEAR_GLASS,CELL];BAK
   reset();for(let i=0;i<14;i++){const a=i*2.4,r=.04+(i%5)*.05;box(Math.cos(a)*r,(i%7)*.04,Math.sin(a)*r,.025,.025,.025,i%3?"#ffd166":"#fff3b0",K.glow)}SPARKSCENE=upload();
   [BAKE,CLEAR_GLASS,CELL]=keep}
 let mechClank=0;
-function mechDraw(T,VP,eye,t){const W=T.workshop;if(!W||Math.hypot(W.x-cam.x,W.z-cam.z)>70)return;mechScenes();const C=T.car,J=C&&C.dmg&&C.dmg.job,M=CAST.mech||PLAYERS.Male;
+function mechDraw(T,VP,eye,t){const W=T.workshop;if(!W||Math.hypot(W.x-cam.x,W.z-cam.z)>70)return;mechScenes();const C=T.car,J=C&&C.dmg&&C.dmg.job,M=npcFor("mechanic",W.st);
   const base=mul(trans(W.x,0,W.z),rotY(W.yaw+Math.PI));LIFTSCENE.model=base;LIFTSCENE.fogFar=150;drawScene(LIFTSCENE,VP,eye,false);
   const S=J?mechState(W,J,Date.now()):null;ARMSCENE.model=mul(trans(W.x,S?S.lift:0,W.z),rotY(W.yaw+Math.PI));ARMSCENE.fogFar=150;drawScene(ARMSCENE,VP,eye,false);
   if(!M)return;
-  if(!S){const q=carPt({x:W.x,z:W.z,yaw:W.yaw},[MA+.6,0,-MB-.3]);WALKER.draw(M,VP,q[0],0,q[2],Math.atan2(-(W.x-q[0]),-(W.z-q[2])),{p:0,run:0,amt:0,idle:"m_idle"},t,null,"");return}
+  if(!S){const q=carPt({x:W.x,z:W.z,yaw:W.yaw},[MA+.6,0,-MB-.3]);WALKER.draw(M,VP,q[0],0,q[2],Math.atan2(-(W.x-q[0]),-(W.z-q[2])),{p:0,run:0,amt:0,idle:M.clips.idle},t,null,"");return}
   const cyc=WALKER.cycle(M,0),sp=(M.speed&&M.speed.walk)||MECH_SPEED;
-  WALKER.draw(M,VP,S.x,0,S.z,S.yaw,S.walking?{p:S.dist/sp/cyc,run:0,amt:1,wf:1}:{p:0,run:0,amt:0,idle:"m_talk"},t,null,"");
+  WALKER.draw(M,VP,S.x,0,S.z,S.yaw,S.walking?{p:S.dist/sp/cyc,run:0,amt:1,wf:1}:{p:0,run:0,amt:0,idle:M.clips.idle==="f_idle"?"f_talk":"m_talk"},t,null,"");
   if(S.spark&&Math.sin(t*9)>-.2){const fx=-Math.sin(S.yaw),fz=-Math.cos(S.yaw),k=.8+.4*Math.abs(Math.sin(t*23));SPARKSCENE.model=mul(mul(trans(S.x+fx*.55,.75+.1*Math.sin(t*17),S.z+fz*.55),rotY(t*7)),new Float32Array([k,0,0,0,0,k,0,0,0,0,k,0,0,0,0,1]));SPARKSCENE.fogFar=150;drawScene(SPARKSCENE,VP,eye,false)}
   if(!S.walking&&SND.ctx&&NOW-mechClank>(S.spark?.35:1.3)&&Math.hypot(S.x-cam.x,S.z-cam.z)<25){mechClank=NOW+Math.random()*.4;sndBeep(S.spark?1800+Math.random()*900:420+Math.random()*200,.05)}}
 // the tag over the car: which part, how far along, and the time left
@@ -2909,7 +2976,7 @@ function towTruckScene(){if(TOWTRUCK)return TOWTRUCK;const keep=[BAKE,CLEAR_GLAS
 // the route along the roads, from just in front of the car to the workshop's gate, with the distance along it
 function towStart(T,C,W){const f=[-Math.sin(C.yaw),-Math.cos(C.yaw)],tx=C.x+f[0]*6.3,tz=C.z+f[1]*6.3,gx=W.x+W.fx*10,gz=W.z+W.fz*10;
   let P=findRoute(T,tx,tz,gx,gz);P=P.filter((p,i)=>i===0||Math.hypot(p[0]-P[i-1][0],p[1]-P[i-1][1])>.5);const cum=[0];for(let i=1;i<P.length;i++)cum.push(cum[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));
-  towTruckScene();TOW={T,C,W,P,cum,len:cum[cum.length-1],s:0,v:0,yaw:C.yaw,x:tx,z:tz,dir:[f[0],f[1]],t0:NOW,cam:null,done:false};C.v=0;
+  towTruckScene();TOW={T,C,W,P,cum,len:cum[cum.length-1],drv:Math.floor(Math.random()*2),s:0,v:0,yaw:C.yaw,x:tx,z:tz,dir:[f[0],f[1]],t0:NOW,cam:null,done:false};C.v=0;
   document.getElementById("towSkip").hidden=false}
 const towAt=s=>{const{P,cum}=TOW;s=clamp(s,0,TOW.len);let i=1;while(i<cum.length-1&&cum[i]<s)i++;const L=cum[i]-cum[i-1]||1,u=(s-cum[i-1])/L;return[P[i-1][0]+(P[i][0]-P[i-1][0])*u,P[i-1][1]+(P[i][1]-P[i-1][1])*u]};
 // each frame: the truck follows the route (slower round corners), and the car swings along behind it on the lift
@@ -2928,7 +2995,7 @@ function towEnd(){const R=TOW;if(!R||R.done)return;R.done=true;document.getEleme
 function towCam(dt){const R=TOW,f=[-Math.sin(R.yaw),-Math.cos(R.yaw)],r=[f[1],-f[0]],want=[R.x+f[0]*3-r[0]*8.5,3.4,R.z+f[1]*3-r[1]*8.5],to=[R.x-f[0]*2.2,1.3,R.z-f[1]*2.2];
   if(!R.cam)R.cam=want.slice();else for(let i=0;i<3;i++)R.cam[i]+=(want[i]-R.cam[i])*Math.min(1,dt*2.5);return[R.cam.slice(),to]}
 // the people in the cab: the tow driver at the wheel, and you beside the driver
-function towPeople(VP,t){const R=TOW,PM=PLAYERS[me.gender]||PLAYERS.Female,DRV=PLAYERS.Male||PM,pt=(lx,lz)=>{const M=R.truckM;return[M[0]*lx+M[8]*lz+M[12],M[2]*lx+M[10]*lz+M[14]]};
+function towPeople(VP,t){const R=TOW,PM=PLAYERS[me.gender]||PLAYERS.Female,DRV=npcFor("driver",R.drv),pt=(lx,lz)=>{const M=R.truckM;return[M[0]*lx+M[8]*lz+M[12],M[2]*lx+M[10]*lz+M[14]]};
   for(const[m,lx,c]of[[DRV,.5,"drive"],[PM,-.5,"sit"]]){if(!m)continue;const p=pt(lx,1.55);WALKER.draw(m,VP,p[0],TOWSEAT,p[1],R.yaw,{p:0,run:0,amt:0,sit:1,sitClip:c},t,null,"")}}
 let TOWSEAT=.62;
 {const b=document.getElementById("vanStop");b.addEventListener("pointerdown",e=>e.stopPropagation());b.addEventListener("click",e=>{e.stopPropagation();vanUnfollow()})}
@@ -3138,13 +3205,13 @@ function vanScene(){if(VANSCENE)return VANSCENE;const keep=[BAKE,CLEAR_GLASS,CEL
   at(0,-2.56,Math.PI,()=>sign(0,1.3,0,1.6,.5,"SECURITY","#1d2b44","#f2b705"));VANSCENE=upload();VANSCENE.twoSided=true;
   reset();box(0,0,0,.46,.3,.3,"#9aa3ad",K.gold);box(0,.3,0,.2,.04,.06,"#1f2937");BOXSCENE=upload();[BAKE,CLEAR_GLASS,CELL]=keep;return VANSCENE}
 // guards: one for each loading or unloading van, carrying a cash box between the door and the van's back doors
-function vanGuard(VP,eye,t,p,door,loading,id){const M=CAST.mech||PLAYERS.Male;if(!M)return;const f=[-Math.sin(p.yaw),-Math.cos(p.yaw)],back=[p.x-f[0]*3.1,p.z-f[1]*3.1],
+function vanGuard(VP,eye,t,p,door,loading,id){const M=npcFor("guard",id);if(!M)return;const f=[-Math.sin(p.yaw),-Math.cos(p.yaw)],back=[p.x-f[0]*3.1,p.z-f[1]*3.1],
     a=loading?door:back,b=loading?back:door,L=Math.hypot(b[0]-a[0],b[1]-a[1])||1,cyc=2*L/VANCFG.guardSpeed+3,ph=((vanNow()/1000+id*2.3)%cyc+cyc)%cyc;
   let x,z,yaw,carry,walk=true,s;if(ph<L/VANCFG.guardSpeed){s=ph*VANCFG.guardSpeed;x=a[0]+(b[0]-a[0])*s/L;z=a[1]+(b[1]-a[1])*s/L;yaw=Math.atan2(-(b[0]-a[0]),-(b[1]-a[1]));carry=true}
   else if(ph<L/VANCFG.guardSpeed+1.5){x=b[0];z=b[1];yaw=Math.atan2(-(b[0]-a[0]),-(b[1]-a[1]));walk=false;carry=false;s=0}
   else if(ph<2*L/VANCFG.guardSpeed+1.5){s=(ph-L/VANCFG.guardSpeed-1.5)*VANCFG.guardSpeed;x=b[0]+(a[0]-b[0])*s/L;z=b[1]+(a[1]-b[1])*s/L;yaw=Math.atan2(-(a[0]-b[0]),-(a[1]-b[1]));carry=false}
   else{x=a[0];z=a[1];yaw=Math.atan2(-(b[0]-a[0]),-(b[1]-a[1]));walk=false;carry=true;s=0}
-  const cyw=WALKER.cycle(M,0),sp=(M.speed&&M.speed.walk)||VANCFG.guardSpeed;WALKER.draw(M,VP,x,0,z,yaw,walk?{p:s/sp/cyw,run:0,amt:1,wf:1}:{p:0,run:0,amt:0,idle:"m_idle"},t,null,"");
+  const cyw=WALKER.cycle(M,0),sp=(M.speed&&M.speed.walk)||VANCFG.guardSpeed;WALKER.draw(M,VP,x,0,z,yaw,walk?{p:s/sp/cyw,run:0,amt:1,wf:1}:{p:0,run:0,amt:0,idle:M.clips.idle},t,null,"");
   if(carry){BOXSCENE.model=mul(trans(x-Math.sin(yaw)*.36,1.0,z-Math.cos(yaw)*.36),rotY(yaw));BOXSCENE.fogFar=150;drawScene(BOXSCENE,VP,eye,false)}}
 function vansDraw(VP,eye,t,clear){if(!VANS.list.length)return;const now=vanNow(),S=vanScene();
   for(const v of VANS.list){const p=vanPlace(v,now,me.town);if(!p||Math.hypot(p.x-cam.x,p.z-cam.z)>220)continue;S.model=mul(trans(p.x,0,p.z),rotY(p.yaw+Math.PI));S.fogFar=150;
