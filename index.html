@@ -41,7 +41,7 @@ html,body{overscroll-behavior:none}canvas,.stick,.tbtn{touch-action:none}
 #dash{--dl:264px;--lt:150px;--mw:140px;position:fixed;inset:0;z-index:4;pointer-events:none;font-family:system-ui,sans-serif;color:#fff;user-select:none;-webkit-user-select:none}
 #dash button,#dash .dcond,#dash .dialw{pointer-events:auto}#dash button{font:inherit;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}#dash svg{display:block}
 #dash .rb{width:var(--rb);height:var(--rb);border-radius:50%;border:2px solid rgba(255,255,255,.55);background:rgba(8,16,30,.84);display:grid;place-items:center;padding:0;box-shadow:0 3px 10px rgba(0,0,0,.35)}
-#dash .rb svg{width:56%;height:56%}#dash .rb.on{background:#FBBF24;color:#14263D;border-color:#FBBF24}
+#dash .rb svg{width:56%;height:56%}#dash #dEngB.run{background:#16a34a;border-color:#4ade80;color:#fff}#dash .rb.on{background:#FBBF24;color:#14263D;border-color:#FBBF24}
 .dleft{position:fixed;left:calc(12px + var(--lft));top:calc(var(--dl) + var(--top));display:flex;flex-direction:column;gap:9px}
 .dcond{position:fixed;left:calc(12px + var(--lft));top:calc(var(--dl) + var(--top) + 4*var(--rb) + 41px);width:clamp(148px,42vmin,196px);background:rgba(8,16,30,.86);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:8px 10px 6px;cursor:pointer;box-sizing:border-box}
 .dch{font-weight:700;font-size:12.5px;margin-bottom:3px}
@@ -163,6 +163,7 @@ select.who{font:inherit;font-weight:600;font-size:14px;border:1px solid var(--li
 <script type="application/json" id="p_billboard">{"lo": [-2.700864093739767, 0.0, -2.1384431403320585], "span": 7.0, "verts": 452, "tris": 400, "wide": false, "pos": "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", "col": "MCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCws////////////////////////////////MCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCwsMCws////////////////////////////////q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6ur", "idx": "AQADAAAAAwABAAIABQAHAAQABwAFAAYACgALAAgACAAJAAoADgAPAAwADAANAA4AEgATABAAEAARABIAFQAXABQAFwAVABYAFAAZABgAGQAUABcAHAAdABoAGgAbABwADQAMAB4AHgAfAA0AIQAjACAAIwAhACIAHwAeACQAJAAlAB8AGAAnACYAJwAYABkAKQArACgAKwApACoAIgAEACMABAAiAAUALgAvACwALAAtAC4AMgAzADAAMAAxADIANQA3ADQANwA1ADYAOgA7ADgAOAA5ADoAPgA/ADwAPAA9AD4AQgBDAEAAQABBAEIARQBHAEQARwBFAEYASQBLAEgASwBJAEoAHgBNAEwATAAkAB4AIABPAE4ATwAgACMADwBRAFAAUAAMAA8ACwBTAFIAUgAIAAsABABVAFQAVQAEAAcAAABXAFYAVwAAAAMAVgBKAEkASgBWAFcAVABGAEUARgBUAFUAUwBCAEEAQQBSAFMAUQA+AD0APQBQAFEAUAA9ADIAMgBNAFAATgA2ADUANgBOAE8ATQAyADEAMQBMAE0ATwBFADYARQBPAFQAWQBbAFgAWwBZAFoAXgBfAFwAXABdAF4AYQBjAGAAYwBhAGIAZQBnAGQAZwBlAGYAagBrAGgAaABpAGoAbgBvAGwAbABtAG4AcgBzAHAAcABxAHIAdQB3AHQAdwB1AHYAdAB5AHgAeQB0AHcAfAB9AHoAegB7AHwAbQBsAH4AfgB/AG0AgQCDAIAAgwCBAIIAfwB+AIQAhACFAH8AeACHAIYAhwB4AHkAiQCLAIgAiwCJAIoAggBkAIMAZACCAGUAjgCPAIwAjACNAI4AkgCTAJAAkACRAJIAlQCXAJQAlwCVAJYAmgCbAJgAmACZAJoAngCfAJwAnACdAJ4AogCjAKAAoAChAKIApQCnAKQApwClAKYAqQCrAKgAqwCpAKoAfgCtAKwArACEAH4AgACvAK4ArwCAAIMAbwCxALAAsABsAG8AawCzALIAsgBoAGsAZAC1ALQAtQBkAGcAYAC3ALYAtwBgAGMAtgCqAKkAqgC2ALcAtACmAKUApgC0ALUAswCiAKEAoQCyALMAsQCeAJ0AnQCwALEAsACdAJIAkgCtALAArgCWAJUAlgCuAK8ArQCSAJEAkQCsAK0ArwClAJYApQCvALQAuQC7ALgAuwC5ALoAvgC/ALwAvAC9AL4AwgDDAMAAwADBAMIAxQDCAMEAwQDEAMUAxwDFAMQAxADGAMcAyQDHAMYAxgDIAMkAygDJAMgAyQDKAMsAzADLAMoAywDMAM0AzgDNAMwAzQDOAM8A0ADPAM4AzwDQANEA0gDRANAA0QDSANMA1ADTANIA0wDUANUA1gDVANQA1QDWANcA2ADXANYA1wDYANkA2wDdANoA3QDbANwA3gDcANsA3ADeAN8A4ADfAN4A3wDgAOEA4gDhAOAA4QDiAOMA5ADjAOIA4wDkAOUA5gDlAOQA5QDmAOcA6ADnAOYA5wDoAOkA6gDpAOgA6QDqAOsA7QDrAOoA6gDsAO0A7wDtAOwA7ADuAO8A8QDvAO4A7gDwAPEA8wDxAPAA8ADyAPMA9QDzAPIA8gD0APUA9wD1APQA9AD2APcA+QD3APYA9gD4APkA+wD5APgA+AD6APsA/gD/APwA/AD9AP4AAQH+AP0A/QAAAQEBAwHDAAIBwwAfASABHwEdAR4BHQEbARwBGwEZARoBGQEXARgBFwEVARYBFQETARQBEwERARIBEQEPARABDwENAQ4BDQELAQwBCwEJAQoBCQEHAQgBBwEFAQYBBQEDAQQBAwEfAcMAHwEbAR0BGwEXARkBFwETARUBEwEPAREBDwELAQ0BCwEHAQkBBwEDAQUBAwEbAR8BGwETARcBEwELAQ8BCwEDAQcBAwETARsBEwEDAQsBIgEBAQABAAEhASIBwwAiASEBIQHAAMMAQAFBASMBIwEkASUBJQEmAScBJwEoASkBKQEqASsBKwEsAS0BLQEuAS8BLwEwATEBMQEyAeIA4gAzATQBNAE1ATYBNgE3ATgBOAE5AToBOgE7ATwBPAE9AT4BPgE/AUABQAEjASUBJQEnASkBKQErAS0BLQEvATEBMQHiADQBNAE2ATgBOAE6ATwBPAE+AUABQAElASkBKQEtATEBMQE0ATgBOAE8AUABQAEpATEBMQE4AUABRAFFAUIBQgFDAUQBRwFEAUMBQwFGAUcBSQFHAUYBRgFIAUkBSwFJAUgBSAFKAUsBTAFLAUoBSwFMAU0BTgFNAUwBTQFOAU8BUAFPAU4BTwFQAVEBUgFRAVABUQFSAVMBVAFTAVIBUwFUAVUBVgFVAVQBVQFWAVcBWAFXAVYBVwFYAVkBWgFZAVgBWQFaAVsBXQFfAVwBXwFdAV4BYAFeAV0BXgFgAWEBYgFhAWABYQFiAWMBZAFjAWIBYwFkAWUBZgFlAWQBZQFmAWcBaAFnAWYBZwFoAWkBagFpAWgBaQFqAWsBbAFrAWoBawFsAW0BbwFtAWwBbAFuAW8BcQFvAW4BbgFwAXEBcwFxAXABcAFyAXMBdQFzAXIBcgF0AXUBdwF1AXQBdAF2AXcBeQF3AXYBdgF4AXkBewF5AXgBeAF6AXsBfQF7AXoBegF8AX0BgAGBAX4BfgF/AYABgwGAAX8BfwGCAYMBhQFFAYQBRQGhAaIBoQGfAaABnwGdAZ4BnQGbAZwBmwGZAZoBmQGXAZgBlwGVAZYBlQGTAZQBkwGRAZIBkQGPAZABjwGNAY4BjQGLAYwBiwGJAYoBiQGHAYgBhwGFAYYBhQGhAUUBoQGdAZ8BnQGZAZsBmQGVAZcBlQGRAZMBkQGNAY8BjQGJAYsBiQGFAYcBhQGdAaEBnQGVAZkBlQGNAZEBjQGFAYkBhQGVAZ0BlQGFAY0BpAGDAYIBggGjAaQBRQGkAaMBowFCAUUBwgHDAaUBpQGmAacBpwGoAakBqQGqAasBqwGsAa0BrQGuAa8BrwGwAbEBsQGyAbMBswG0AWQBZAG1AbYBtgG3AbgBuAG5AboBugG7AbwBvAG9Ab4BvgG/AcABwAHBAcIBwgGlAacBpwGpAasBqwGtAa8BrwGxAbMBswFkAbYBtgG4AboBugG8Ab4BvgHAAcIBwgGnAasBqwGvAbMBswG2AboBugG+AcIBwgGrAbMBswG6AcIB"}</script>
 <script type="application/json" id="p_traffic_light">{"lo": [-0.47953398439932293, 0.0, -0.3669902856578721], "span": 4.2, "verts": 360, "tris": 212, "wide": false, "pos": "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", "col": "ZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAZmuAfYKcfYKclp29lp29lp29fYKclp29fYKcfYKclp29fYKclp29fYKcfYKclp29lp29fYKcfYKclp29lp29fYKcfYKclp29lp29fYKcfYKclp29lp29fYKcfYKclp29lp29fYKcfYKcfYKcfYKcfYKcfYKcfYKcfYKclp29lp29lp29lp29lp29lp29lp29lp29jZOxjZOxjZOxjZOxrbXZrbXZrbXZrbXZjZOxrbXZjZOxrbXZjZOxjZOxrbXZrbXZrbXZjZOxrbXZjZOxjZOxjZOxrbXZrbXZoKjJjZOxoKjJjZOxoKjJoKjJjZOxjZOxjZOxjZOxoKjJoKjJjZOxjZOxoKjJoKjJoKjJoKjJpq7Qpq7QoKjJoKjJpq7Qpq7QoKjJoKjJpq7Qpq7QoKjJpq7QoKjJpq7Qpq7Qpq7QqrLWqrLWpq7Qpq7QqrLWqrLWqrLWpq7QqrLWpq7QqrLWqrLWpq7Qpq7QqrLWqrLWrbXZrbXZqrLWqrLWrbXZrbXZqrLWqrLWrbXZrbXZqrLWrbXZqrLWrbXZ/5w1/584/5w1/584/8td/8td/89g/89g/584/584/8td/8td/89g/89g/89g/89g/5w1/5w1/5w1/5w1/89g/8td/89g/8td/584/584/8td/8td/5w1/5w1/584/584/8td/89g/584/584/5w1/8td/584/89g/5w1/8td/8td/584PaZ5UryEJ5BvIIlrWsSHUryEJ5BvPaZ552BH9WhD2FhM1FZO+mtB9WhD2FhM52BHUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVmUVVm/7NJ/8ha/584/5gy/89g/8ha/584/7NJ", "idx": "AgABAAAAAQACAAMABgAFAAQABQAGAAcACgAJAAgACQAKAAsADgANAAwADQAOAA8AEgARABAAEQASABMAFgAVABQAFQAWABcAGgAZABgAGQAaABsAGwAaABwAGwAcAB0AHQAcAB4AIQAgAB8AIAAhACIAIgAhACMAIgAjACQAJAAjACUAKAAnACYAJwAoACkALAArACoAKwAsAC0AMAAvAC4ALwAwADEANAAzADIAMwA0ADUAOAA3ADYANwA4ADkAPAA7ADoAOwA8AD0AQAA/AD4APwBAAEEAQQBAAEIAQQBCAEMAQwBCAEQARwBGAEUARgBHAEgASABHAEkASABJAEoASgBJAEsATgBNAEwATQBOAE8ATwBOAFAATwBQAFEAUQBQAFIAUQBSAFMAVgBVAFQAVQBWAFcAWgBZAFgAWQBaAFsAXgBdAFwAXQBeAF8AYgBhAGAAYQBiAGMAZgBlAGQAZQBmAGcAagBpAGgAaQBqAGsAbgBtAGwAbQBuAG8AcgBxAHAAcQByAHMAdgB1AHQAdQB2AHcAdwB2AHgAdwB4AHkAeQB4AHoAeQB6AHsAfgB9AHwAfQB+AH8AfwB+AIAAfwCAAIEAgQCAAIIAgQCCAIMAhgCFAIQAhQCGAIcAigCJAIgAiQCKAIsAjgCNAIwAjQCOAI8AkgCRAJAAkQCSAJMAlgCVAJQAlQCWAJcAmgCZAJgAmQCaAJsAngCdAJwAnQCeAJ8AogChAKAAoQCiAKMApgClAKQApQCmAKcAqgCpAKgAqQCqAKsArgCtAKwArQCuAK8AsgCxALAAsQCyALMAtgC1ALQAtQC2ALcAugC5ALgAuQC6ALsAvgC9ALwAvQC+AL8AwgDBAMAAwQDCAMMAxgDFAMQAxQDGAMcAygDJAMgAyQDKAMsAzgDNAMwAzQDOAM8A0gDRANAA0QDSANMA1gDVANQA1QDWANcA2gDZANgA2QDaANsA3gDdANwA3QDeAN8A4gDhAOAA4QDiAOMA5gDlAOQA5QDmAOcA6gDpAOgA6QDqAOsA7gDtAOwA7QDuAO8A8gDxAPAA8QDyAPMA9gD1APQA9QD2APcA+gD5APgA+QD6APsA/gD9APwA/QD+AP8A/wD+AAABAQH9AP8A/wAAAQIB/QABAQMBAgEAAQQBAwEBAQUBAgEEAQUBAwEFAQYBBgEFAQQBBgEEAQcBCgEJAQgBCQEKAQsBCQELAQwBDAELAQ0BDQELAQ4BDQEOAQ8BEgERARABEQESARMBEQETARQBFAETARUBFQETARYBFQEWARcBGgEZARgBGQEaARsBHgEdARwBHwEcAR0BIgEhASABIQEiASMBJgElASQBJwEkASUBKgEpASgBKQEqASsBLgEtASwBLwEsAS0BMgExATABMQEyATMBNgE1ATQBNwE0ATUBOgE5ATgBOQE6ATsBOwE6ATwBOwE8AT0BPQE8AT4BPwE7AT0BQgFBAUABQwFAAUEBRAFAAUMBRQFEAUMBRQFDAUYBRwFEAUUBSgFJAUgBSQFKAUsBTgFNAUwBTwFMAU0BUgFRAVABUQFSAVMBUQFTAVQBVAFTAVUBVQFTAVYBVAFVAVcBWgFZAVgBWwFYAVkBXAFbAVkBXQFbAVwBXgFdAVwBXwFbAV0BYgFhAWABYQFiAWMBYQFjAWQBZAFjAWUBZQFjAWYBZQFmAWcB"}</script>
 <div id="clock" class="clockpill" hidden></div>
+<button id="towSkip" class="towskip" hidden>Skip to the workshop</button>
 <style>
 .clockpill{display:grid;grid-template-columns:auto auto;column-gap:7px;align-items:center;line-height:1.1}
 .clockpill .wx{grid-row:1/3;width:24px;height:24px;display:block}.clockpill .cw{font-size:11px;font-weight:600;color:#cbd5e1}
@@ -173,14 +174,37 @@ body.driving .cashpill{left:50%;right:auto;transform:translateX(-50%);top:calc(1
 body.driving .clockpill{top:calc(10px + env(safe-area-inset-top,0px))}
 @media (max-width:760px){.guide{top:calc(216px + env(safe-area-inset-top,0px))}}       /* on a phone the guide goes below the round map and the clock */
 @media (max-width:380px){body.driving .cashpill{font-size:14px;padding:6px 11px}body.driving .clockpill{font-size:13px;padding:5px 10px}}
-@media (orientation:landscape) and (max-height:500px){body.driving .cashpill{left:calc(12px + env(safe-area-inset-left,0px));transform:none}}
-/* the big map on phones: the group buttons sit in their own strip (a row upright, a column on its side), never over the map */
-@media (max-width:760px){.mapmenu{position:absolute;top:0;left:0;right:0;border-radius:0;padding:6px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}.mapmenu::-webkit-scrollbar{display:none}
-  .mapmenu button{flex:none;padding:7px 12px;font-size:13.5px;line-height:1.2}.mapmenu small{display:none}.mapview{top:46px}}
-@media (orientation:landscape) and (max-height:500px){.mapmenu{position:absolute;top:0;left:0;bottom:0;right:auto;width:132px;border-radius:0;padding:6px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
-  .mapmenu button{padding:7px 10px;font-size:13.5px}.mapmenu small{display:none}.mapview{left:132px;top:0}.zoom{left:142px}.maphead{padding:6px 12px;font-size:15px}}
-#doorBtn{padding:0 14px 0 0;gap:8px;border:0;background:rgba(15,31,51,.86);border-radius:999px;font-size:15px;box-shadow:0 4px 14px rgba(0,0,0,.35)}
-#doorBtn svg{width:46px;height:46px;padding:9px;background:#0f1f33;color:#fff;border:2px solid rgba(255,255,255,.9);margin:-4px 0 -4px -4px}
+body.towing .guide,body.towing .tip,body.towing .stick,body.towing .tbtn,body.towing .picks{display:none!important}
+.towskip{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:5;font:700 15px system-ui,sans-serif;color:#fff;background:rgba(15,31,51,.9);border:2px solid rgba(255,255,255,.8);border-radius:999px;padding:10px 18px;cursor:pointer}
+/* the door sign: a small round car-door button at the bottom right, while you stand by the driver's door */
+#doorBtn{left:auto!important;top:auto!important;right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:none;flex-direction:column;gap:2px;padding:0;border:0;background:none;font-size:11px;text-shadow:0 1px 3px #000}
+#doorBtn svg{width:52px;height:52px;padding:11px;background:rgba(15,31,51,.88);color:#fff;border:2px solid rgba(255,255,255,.9);box-shadow:0 3px 10px rgba(0,0,0,.4)}
+.touch #doorBtn{right:calc(29px + env(safe-area-inset-right,0px));bottom:calc(206px + env(safe-area-inset-bottom,0px))}
+/* the big map: the group buttons are a small strip along the bottom, under the map, never over it */
+.mapmenu{position:absolute;left:0;right:0;bottom:0;top:auto;width:auto;display:flex;gap:4px;padding:5px 6px;border-radius:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;grid-auto-flow:unset}.mapmenu::-webkit-scrollbar{display:none}
+.mapmenu button{flex:none;padding:5px 11px;font-size:12.5px;line-height:1.2;border-radius:999px;text-align:center}.mapmenu small{display:none}
+.mapview{top:0;left:0;bottom:38px}.zoom{bottom:48px}.compass{bottom:48px;width:52px;height:52px}
+@media (orientation:landscape) and (max-height:500px){.maphead{padding:6px 12px;font-size:15px}}
+/* driving on a phone: everything smaller, so the road stays clear */
+@media (max-width:760px) and (orientation:portrait){
+  #dash,#dpad{--rb:38px;--lb:28px;--sp:118px;--wh:112px;--pw:46px}#dash{--dl:118px;--lt:54px}
+  body.driving .mini{top:calc(10px + env(safe-area-inset-top,0px));width:96px;height:96px}
+  .dleft{flex-direction:column;gap:8px}.dcond{top:calc(var(--dl) + var(--top) + 4*var(--rb) + 34px);width:118px;padding:5px 7px 3px;border-radius:10px}
+  .dch,.dcar{display:none}.dcr{font-size:10px;grid-template-columns:13px 1fr auto;grid-template-rows:auto 3px;column-gap:5px;margin:2px 0 4px}.dcr .dci{width:13px;height:13px}.dcr u{height:3px}
+  .dlamps{gap:4px;padding:5px;border-radius:10px}.dlamps button{border-radius:7px}
+  .dgears{flex-direction:column;right:calc(12px + var(--rgt) + (var(--lb) + 4px)/2);top:calc(var(--lt) + var(--top) + 4*var(--lb) + 30px);gap:2px;padding:3px}.dgears button{font-size:14px!important}
+  .dright{gap:5px;bottom:calc(var(--bot) + 18px + 1.55*var(--pw))}.dright label{font-size:9.5px}
+  .dbar{padding:2px 6px;gap:2px}.dbar i{width:18px;height:18px}.dfuel{font-size:10px;padding:2px 5px}.dfuel u{width:54px;height:5px}.darr{width:16px;height:16px}
+  .dmeter{gap:3px}#dash .dmsg{font-size:12.5px;top:26%}
+  body.driving .cashpill{font-size:13px;padding:5px 11px}body.driving .clockpill{font-size:12.5px;padding:4px 10px}.clockpill .wx{width:18px;height:18px}.clockpill .cw{font-size:9.5px}
+}
+@media (orientation:landscape) and (max-height:500px){
+  #dash,#dpad{--rb:34px;--lb:26px;--sp:104px;--wh:100px;--pw:40px}#dash{--mw:84px}
+  body.driving .mini{top:calc(10px + env(safe-area-inset-top,0px));width:84px;height:84px}
+  .dlamps{top:calc(50px + var(--top));gap:4px;padding:4px}.dgears{top:calc(50px + var(--top) + 2*var(--lb) + 26px);padding:3px}.dgears button{font-size:14px!important}
+  .dright{gap:8px}.dright label{font-size:9.5px}.dbar i{width:18px;height:18px}.dfuel{font-size:10px}.dfuel u{width:54px}
+  body.driving .cashpill{font-size:13px;padding:5px 11px}body.driving .clockpill{font-size:12.5px;padding:4px 10px}.clockpill .wx{width:18px;height:18px}.clockpill .cw{font-size:9.5px}
+}
 </style>
 <canvas id="mini" class="mini" width="280" height="280" role="button" tabindex="0" aria-label="Open the map" hidden></canvas>
 <div id="route" class="routebar" hidden><i id="routeArrow" aria-hidden="true">▲</i><span id="routeText"></span><button id="routeX" aria-label="Cancel directions">Cancel</button></div>
@@ -2073,7 +2097,7 @@ function gaitSpeed(run){let dist=0,prev=null;for(let i=0;i<=200;i++){const g=gai
 function paintFor(m,part,look,key){if(part.paints[key]!==undefined)return part.paints[key];let buf=null;if(part.name==="AvatarBody"&&look&&look.paint){const C=new Uint8Array(part.verts*4);for(let k=0;k<part.verts;k++){const r=look.paint(m.lo[0]+part.pos[k*3]/65535*m.span,m.lo[1]+part.pos[k*3+1]/65535*m.span);if(r){const h=hex(r[0]);C[k*4]=h[0];C[k*4+1]=h[1];C[k*4+2]=h[2];C[k*4+3]=r[1]*255}}buf=mk(C)}return part.paints[key]=buf}
 // draw one person. state: {p: place in the walk cycle, run: 0..1, amt: 0 standing .. 1 moving}. Returns the pose, for hair fixed to the head.
 function draw(m,VP,x,y,z,yaw,state,t,look,lookKey){use(m);let lift;if(ANIM&&m.rest){const a=state.amt,r=state.run;const idle=state.idle||m.clips.idle;
-    if(state.sit)lift=poseClips(m,[["drive",t/ANIM.clips.drive.dur,1]],false,0);
+    if(state.sit){const c=state.sitClip&&ANIM.clips[state.sitClip]?state.sitClip:"drive";lift=poseClips(m,[[c,t/ANIM.clips[c].dur,1]],false,0)}
     else if(state.jump>=0&&m.clips.jump&&ANIM.clips[m.clips.jump])lift=poseClips(m,[[m.clips.jump,state.jump,1]],false,0,0,t);       // in the air: the jump recording; the height itself comes from the jump
     else lift=poseClips(m,[[idle,t/ANIM.clips[idle].dur,1-a]].concat(blend(m,state).list.map(([n,w])=>[n,state.p,w*a])),true,0,0,t)}
   else{const g=gaitPose(state.p,state.run,state.amt,t);poseBones(g.turns);lift=g.rise}const model=mul(trans(x,y+lift,z),rotY(yaw+Math.PI)),P=SKINP;
@@ -2192,15 +2216,15 @@ function sndStart(){if(SND.ctx)return;try{const A=window.AudioContext||window.we
   const n=c.createBufferSource();n.buffer=nb;n.loop=true;const bp=c.createBiquadFilter();bp.type="bandpass";bp.frequency.value=1400;bp.Q.value=2;SND.tg=c.createGain();SND.tg.gain.value=0;n.connect(bp);bp.connect(SND.tg);SND.tg.connect(out);n.start()}catch(e){SND.ctx=null}}
 function sndClick(){const c=SND.ctx;if(!c)return;try{const s=c.createBufferSource(),g=c.createGain();s.buffer=SND.noise;g.gain.setValueAtTime(.12,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.03);s.connect(g);g.connect(SND.out);s.start();s.stop(c.currentTime+.04)}catch(e){}}
 function sndUpdate(on){const c=SND.ctx;if(!c)return;const t=c.currentTime,k=.08;
-  SND.eg.gain.setTargetAtTime(on?.05+.07*VEH.thr:0,t,k);const f=34+VEH.rpm*120;SND.o1.frequency.setTargetAtTime(f,t,k);SND.o2.frequency.setTargetAtTime(f*.5,t,k);SND.lp.frequency.setTargetAtTime(500+VEH.rpm*1400,t,k);
+  SND.eg.gain.setTargetAtTime(on&&VEH.engine?.05+.07*VEH.thr:0,t,k);const f=34+VEH.rpm*120;SND.o1.frequency.setTargetAtTime(f,t,k);SND.o2.frequency.setTargetAtTime(f*.5,t,k);SND.lp.frequency.setTargetAtTime(500+VEH.rpm*1400,t,k);
   SND.hg.gain.setTargetAtTime(on&&VEH.horn?.09:0,t,.02);SND.tg.gain.setTargetAtTime(on?Math.min(.14,VEH.slip*.12+(VEH.brk>.5&&Math.abs(VEH.lastV)>8?.05:0)):0,t,.05)}
 /* ---- the physics, once a frame ---- */
 function vehicleStep(C,T,dt){const cfg=VEH.cfg,pw=carEngine(C,dt),ty=carUse(C,dt),wet=dynWet(T,C.x,C.z),hitT=(x,z,r)=>T.blocks.some(w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r);
-  VEH.thr=Math.max(keys.w||keys.arrowup?1:0,VEH.touch.thr);VEH.brk=Math.max(keys.s||keys.arrowdown?1:0,VEH.touch.brk);const steerIn=clamp((keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+VEH.touch.steer,-1,1),hand=VEH.hand||!!keys[" "];
+  VEH.thr=Math.max(keys.w||keys.arrowup?1:0,VEH.touch.thr);if(!VEH.engine&&VEH.thr>0&&NOW>VEH.engHint){VEH.engHint=NOW+4;dashToast(touch?"The engine is off. Tap Engine to start it.":"The engine is off. Press I (or the Engine button) to start it.",2.4)}VEH.brk=Math.max(keys.s||keys.arrowdown?1:0,VEH.touch.brk);const steerIn=clamp((keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+VEH.touch.steer,-1,1),hand=VEH.hand||!!keys[" "];
   const v0=C.v,still=Math.abs(C.v)<.3;
   if(VEH.gear==="P"&&VEH.thr>0&&still&&!VEH.brk){VEH.gear="D";dashToast("Drive")}
   if(VEH.brk&&still&&VEH.gear==="D"&&!VEH.revHint){VEH.revHint=true;dashToast(touch?"Stopped. Press R to reverse.":"Stopped. Press 2 (or R on screen) to reverse.")}if(!still)VEH.revHint=false;
-  if(!pw&&VEH.thr&&NOW>(VEH.deadMsg||0)){const D=carD(C);VEH.deadMsg=NOW+4;dashToast(D.refuel?"Refuelling: wait until the tank is filled.":D.fuel<=0?"Out of fuel. Call a tow truck from the Car panel.":"The engine won't run. Call a tow truck from the Car panel.",3)}
+  if(!pw&&VEH.engine&&VEH.thr&&NOW>(VEH.deadMsg||0)){const D=carD(C);VEH.deadMsg=NOW+4;dashToast(D.refuel?"Refuelling: wait until the tank is filled.":D.fuel<=0?"Out of fuel. Call a tow truck from the Car panel.":"The engine won't run. Call a tow truck from the Car panel.",3)}
   let a=0;if(VEH.gear==="D"){a+=VEH.thr*cfg.accel*pw*Math.max(0,1-Math.max(0,C.v)/(cfg.vmax*ty.vmax));if(!VEH.thr&&!VEH.brk&&!hand&&C.v<cfg.creep&&pw)a+=1.1}
   if(VEH.gear==="R"){a-=VEH.thr*cfg.accel*pw*.75*Math.max(0,1-Math.max(0,-C.v)/cfg.rev);if(!VEH.thr&&!VEH.brk&&!hand&&-C.v<cfg.creep*.7&&pw)a-=.8}
   C.v+=a*dt;const dec=VEH.brk*cfg.brake*(1-.35*wet)*(.55+.45*ty.grip)+(hand?5.5:0)+(VEH.gear==="P"?14:0)+.3+.0024*C.v*C.v+(VEH.gear==="N"?.2:0);if(C.v){const s=Math.sign(C.v);C.v-=s*Math.min(Math.abs(C.v),dec*dt)}
@@ -2216,7 +2240,7 @@ function vehicleStep(C,T,dt){const cfg=VEH.cfg,pw=carEngine(C,dt),ty=carUse(C,dt
   // the body: leans out on corners, dips under braking, lifts under acceleration
   const lat=C.v*yr,lon=(C.v-v0)/Math.max(dt,1e-3);VEH.roll+=(clamp(lat*.011,-.07,.07)-VEH.roll)*Math.min(1,dt*6);VEH.pitch+=(clamp(-lon*.006,-.05,.05)-VEH.pitch)*Math.min(1,dt*5);VEH.jolt*=Math.max(0,1-dt*5);
   // the engine: five automatic gears; the needle rises through each one and drops at the change
-  const sp=Math.abs(C.v),step=cfg.vmax/5,gi=Math.min(4,Math.floor(sp/step)),frac=(sp-gi*step)/step;{const want=(VEH.gear==="D"||VEH.gear==="R")&&sp>.5?.18+.72*frac*(.55+.45*VEH.thr)+.05*gi:.12+.3*VEH.thr*(VEH.gear==="N"||VEH.gear==="P"?1:.4);VEH.rpm+=(Math.min(1,want)-VEH.rpm)*Math.min(1,dt*6)}
+  const sp=Math.abs(C.v),step=cfg.vmax/5,gi=Math.min(4,Math.floor(sp/step)),frac=(sp-gi*step)/step;{const want=!VEH.engine?0:(VEH.gear==="D"||VEH.gear==="R")&&sp>.5?.18+.72*frac*(.55+.45*VEH.thr)+.05*gi:.12+.3*VEH.thr*(VEH.gear==="N"||VEH.gear==="P"?1:.4);VEH.rpm+=(Math.min(1,want)-VEH.rpm)*Math.min(1,dt*6)}
   // indicators blink at 1.5 per second; clicks while blinking
   VEH.blink+=dt;const on=(VEH.blink*1.5)%1<.5;if(VEH.ind!=="off"&&on!==VEH.blinkOn)sndClick();VEH.blinkOn=on;
   // an indicator cancels itself once the turn it signalled is complete
@@ -2236,7 +2260,7 @@ function setGear(g){const C=townOf(me.town).car;if(!C)return;const still=Math.ab
 function indicate(k){VEH.ind=VEH.ind===k?"off":k;VEH.indTurn=0;VEH.blink=0;dashUpdate(true)}
 function cycleLights(){VEH.lights=(VEH.lights+1)%3;dashToast(["Lights off","Low beam","High beam"][VEH.lights])}
 function driveKey(k,down){if(!driving)return false;if(!down){if(k==="f")VEH.horn=false;return k==="f"}
-  if(k==="q"){indicate("left");return true}if(k==="r"){indicate("right");return true}if(k==="g"){indicate("hazard");return true}if(k==="h"){cycleLights();return true}if(k==="t"){towCar();return true}if(k==="b"){beltToggle();return true}
+  if(k==="q"){indicate("left");return true}if(k==="r"){indicate("right");return true}if(k==="g"){indicate("hazard");return true}if(k==="h"){cycleLights();return true}if(k==="t"){towCar();return true}if(k==="b"){beltToggle();return true}if(k==="i"){engineToggle();return true}
   if(k==="c"){VEH.cam=(VEH.cam+1)%3;VEH.orbit=0;dashToast(["Chase camera","Close camera","Driver's seat"][VEH.cam]);return true}if(k==="f"){VEH.horn=true;return true}
   const G={"1":"P","2":"R","3":"N","4":"D"}[k];if(G){setGear(G);return true}return false}
 /* ---- the driving screen. Left: camera, horn, seatbelt and condition buttons, and the condition card (engine, body,
@@ -2247,7 +2271,7 @@ function driveKey(k,down){if(!driving)return false;if(!down){if(k==="f")VEH.horn
 const SVG=(p,vb)=>`<svg viewBox="${vb||"0 0 24 24"}" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 const ICO={cam:SVG('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>'),horn:SVG('<path d="M3 10.5h4l11-5.5v14L7 13.5H3z"/><path d="M18 5c2 1.5 3 4 3 7s-1 5.5-3 7"/><path d="M6.5 13.5l1.5 5h3l-1.2-4"/>'),
   belt:SVG('<circle cx="12" cy="4.5" r="2"/><path d="M8 21v-7l-2-4 3-3h6l3 3-2 4v7"/><path d="M8 8l8 9"/>'),car:SVG('<path d="M3 15v-3l2-5h10l2 5v3H3z"/><circle cx="6.5" cy="15.5" r="1.6"/><circle cx="13.5" cy="15.5" r="1.6"/><path d="M15.5 21l5-5M19 13.5l2.5 2.5"/>'),
-  park:SVG('<circle cx="12" cy="12" r="9"/><path d="M10 16V8h3a2.5 2.5 0 0 1 0 5h-3"/>'),exit:SVG('<path d="M14 4h5v16h-5"/><circle cx="7" cy="5" r="1.8"/><path d="M5 21l2-6-2-3 2-4 3 3 3 1M9 15l2 6"/>'),
+  power:SVG('<path d="M12 3v8"/><path d="M6.5 6.5a8 8 0 1 0 11 0"/>'),park:SVG('<circle cx="12" cy="12" r="9"/><path d="M10 16V8h3a2.5 2.5 0 0 1 0 5h-3"/>'),exit:SVG('<path d="M14 4h5v16h-5"/><circle cx="7" cy="5" r="1.8"/><path d="M5 21l2-6-2-3 2-4 3 3 3 1M9 15l2 6"/>'),
   left:SVG('<path d="M20 12H5M11 5l-7 7 7 7"/>'),right:SVG('<path d="M4 12h15M13 5l7 7-7 7"/>'),hazard:SVG('<path d="M12 3l10 18H2z"/><path d="M12 9l5 9H7z"/>'),
   low:SVG('<path d="M13 5c5 0 8 3 8 7s-3 7-8 7z"/><path d="M3 9h7M3 13h7M3 17h7"/>'),high:SVG('<path d="M13 5c5 0 8 3 8 7s-3 7-8 7z"/><path d="M3 8h7M3 12h7M3 16h7"/>'),
   warn:SVG('<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/>'),fuel:SVG('<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8l3 2v8a1.5 1.5 0 0 0 3 0v-7l-3-3"/>'),
@@ -2272,7 +2296,7 @@ const dash=document.createElement("div");dash.id="dash";dash.hidden=true;
       <button data-dk="hazard" id="dHz" class="wide" aria-label="Hazard lights">${ICO.hazard}</button><button data-dk="low" id="dLo" aria-label="Low beam">${ICO.low}</button><button data-dk="high" id="dHi" aria-label="High beam">${ICO.high}</button>
       <button data-dk="car" id="dWarn" aria-label="Warnings">${ICO.warn}</button><button data-dk="car" id="dFuelL" aria-label="Fuel">${ICO.fuel}</button></div>
     <div class="dgears">${["P","R","N","D"].map(g=>`<button data-dg="${g}">${g}</button>`).join("")}</div>
-    <div class="dright"><label><button class="rb" data-dk="hand" id="dHand" aria-label="Handbrake">${ICO.park}</button><span>Handbrake</span></label><label><button class="rb" data-dk="exit" aria-label="Exit vehicle">${ICO.exit}</button><span>Exit Vehicle</span></label></div>
+    <div class="dright"><label><button class="rb" data-dk="engine" id="dEngB" aria-label="Start or stop the engine">${ICO.power}</button><span>Engine</span></label><label><button class="rb" data-dk="hand" id="dHand" aria-label="Handbrake">${ICO.park}</button><span>Handbrake</span></label><label><button class="rb" data-dk="exit" aria-label="Exit vehicle">${ICO.exit}</button><span>Exit Vehicle</span></label></div>
     <div class="dmeter"><div class="dbar"><i id="wInd">${ICO.left}</i><i id="wBelt">${ICO.belt}</i><i id="wEng">${ICO.eng}</i><i id="wPark">${ICO.park}</i><i id="wLt">${ICO.low}</i></div><div class="dialw" id="dDial">${dial}</div>
       <div class="dfuel"><i id="dAL" class="darr">${ICO.left}</i><i class="fi">${ICO.fuel}</i><b>E</b><u><em id="dFuel"></em></u><b>F</b><i id="dAR" class="darr">${ICO.right}</i></div></div>
     <div class="dmsg" id="dMsg"></div>`}
@@ -2287,7 +2311,7 @@ function dashUpdate(){if(!driving){dash.hidden=true;return}const C=townOf(me.tow
   for(const s of dash.querySelectorAll(".dgears button"))s.classList.toggle("on",s.dataset.dg===VEH.gear);
   const L=bl&&(VEH.ind==="left"||VEH.ind==="hazard"),R=bl&&(VEH.ind==="right"||VEH.ind==="hazard");dashOn("dIL","on",L);dashOn("dIR","on",R);dashOn("dAL","on",L);dashOn("dAR","on",R);dashOn("wInd","on",L||R);
   dashOn("dHz","on",VEH.ind==="hazard");dashOn("dLo","on",VEH.lights===1);dashOn("dHi","on",VEH.lights===2);dashOn("wLt","on",VEH.lights===1);dashOn("wLt","hi",VEH.lights===2);
-  const hand=VEH.hand||!!keys[" "];dashOn("dHand","on",hand);dashOn("wPark","on",hand);dashOn("dBelt","on",VEH.belt);dashOn("wBelt","on",!VEH.belt);dashOn("wBelt","blink",!VEH.belt&&kmh>15&&bl);
+  dashOn("dEngB","run",!!VEH.engine);const hand=VEH.hand||!!keys[" "];dashOn("dHand","on",hand);dashOn("wPark","on",hand);dashOn("dBelt","on",VEH.belt);dashOn("wBelt","on",!VEH.belt);dashOn("wBelt","blink",!VEH.belt&&kmh>15&&bl);
   const engBad=D.dead||D.engine>.4||D.temp>125,engWarn=engBad||D.engine>.1||D.radiator>.15||D.temp>108;dashOn("wEng","on",engWarn&&!engBad);dashOn("wEng","bad",engBad);dashOn("dWarn","on",engWarn||carWarnings(D).length>0);
   dashOn("dFuelL","on",D.fuel<.15);dashSet("dFuel",e=>{e.style.width=Math.round(D.fuel*100)+"%";e.style.background=D.fuel<.15?"#ef4444":"#38bdf8"});
   dashBar("cEng",1-D.engine);dashBar("cBody",1-carBody(D));dashBar("cTyre",1-carTyres(D));dashBar("cFuel",D.fuel);
@@ -2306,9 +2330,13 @@ const dpad=document.createElement("div");dpad.id="dpad";dpad.hidden=true;dpad.in
   dash.addEventListener("pointerdown",e=>{if(e.target.closest("button"))e.stopPropagation()});
   dash.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;e.stopPropagation();if(b.dataset.dg){setGear(b.dataset.dg);return}const k=b.dataset.dk;if(!k)return;
     if(k==="hand")VEH.hand=!VEH.hand;if(k==="left"||k==="right"||k==="hazard")indicate(k);if(k==="low"||k==="high"){const want=k==="low"?1:2;VEH.lights=VEH.lights===want?0:want;dashToast(["Lights off","Low beam","High beam"][VEH.lights])}
-    if(k==="cam"){VEH.cam=(VEH.cam+1)%3;VEH.orbit=0;dashToast(["Chase camera","Close camera","Driver's seat"][VEH.cam])}if(k==="belt")beltToggle();if(k==="car")carPanel();if(k==="exit")carExit();dashUpdate(true)})}
+    if(k==="cam"){VEH.cam=(VEH.cam+1)%3;VEH.orbit=0;dashToast(["Chase camera","Close camera","Driver's seat"][VEH.cam])}if(k==="belt")beltToggle();if(k==="engine")engineToggle();if(k==="car")carPanel();if(k==="exit")carExit();dashUpdate(true)})}
 function vehicleLetGo(){VEH.touch.steer=VEH.touch.thr=VEH.touch.brk=0;VEH.horn=false;for(const b of dpad.querySelectorAll(".on"))b.classList.remove("on");const h=document.getElementById("dHorn");if(h)h.classList.remove("on")}
 // the seatbelt: off when you get in; a lamp and a chime remind you while moving without it
+function engineToggle(){const C=townOf(me.town).car;if(!C)return;const D=carD(C);
+  if(VEH.engine){VEH.engine=false;dashToast("Engine off");sndBeep(300,.12);return}
+  const why=D.dead?"The engine won't start: it is too badly damaged. Call the tow truck.":D.fuel<=0?"The engine won't start: the tank is empty.":D.refuel?"Wait until the refuelling is finished.":"";
+  if(why){dashToast(why,2.6);sndBeep(180,.25);return}VEH.engine=true;VEH.rpm=.35;dashToast("Engine started");sndBeep(520,.08)}
 function beltToggle(){VEH.belt=!VEH.belt;dashToast(VEH.belt?"Seatbelt on":"Seatbelt off");sndBeep(VEH.belt?1200:600,.06)}
 // the clock beside the cash, in Nigerian time, while in town
 // with the weather: sunny by day, clear at night; the temperature follows the hour, coolest at dawn and warmest mid-afternoon
@@ -2320,7 +2348,7 @@ let clockT=0;function clockTick(){const el=document.getElementById("clock");if(!
 function sndBeep(f,d){const c=SND.ctx;if(!c)return;try{const o=c.createOscillator(),g=c.createGain();o.frequency.value=f;g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g);g.connect(SND.out);o.start();o.stop(c.currentTime+d+.02)}catch(e){}}
 
 // the car's drawing position: with its body motion while driven
-function carModel(C){return driving&&VEH.model?VEH.model:mul(trans(C.x,0,C.z),rotY(C.yaw+Math.PI))}
+function carModel(C){return TOW&&TOW.C===C&&TOW.carM?TOW.carM:driving&&VEH.model?VEH.model:mul(trans(C.x,0,C.z),rotY(C.yaw+Math.PI))}
 // the driving camera: chase, close, or the driver's seat. Drag (or the mouse) to look around; it swings back behind after a moment.
 function vehicleCam(C,wallAt,dt){if(VEH.lastVY===null)VEH.lastVY=VIEW.yaw;const dv=VIEW.yaw-VEH.lastVY;if(Math.abs(dv)>1e-4){VEH.orbit+=dv;VEH.orbitAt=NOW}VEH.lastVY=VIEW.yaw;if(NOW-VEH.orbitAt>2.5)VEH.orbit*=Math.max(0,1-dt*2.5);
   const yaw=C.yaw+VEH.orbit,fx=-Math.sin(yaw),fz=-Math.cos(yaw),cfx=-Math.sin(C.yaw),cfz=-Math.cos(C.yaw);
@@ -2464,7 +2492,7 @@ function carMesh(C){const D=C&&C.dmg;if(!CARSCENE0)CARSCENE0=CARSCENE;if(!D||!D.
   const S=Object.assign({},CARSCENE0,{bufs:J.bufs,own:J.own,ver:D.ver,car:C,twoSided:true});if(CARSCENE!==CARSCENE0)freeScene(CARSCENE);CARSCENE=S;CARJOB=null}
 /* each frame while driving: coolant leaks from a damaged radiator; with too little coolant the engine runs hot, loses
    power above 125 °C, and seizes after eight seconds above 135 °C. Returns the engine's power, 0 to 1. */
-function carEngine(C,dt){const D=carD(C);if(D.dead||D.fuel<=0||D.refuel)return 0;
+function carEngine(C,dt){const D=carD(C);if(!VEH.engine||D.dead||D.fuel<=0||D.refuel)return 0;
   if(D.radiator>.15)D.coolant=Math.max(0,D.coolant-D.radiator*.022*dt);
   const want=90+Math.max(0,.65-D.coolant)/.65*62+(D.radiator>.6?12:0)+VEH.thr*6*(D.coolant<.5?1:0);D.temp+=(want-D.temp)*Math.min(1,dt*.12);
   if(D.temp>135){D.hot+=dt;if(D.hot>8){D.engine=1;D.dead=true;D.ver++;dashToast("The engine has overheated and seized",3);crashSave();return 0}}else D.hot=Math.max(0,D.hot-dt*.5);
@@ -2666,7 +2694,7 @@ function carExit(){if(CARSEQ||busy)return;const T=townOf(me.town),C=T.car;if(!C|
   const seat=carPt(C,door.seat);driving=false;C.v=0;VEH.gear="P";VEH.ind="off";vehicleLetGo();sndUpdate(false);dashUpdate();
   CAMBL={from:LASTCAM,t0:NOW,dur:.9};cam.x=seat[0];cam.z=seat[2];cam.yaw=Math.atan2(-(p[0]-seat[0]),-(p[2]-seat[2]));VIEW.yaw=C.yaw;SNAPCAM=false;
   CARSEQ={stage:"out",C,t0:NOW,from:[seat[0],seat[2]],to:[p[0],p[2]],msg}}
-function carSeated(C){driving=true;VEH.belt=false;setTimeout(carBase,600);cam.pitch=0;Object.assign(VEH,{gear:"P",orbit:0,lastVY:VIEW.yaw,camPos:null,hand:false,ind:"off"});sndStart();if(!CARL.low)buildCarLights();CAMBL={from:LASTCAM,t0:NOW,dur:.9};
+function carSeated(C){driving=true;VEH.belt=false;setTimeout(carBase,600);cam.pitch=0;Object.assign(VEH,{gear:"P",orbit:0,lastVY:VIEW.yaw,camPos:null,hand:false,ind:"off",engine:false,engHint:0});sndStart();if(!CARL.low)buildCarLights();CAMBL={from:LASTCAM,t0:NOW,dur:.9};
   const D=carD(C);if(D.shop){D.shop=false;crashSave()}
   toast(touch?"Driving: hold GO to drive and BRAKE to stop; drag the wheel to steer. Tap R to reverse. Stop, then tap the door to get out.":"Driving: W go, S brake, A and D steer, Space handbrake. Gears 1 to 4: P R N D. Q and R indicators, G hazards, H lights, C camera, F horn. Stop, then E or the door to get out.")}
 // each frame of the sequence: the way to walk (a direction), or null while standing, turning or stepping in or out
@@ -2694,11 +2722,10 @@ function carUIPlace(el,p,VP,w,h,label){const x=VP[0]*p[0]+VP[4]*p[1]+VP[8]*p[2]+
   if(q<=.1){el.hidden=true;return}const sx=(x/q*.5+.5)*w,sy=(1-(y/q*.5+.5))*h;if(sx<-40||sx>w+40||sy<-40||sy>h+40){el.hidden=true;return}
   el.hidden=false;el.style.left=Math.round(sx)+"px";el.style.top=Math.round(sy)+"px";if(label){const s=el.querySelector("span");if(s.textContent!==label)s.textContent=label}}
 function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,CARUI.fuel];CARUI.near=false;
-  if(scene!=="town"||flying||busy||choosing||mapOpen||talking||CARSEQ){for(const b of all)b.hidden=true;return}
+  if(scene!=="town"||flying||busy||choosing||mapOpen||talking||CARSEQ||TOW){for(const b of all)b.hidden=true;return}
   const C=T.car;let door=false,cond=false,bay=false;
   if(C){const dr=carDoors(C).driver,hp=carPt(C,dr.handle),D=C.dmg;
-    if(driving){if(Math.abs(C.v)<.3){carUIPlace(CARUI.door,hp,VP,w,h,"Get Out");door=true}}
-    else{if(Math.hypot(hp[0]-cam.x,hp[2]-cam.z)<=2.5){carUIPlace(CARUI.door,hp,VP,w,h,D&&D.job?"Under repair: "+mmss(D.job.until-Date.now()):"Get In");door=true;CARUI.near=true}
+    if(!driving){if(Math.hypot(hp[0]-cam.x,hp[2]-cam.z)<=2.5){const el=CARUI.door,s=el.querySelector("span"),lb=D&&D.job?"In repair "+mmss(D.job.until-Date.now()):"Get In";el.hidden=false;if(s.textContent!==lb)s.textContent=lb;door=true;CARUI.near=true}
       if(Math.hypot(C.x-cam.x,C.z-cam.z)<5.5){carUIPlace(CARUI.cond,[C.x,1.75,C.z],VP,w,h);cond=true}}}
   const W=T.workshop;if(W&&!driving&&Math.hypot(W.x-cam.x,W.z-cam.z)<7.5){carUIPlace(CARUI.bay,[W.x-W.fx*1.2,2.2,W.z-W.fz*1.2],VP,w,h);bay=true}
   let fuel=false;const pump=C&&stationPump(T,C);if(pump&&Math.abs(C.v)<.3&&(driving||Math.hypot(C.x-cam.x,C.z-cam.z)<5)){carUIPlace(CARUI.fuel,[pump.p[0],1.9,pump.p[1]],VP,w,h,C.dmg&&C.dmg.refuel?"Refuelling...":"Refuel");fuel=true}
@@ -2755,14 +2782,14 @@ async function payService(amount,state,reason){if(typeof AUTH==="undefined"||!AU
 
 /* ---- repairs: each damaged part, priced and timed from its damage, or everything at once. Prices in kobo-free
    naira at full damage, and minutes of real time at full damage. ---- */
-const REPAIRS=[["engine","Engine",1800000,12],["chassis","Chassis straightening",1200000,10],["susp","Suspension",520000,7],["radiator","Radiator",260000,5],
-  ["bumperF","Front bumper",180000,4],["bumperR","Rear bumper",150000,3],["bonnet","Bonnet",220000,4],["grille","Grille",90000,2],["trunk","Boot lid",160000,3],
-  ["sideL","Left side panels",240000,5],["sideR","Right side panels",240000,5],["under","Underbody",200000,4]];
-function repairItems(D){const L=[];for(const[k,name,price,mins]of REPAIRS){const v=D[k]||0;if(v<.03)continue;L.push({k,name,price:Math.max(5000,Math.round(price*v/500)*500),mins:Math.max(1,Math.round(mins*v))})}
-  for(const[k,name]of[["hlL","Left headlight"],["hlR","Right headlight"],["tlL","Left tail light"],["tlR","Right tail light"]])if(D[k])L.push({k,name,price:k[0]==="h"?85000:45000,mins:k[0]==="h"?2:1});
-  for(let i=0;i<4;i++)if(D.flat[i]||D.tyre[i]>.25)L.push({k:"ty"+i,name:"New tyre, "+TYRENAME[i]+(D.flat[i]?" (burst)":""),price:65000,mins:1});
-  if(D.coolant<.97)L.push({k:"coolant",name:"Coolant refill",price:Math.max(3000,Math.round(15000*(1-D.coolant)/500)*500),mins:1});return L}
-const repairFull=L=>({price:Math.round(L.reduce((s,q)=>s+q.price,0)*.9/500)*500,mins:Math.max(1,Math.round(L.reduce((s,q)=>s+q.mins,0)*.7))});
+const REPAIRS=[["engine","Engine",25000,12],["chassis","Chassis straightening",15000,10],["susp","Suspension",7000,7],["radiator","Radiator",4500,5],
+  ["bumperF","Front bumper",3500,4],["bumperR","Rear bumper",3000,3],["bonnet","Bonnet",4000,4],["grille","Grille",1800,2],["trunk","Boot lid",3000,3],
+  ["sideL","Left side panels",4500,5],["sideR","Right side panels",4500,5],["under","Underbody",3500,4]];
+function repairItems(D){const L=[];for(const[k,name,price,mins]of REPAIRS){const v=D[k]||0;if(v<.03)continue;L.push({k,name,price:Math.max(500,Math.round(price*v/100)*100),mins:Math.max(1,Math.round(mins*v))})}
+  for(const[k,name]of[["hlL","Left headlight"],["hlR","Right headlight"],["tlL","Left tail light"],["tlR","Right tail light"]])if(D[k])L.push({k,name,price:k[0]==="h"?2500:1200,mins:k[0]==="h"?2:1});
+  for(let i=0;i<4;i++)if(D.flat[i]||D.tyre[i]>.25)L.push({k:"ty"+i,name:"New tyre, "+TYRENAME[i]+(D.flat[i]?" (burst)":""),price:3500,mins:1});
+  if(D.coolant<.97)L.push({k:"coolant",name:"Coolant refill",price:Math.max(300,Math.round(1500*(1-D.coolant)/100)*100),mins:1});return L}
+const repairFull=L=>({price:Math.round(L.reduce((s,q)=>s+q.price,0)*.9/100)*100,mins:Math.max(1,Math.round(L.reduce((s,q)=>s+q.mins,0)*.7))});
 function repairPanel(){const T=townOf(me.town),W=T.workshop,C=T.car;if(!W)return;choosing=true;const el=document.getElementById("choose");el.hidden=false;const D=C?carD(C):null;
   const inBay=C&&Math.hypot(C.x-W.x,C.z-W.z)<2.2&&Math.abs(C.v)<.3,shell=b=>`<div class="card rpcard"><h1>${esc(W.name)}</h1><p class="cdsub">Repair bay &middot; payments go to the ${esc(W.st)} State account</p>${b}<button class="go ghost" data-stay="1">Close</button></div>`;
   if(D&&D.job){el.innerHTML=shell(`<p>Your car is being repaired: ${esc(D.job.names)}.</p><p class="cdhealth"><b>${mmss(D.job.until-Date.now())}</b><span>until it is ready</span></p><p>You cannot drive it until the work is finished. You can leave and come back; the time keeps running.</p>`);return}
@@ -2789,17 +2816,65 @@ function repairFinish(C){const D=carD(C),J=D.job;if(!J)return;for(const k of J.i
 let jobT=0;function repairTick(){if(NOW-jobT<1)return;jobT=NOW;for(const[st,T]of Object.entries(TOWNS)){const C=T.car;if(!C||!C.dmg||!C.dmg.job)continue;if(Date.now()>=C.dmg.job.until){const J=repairFinish(C);if(st===me.town&&scene==="town")toast("Your car is ready at the "+((T.workshop||{}).name||"workshop")+": "+J.names+".")}}}
 
 /* ---- the tow truck: paid, and it takes the car to the state's workshop (it does not repair it) ---- */
-const towPrice=(C,W)=>Math.max(15000,Math.round((15000+40*Math.hypot(C.x-W.x,C.z-W.z))/500)*500);
+const towPrice=(C,W)=>Math.round((2500+6*Math.hypot(C.x-W.x,C.z-W.z))/100)*100;
 function towCar(){towPanel()}
-function towPanel(){const T=townOf(me.town),C=T.car,W=T.workshop;if(!C||!W)return;choosing=true;const el=document.getElementById("choose");el.hidden=false;
+function towPanel(){const T=townOf(me.town),C=T.car,W=T.workshop;if(!C||!W||TOW)return;choosing=true;const el=document.getElementById("choose");el.hidden=false;
   const there=Math.hypot(C.x-W.x,C.z-W.z)<3;el.innerHTML=`<div class="card rpcard"><h1>Tow truck</h1>${there?`<p>Your car is already at the ${esc(W.name)}.</p>`:`<p>A tow truck takes your car to the ${esc(W.name)}, where you can choose repairs. It does not repair the car.</p>
     <div class="rptot">Price <b>${kfmt(towPrice(C,W))}</b> &middot; paid to the ${esc(W.st)} State account</div><p class="amsg" id="rpMsg"></p><button class="go" data-rp="tow" id="rpPay">Pay and call the tow truck</button>`}<button class="go ghost" data-stay="1">Close</button></div>`}
 async function towGo(){const T=townOf(me.town),C=T.car,W=T.workshop,msg=document.getElementById("rpMsg"),btn=document.getElementById("rpPay");if(!C||!W)return;const price=towPrice(C,W);btn.disabled=true;msg.classList.remove("err");msg.textContent="Paying "+kfmt(price)+"...";
   try{await payService(price,W.st,"Tow truck to "+W.name)}catch(e){msg.textContent=e.message;msg.classList.add("err");btn.disabled=false;return}
   choosing=false;document.getElementById("choose").hidden=true;
-  fadeTo("Tow truck",()=>{if(driving){driving=false;VEH.gear="P";VEH.ind="off";vehicleLetGo();sndUpdate(false);dashUpdate()}CARSEQ=null;
-    C.x=W.x;C.z=W.z;C.yaw=W.yaw;C.v=0;VEH.spin=0;carD(C).shop=true;crashSave(true);cam.x=W.x+W.fx*8.5;cam.z=W.z+W.fz*8.5;cam.yaw=Math.atan2(W.fx,W.fz);VIEW.yaw=cam.yaw;SNAPCAM=true;
+  fadeTo("The tow truck is here",()=>{if(driving){driving=false;VEH.gear="P";VEH.ind="off";VEH.engine=false;vehicleLetGo();sndUpdate(false);dashUpdate()}CARSEQ=null;towStart(T,C,W)})}
+/* ---- the tow truck at work: it pulls up in front of the car, lifts its front wheels and drives it along the roads to the
+   workshop, with the driver at the wheel and you in the passenger seat. The camera rides alongside. Skip jumps to the end. ---- */
+let TOWTRUCK=null,TOW=null;
+function towTruckScene(){if(TOWTRUCK)return TOWTRUCK;const keep=[BAKE,CLEAR_GLASS,CELL];BAKE=null;CLEAR_GLASS=false;CELL=0;reset();
+  // built facing +z, 2.3 m wide and 7 m long, standing on the ground at its middle; the driver sits on the left (+x)
+  const Y="#f2b705",DK="#1f2937",ST="#c9ced6",GL="#9cc3dc",P=K.gold;       // painted steel
+  const wheel=(x,z)=>{const r=.48,w=.34,n=12,c=hex("#15181d"),h=hex("#9aa3ad"),s=x>0?1:-1;for(let k=0;k<n;k++){const a=k/n*6.2832,b=(k+1)/n*6.2832,P=(xx,t,rr)=>[xx,.48+Math.sin(t)*rr,z+Math.cos(t)*rr];
+      quad(P(x-w/2,a,r),P(x-w/2,b,r),P(x+w/2,b,r),P(x+w/2,a,r),c);const o=x+s*w/2;tri([o,.48,z],P(o,s>0?a:b,r),P(o,s>0?b:a,r),c);tri([o,.48,z],P(o,s>0?a:b,.22),P(o,s>0?b:a,.22),h)}};
+  box(0,.42,-.3,1.9,.28,6.6,DK);                                                                      // the frame
+  box(0,.7,3.05,2.24,.8,.95,Y,P);box(0,.95,3.53,1.7,.45,.03,"#0d0f12");for(const s of[-1,1])box(s*.82,1.05,3.54,.36,.16,.03,"#fffbe6",K.glow);box(0,.42,3.55,2.3,.3,.18,ST);   // bonnet, grille, lamps, bumper
+  // the cab, open inside: floor, doors, back wall, dashboard, corner pillars and roof; the passenger's window is wound down
+  box(0,.7,1.75,2.3,.12,1.65,Y,P);for(const s of[-1,1]){box(s*1.12,.7,1.75,.06,.6,1.65,Y,P);for(const z of[.95,2.55])box(s*1.12,1.3,z,.08,1.15,.08,Y,P)}
+  box(0,.7,.95,2.3,1.75,.06,Y,P);box(0,.7,2.55,2.3,.6,.06,Y,P);box(0,1.05,2.33,2.1,.25,.38,"#16181d");box(0,2.45,1.75,2.3,.1,1.71,Y,P);
+  for(const s of[-1,1]){box(s*.5,.82,1.35,.7,.38,.62,"#23272e",K.fabric);box(s*.5,1.2,1.06,.7,.75,.12,"#23272e",K.fabric)}cyl(.5,1.3,2.05,.19,.04,"#111827",12);
+  box(0,1.3,2.57,2.16,1.12,.02,GL,K.glass);box(1.13,1.3,1.75,.02,.95,1.5,GL,K.glass);                  // windscreen and the driver's window
+  box(0,2.55,1.75,1.7,.14,.32,"#f59e0b",K.glow);                                                      // the amber light bar
+  box(0,.7,-.95,2.3,.55,3.6,"#2b3440",P);for(const s of[-1,1])box(s*.95,1.25,-.6,.4,.45,2.4,Y,P);           // the deck and tool boxes
+  box(0,1.25,-1.9,.42,1.75,.42,ST,P);box(0,2.95,-2.75,.34,.3,2.1,ST,P);box(0,1.4,-3.75,.04,1.55,.04,"#111827");   // the boom, its arm and the cable
+  box(0,.28,-3.4,.32,.18,1.3,DK);box(0,.24,-4.05,1.9,.16,.28,"#111827");for(const s of[-1,1])box(s*.75,.3,-4.05,.36,.12,.5,"#111827");   // the wheel lift
+  for(const s of[-1,1])box(s*1.0,1.0,-2.8,.12,.3,.05,"#ef4444",K.glow);
+  for(const s of[-1,1]){wheel(s*1.02,2.75);wheel(s*1.02,-1.55);wheel(s*1.02,-2.55)}
+  for(const s of[-1,1])at(s*1.162,1.75,s*Math.PI/2,()=>sign(0,-.85,0,1.3,.32,"DELTA TOW","#14263D","#f2b705"));
+  at(0,-3.1,Math.PI,()=>sign(0,1.25,0,1.2,.3,"TOWING","#14263D","#f2b705"));
+  TOWTRUCK=upload();TOWTRUCK.twoSided=true;[BAKE,CLEAR_GLASS,CELL]=keep;return TOWTRUCK}
+// the route along the roads, from just in front of the car to the workshop's gate, with the distance along it
+function towStart(T,C,W){const f=[-Math.sin(C.yaw),-Math.cos(C.yaw)],tx=C.x+f[0]*6.3,tz=C.z+f[1]*6.3,gx=W.x+W.fx*10,gz=W.z+W.fz*10;
+  let P=findRoute(T,tx,tz,gx,gz);P=P.filter((p,i)=>i===0||Math.hypot(p[0]-P[i-1][0],p[1]-P[i-1][1])>.5);const cum=[0];for(let i=1;i<P.length;i++)cum.push(cum[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));
+  towTruckScene();TOW={T,C,W,P,cum,len:cum[cum.length-1],s:0,v:0,yaw:C.yaw,x:tx,z:tz,dir:[f[0],f[1]],t0:NOW,cam:null,done:false};C.v=0;
+  document.getElementById("towSkip").hidden=false}
+const towAt=s=>{const{P,cum}=TOW;s=clamp(s,0,TOW.len);let i=1;while(i<cum.length-1&&cum[i]<s)i++;const L=cum[i]-cum[i-1]||1,u=(s-cum[i-1])/L;return[P[i-1][0]+(P[i][0]-P[i-1][0])*u,P[i-1][1]+(P[i][1]-P[i-1][1])*u]};
+// each frame: the truck follows the route (slower round corners), and the car swings along behind it on the lift
+function towStep(dt){const R=TOW;if(!R||R.done)return;const t=NOW-R.t0;if(t<1.2){towPose();return}       // a moment to hook up
+  const a=towAt(R.s),b=towAt(R.s+7),turn=Math.abs(Math.atan2(Math.sin(Math.atan2(-(b[0]-a[0]),-(b[1]-a[1]))-R.yaw),Math.cos(Math.atan2(-(b[0]-a[0]),-(b[1]-a[1]))-R.yaw))),
+    want=Math.min(11,R.len-R.s<12?2+(R.len-R.s)*.7:11,turn>.35?4.5:11);R.v+=clamp(want-R.v,-6*dt,3*dt);R.s=Math.min(R.len,R.s+R.v*dt);
+  const p=towAt(R.s),q=towAt(R.s+3.2);R.x=p[0];R.z=p[1];if(Math.hypot(q[0]-p[0],q[1]-p[1])>.2){const y=Math.atan2(-(q[0]-p[0]),-(q[1]-p[1]));R.yaw+=Math.atan2(Math.sin(y-R.yaw),Math.cos(y-R.yaw))*Math.min(1,dt*4)}
+  towPose();cam.x=R.x;cam.z=R.z;cam.yaw=R.yaw;if(R.s>=R.len-.05&&R.v<.6)towEnd()}
+function towPose(){const R=TOW,C=R.C,f=[-Math.sin(R.yaw),-Math.cos(R.yaw)],hx=R.x-f[0]*4.05,hz=R.z-f[1]*4.05;
+  let dx=hx-C.x,dz=hz-C.z;const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;C.x=hx-dx*2.15;C.z=hz-dz*2.15;C.yaw=Math.atan2(-dx,-dz);
+  R.carM=mul(mul(trans(C.x,.22,C.z),rotY(C.yaw+Math.PI)),mrotX(-.1));R.truckM=mul(trans(R.x,0,R.z),rotY(R.yaw+Math.PI))}
+function towEnd(){const R=TOW;if(!R||R.done)return;R.done=true;document.getElementById("towSkip").hidden=true;const{C,W}=R;
+  fadeTo(W.name,()=>{TOW=null;C.x=W.x;C.z=W.z;C.yaw=W.yaw;C.v=0;VEH.spin=0;carD(C).shop=true;crashSave(true);cam.x=W.x+W.fx*8.5;cam.z=W.z+W.fz*8.5;cam.yaw=Math.atan2(W.fx,W.fz);VIEW.yaw=cam.yaw;SNAPCAM=true;
     toast("Your car is at the "+W.name+". Go to the repair bay to choose repairs.")})}
+// the camera rides alongside on the passenger side, a little ahead, looking back along the truck to the car
+function towCam(dt){const R=TOW,f=[-Math.sin(R.yaw),-Math.cos(R.yaw)],r=[f[1],-f[0]],want=[R.x+f[0]*3-r[0]*8.5,3.4,R.z+f[1]*3-r[1]*8.5],to=[R.x-f[0]*2.2,1.3,R.z-f[1]*2.2];
+  if(!R.cam)R.cam=want.slice();else for(let i=0;i<3;i++)R.cam[i]+=(want[i]-R.cam[i])*Math.min(1,dt*2.5);return[R.cam.slice(),to]}
+// the people in the cab: the tow driver at the wheel, and you beside the driver
+function towPeople(VP,t){const R=TOW,PM=PLAYERS[me.gender]||PLAYERS.Female,DRV=PLAYERS.Male||PM,pt=(lx,lz)=>{const M=R.truckM;return[M[0]*lx+M[8]*lz+M[12],M[2]*lx+M[10]*lz+M[14]]};
+  for(const[m,lx,c]of[[DRV,.5,"drive"],[PM,-.5,"sit"]]){if(!m)continue;const p=pt(lx,1.55);WALKER.draw(m,VP,p[0],TOWSEAT,p[1],R.yaw,{p:0,run:0,amt:0,sit:1,sitClip:c},t,null,"")}}
+let TOWSEAT=.62;
+{const b=document.getElementById("towSkip");b.addEventListener("pointerdown",e=>e.stopPropagation());b.addEventListener("click",e=>{e.stopPropagation();towEnd()})}
 /* ---- fuel and tyres. The tank holds TANK litres; the engine burns a little at idle and more with speed and throttle,
    and stops when the tank is empty. Each tyre wears with distance and with skids, can be cut or burst in a crash, and
    worn or burst tyres grip less (a burst one pulls the car to its side and limits its speed). Tyres are replaced at
@@ -2809,7 +2884,7 @@ const carBody=D=>(D.bumperF+D.bumperR+D.bonnet+D.grille+D.trunk+D.sideL+D.sideR)
 const carTyres=D=>Math.min(1,D.tyre.reduce((s,v)=>s+v,0)/4+.25*D.flat.reduce((s,v)=>s+v,0));
 let fuelSaveT=0;
 function carUse(C,dt){const D=carD(C),v=Math.abs(C.v);
-  if(D.fuel>0&&!D.dead&&!D.refuel){D.fuel=Math.max(0,D.fuel-(.0012+v*.00016*(.5+VEH.thr))*dt/TANK);if(D.fuel===0){dashToast("Out of fuel. The engine has stopped.",3);crashSave()}}
+  if(VEH.engine&&D.fuel>0&&!D.dead&&!D.refuel){D.fuel=Math.max(0,D.fuel-(.0012+v*.00016*(.5+VEH.thr))*dt/TANK);if(D.fuel===0){VEH.engine=false;dashToast("Out of fuel. The engine has stopped.",3);crashSave()}}
   for(let i=0;i<4;i++)D.tyre[i]=Math.min(1,D.tyre[i]+v*dt/150000+(i>1?1.3:1)*VEH.slip*v*dt*.00005);
   if(NOW-fuelSaveT>15&&v>.5){fuelSaveT=NOW;crashSave()}
   const flats=D.flat.reduce((s,f)=>s+f,0);return{grip:1-.35*D.tyre.reduce((s,v)=>s+v,0)/4-.22*flats,pull:((D.flat[1]+D.flat[3])-(D.flat[0]+D.flat[2]))*.07,vmax:flats?.55:1}}
@@ -2949,7 +3024,7 @@ const DOORWAYS={treasury:()=>{if(!allowed(TRS_ALL)){toast("The National Treasury
   villa1:()=>allowed(VILLA3)?toGov("villa","villa1"):toast(GOV_SPEC.villa().noEntry),villa2:()=>allowed(VILLA3)?toGov("villa","villa2"):toast(GOV_SPEC.villa().noEntry)};
 let doorCool=0;
 function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.016,dt=Math.min(.05,real);last=t;NOW=t;updateLight();
-  document.body.classList.toggle("driving",driving);dpad.hidden=!(driving&&touch);clockTick();if(frames%3===0)dashUpdate();if(!driving)sndUpdate(false);
+  document.body.classList.toggle("driving",driving);document.body.classList.toggle("towing",!!TOW);dpad.hidden=!(driving&&touch);clockTick();if(frames%3===0)dashUpdate();if(!driving)sndUpdate(false);
   if(scene==="town"&&LIGHT.night>0){const T0=townOf(me.town),hl=carHeadlightLamps(T0.car),L=dynLamps(T0).map(p=>[p,(p[0]-cam.x)**2+(p[2]-cam.z)**2]).sort((a,b)=>a[1]-b[1]).slice(0,12-hl.length);LIGHT.lamps.fill(0);hl.forEach((p,i)=>LIGHT.lamps.set(p,i*4));L.forEach(([p],i)=>LIGHT.lamps.set([p[0],p[1],p[2],1],(i+hl.length)*4))}
   /* ---- moving on foot ----
      W and S move along the way the camera faces (flattened onto the ground), A and D to its side; together they move
@@ -2958,7 +3033,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
      backwards and A and D sidestep. Jumping and height are kept apart from the step across the ground. */
   dtNow=dt;let ix=clamp(input.x+(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),-1,1),iy=clamp(input.y+(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0),-1,1);
   {const m=Math.hypot(ix,iy);if(m>1){ix/=m;iy/=m}}
-  let eye,to;const T=scene==="town"?townOf(me.town):null,PM=PLAYERS[me.gender]||PLAYERS.Female,body=scene==="town"?cam:me,frozen=busy||talking||choosing||mapOpen;
+  let eye,to;const T=scene==="town"?townOf(me.town):null,PM=PLAYERS[me.gender]||PLAYERS.Female,body=scene==="town"?cam:me,frozen=busy||talking||choosing||mapOpen||!!TOW;
   if(SNAPCAM){VEL.x=VEL.z=0;VIEW.yaw=body.yaw;VIEW.pitch=clamp(VIEW.keepPitch??-.12,CAMCFG.pitchMin,CAMCFG.pitchMax);VIEW.snap=true;SNAPCAM=false}
   if(frozen&&document.pointerLockElement)document.exitPointerLock();
   if(jump.t>=0){jump.t+=dt;jump.y+=jump.v*dt;jump.v-=9.8*dt;if(jump.y<=0){jump.y=0;jump.t=-1}}
@@ -3007,8 +3082,8 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   const fly=scene==="town",indoor=scene==="bank"||scene==="imm"||scene==="gov"||scene==="hosp"||scene==="trs",fovNow=fly?(w>h?.85:1.05):(w>h?1.05:1.25),PMs=PLAYERS[me.gender]||PLAYERS.Female;
   // the sun's picture first: the town near you, the car, and your own character all cast shadows
   if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE)lists.push([CARSCENE.bufs,carModel(T.car)]);dynShadows(T,lists,cam.x,cam.z);
-    shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing){gl.colorMask(true,true,true,true);WALKER.draw(PMs,lvp,cam.x,TGY+jump.y,cam.z,cam.yaw,gait,t,null,"");gl.colorMask(false,false,false,false)}})}
-  if(scene==="town"){[eye,to]=carCamBlend(eye,to);LASTCAM=[eye.slice(),to.slice()]}else{CAMBL=null;LASTCAM=null}
+    shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing&&!TOW){gl.colorMask(true,true,true,true);WALKER.draw(PMs,lvp,cam.x,TGY+jump.y,cam.z,cam.yaw,gait,t,null,"");gl.colorMask(false,false,false,false)}})}
+  if(scene==="town"){[eye,to]=carCamBlend(eye,to);LASTCAM=[eye.slice(),to.slice()]}if(TOW&&scene==="town"){towStep(dt);[eye,to]=towCam(dt)}else{CAMBL=null;LASTCAM=null}
   gl.viewport(0,0,cv.width,cv.height);const VP=mul(persp(fovNow,w/h,fly?.25:.08,800),look(eye,to,[0,1,0]));if(scene==="town")carUI(T,VP,w,h);else if(CARUI.door)carUI(T,VP,w,h);
   gl.clearColor(LIGHT.fog[0],LIGHT.fog[1],LIGHT.fog[2],1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);if(!indoor)drawSky(eye,to,fovNow,w/h);
   if(T)GROUND.zones=T.map.lawnZones||[];
@@ -3020,9 +3095,10 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   if(scene==="town"&&T.car&&CARSCENE&&!(driving&&VEH.cam===2)){CARSCENE.model=carModel(T.car);       /* from the driver's seat the body is hidden until cars with interiors arrive */
     CARSCENE.fogFar=flying?1500:150;CARSCENE.twoSided=!(driving&&VEH.cam===2);drawScene(CARSCENE,VP,eye,false);for(const L of carLamps(driving)){L.model=CARSCENE.model;L.fogFar=CARSCENE.fogFar;drawScene(L,VP,eye,false)}}
     if(scene==="town")dynDraw(T,VP,eye);
-  {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing;      // your own character, seen from behind
+    if(TOW&&TOW.truckM&&scene==="town"){TOWTRUCK.model=TOW.truckM;TOWTRUCK.fogFar=150;drawScene(TOWTRUCK,VP,eye,false);towPeople(VP,t)}
+  {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing&&!TOW;      // your own character, seen from behind
     if(show){const town=scene==="town";WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:me.y)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"")}}
-  for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE&&!(driving&&VEH.cam===2))drawSceneClear(CARSCENE,VP,eye,t);
+  for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE&&!(driving&&VEH.cam===2))drawSceneClear(CARSCENE,VP,eye,t);if(TOW&&TOW.truckM&&scene==="town")drawSceneClear(TOWTRUCK,VP,eye,t);
   if(scene==="town"&&frames%3===0)drawMini(T);document.getElementById("mini").hidden=scene!=="town"||choosing;
   frames++;acc+=real;if(acc>=.5){const fps=frames/acc;document.getElementById("fps").textContent=Math.round(fps);frames=0;acc=0;let tris2=0;const tris=scene==="town"?0:parts.reduce((s,S)=>s+S.tris,0)+(scene==="imm"?15450:0);
     if(scene==="town")tris2=parts.reduce((s,S)=>s+S.bufs.concat(S.clear).reduce((q,x)=>q+x.n/3,0),0);const info=document.getElementById("info");info.textContent=({town:me.town,border:"The border gate",bank:"Inside "+STATES[me.town].bank,imm:"Inside Immigration",gov:GV?GV.title:"",hosp:HV?HV.title:"",trs:"Inside the National Treasury"})[scene]+", "+Math.round((scene==="town"?tris2:tris)/1000)+"k triangles, "+cv.width+"x"+cv.height;info.appendChild(document.createElement("br"));info.appendChild(document.createTextNode(GPU));
@@ -3288,7 +3364,7 @@ const signUp=(email,password)=>supa("/auth/v1/signup",{method:"POST",body:{email
 async function loadCitizen(){await freshToken();const rows=await supa("/rest/v1/characters?select=*&owner=eq."+AUTH.user.id,{auth:true});return rows&&rows[0]||null}
 async function registerOnServer(c){await freshToken();return supa("/rest/v1/rpc/register_citizen",{method:"POST",auth:true,body:{p_name:c.name,p_dob:c.dob,p_gender:c.gender,p_state:c.state,p_look:me.outfit||""}})}
 let lastSave=0,saving=false;
-async function saveNow(final){if(!AUTH.char||saving||scene!=="town"||driving||flying)return;saving=true;const pos={x:+cam.x.toFixed(2),z:+cam.z.toFixed(2),yaw:+cam.yaw.toFixed(3)};
+async function saveNow(final){if(!AUTH.char||saving||scene!=="town"||driving||flying||TOW)return;saving=true;const pos={x:+cam.x.toFixed(2),z:+cam.z.toFixed(2),yaw:+cam.yaw.toFixed(3)};
   try{await freshToken();await supa("/rest/v1/characters?owner=eq."+AUTH.user.id,{method:"PATCH",auth:true,keepalive:!!final,headers:{Prefer:"return=minimal"},body:{town:me.town,pos,updated_at:new Date().toISOString()}});AUTH.char.town=me.town;AUTH.char.pos=pos}catch(e){}saving=false}
 setInterval(()=>{if(Date.now()-lastSave>15000){lastSave=Date.now();saveNow(false)}},3000);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")saveNow(true)});
