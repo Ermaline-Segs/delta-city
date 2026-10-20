@@ -87,7 +87,15 @@ body.driving .hud{display:none}
 }
 @media (orientation:landscape) and (max-height:430px){.dcond{display:none}.dleft{flex-direction:row}}
 .wbtn{position:fixed;z-index:4;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px;padding:5px 12px 5px 5px;border-radius:24px;border:2px solid rgba(255,255,255,.9);background:rgba(15,31,51,.78);color:#fff;font:700 13.5px system-ui,sans-serif;white-space:nowrap;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.wbtn svg{width:30px;height:30px;padding:4px;border-radius:50%;background:#FBBF24;color:#14263D;box-sizing:border-box}
+.wbtn svg{width:28px;height:28px;padding:4px;border-radius:50%;background:#FBBF24;color:#14263D;box-sizing:border-box}.wbtn{transition:opacity .2s}
+.wtag{position:fixed;z-index:4;transform:translate(-50%,-100%);display:flex;align-items:center;gap:8px;padding:5px 10px 5px 5px;max-width:min(78vw,300px);border-radius:12px;background:rgba(12,22,38,.82);border:1px solid rgba(255,255,255,.22);color:#fff;font:600 12.5px/1.25 system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.28);backdrop-filter:blur(3px);transition:opacity .2s,transform .2s;pointer-events:none;margin-top:-8px}
+.wtag.tap{pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent}.wtag::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:rgba(12,22,38,.82)}
+.wtag .ti{font-style:normal;font-size:16px;width:26px;height:26px;display:grid;place-items:center;border-radius:8px;background:rgba(255,255,255,.12);flex:none}.wtag .tb{display:grid;gap:2px;min-width:0}
+.wtag .tt{font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wtag .ts{font-weight:500;font-size:11px;opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wtag .tp{display:block;height:3px;border-radius:2px;background:rgba(255,255,255,.18);overflow:hidden;margin-top:1px}.wtag .tp u{display:block;height:100%;background:#FBBF24;transition:width .4s}.wtag .tp[hidden]{display:none}
+.wtag .tpc{font-size:12px;font-variant-numeric:tabular-nums;color:#FBBF24;flex:none}.wtag .tpc:empty{display:none}.wtag.tin{opacity:0!important;transform:translate(-50%,-90%)}.wtag.chg .tt{animation:tagchg .35s}@keyframes tagchg{from{opacity:.2}to{opacity:1}}
+.wbtn:not(#doorBtn){border:1px solid rgba(255,255,255,.3);background:rgba(12,22,38,.82);box-shadow:0 4px 14px rgba(0,0,0,.28);font-weight:600}
+@media (max-width:520px){.wtag{max-width:70vw;padding:4px 8px 4px 4px}.wtag .ti{width:22px;height:22px;font-size:14px}}
 .cdsub{margin:-4px 0 10px;opacity:.75;font-size:14px}.vlist{margin:8px 0;text-align:left}.vrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:14px}.vrow small{display:block;opacity:.75;font-size:12.5px;margin-top:2px}.vbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.vtag{background:#b8860b;color:#fff;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700}.admsp{display:flex;align-items:center;gap:6px;font-size:13px}.cdhealth{display:flex;align-items:baseline;gap:8px;margin:6px 0 8px}.cdhealth b{font-size:34px;font-variant-numeric:tabular-nums}.cdhealth span{opacity:.75}
 .cdwarn{margin:4px 0 12px;padding-left:20px;color:#b42318;font-weight:700;font-size:14px;text-align:left}.cdok{color:#15803d;font-weight:700;margin:4px 0 10px}
 .cdrow{display:grid;grid-template-columns:1fr minmax(80px,140px) 92px;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px;text-align:left}.cdrow b{text-align:right;font-variant-numeric:tabular-nums}
@@ -2399,7 +2407,7 @@ function vehicleCam(C,wallAt,dt){if(VEH.lastVY===null)VEH.lastVY=VIEW.yaw;const 
    Damage stays until repaired: street objects, wall marks and fallen trees are put right CRASH.REPAIR seconds (of real
    time) after they were damaged, and a car is repaired by calling the tow truck. Both are kept in this browser, so
    they survive a reload. Damage is seen only by the player who caused it, until the game has shared multiplayer state. */
-const CRASH={MASS:1400,SEV:[4.5,9,14],REPAIR:1800,COOL:.35,KEY:"dc_crash_v1",
+const CRASH={SOFT:.75,MASS:1400,SEV:[4.5,9,14],REPAIR:1800,COOL:.35,KEY:"dc_crash_v1",
   // fixed geometry, by tag. rigid: how little it gives (1: not at all). w: how wide the contact is on the car's front (m).
   fixed:{wall:{name:"building wall",mat:"concrete",e:.12,w:1.6,marks:true},cwall:{name:"compound wall",mat:"masonry",e:.1,w:1.6,marks:true},
     kerb:{name:"kerb fence",mat:"concrete",e:.08,w:1.6,low:true,marks:true},fallen:{name:"fallen pole",mat:"steel",e:.05,w:1.6,low:true}},
@@ -2471,7 +2479,7 @@ const clamp01=v=>v<0?0:v>1?1:v;
 /* apply an impact to the car: dv is the change in its speed (m/s) the blow caused, ct where and how it landed:
    zone F (front), R (rear), L or R side (local x: + is the car's left), the contact width w, low for things under the bumper.
    Returns what was damaged, in words. */
-function crashCar(C,dv,ct){const D=carD(C),was=JSON.stringify(D),s=dv,add=(k,v)=>{D[k]=clamp01(D[k]+Math.max(0,v))},narrow=ct.w<.6?1.35:ct.w<1.3?1:.8,said=[];
+function crashCar(C,dv,ct){const D=carD(C),was=JSON.stringify(D),s=dv*CRASH.SOFT,add=(k,v)=>{D[k]=clamp01(D[k]+Math.max(0,v))},narrow=ct.w<.6?1.35:ct.w<1.3?1:.8,said=[];
   if(s<.6)return"";
   if(ct.zone==="F"){add("bumperF",.04+(s-.8)*.09);add("grille",(s-3)*.09*(ct.low?.7:1));add(ct.low?"under":"bonnet",ct.low?(s-2)*.1:(s-3.5)*.08);if(ct.low)add("bonnet",(s-7)*.05);
     for(const[k,side]of[["hlL",1],["hlR",-1]])if(!D[k]&&s>(ct.low?7:4.5)&&(ct.x*side>.2||s>(ct.w>1?6:8.5)))D[k]=1;
@@ -2582,14 +2590,14 @@ function carSim(T,dt){const C=T.car;DMG.rough=0;DMG.flick=false;if(!C||!C.dmg)re
   // a fire warning that cannot be missed while sitting in a burning car
   const fw=document.getElementById("fireWarn");if(fw){const on=driving&&D.fire>0;if(fw.hidden===on)fw.hidden=!on}
   // leaks and their consequences
-  if(D.oilLeak>.1&&D.oil>0){D.oil=Math.max(0,D.oil-D.oilLeak*(run?.0025:.0005)*dt);changed=true}
-  if(run&&D.oil<.25){D.engine=Math.min(1,D.engine+(.25-D.oil)*.02*dt);if(D.engine>=.85&&!D.dead){D.dead=true;D.ver++;dashToast("The engine has seized: it ran without oil",3.2)}changed=true}
-  if(D.fuelLeak>.12&&D.fuel>0){D.fuel=Math.max(0,D.fuel-D.fuelLeak*.0006*dt);changed=true}
+  if(D.oilLeak>.1&&D.oil>0){D.oil=Math.max(0,D.oil-D.oilLeak*(run?.0015:.0003)*dt);changed=true}
+  if(run&&D.oil<.25){D.engine=Math.min(1,D.engine+(.25-D.oil)*.01*dt);if(D.engine>=.85&&!D.dead){D.dead=true;D.ver++;dashToast("The engine has seized: it ran without oil",3.2)}changed=true}
+  if(D.fuelLeak>.12&&D.fuel>0){D.fuel=Math.max(0,D.fuel-D.fuelLeak*.00036*dt);changed=true}
   if(!run)D.temp+=(32-D.temp)*Math.min(1,dt*.006);
   // fire: grows while untreated, stops the car, and in the end burns itself out
-  if(D.fire>0){const was=D.fire;if(D.fireT<150){D.fire=Math.min(1,D.fire+dt*(.004+.012*D.fuelLeak+(D.fuel>.05?.002:0)));if(D.fire>=.97)D.fireT=(D.fireT||0)+dt}
+  if(D.fire>0){const was=D.fire;if(D.fireT<150){D.fire=Math.min(1,D.fire+dt*(.0025+.007*D.fuelLeak+(D.fuel>.05?.0012:0)));if(D.fire>=.97)D.fireT=(D.fireT||0)+dt}
     else{D.fire=Math.max(0,D.fire-dt*.012);if(D.fire===0){D.burnt=1;D.dead=true;D.elec=1;D.ver++;toast("The fire has burnt itself out. The car is a burnt wreck: it needs the workshop.")}}
-    D.engine=Math.min(1,D.engine+dt*.006*D.fire);D.elec=Math.min(1,D.elec+dt*.01*D.fire);if(D.fire>.5&&!D.dead){D.dead=true;dashToast("The fire has spread: the car cannot be driven",3)}
+    D.engine=Math.min(1,D.engine+dt*.0036*D.fire);D.elec=Math.min(1,D.elec+dt*.01*D.fire);if(D.fire>.5&&!D.dead){D.dead=true;dashToast("The fire has spread: the car cannot be driven",3)}
     if((was<.3&&D.fire>=.3)||(was<.65&&D.fire>=.65))D.ver++;changed=true}
   else if(D.fuelLeak>.35&&driving&&v>3&&(D.under>.5||D.flat.some(f=>f))&&Math.random()<dt*.02*D.fuelLeak){fireStart(C,"Leaking fuel caught fire from the sparks")}
   if(changed&&NOW-dmgSaveT>5){dmgSaveT=NOW;crashSave()}
@@ -2667,7 +2675,7 @@ function carMesh(C){const D=C&&C.dmg;if(!CARSCENE0)CARSCENE0=CARSCENE;if(!D||!D.
 function carEngine(C,dt){const D=carD(C);if(!VEH.engine||D.dead||D.fuel<=0||D.refuel)return 0;
   if(D.radiator>.15)D.coolant=Math.max(0,D.coolant-D.radiator*.022*dt);
   const want=90+Math.max(0,.65-D.coolant)/.65*62+(D.radiator>.6?12:0)+VEH.thr*6*(D.coolant<.5?1:0);D.temp+=(want-D.temp)*Math.min(1,dt*.12);
-  if(D.temp>135){D.hot+=dt;if(D.hot>8){D.engine=1;D.dead=true;D.ver++;dashToast("The engine has overheated and seized",3);crashSave();return 0}}else D.hot=Math.max(0,D.hot-dt*.5);
+  if(D.temp>135){D.hot+=dt;if(D.hot>14){D.engine=1;D.dead=true;D.ver++;dashToast("The engine has overheated and seized",3);crashSave();return 0}}else D.hot=Math.max(0,D.hot-dt*.5);
   if(D.elec>=.92||D.fire>.5)return 0;
   return (1-.72*D.engine)*(D.temp>125?.5:1)*(D.oil<.3?.55+1.5*D.oil:1)*(NOW<DMG.misfire?.15:1)}
 // the tow truck: the car is taken away, repaired, and brought back to where it stood
@@ -2891,22 +2899,62 @@ function carUIInit(){if(CARUI.door)return;const mk=(id,svg,label,fn)=>{const b=d
   CARUI.door=mk("doorBtn",ico('<path d="M5 20V9l5-5h9v16z"/><path d="M5 11h14"/><path d="M14 15h3"/><path d="M10 4v7"/>'),"Get In",()=>driving?carExit():carEnter());
   CARUI.cond=mk("condBtn",ico('<path d="M3 16v-3l2-5h14l2 5v3H3z"/><circle cx="7.5" cy="16.5" r="1.8"/><circle cx="16.5" cy="16.5" r="1.8"/><path d="M12 9.5v3"/>'),"Car condition",carPanel);
   CARUI.fuel=mk("fuelBtn",ico('<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8l3 2v8a1.5 1.5 0 0 0 3 0v-7l-3-3"/>'),"Refuel",refuelPanel);
-  CARUI.job=mk("jobTag",ico('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>')," ",()=>repairPanel());
+  CARUI.job=tagMake("jobTag",()=>repairPanel());CARUI.veh=tagMake("vehTag",()=>carPanel());
   CARUI.park=mk("parkBtn",ico('<rect x="4" y="3" width="16" height="18" rx="3"/><path d="M10 17V8h3a2.5 2.5 0 0 1 0 5h-3"/>'),"Car park",()=>{const P=garNear(townOf(me.town));if(P)garPanel(P)});
   CARUI.bay=mk("bayBtn",ico('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>'),"Repair bay",repairPanel)}
-function carUIPlace(el,p,VP,w,h,label){const x=VP[0]*p[0]+VP[4]*p[1]+VP[8]*p[2]+VP[12],y=VP[1]*p[0]+VP[5]*p[1]+VP[9]*p[2]+VP[13],q=VP[3]*p[0]+VP[7]*p[1]+VP[11]*p[2]+VP[15];
-  if(q<=.1){el.hidden=true;return}const sx=(x/q*.5+.5)*w,sy=(1-(y/q*.5+.5))*h;if(sx<-40||sx>w+40||sy<-40||sy>h+40){el.hidden=true;return}
-  el.hidden=false;el.style.left=Math.round(sx)+"px";el.style.top=Math.round(sy)+"px";if(label){const s=el.querySelector("span");if(s.textContent!==label)s.textContent=label}}
-function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,CARUI.fuel,CARUI.job,CARUI.park];CARUI.near=false;
+/* ---- floating tags: one system for everything that follows a thing in the world (the repair job, the car's status, the
+   Refuel / Repair bay / Car park buttons). Each frame the tags asked for are projected, hidden when behind the camera,
+   behind a building or too far, kept clear of the HUD and the controls, nudged apart so they do not overlap (the more
+   important first), and eased into place so they do not jitter. ---- */
+const TAGS={req:[],avoid:[],avoidT:-1e9,occ:new Map()};
+// every frame: a tag asks to be shown at p (world point); o: {prio, max (metres), label, status}
+function carUIPlace(el,p,VP,w,h,label,o){o=o||{};const x=VP[0]*p[0]+VP[4]*p[1]+VP[8]*p[2]+VP[12],y=VP[1]*p[0]+VP[5]*p[1]+VP[9]*p[2]+VP[13],q=VP[3]*p[0]+VP[7]*p[1]+VP[11]*p[2]+VP[15];
+  if(label&&!el.classList.contains("wtag")){const s=el.querySelector("span");if(s&&s.textContent!==label)s.textContent=label}
+  if(q<=.1){el.hidden=true;return}const sx=(x/q*.5+.5)*w,sy=(1-(y/q*.5+.5))*h;if(sx<-60||sx>w+60||sy<-60||sy>h+60){el.hidden=true;return}
+  const d=Math.hypot(p[0]-cam.x,p[2]-cam.z),max=o.max||60;if(d>max){el.hidden=true;return}
+  if(!tagSeen(p)){el.hidden=true;return}
+  TAGS.req.push({el,sx,sy,prio:o.prio||0,fade:d>max*.75?1-(d-max*.75)/(max*.25):1})}
+// is the point hidden from the camera by a building? (only big footprints count, so a lamp post never hides a tag)
+function tagSeen(p){const T=scene==="town"?townOf(me.town):null,E=LASTCAM&&LASTCAM[0];if(!T||!E)return true;
+  const ex=E[0],ez=E[2],dx=p[0]-ex,dz=p[2]-ez,L=Math.hypot(dx,dz);if(L<3)return true;
+  for(const b of T.blocks){if(b[2]-b[0]<3||b[3]-b[1]<3)continue;if(ex>b[0]&&ex<b[2]&&ez>b[1]&&ez<b[3])continue;if(p[0]>b[0]-.5&&p[0]<b[2]+.5&&p[2]>b[1]-.5&&p[2]<b[3]+.5)continue;
+    // the segment from the eye to the point (stopping a metre short) against the footprint
+    let t0=0,t1=(L-1)/L;for(const[a,da,lo,hi]of[[ex,dx,b[0],b[2]],[ez,dz,b[1],b[3]]]){if(Math.abs(da)<1e-6){if(a<lo||a>hi){t1=-1;break}continue}let u=(lo-a)/da,v=(hi-a)/da;if(u>v)[u,v]=[v,u];t0=Math.max(t0,u);t1=Math.min(t1,v);if(t0>t1)break}
+    if(t0<=t1)return false}return true}
+// the HUD's own boxes (map, buttons, money, the driving controls...), read twice a second
+function tagAvoid(){if(NOW-TAGS.avoidT<.5)return TAGS.avoid;TAGS.avoidT=NOW;const out=[];
+  for(const e of document.body.querySelectorAll("body > *:not(canvas):not(script):not(.wbtn):not(.wtag):not(#choose)")){if(e.hidden||e.offsetParent===null&&getComputedStyle(e).position!=="fixed")continue;
+    const r=e.getBoundingClientRect();if(r.width<4||r.height<4||r.width>innerWidth*.8&&r.height>innerHeight*.5)continue;out.push([r.left-6,r.top-6,r.right+6,r.bottom+6])}
+  return TAGS.avoid=out}
+const tagHit=(a,b)=>a[0]<b[2]&&a[2]>b[0]&&a[1]<b[3]&&a[3]>b[1];
+// lay the frame's tags out: most important first, each at its own spot or the nearest free one just above or below it
+function tagLayout(){const R=TAGS.req;TAGS.req=[];R.sort((a,b)=>b.prio-a.prio);const placed=[],avoid=tagAvoid();
+  for(const t of R){const el=t.el;if(el.hidden){el.hidden=false;el.classList.add("tin");el._x=t.sx;el._y=t.sy;requestAnimationFrame(()=>el.classList.remove("tin"))}
+    const W=el.offsetWidth||120,H=el.offsetHeight||34,box=(x,y)=>[x-W/2,y-H/2,x+W/2,y+H/2];let best=null;
+    for(const dy of[0,-(H+6),H+6,-2*(H+6),2*(H+6)]){const b=box(t.sx,t.sy+dy);if(b[1]<4||b[3]>innerHeight-4)continue;if(placed.some(q=>tagHit(q,b)))continue;if(avoid.some(q=>tagHit(q,b)))continue;best=[t.sx,t.sy+dy];break}
+    if(!best){if(t.prio>=5)best=[t.sx,t.sy];else{el.hidden=true;continue}}       // nowhere clear: a button still shows, a status tag waits
+    // eased into place (a big jump, such as a camera cut, snaps)
+    const k=Math.hypot(best[0]-el._x,best[1]-el._y)>140?1:.35;el._x+=(best[0]-el._x)*k;el._y+=(best[1]-el._y)*k;placed.push(box(el._x,el._y));
+    el.style.left=Math.round(el._x)+"px";el.style.top=Math.round(el._y)+"px";el.style.opacity=t.fade.toFixed(2)}}
+// a status tag's content: an icon, the activity and its target, the detail, and progress (0..1, or null)
+function tagSet(el,icon,title,sub,pct){const k=icon+"|"+title;if(el._k!==k){el._k=k;el.querySelector(".ti").textContent=icon;el.querySelector(".tt").textContent=title;if(el._k0){el.classList.add("chg");setTimeout(()=>el.classList.remove("chg"),350)}el._k0=1}
+  const s=el.querySelector(".ts");if(s.textContent!==sub)s.textContent=sub;const bar=el.querySelector(".tp");bar.hidden=pct==null;if(pct!=null){bar.firstChild.style.width=Math.round(pct*100)+"%";const pc=el.querySelector(".tpc"),t=Math.round(pct*100)+"%";if(pc.textContent!==t)pc.textContent=t}else el.querySelector(".tpc").textContent=""}
+function tagMake(id,fn){const d=document.createElement("div");d.id=id;d.className="wtag";d.hidden=true;d.innerHTML=`<i class="ti"></i><div class="tb"><b class="tt"></b><span class="ts"></span><em class="tp"><u></u></em></div><b class="tpc"></b>`;
+  if(fn){d.classList.add("tap");d.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation()});d.addEventListener("click",e=>{e.stopPropagation();fn()})}document.body.appendChild(d);return d}
+// what a mechanic is doing to each kind of part
+function jobVerb(k){if(k==="engine")return["\u{1F529}","Repairing the engine"];if(k.startsWith("ty"))return["\u{1F6DE}","Changing a tyre"];if(["ws","rw","winL","winR"].includes(k))return["\u{1FA9F}","Replacing glass"];
+  if(["hlL","hlR","tlL","tlR"].includes(k))return["\u{1F4A1}","Replacing a light"];if(["oil","oilLeak","coolant","radiator","fuelLeak"].includes(k))return["\u{1F6E2}️","Fixing leaks and fluids"];
+  if(k==="elec")return["⚡","Rewiring"];if(k==="burnt")return["\u{1F525}","Repairing fire damage"];if(["susp","chassis","steer","under"].includes(k))return["\u{1F527}","Fixing the running gear"];return["\u{1F6E0}️","Fixing body damage"]}
+function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,CARUI.fuel,CARUI.job,CARUI.park,CARUI.veh];TAGS.req=[];CARUI.near=false;
   if(scene!=="town"||flying||busy||choosing||mapOpen||talking||CARSEQ||TOW){for(const b of all)b.hidden=true;return}
   const C=T.car;let door=false,cond=false,bay=false;
   if(C){const dr=carDoors(C).driver,hp=carPt(C,dr.handle),D=C.dmg;
     if(!driving){if(Math.hypot(hp[0]-cam.x,hp[2]-cam.z)<=2.5){const el=CARUI.door,s=el.querySelector("span"),lb=D&&D.job?"In repair "+mmss(D.job.until-Date.now()):"Get In";el.hidden=false;if(s.textContent!==lb)s.textContent=lb;door=true;CARUI.near=true}
       }}
-  const W=T.workshop;if(W&&!driving&&Math.hypot(W.x-cam.x,W.z-cam.z)<7.5){carUIPlace(CARUI.bay,[W.x-W.fx*1.2,2.2,W.z-W.fz*1.2],VP,w,h);bay=true}
-  let fuel=false;const pump=C&&stationPump(T,C);if(pump&&Math.abs(C.v)<.3&&(driving||Math.hypot(C.x-cam.x,C.z-cam.z)<5)){carUIPlace(CARUI.fuel,[pump.p[0],1.9,pump.p[1]],VP,w,h,C.dmg&&C.dmg.refuel?"Refuelling...":"Refuel");fuel=true}
-  const PK=garNear(T);if(PK)carUIPlace(CARUI.park,driving&&T.car?[T.car.x,2.2,T.car.z]:[PK.term[0],2.1,PK.term[1]],VP,w,h);else CARUI.park.hidden=true;
-  mechTag(T,VP,w,h);if(!door)CARUI.door.hidden=true;if(!cond)CARUI.cond.hidden=true;if(!bay)CARUI.bay.hidden=true;if(!fuel)CARUI.fuel.hidden=true}
+  const W=T.workshop;if(W&&!driving&&Math.hypot(W.x-cam.x,W.z-cam.z)<7.5){carUIPlace(CARUI.bay,[W.x-W.fx*1.2,2.3,W.z-W.fz*1.2],VP,w,h,null,{prio:6,max:12});bay=true}
+  let fuel=false;const pump=C&&stationPump(T,C);if(pump&&Math.abs(C.v)<.3&&(driving||Math.hypot(C.x-cam.x,C.z-cam.z)<5)){carUIPlace(CARUI.fuel,[pump.p[0],2.1,pump.p[1]],VP,w,h,C.dmg&&C.dmg.refuel?"Refuelling...":"Refuel",{prio:6,max:12});fuel=true}
+  const PK=garNear(T);if(PK)carUIPlace(CARUI.park,driving&&T.car?[T.car.x,2.2,T.car.z]:[PK.term[0],2.2,PK.term[1]],VP,w,h,null,{prio:6,max:14});else CARUI.park.hidden=true;
+  mechTag(T,VP,w,h);vehTag(T,VP,w,h);if(!door)CARUI.door.hidden=true;if(!cond)CARUI.cond.hidden=true;if(!bay)CARUI.bay.hidden=true;if(!fuel)CARUI.fuel.hidden=true;tagLayout()}
 
 /* ---- the car's condition, read from its damage record ---- */
 const CARPARTS=[["engine","Engine",.2],["chassis","Chassis",.15],["susp","Suspension",.1],["radiator","Radiator",.08],["bumperF","Front bumper",.06],["bumperR","Rear bumper",.05],
@@ -3235,8 +3283,15 @@ function mechDraw(T,VP,eye,t){const W=T.workshop;if(!W||Math.hypot(W.x-cam.x,W.z
   if(S.spark&&Math.sin(t*9)>-.2){const fx=-Math.sin(S.yaw),fz=-Math.cos(S.yaw),k=.8+.4*Math.abs(Math.sin(t*23));SPARKSCENE.model=mul(mul(trans(S.x+fx*.55,.75+.1*Math.sin(t*17),S.z+fz*.55),rotY(t*7)),new Float32Array([k,0,0,0,0,k,0,0,0,0,k,0,0,0,0,1]));SPARKSCENE.fogFar=150;drawScene(SPARKSCENE,VP,eye,false)}
   if(!S.walking&&SND.ctx&&NOW-mechClank>(S.spark?.35:1.3)&&Math.hypot(S.x-cam.x,S.z-cam.z)<25){mechClank=NOW+Math.random()*.4;sndBeep(S.spark?1800+Math.random()*900:420+Math.random()*200,.05)}}
 // the tag over the car: which part, how far along, and the time left
-function mechTag(T,VP,w,h){const el=CARUI.job,W=T.workshop,C=T.car,J=C&&C.dmg&&C.dmg.job;if(!W||!J||Math.hypot(W.x-cam.x,W.z-cam.z)>40){el.hidden=true;return}
-  const S=mechState(W,J,Date.now());carUIPlace(el,[W.x,2.2+S.lift,W.z],VP,w,h,`${JOBNAME(S.k)} ${S.walking?"…":Math.round(S.pct*100)+"%"} · ${S.step+1}/${S.steps} · ${mmss(J.until-Date.now())}`)}
+function mechTag(T,VP,w,h){const el=CARUI.job,W=T.workshop,C=T.car,J=C&&C.dmg&&C.dmg.job;if(!W||!J||Math.hypot(C.x-W.x,C.z-W.z)>3){el.hidden=true;return}
+  const now=Date.now(),S=mechState(W,J,now),[icon,verb]=jobVerb(S.k),all=clamp01((now-J.start)/Math.max(1,J.until-J.start)),left=mmss(J.until-now);
+  tagSet(el,icon,verb+" \u2014 "+carCfg(C).name,(S.walking?"Next: ":"")+JOBNAME(S.k)+(S.walking?"":" "+Math.round(S.pct*100)+"%")+" \u00B7 "+(S.step+1)+"/"+S.steps+" \u00B7 "+left+" left",all);
+  carUIPlace(el,[C.x,2.45+S.lift,C.z],VP,w,h,null,{prio:4,max:45})}
+// your own car, on foot nearby: its plate and whether it is safe in a bay or on the clock to be taken back
+function vehTag(T,VP,w,h){const el=CARUI.veh,C=T.car;if(!C||!C.vid||driving||CARSEQ||TOW||C.dmg&&C.dmg.job){el.hidden=true;return}const d=Math.hypot(C.x-cam.x,C.z-cam.z);if(d<3.2||d>28){el.hidden=true;return}
+  const w_=parkWhere(T,C),inBay=w_&&w_.bay!=null,left=C.abandonedAt?C.abandonedAt+GAR.cfg.abandon_s*1000-garNow():0,D=carD(C);
+  tagSet(el,D.fire>0?"\u{1F525}":inBay?"\u{1F17F}\uFE0F":left>0?"\u23F1\uFE0F":"\u{1F697}",(C.plate||"Your car")+(C.special?" \u00B7 Chief Admin":""),D.fire>0?"On fire: keep away":inBay?"Parked in bay "+(w_.bay+1)+" \u00B7 safe":left>0?"Taken back to the car park in "+mmss(left):"Yours \u00B7 "+carHealth(D)+"% condition",null);
+  carUIPlace(el,[C.x,1.7,C.z],VP,w,h,null,{prio:2,max:28})}
 // each part is made good when its step ends; the whole job closes at its end time
 function jobApply(D,k){if(k==="coolant"){D.coolant=1;D.temp=90;D.hot=0}else if(k.startsWith("ty")){D.tyre[+k[2]]=0;D.flat[+k[2]]=0;if(D.rim)D.rim[+k[2]]=0}
   else if(k==="oil")D.oil=1;else if(k==="burnt"){D.burnt=0;D.fire=0;D.fireT=0;D.elec=0}else if(k in D){D[k]=0;if(k==="oilLeak")D.oil=1;if(k==="steer")D.steerDir=0;if(k==="bumperF"||k==="bumperR")delete D.hang[k]}
