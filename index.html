@@ -233,6 +233,149 @@ body.towing .guide,body.towing .tip,body.towing .stick,body.towing .tbtn,body.to
   body.driving .cashpill{font-size:13px;padding:5px 11px}body.driving .clockpill{font-size:12.5px;padding:4px 10px}.clockpill .wx{width:18px;height:18px}.clockpill .cw{font-size:9.5px}
 }
 </style>
+<style id="hudstyle">
+/* ================= the HUD: warm ivory cards, deep forest-green controls, a little gold. Everything here only restyles and
+   places the game's own elements; the driving screen keeps its own layout (its rules are more specific and still win). */
+:root{--h-cream:rgba(251,247,238,.95);--h-cream2:#f1eadb;--h-line:rgba(31,58,44,.13);--h-ink:#1c2a22;--h-mut:#68736a;
+  --h-dk:rgba(24,44,34,.93);--h-dk2:#25483a;--h-on:#f6f0e2;--h-onm:rgba(246,240,226,.7);--h-dline:rgba(246,240,226,.14);
+  --h-gold:#c9a227;--h-ok:#2f8f4e;--h-warn:#d08a17;--h-bad:#c8473a;--h-blue:#2b8bbf;--h-r:16px;
+  --sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px);--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+  --map:132px;--colw:min(250px,36vw);--mapx:14px;--mapy:14px}
+@media (max-width:760px),(max-height:500px){:root{--map:104px;--colw:min(220px,46vw)}}
+.hp{background:var(--h-cream);border:1px solid var(--h-line);border-radius:var(--h-r);color:var(--h-ink);box-shadow:0 8px 22px rgba(25,32,22,.22)}
+.hd{background:var(--h-dk);border:1px solid var(--h-dline);color:var(--h-on);box-shadow:0 8px 22px rgba(10,20,14,.3);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.hp svg,.hd svg{flex:none}
+/* ---- the left column. Wide screens: the map, where you are, how you move, then the quest and you.
+   Phones held upright: you, the quest, then the map. Phones on their side: the map beside the quest and you. */
+#hudCol{position:fixed;left:calc(14px + var(--sl));top:calc(14px + var(--st));width:var(--colw);display:grid;grid-template-columns:100%;gap:8px;z-index:2;align-items:start}
+#hudMap{display:grid;gap:6px;justify-items:start;min-width:0}
+#hudMap .mbox{position:relative;width:var(--map);height:var(--map)}
+#hudMap.nomap .mbox{height:0}body.mapfold #hudMap .mbox{height:32px}
+#miniFold{position:absolute;right:-8px;bottom:-8px;width:30px;height:30px;padding:0;border-radius:50%;display:grid;place-items:center;z-index:3;background:var(--h-dk);border:1px solid var(--h-dline);color:var(--h-on)}
+body.mapfold #miniFold{right:auto;left:0;bottom:auto;top:0}#hudMap.nomap:not(.fold) #miniFold{display:none}
+body:not(.driving) .mini{left:calc(var(--mapx));top:calc(var(--mapy));width:var(--map);height:var(--map);border-radius:22px;border:3px solid #f6f0e2;box-shadow:0 8px 22px rgba(25,32,22,.3)}
+body.mapfold .mini{display:none!important}
+#hudLoc,#hudMove{display:flex;align-items:center;gap:9px;max-width:100%;border-radius:999px}
+#hudLoc{padding:4px 12px 4px 8px}#hudLoc svg{color:#7bd389}
+#hudLoc b{display:block;font-size:12.5px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#hudLoc small{display:block;font-size:11px;color:var(--h-onm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hudLoc>span{min-width:0}
+#hudMove{padding:4px 12px 4px 9px;font-size:12px;font-weight:700}#hudMove svg{color:var(--h-gold)}
+.hcard{padding:8px 10px 9px}.hcard .hh{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.hcard .chev{transition:transform .2s;color:var(--h-mut);margin-left:auto}.hcard.min .chev{transform:rotate(-90deg)}.hcard .hb{margin-top:5px}.hcard.min .hb{display:none}
+#hudObj .ico{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;background:var(--h-dk2);color:var(--h-on);flex:none}
+#hudObj.min .lbl,#hudObj.min .hb{display:none}#hudObj.min .ico{width:24px;height:24px}#hudObj.min{padding:6px 10px}
+#hudObj .qh{flex:1;min-width:0}#hudObj .lbl{display:block;font-size:11px;letter-spacing:.12em;font-weight:800;color:var(--h-mut)}
+#hudObj .qt{display:block;font-size:13px;font-weight:800;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hudObj .hb{display:flex;gap:7px;align-items:flex-start;margin-left:2px}#hudObj .hb::before{content:"";flex:none;width:10px;height:10px;border:2px solid var(--h-ink);border-radius:50%;margin-top:3px;opacity:.7}
+#hudObj .hb>div{flex:1;min-width:0}
+#hudCol .guide{position:static;transform:none;left:auto;top:auto;max-width:none;text-align:left;font-weight:500;font-size:11.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;padding:0;background:none;box-shadow:none;border:0;color:var(--h-ink);pointer-events:auto}
+#hudObj .bar{height:4px;border-radius:2px;background:rgba(31,58,44,.12);margin-top:7px;overflow:hidden}#hudObj .bar i{display:block;height:100%;background:var(--h-ok)}
+#pcard .av{width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:top;border:3px solid var(--h-dk2);background:var(--h-cream2);flex:none}
+#pcard .who{flex:1;min-width:0}#pcard .who b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pcard .who small{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--h-mut);white-space:nowrap;overflow:hidden}#pcard .who small span{overflow:hidden;text-overflow:ellipsis}
+#pcard.min .hb{display:none}#pcard .hb{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;border-top:1px solid var(--h-line);padding-top:6px}
+.srow{display:grid;grid-template-columns:16px 1fr auto;gap:1px 6px;align-items:center;font-size:11.5px;font-weight:600;margin-top:3px;min-width:0}.srow svg{color:var(--h-dk2)}.srow span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srow b{font-weight:600;font-variant-numeric:tabular-nums;font-size:11px;color:var(--h-mut)}
+.srow em{grid-column:2/4;height:4px;border-radius:2px;background:rgba(31,58,44,.12);overflow:hidden}.srow em i{display:block;height:100%;border-radius:2px;transition:width .4s}
+.srow.t{grid-template-columns:16px 1fr;grid-column:1/-1}.pnote{grid-column:1/-1;font-size:11px;color:var(--h-mut);margin-top:6px;line-height:1.35}
+/* ---- top right: money, notifications, the clock */
+.cashpill{right:calc(60px + var(--sr));top:calc(14px + var(--st));background:var(--h-dk);border:1px solid var(--h-dline);color:var(--h-on);display:flex;align-items:center;gap:8px;padding:5px 14px 5px 6px;font-size:15px;letter-spacing:.2px;box-shadow:0 8px 22px rgba(10,20,14,.3)}
+.cashpill svg{color:#7bd389;background:rgba(123,211,137,.14);border-radius:9px;padding:5px;box-sizing:content-box}
+#hudBell{position:fixed;right:calc(14px + var(--sr));top:calc(14px + var(--st));width:40px;height:40px;padding:0;display:grid;place-items:center;border-radius:50%;z-index:4}
+#hudBell .dot{position:absolute;right:3px;top:2px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--h-bad);color:#fff;font-size:11px;font-weight:800;line-height:16px;box-sizing:border-box}
+.clockpill{background:var(--h-dk);border:1px solid var(--h-dline);color:var(--h-on)}
+#hudMap .clockpill{position:absolute;left:calc(100% + 10px);top:2px;right:auto;transform:none;white-space:nowrap;font-size:13px;padding:5px 11px;z-index:3}
+#hudMap .clockpill .wx{width:20px;height:20px}#hudMap .clockpill .cw{font-size:11px;color:var(--h-onm)}
+body.mapfold #hudMap .clockpill{left:40px}
+#hudNotes{position:fixed;right:calc(14px + var(--sr));top:calc(64px + var(--st));width:min(290px,36vw);display:flex;flex-direction:column;gap:7px;z-index:6;pointer-events:none}
+.hnote{display:flex;align-items:center;gap:9px;padding:6px 10px 6px 6px;font-size:12px;line-height:1.3;animation:hnin .25s ease-out;transition:opacity .35s,transform .35s;pointer-events:auto}
+.hnote b{display:block;font-size:12px;font-weight:800;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.hnote .nt{flex:1;min-width:0}.hnote .nd{display:block;color:var(--h-ok);font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hnote small{display:block;color:var(--h-mut);font-size:11px;margin-top:1px}
+.hnote.out{opacity:0;transform:translateX(16px)}@keyframes hnin{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+.hnote .ni{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;flex:none;background:var(--h-dk2);color:var(--h-on)}
+.k-warn .ni{background:#7a4a10}.k-warn .nd{color:var(--h-warn)}.k-info .nd{color:var(--h-mut)}
+#hudHist{position:fixed;right:calc(14px + var(--sr));top:calc(66px + var(--st));width:min(340px,90vw);max-height:min(62vh,440px);overflow:auto;padding:10px;z-index:7}
+#hudHist h4{margin:2px 4px 8px;font-size:11px;letter-spacing:.12em;color:var(--h-mut)}#hudHist .hnote{animation:none;box-shadow:none;margin-bottom:6px;background:#fff;border:1px solid var(--h-line);border-radius:12px}
+#hudHist p{color:var(--h-mut);font-size:13px;margin:8px 4px}
+.toast{visibility:hidden!important}               /* its message is shown as a notification card (it keeps working for anything that reads it) */
+/* ---- the dock */
+#nav{position:fixed;left:50%;bottom:calc(10px + var(--sb));transform:translateX(-50%);display:flex;align-items:stretch;padding:4px;z-index:5;border-radius:24px}
+#nav button{all:unset;cursor:pointer;position:relative;display:grid;justify-items:center;align-content:center;gap:2px;min-width:74px;padding:6px 8px 5px;border-radius:16px;color:var(--h-onm);font:700 11px/1.1 var(--body);-webkit-tap-highlight-color:transparent;transition:color .15s,background .15s,transform .1s}
+#nav button+button::before{content:"";position:absolute;left:-1px;top:22%;bottom:22%;width:1px;background:var(--h-dline)}
+#nav button:hover{color:var(--h-on)}#nav button:active{transform:scale(.96)}#nav button:focus-visible{outline:2px solid var(--h-gold);outline-offset:1px}
+#nav button[aria-pressed="true"]{color:var(--h-on);background:rgba(246,240,226,.13)}
+#nav button[aria-pressed="true"]::after{content:"";position:absolute;left:30%;right:30%;bottom:2px;height:3px;border-radius:2px;background:var(--h-gold)}
+#nav button[aria-pressed="true"]+button::before,#nav button:has(+button[aria-pressed="true"])+button::before{opacity:0}
+/* the sheets above the dock: Phone (the game's own screens), Inventory (what you hold) and Settings (the old row of buttons) */
+#picks.sheet,#hudSheet{position:fixed;left:50%;right:auto;top:auto;bottom:calc(76px + var(--sb));transform:translateX(-50%);width:min(520px,94vw);max-width:none;padding:12px;z-index:6;overflow:visible}
+#picks.sheet{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}
+#picks.sheet:not(.open){display:none}#hudSheet[hidden]{display:none}
+#picks.sheet h4,#hudSheet h4{flex-basis:100%;margin:2px 0 6px;font-size:11px;letter-spacing:.12em;color:var(--h-mut);text-align:center}
+#picks.sheet button,#picks.sheet select{background:#fff;color:var(--h-ink);border:1px solid var(--h-line);font-size:13px;font-weight:600;padding:8px 13px;border-radius:999px}
+#picks.sheet button[aria-pressed="true"]{background:var(--h-dk2);border-color:var(--h-dk2);color:var(--h-on)}
+#picks.sheet select{font:inherit;font-size:13px}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px}
+.apps button{all:unset;cursor:pointer;display:grid;justify-items:center;gap:6px;padding:10px 4px;border-radius:14px;font-size:12px;font-weight:700;text-align:center;color:var(--h-ink)}
+.apps button:hover,.apps button:focus-visible{background:rgba(31,58,44,.07)}
+.apps button i{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:var(--h-dk2);color:var(--h-on)}
+.inv{display:grid;gap:7px}.inv .ir{display:flex;align-items:center;gap:11px;padding:8px 10px;background:#fff;border:1px solid var(--h-line);border-radius:12px;font-size:13px}
+.inv .ir i{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--h-dk2);color:var(--h-on);flex:none}
+.inv .ir div{flex:1;min-width:0}.inv .ir b{display:block}.inv .ir small{display:block;color:var(--h-mut);font-size:11.5px}.inv p{color:var(--h-mut);font-size:12.5px;margin:4px 2px;text-align:center}
+/* the old performance box: only when asked for (Settings) */
+.hud{display:none}body.stats .hud{display:block;left:50%;transform:translateX(-50%);top:calc(14px + var(--st));background:var(--h-cream);border-color:var(--h-line);color:var(--h-ink);font-size:12px;padding:5px 10px}
+body.stats .hud b{font-size:14px}
+/* ---- help, the context button, the touch controls */
+.tip{bottom:calc(80px + var(--sb));background:var(--h-cream);border:1px solid var(--h-line);color:var(--h-ink);font-size:11.5px;line-height:1.3;padding:6px 11px;max-width:min(460px,60vw);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;box-shadow:0 8px 22px rgba(25,32,22,.2);transition:opacity .4s}
+.tip.gone{display:none!important}body.sheet .tip{opacity:0;pointer-events:none}
+.act{bottom:calc(96px + var(--sb));background:var(--h-dk);color:var(--h-on);border:2px solid rgba(201,162,39,.75);box-shadow:0 8px 22px rgba(10,20,14,.35);border-radius:999px;font-weight:700}
+.stick{background:radial-gradient(circle,rgba(40,48,42,.35),rgba(24,30,26,.55));border:1.5px solid rgba(246,240,226,.45);box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.stick i{background:radial-gradient(circle at 40% 35%,#d9d6cf,#9a9890);border:0;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.tbtn{background:var(--h-dk);border:1.5px solid var(--h-dline);color:var(--h-on);box-shadow:0 8px 20px rgba(10,20,14,.35)}.tbtn.on{background:#2f6a4c;border-color:var(--h-gold)}
+/* run sits beside the stick, the jump in the lower right, the context action above it */
+.trun{right:auto;left:calc(166px + var(--sl));bottom:calc(36px + var(--sb));width:62px;height:62px}
+.tjump{right:calc(22px + var(--sr));bottom:calc(30px + var(--sb));width:66px;height:66px}
+.touch .act{left:auto;right:calc(14px + var(--sr));transform:none;bottom:calc(118px + var(--sb))}
+.touch .tip{bottom:calc(178px + var(--sb))}
+/* on a touch screen the dock sits between the stick and the jump when there is room */
+.touch #nav{bottom:calc(14px + var(--sb))}
+.touch #nav button{min-width:62px;font-size:11px;padding:5px 6px 4px}
+@media (max-width:760px),(max-height:500px){#nav button{min-width:62px;font-size:11px;padding:5px 6px 4px}
+  .hcard{padding:8px 10px 9px}.cashpill{font-size:14px;padding:5px 12px 5px 6px}#hudBell{width:40px;height:40px}.cashpill{right:calc(60px + var(--sr))}
+  #pcard .av{width:38px;height:38px}#hudObj .ico{width:30px;height:30px}#hudLoc small{display:none}#hudLoc{padding:5px 12px 5px 9px}#hudMove{padding:5px 13px 5px 10px;font-size:12px}}
+/* a phone held upright: you and the quest first, then the map; the dock at the bottom, the controls above it */
+@media (orientation:portrait) and (max-width:600px){
+  #hudCol #pcard{order:-2}#hudObj{order:-1}
+  #hudNotes,.touch .tip{width:auto;max-width:none;left:auto;right:calc(12px + var(--sr));width:calc(100vw - var(--colw) - 40px - var(--sl) - var(--sr))}
+  #hudNotes{top:calc(62px + var(--st))}
+  #hudMap .clockpill{left:5px;top:auto;bottom:5px;padding:2px 7px;font-size:11px;border-radius:8px;grid-template-columns:auto}#hudMap .clockpill .wx,#hudMap .clockpill .cw{display:none}.hnote{padding:7px 9px 7px 7px;gap:8px}.hnote .ni{width:28px;height:28px}.hnote b{font-size:12px}
+  .touch .stick{bottom:calc(84px + var(--sb));left:calc(16px + var(--sl));width:116px;height:116px}
+  .touch .trun{left:calc(142px + var(--sl));bottom:calc(88px + var(--sb));width:56px;height:56px}
+  .touch .tjump{right:calc(16px + var(--sr));bottom:calc(86px + var(--sb));width:62px;height:62px}
+  .touch .act{bottom:calc(160px + var(--sb));right:calc(12px + var(--sr))}
+  .touch .tip{bottom:calc(216px + var(--sb))}
+  .touch #nav{bottom:calc(10px + var(--sb));left:calc(12px + var(--sl));right:calc(12px + var(--sr));transform:none;justify-content:space-around}
+  .touch #nav button{flex:1;min-width:0}
+  #picks.sheet,#hudSheet{bottom:calc(76px + var(--sb))}.touch #picks.sheet,.touch #hudSheet{bottom:calc(76px + var(--sb))}
+  body.sheet #hudCol,body.sheet .mini{visibility:hidden}}
+/* a phone on its side: the map in the first column, the quest and you beside it */
+@media (max-height:500px){#hudCol{grid-template-columns:150px var(--colw);width:auto}#hudMap{grid-row:1/span 2}#hudObj{grid-column:2}#pcard{grid-column:2}
+  :root{--colw:min(230px,30vw)}#hudNotes{width:min(300px,36vw);top:calc(62px + var(--st))}
+  #picks.sheet,#hudSheet{max-height:calc(100vh - 110px);overflow:auto}#pcard .hb{max-height:max(70px,calc(100vh - 300px));overflow:auto}
+  .touch .tip{bottom:calc(118px + var(--sb));max-width:min(320px,36vw)}.touch .act{right:calc(108px + var(--sr));bottom:calc(40px + var(--sb))}}
+/* while driving, towing or reading a panel the extras step aside (the driving screen has its own) */
+body.driving #hudCol,body.driving #hudBell,
+body.towing #hudCol,body.towing #nav,body.towing #picks.sheet,body.towing #hudSheet{display:none!important}
+/* driving: the dock becomes a row of three icons at the top, under the wallet; its sheets open below it */
+body.driving #nav{top:calc(56px + var(--st));bottom:auto;left:50%;right:auto;transform:translateX(-50%);padding:3px;border-radius:18px}
+body.driving #nav button{flex:none;min-width:0;width:44px;height:38px;padding:0;border-radius:14px}body.driving #nav button span{display:none}
+body.driving #nav button[aria-pressed="true"]::after{bottom:1px}
+body.driving #picks.sheet,body.driving #hudSheet{top:calc(104px + var(--st));bottom:auto;max-height:calc(100vh - 130px);overflow:auto}
+body.driving #hudNotes{top:calc(104px + var(--st))}
+body.choosing #nav,body.choosing #picks.sheet,body.choosing #hudSheet,body.choosing #hudNotes{visibility:hidden}
+/* the world tags: dark green labels with cream writing, a small arrow down to what they name */
+.wtag{background:rgba(26,40,32,.88);border-color:rgba(246,240,226,.18);color:var(--h-on);border-radius:12px}.wtag::after{border-top-color:rgba(26,40,32,.88)}
+.wtag .ti{background:rgba(246,240,226,.13)}.wtag .tp u{background:var(--h-gold)}.wtag .tpc{color:#f0cf5a}
+</style>
 <canvas id="mini" class="mini" width="280" height="280" role="button" tabindex="0" aria-label="Open the map" hidden></canvas>
 <div id="route" class="routebar" hidden><i id="routeArrow" aria-hidden="true">▲</i><span id="routeText"></span><button id="routeX" aria-label="Cancel directions">Cancel</button></div>
 <div id="bigmap" class="bigmap" hidden><div class="mapcard"><div class="maphead"><span class="brand">DELTA CITY</span><b id="mapTitle"></b><button id="mapClose">Close</button></div><div class="mapbody"><div class="mapmenu" id="mapMenu"><button data-g="All">All places</button><button data-g="Districts">Districts</button><button data-g="Roads">Roads</button><button data-g="Transport">Transport</button><button data-g="Government">Government</button><button data-g="Services">Services</button><small>Zoom in, or pick a group, to see names.</small></div><div class="mapview" id="mapView"><div class="stage" id="stage"></div></div><div class="zoom"><button id="zoomIn" aria-label="Zoom in">+</button><button id="zoomOut" aria-label="Zoom out">−</button></div><div class="compass" aria-hidden="true"><b>N</b><i></i></div></div></div></div>
@@ -2420,7 +2563,7 @@ let scene="border",busy=false,talking=false,choosing=true,flying=false,testOpen=
 const QMAX=Math.min(window.devicePixelRatio||1,1.25),QSET={key:"",until:0,cap:Math.min(window.devicePixelRatio||1,1.25),capAt:0};      /* cap: just below the last level that proved too much; raised again after 45 s, to try higher */
 const SAMPLE={no:"DC-ASB-0001",name:"Sample Citizen",dob:"01 September 1996",gender:"Female",state:"Asaba",date:"10 October 2026"};
 const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);roadJoins();highway(st);workshop(st,t);station(st,t);carParks(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
-function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400)}
+function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400);hudNote(t)}
 function fadeTo(text,change){if(busy)return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
 const stand=(s,o)=>{scene=s;me.inside=s==="imm";Object.assign(me,{y:0,pitch:.03},o||{});SNAPCAM=true};
 const allowed=who=>!who||me.role==="admin"||who.includes(me.role)||(me.roles||[]).some(r=>who.includes(r))||who.some(n=>/[A-Z@]/.test(n)&&guideOk(n));       // a guide rule line ("Sergeant", "Citizen of Warri") as well as a role key       // the Chief Admin may enter and use everything
@@ -3932,7 +4075,7 @@ const DOORWAYS={treasury:()=>{if(!allowed(TRS_ALL)){toast("The National Treasury
   ...Object.fromEntries(GUIDE_DOORS.map(t=>[t,()=>guideEnter(t)]))};       // the buildings built from the Discord guide
 let doorCool=0;
 function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.016,dt=Math.min(.05,real);last=t;NOW=t;updateLight();
-  document.body.classList.toggle("driving",driving);document.body.classList.toggle("towing",!!TOW);dpad.hidden=!(driving&&touch);clockTick();if(frames%3===0)dashUpdate();if(!driving)sndUpdate(false);
+  document.body.classList.toggle("driving",driving);document.body.classList.toggle("towing",!!TOW);dpad.hidden=!(driving&&touch);clockTick();hudTick();if(frames%3===0)dashUpdate();if(!driving)sndUpdate(false);
   if(scene==="town"&&LIGHT.night>0){const T0=townOf(me.town),hl=carHeadlightLamps(T0.car).concat(fireLamps(T0)),L=dynLamps(T0).map(p=>[p,(p[0]-cam.x)**2+(p[2]-cam.z)**2]).sort((a,b)=>a[1]-b[1]).slice(0,12-hl.length);LIGHT.lamps.fill(0);hl.forEach((p,i)=>LIGHT.lamps.set(p,i*4));L.forEach(([p],i)=>LIGHT.lamps.set([p[0],p[1],p[2],1],(i+hl.length)*4))}
   /* ---- moving on foot ----
      W and S move along the way the camera faces (flattened onto the ground), A and D to its side; together they move
@@ -4120,7 +4263,7 @@ function paintMap(g,T,cx,cz,k,w,h,big,noMe){const o=noMe?-w/6:0,X=x=>o+w/2+(x-cx
   const px=X(cam.x),py=Y(cam.z),a=Math.atan2(-Math.sin(cam.yaw),Math.cos(cam.yaw));g.save();g.translate(px,py);g.rotate(a);g.fillStyle="#e11d48";g.strokeStyle="#ffffff";g.lineWidth=2;g.beginPath();g.moveTo(0,-(big?13:10));g.lineTo(big?9:7,big?10:8);g.lineTo(0,big?5:4);g.lineTo(big?-9:-7,big?10:8);g.closePath();g.fill();g.stroke();g.restore()}
 const miniC=document.getElementById("mini");
 // the round map: turned so that the way you face is always at the top, with a small N showing where north is
-function drawMini(T){const s=miniC.width,g=miniC.getContext("2d"),vy=driving?cam.yaw:VIEW.yaw;g.save();g.translate(s/2,s/2);g.rotate(vy);g.translate(-s/2,-s/2);const yaw=cam.yaw;cam.yaw=0;paintMap(g,T,cam.x,cam.z,s/230,s*1.5,s*1.5,false,true);cam.yaw=yaw;g.restore();g.save();g.translate(s/2,s/2);g.rotate(-(cam.yaw-vy));g.translate(-s/2,-s/2);
+function drawMini(T){const s=miniC.width,g=miniC.getContext("2d"),vy=driving?cam.yaw:VIEW.yaw;g.save();g.translate(s/2,s/2);g.rotate(vy);g.translate(-s/2,-s/2);const yaw=cam.yaw;cam.yaw=0;paintMap(g,T,cam.x,cam.z,s/230,s*1.5,s*1.5,false,true);cam.yaw=yaw;g.restore();hudMiniMarks(T,g,s,s/230,vy);g.save();g.translate(s/2,s/2);g.rotate(-(cam.yaw-vy));g.translate(-s/2,-s/2);
   g.fillStyle="#e11d48";g.strokeStyle="#fff";g.lineWidth=2.5;g.beginPath();g.moveTo(s/2,s/2-13);g.lineTo(s/2+9,s/2+10);g.lineTo(s/2,s/2+5);g.lineTo(s/2-9,s/2+10);g.closePath();g.fill();g.stroke();g.restore();
   const nx=s/2+Math.sin(vy)*s*.41,ny=s/2-Math.cos(vy)*s*.41;g.fillStyle="#14263D";g.beginPath();g.arc(nx,ny,13,0,6.2832);g.fill();g.fillStyle="#fff";g.font="700 17px Segoe UI,system-ui,sans-serif";g.textAlign="center";g.textBaseline="middle";g.fillText("N",nx,ny+1)}
 /* The town's own map: a photograph of the town taken from high above, looking north, with a pin
@@ -4218,9 +4361,160 @@ document.addEventListener("gesturestart",e=>e.preventDefault());
 // when the mouse is freed with Esc, say how to get it back
 let wasLocked=false;document.addEventListener("pointerlockchange",()=>{const now=document.pointerLockElement===cv;if(wasLocked&&!now&&!touch&&!choosing&&!mapOpen&&!talking)toast("Mouse released. Click the scene to look around again.");wasLocked=now});
 // The only button at the top is Testing. It holds the controls that are for you, not for players.
+/* ================================ the HUD ================================
+   Built around the game's own elements and data: the round map (with your car, the car parks and your workplace marked),
+   where you are, what to do next (the arrival steps, your directions, a repair under way, going to work), you (your
+   photograph, name, posts, today's shift and your car), money, notifications (every toast, kept in a history) and a
+   bottom bar for the menus that exist. Nothing is shown that the game does not have. Folded panels are remembered. */
+const HUDI={pin:'<path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.6"/>',
+  flag:'<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',chev:'<path d="M6 9l6 6 6-6"/>',map:'<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>',
+  work:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/>',
+  gov:'<path d="M3 21h18"/><path d="M5 21V10M9 21V10M15 21V10M19 21V10"/><path d="M2 10 12 4l10 6"/>',
+  shield:'<path d="M12 3 4 6v6c0 4.5 3.4 8.2 8 9 4.6-.8 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',wallet:'<path d="M3 7a2 2 0 0 1 2-2h12v4"/><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="16" cy="13.5" r="1.3"/>',
+  ok:'<path d="m5 12 4 4 10-10"/>',warn:'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2 18a2 2 0 0 0 1.7 3h16.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',car:'<path d="M3 16v-3l2-5h14l2 5v3H3z"/><circle cx="7.5" cy="16.5" r="1.8"/><circle cx="16.5" cy="16.5" r="1.8"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',id:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M14 10h4M14 14h4M6 16c.7-1.4 1.8-2 3-2s2.3.6 3 2"/>',
+  fuel:'<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8l3 2v8a1.5 1.5 0 0 0 3 0v-7l-3-3"/>',
+  wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>',heart:'<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>'};
+const hico=(n,s)=>`<svg viewBox="0 0 24 24" width="${s||18}" height="${s||18}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${HUDI[n]}</svg>`;
+Object.assign(HUDI,{phone:'<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M11 18.5h2"/>',bag:'<path d="M6 8h12l1 12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M9 13h6"/>',
+  walk:'<circle cx="13" cy="4" r="1.8"/><path d="M11 21l2-6-2-3 1-5 3 3 3 1M12 7l-3 2-1 4M13 15l3 6"/>',run:'<circle cx="15" cy="4" r="1.8"/><path d="M5 12l3-3 5 1 3 3 3 0M10 10l-2 5-4 1M13 10l-1 5 4 2-1 4"/>',
+  stand:'<circle cx="12" cy="4" r="1.8"/><path d="M12 7v7M9 21l3-7 3 7M8 10h8"/>',cart:'<path d="M3 4h2l2.5 11h10L20 7H6.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>',
+  quest:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',briefcase:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/>'});
+const HUD={el:{},fold:{},hist:[],unread:0,histOpen:false,open:null,tick:0,tipAt:0,tipText:"",ro:null};
+try{HUD.fold=JSON.parse(localStorage.getItem("dc_hud")||"{}")||{}}catch(e){}
+const hudSave=()=>{try{localStorage.setItem("dc_hud",JSON.stringify(HUD.fold))}catch(e){}};
+delete HUD.fold.card;
+// the old name for "the settings sheet is open", kept for anything that still reads or sets it
+Object.defineProperty(HUD,"setOpen",{get(){return HUD.open==="set"},set(v){HUD.open=v?"set":HUD.open==="set"?null:HUD.open}});
+function hudInit(){if(HUD.el.nav)return;const mk=(tag,id,cls,html,parent)=>{const e=document.createElement(tag);if(id)e.id=id;if(cls)e.className=cls;if(html!=null)e.innerHTML=html;(parent||document.body).appendChild(e);return e};
+  HUD.el.col=mk("div","hudCol");
+  // the map's place in the column (the map itself stays where it is in the page and is laid over this box), where you are, how you move
+  HUD.el.map=mk("div","hudMap",null,'<div class="mbox"></div>',HUD.el.col);
+  HUD.el.fold=mk("button","miniFold",null,hico("chev",16),HUD.el.map.firstChild);HUD.el.fold.setAttribute("aria-label","Fold the map");HUD.el.fold.addEventListener("click",e=>{e.stopPropagation();HUD.fold.map=!HUD.fold.map;hudSave();hudLayout()});
+  {const ck=document.getElementById("clock");if(ck)HUD.el.map.firstChild.appendChild(ck)}
+  HUD.el.loc=mk("div","hudLoc","hd",hico("pin",17)+'<span><b></b><small></small></span>',HUD.el.map);
+  HUD.el.move=mk("div","hudMove","hd",'<span class="mi"></span><span class="mt"></span>',HUD.el.map);
+  HUD.el.obj=mk("div","hudObj","hp hcard",`<div class="hh"><span class="ico">${hico("quest",18)}</span><span class="qh"><span class="lbl">CURRENT QUEST</span><span class="qt"></span></span><span class="chev">${hico("chev",16)}</span></div><div class="hb"><div></div></div>`,HUD.el.col);
+  HUD.el.obj.querySelector(".hb>div").appendChild(document.getElementById("guide"));
+  HUD.el.obj.querySelector(".hh").addEventListener("click",()=>{HUD.fold.obj=HUD.fold.obj===false;hudSave();hudLayout()});
+  HUD.el.card=mk("div","pcard","hp hcard",`<div class="hh"><img class="av" alt=""><span class="who"><b></b><small>${hico("briefcase",13)}<span></span></small></span><span class="chev">${hico("chev",16)}</span></div><div class="hb"></div>`,HUD.el.col);
+  HUD.el.card.querySelector(".hh").addEventListener("click",()=>{HUD.fold.card=HUD.fold.card===false;HUD.cardAt=NOW;hudLayout();hudCard()});
+  HUD.el.bell=mk("button","hudBell","hd",hico("bell",20)+'<span class="dot" hidden></span>');HUD.el.bell.setAttribute("aria-label","Notifications");HUD.el.bell.addEventListener("click",e=>{e.stopPropagation();HUD.histOpen=!HUD.histOpen;if(HUD.histOpen){HUD.unread=0;HUD.open=null}hudNotesDraw();hudNav()});
+  HUD.el.notes=mk("div","hudNotes");HUD.el.hist=mk("div","hudHist","hp");HUD.el.hist.hidden=true;
+  HUD.el.sheet=mk("div","hudSheet","hp");HUD.el.sheet.hidden=true;
+  HUD.el.nav=mk("nav","nav","hd");HUD.el.nav.setAttribute("aria-label","Menus");
+  const picks=document.getElementById("picks");picks.classList.add("sheet","hp");
+  document.addEventListener("pointerdown",e=>{if(HUD.histOpen&&!HUD.el.hist.contains(e.target)&&!HUD.el.bell.contains(e.target)){HUD.histOpen=false;hudNotesDraw()}
+    if(HUD.open&&!picks.contains(e.target)&&!HUD.el.sheet.contains(e.target)&&!HUD.el.nav.contains(e.target)){HUD.open=null;hudNav()}});
+  if(typeof ResizeObserver!=="undefined"){HUD.ro=new ResizeObserver(hudPlace);HUD.ro.observe(HUD.el.col)}addEventListener("resize",hudPlace);
+  hudLayout();hudNav()}
+// the round map is laid over its box in the column
+function hudPlace(){if(!HUD.el.map)return;const r=HUD.el.map.firstChild.getBoundingClientRect(),st=document.documentElement.style;st.setProperty("--mapx",Math.round(r.left)+"px");st.setProperty("--mapy",Math.round(r.top)+"px")}
+function hudLayout(){if(!HUD.el.nav)return;document.body.classList.toggle("mapfold",!!HUD.fold.map);HUD.el.map.classList.toggle("fold",!!HUD.fold.map);HUD.el.fold.setAttribute("aria-label",HUD.fold.map?"Show the map":"Fold the map");HUD.el.fold.style.transform=HUD.fold.map?"rotate(-90deg)":"rotate(180deg)";
+  // you: folded unless opened (on a phone it starts folded, on a big screen open)
+  HUD.el.obj.classList.toggle("min",HUD.fold.obj!==false);HUD.el.card.classList.toggle("min",HUD.fold.card!==false);hudPlace()}
+// the dock: Phone (the game's own screens), Inventory (what you hold) and Settings
+function hudNav(){if(!HUD.el.nav)return;const B=[["phone","Phone","phone"],["bag","Inventory","inv"],["gear","Settings","set"]];
+  const nav=HUD.el.nav;if(!nav.children.length)for(const[ic,label,k]of B){const b=document.createElement("button");b.type="button";b.dataset.k=k;b.innerHTML=hico(ic,22)+`<span>${label}</span>`;b.setAttribute("aria-label",label);
+    b.addEventListener("click",e=>{e.stopPropagation();HUD.open=HUD.open===k?null:k;HUD.histOpen=false;hudNotesDraw();hudNav()});nav.appendChild(b)}
+  for(const b of nav.children)b.setAttribute("aria-pressed",HUD.open===b.dataset.k?"true":"false");
+  document.getElementById("picks").classList.toggle("open",HUD.open==="set");document.body.classList.toggle("sheet",!!HUD.open);hudSheet()}
+function hudSheet(){const el=HUD.el.sheet;if(!el)return;const k=HUD.open;el.hidden=k!=="phone"&&k!=="inv";if(el.hidden){el.innerHTML="";return}
+  const signed=typeof AUTH!=="undefined"&&AUTH.user&&!AUTH.offline,go=fn=>()=>{HUD.open=null;hudNav();fn()};
+  if(k==="phone"){const A=[];
+    if(scene==="town")A.push(["map","Map",go(()=>{if(!mapOpen)openMap()})]);
+    if(signed&&GOVME&&(GOVME.posts||[]).length)A.push(["work","My Work",go(()=>govWork())]);
+    if(signed)A.push(["gov","Government",go(()=>govScreen())]);
+    if(me.role==="admin"&&signed)A.push(["shield","Admin",go(()=>adminPanel())]);
+    A.push(["bell","Notifications",()=>{HUD.open=null;hudNav();HUD.histOpen=true;HUD.unread=0;hudNotesDraw()}]);
+    el.innerHTML='<h4>PHONE</h4><div class="apps"></div>';const box=el.querySelector(".apps");
+    for(const[ic,label,fn]of A){const b=document.createElement("button");b.type="button";b.innerHTML=`<i>${hico(ic,22)}</i>${label}`;b.addEventListener("click",e=>{e.stopPropagation();fn()});box.appendChild(b)}
+    return}
+  // what you hold: your money, your identity card and your vehicles, as the game has them
+  const R=[];const row=(ic,b,s)=>R.push(`<div class="ir"><i>${hico(ic,18)}</i><div><b>${esc(b)}</b><small>${esc(s||"")}</small></div></div>`);
+  if(typeof AUTH!=="undefined"&&AUTH.char)row("wallet","K"+Number(me.cash||0).toLocaleString("en-GB"),"Cash in your wallet");
+  if(me.cert)row("id","Identity card",[me.cert.name,me.cert.state&&"Citizen of "+me.cert.state,me.cert.no].filter(Boolean).join(" · "));
+  if(garOn())for(const v of GAR.list){const P=v.park&&garPark(v.park);row("car",v.plate||"Vehicle",v.status==="stored"?"Stored at "+(P?P.name:"a car park"):v.out_by_me?"Out with you"+(v.state?" in "+v.state:""):"Out with someone who has its keys")}
+  else{const C=TOWNS[me.town]&&TOWNS[me.town].car;if(C&&!C.vid)row("car","Practice car","For guests; it is not saved")}
+  el.innerHTML='<h4>INVENTORY</h4><div class="inv">'+(R.join("")||"<p>Nothing here yet.</p>")+(garOn()?"<p>Open a garage at any car park (P on the map) to take out a vehicle or give keys.</p>":"")+"</div>"}
+/* ---- notifications: every toast becomes a card for a few seconds, and stays in the history behind the bell */
+function hudKind(t){return/(cannot|can't|not |no room|refus|fail|error|only |blocked|fire|burst|too far|taken back|you do not|occupied|wait)/i.test(t)?"warn":/(paid|ready|done|stored|spawn|clocked|welcome|complete|arrived|repaired|refuelled|given|now has|added|saved)/i.test(t)?"ok":"info"}
+// the first sentence is the heading, the rest the line under it
+const hudSplit=t=>{const m=/^(.{6,70}?[.!?])\s+(.+)$/.exec(t);return m?[m[1].replace(/\.$/,""),m[2]]:[t,""]};
+const hudNoteHTML=(n,when)=>{const[h,d]=hudSplit(n.t);return`<span class="ni">${hico(n.kind,16)}</span><span class="nt"><b>${esc(h)}</b>${d?`<span class="nd">${esc(d)}</span>`:""}<small>${when}</small></span>`};
+function hudNote(t){if(!t)return;hudInit();const kind=hudKind(t),n={t,kind,at:Date.now()};HUD.hist.unshift(n);HUD.hist.length=Math.min(HUD.hist.length,40);if(!HUD.histOpen)HUD.unread++;
+  const el=document.createElement("div");el.className="hnote hp k-"+kind;el.innerHTML=hudNoteHTML(n,"just now");HUD.el.notes.prepend(el);
+  while(HUD.el.notes.children.length>2)HUD.el.notes.lastChild.remove();setTimeout(()=>{el.classList.add("out");setTimeout(()=>el.remove(),400)},4000);hudNotesDraw()}
+const hudAgo=ms=>{const s=Math.round(ms/1000);return s<45?"just now":s<3600?Math.round(s/60)+" min ago":Math.round(s/3600)+" h ago"};
+function hudNotesDraw(){if(!HUD.el.bell)return;const d=HUD.el.bell.querySelector(".dot");d.hidden=!HUD.unread;d.textContent=HUD.unread>9?"9+":HUD.unread;
+  const H=HUD.el.hist;H.hidden=!HUD.histOpen;if(HUD.histOpen)H.innerHTML='<h4>NOTIFICATIONS</h4>'+(HUD.hist.length?HUD.hist.map(n=>`<div class="hnote k-${n.kind}">${hudNoteHTML(n,hudAgo(Date.now()-n.at))}</div>`).join(""):"<p>Nothing yet.</p>")}
+/* ---- where you are: the town, and the building you are in or the named place you are nearest */
+function hudWhere(){const town=me.town||"Delta City";let sub="";
+  if(scene==="town"){const T=TOWNS[me.town];if(T){let best=null,bd=90;for(const p of T.map.places){if(p.road)continue;const d=Math.hypot(p.x-cam.x,p.z-cam.z);if(d<bd){bd=d;best=p}}sub=best?(bd<25?"At ":"Near ")+best.name:"Out and about"}}
+  else sub={border:"The border gate",imm:"Immigration Authority",bank:"Inside "+(typeof BANK_NAME!=="undefined"?BANK_NAME:"the bank"),gov:GV&&GV.title,hosp:HV&&HV.title,trs:"National Treasury"}[scene]||"";
+  return[scene==="border"||scene==="imm"&&!me.entered?"Delta City":town,sub]}
+/* ---- what to do next: the arrival steps first; then your directions, a repair under way, or going to work */
+function hudObjective(){if(talking)return null;const rt=route&&route.place;
+  if(rt&&scene==="town"){const d=Math.round(Math.hypot(rt.x-cam.x,rt.z-cam.z));return{short:"Go to "+rt.name,text:"Directions to "+rt.name+": "+d+" m. Follow the line on the map.",pct:null}}
+  const M=typeof garMine==="function"&&garMine(),C=M&&M.C||(TOWNS[me.town]&&TOWNS[me.town].car),J=C&&C.dmg&&C.dmg.job;
+  if(J){const all=clamp01((Date.now()-J.start)/Math.max(1,J.until-J.start));return{short:"Car repair: "+Math.round(all*100)+"%",text:"Your car is being repaired: "+J.names+". Ready in "+mmss(J.until-Date.now())+".",pct:all}}
+  if(GOVME&&GOVME.posts&&GOVME.posts.length&&GOVME.today){const sec=GOVME.today.seconds||0,on=GOVME.today.clocked_in;
+    if(!on&&sec<18000){const p=GOVME.posts[0],w=typeof guideWork==="function"&&guideWork(p),room=w?(w.B.rooms.find(r=>r.ch===w.ch)||{name:""}).name:"";
+      return{short:"Go to work",text:"Go to work as "+p.title+(room?": clock in at the "+room+" in the "+w.B.label.split(" ").map(x=>x[0]+x.slice(1).toLowerCase()).join(" "):"")+". Today: "+(sec/3600).toFixed(1)+" of 5 hours.",pct:Math.min(1,sec/18000)}}
+    if(on)return{short:"On shift",text:"You are clocked in. Today: "+(sec/3600).toFixed(1)+" of 5 hours.",pct:Math.min(1,sec/18000)}}
+  return null}
+/* ---- you: your photograph, name and work; folded open, two columns of what the game measures about you */
+function hudCard(){const el=HUD.el.card;if(!el)return;const signed=typeof AUTH!=="undefined"&&AUTH.char,name=signed?AUTH.char.name:(me.cert&&me.cert.name)||"Visitor";
+  const pic=PICS[me.gender]&&PICS[me.gender][me.outfit],img=el.querySelector(".av");if(pic&&img.dataset.src!==pic.face){img.src=pic.face;img.dataset.src=pic.face}img.hidden=!pic;
+  const posts=(GOVME&&GOVME.posts||[]).map(p=>p.title),role=(ROLES.find(r=>r[0]===me.role)||[0,""])[1].replace(/^(a|an|the) /,"");
+  const set=(sel,v)=>{const e=el.querySelector(sel);if(e.textContent!==v)e.textContent=v};set(".who b",name);set(".who small span",posts.length?posts.join(" · "):role.charAt(0).toUpperCase()+role.slice(1));
+  if(el.classList.contains("min"))return;const rows=[],good=v=>v>.6?"#2f8f4e":v>.3?"#d08a17":"#c8473a",bar=(ic,label,v,col,txt)=>rows.push(`<div class="srow">${hico(ic,14)}<span>${label}</span><b>${txt}</b><em><i style="width:${Math.round(v*100)}%;background:${col}"></i></em></div>`);
+  if(me.cert)rows.push(`<div class="srow t">${hico("id",14)}<span>${esc((me.cert.state?"Citizen of "+me.cert.state:"")+(me.cert.no?" · "+me.cert.no:""))}</span></div>`);
+  if(GOVME&&GOVME.today&&(GOVME.posts||[]).length){const sec=GOVME.today.seconds||0;bar("clock",GOVME.today.clocked_in?"On shift":"Shift",Math.min(1,sec/18000),"#2b8bbf",(sec/3600).toFixed(1)+" / 5 h")}
+  const M=typeof garMine==="function"&&garMine(),C=M&&M.C||(TOWNS[me.town]&&TOWNS[me.town].car);
+  if(C&&C.dmg){const D=carD(C),h=carHealth(D)/100;bar("wrench","Car condition",h,good(h),Math.round(h*100)+"%");bar("fuel","Fuel",D.fuel,good(D.fuel),Math.round(D.fuel*100)+"%")}
+  rows.push(`<div class="pnote">Needs (health, hunger, thirst...) arrive with life needs.</div>`);
+  const hb=el.querySelector(".hb"),html=rows.join("");if(hb.dataset.h!==html){hb.innerHTML=html;hb.dataset.h=html}}
+/* ---- the map's own markers: your car, the nearest car parks, workshops, filling stations and markets, and your workplace; upright as the map turns */
+function hudMiniMarks(T,g,s,k,vy){const R=s*.42,at=(x,z)=>{const dx=(x-cam.x)*k,dz=(z-cam.z)*k,c=Math.cos(vy),n=Math.sin(vy);let px=dx*c-dz*n,py=dx*n+dz*c;const m=Math.max(Math.abs(px),Math.abs(py));if(m>R){px*=R/m;py*=R/m}return[s/2+px,s/2+py,m>R]};
+  const badge=(x,z,bg,draw)=>{const[px,py,out]=at(x,z);g.globalAlpha=out?.8:1;g.fillStyle=bg;g.beginPath();g.arc(px,py,13,0,6.2832);g.fill();g.lineWidth=2.5;g.strokeStyle="#f6f0e2";g.stroke();g.fillStyle="#fff";g.strokeStyle="#fff";g.lineWidth=2;draw(px,py);g.globalAlpha=1};
+  const near=(L,r,n)=>L.map(P=>[Math.hypot(P.x-cam.x,P.z-cam.z),P]).filter(a=>a[0]<r).sort((a,b)=>a[0]-b[0]).slice(0,n).map(a=>a[1]);
+  const pl=T.map&&T.map.places||[];
+  for(const[re,bg,draw]of[[/Workshop/,"#25483a",(x,y)=>{g.beginPath();g.moveTo(x-5,y+5);g.lineTo(x+3,y-3);g.stroke();g.beginPath();g.arc(x+4,y-4,3,0,6.2832);g.stroke()}],
+      [/Filling Station/,"#7a4a10",(x,y)=>{g.fillRect(x-5,y-5,7,11);g.fillRect(x+3,y-3,2,7)}],
+      [/Market/,"#9a5a12",(x,y)=>{g.beginPath();g.moveTo(x-6,y-4);g.lineTo(x+6,y-4);g.lineTo(x+4,y+2);g.lineTo(x-4,y+2);g.closePath();g.fill();g.fillRect(x-4,y+4,2,2);g.fillRect(x+2,y+4,2,2)}]])
+    for(const P of near(pl.filter(p=>re.test(p.name)),170,1))badge(P.x,P.z,bg,draw);
+  for(const P of near(T.parks||[],140,2))badge(P.term[0],P.term[1],"#c8473a",(x,y)=>{g.font="800 14px Segoe UI,system-ui,sans-serif";g.textAlign="center";g.textBaseline="middle";g.fillText("P",x,y+1)});
+  if(GOVME&&GOVME.posts)for(const p of GOVME.posts){const w=typeof guideWork==="function"&&guideWork(p);if(!w||(w.B.state||"Asaba")!==me.town)continue;const key={stategov:"gov",federal:"fed",presidency:"villa",hosp:"hosp",bank:"bank",treasury:"treasury"}[w.B.type]||w.B.type,d=T.spots[key];
+    if(d)badge(d.x,d.z,"#b8860b",(x,y)=>{g.strokeRect(x-5.5,y-3,11,8);g.strokeRect(x-2.5,y-5.5,5,2.5)});break}
+  const C=T.car;if(C&&!driving)badge(C.x,C.z,"#2b8bbf",(x,y)=>{g.fillRect(x-6,y-1,12,4);g.fillRect(x-4,y-4,8,3);g.beginPath();g.arc(x-3.5,y+4,1.8,0,6.2832);g.arc(x+3.5,y+4,1.8,0,6.2832);g.fill()})}
+/* ---- how you are moving */
+function hudMoving(){if(driving)return["car","Driving"];if(TOW)return["car","Being towed"];if(scene==="town"&&flying)return["map","Flying (testing)"];
+  if(jump.t>=0)return["run","Jumping"];if(gait.amt>.35)return gait.run>.5?["run","Running"]:["walk","Walking"];return["stand","Standing"]}
+/* ---- every half second: the words and numbers */
+function hudTick(){hudInit();if(NOW-HUD.tick<.5)return;HUD.tick=NOW;document.body.classList.toggle("choosing",!!choosing);
+  const[a,b]=hudWhere(),lb=HUD.el.loc.querySelector("b"),ls=HUD.el.loc.querySelector("small");if(lb.textContent!==a)lb.textContent=a;if(ls.textContent!==b)ls.textContent=b;
+  const[mi,mt]=hudMoving(),me2=HUD.el.move;if(me2.dataset.m!==mt){me2.dataset.m=mt;me2.querySelector(".mi").innerHTML=hico(mi,18);me2.querySelector(".mt").textContent=mt}
+  HUD.el.map.classList.toggle("nomap",miniC.hidden);HUD.el.loc.hidden=scene==="town"&&!!mapOpen;
+  guide();const g=document.getElementById("guide"),tut=g.textContent;let O=null;if(!tut)O=hudObjective();
+  if(!tut&&O){if(g.textContent!==O.text)g.textContent=O.text;g.hidden=false}
+  HUD.el.obj.hidden=!(tut||O);const qt=tut?(tut.split(/[:.]/)[0]||"Welcome"):(O&&O.short)||"",qe=HUD.el.obj.querySelector(".qt");if(qe.textContent!==qt)qe.textContent=qt;
+  let bar=HUD.el.obj.querySelector(".bar");const pct=O&&O.pct;if(pct!=null){if(!bar){bar=document.createElement("div");bar.className="bar";bar.innerHTML="<i></i>";HUD.el.obj.querySelector(".hb>div").appendChild(bar)}bar.firstChild.style.width=Math.round(pct*100)+"%"}else if(bar)bar.remove();
+  if(HUD.fold.card===false&&NOW-(HUD.cardAt||0)>6){HUD.fold.card=true;hudLayout()}
+  HUD.el.card.hidden=!(me.cert||typeof AUTH!=="undefined"&&AUTH.char);hudCard();
+  // help: shown for a while after it changes, then it steps aside (Settings brings it back)
+  const tip=document.getElementById("tip");if(tip.textContent!==HUD.tipText){HUD.tipText=tip.textContent;HUD.tipAt=NOW}tip.classList.toggle("gone",!HUD.fold.help);
+  if(HUD.histOpen)hudNotesDraw();if(HUD.open==="inv")hudSheet();hudPlace()}
+
 function ui(){guide();const el=document.getElementById("picks");el.innerHTML="";const add=(label,fn,on)=>{const bt=document.createElement("button");bt.textContent=label;bt.addEventListener("click",fn);if(on)bt.setAttribute("aria-pressed","true");el.appendChild(bt);return bt};
   if(scene!=="town"&&route)clearRoute();if(scene!=="town")closeMap();
-  add(view3?"View: behind me":"View: my eyes",()=>{view3=!view3;ui()});add(testOpen?"Close testing":"Testing",()=>{testOpen=!testOpen;ui()},testOpen);if(me.role==="admin"&&typeof AUTH!=="undefined"&&AUTH.user)add("Admin",()=>adminPanel());if(typeof AUTH!=="undefined"&&AUTH.user&&!AUTH.offline){add("Government",govScreen);if(GOVME&&(GOVME.posts||[]).length)add("My work",govWork)}if(typeof AUTH!=="undefined"&&AUTH.user)add("Log out",logOut);
+  hudInit();{const h=document.createElement("h4");h.textContent="SETTINGS";el.appendChild(h)}
+  add(view3?"View: behind me":"View: my eyes",()=>{view3=!view3;ui()});add(HUD.fold.help?"Controls help: on":"Controls help: off",()=>{HUD.fold.help=!HUD.fold.help;HUD.tipAt=NOW;hudSave();ui()},!!HUD.fold.help);
+  add(HUD.fold.stats?"Performance: on":"Performance: off",()=>{HUD.fold.stats=!HUD.fold.stats;hudSave();document.body.classList.toggle("stats",HUD.fold.stats);ui()},!!HUD.fold.stats);document.body.classList.toggle("stats",!!HUD.fold.stats);
+  add(testOpen?"Close testing":"Testing",()=>{testOpen=!testOpen;ui()},testOpen);if(typeof AUTH!=="undefined"&&AUTH.user)add("Log out",logOut);
   if(testOpen){const sel=document.createElement("select");sel.className="who";sel.setAttribute("aria-label","Who you are");for(const[k,label]of ROLES){const o=document.createElement("option");o.value=k;o.textContent="You are: "+label;if(k===me.role)o.selected=true;sel.appendChild(o)}
     sel.addEventListener("change",()=>{const next=sel.value;if(next==="newcomer")return toBorder(true);const was=me.role;me.role=next;if(!me.cert)me.cert=Object.assign({},SAMPLE);if(was==="newcomer"&&scene!=="town"){pickDefault();choosing=false;document.getElementById("choose").hidden=true}ui()});el.appendChild(sel);
     add(SHADOW.on?"Shadows: on":"Shadows: off",()=>{SHADOW.on=!SHADOW.on;ui()},SHADOW.on);{const T=[null,7,12,17.5,18.6,19.2,22],k=T.indexOf(TIMEOVR),f=h=>String(Math.floor(h)).padStart(2,"0")+":"+String(Math.round(h%1*60)).padStart(2,"0");add("Time: "+(TIMEOVR===null?"real ("+f(watHours())+")":f(TIMEOVR)),()=>{TIMEOVR=T[(k+1)%T.length];lightAt=-1;ui()})}add("Ground: "+["all lawns","mixed","all red earth"][GROUND.mode],()=>{GROUND.mode=(GROUND.mode+1)%3;ui()});
@@ -4232,7 +4526,7 @@ function ui(){guide();const el=document.getElementById("picks");el.innerHTML="";
     add("Start again at the border",()=>toBorder(true))}
   const walk=touch?"Left thumb: move. Drag elsewhere to look around, pinch to zoom. Hold Run to run. ":"W A S D move, Shift runs, Space jumps. Click the scene to look around with the mouse (Esc frees it); the wheel zooms; V switches view. ";
   document.getElementById("tip").textContent={town:walk+(touch?"":"Hold Shift to run. ")+"Tap the round map for directions. Blue doorways lead inside. "+(garOn()?"Your vehicles are kept in the car parks (P on the map).":"Walk up to the red car to drive it."),
-    border:walk+"Go through the gate and into the blue doorway marked Arrivals.",imm:walk+(touch?"Walk up to Violet to talk to her.":"Walk up to Violet and press E to talk to her."),bank:walk+"The blue doorway is the way out.",gov:walk+"The blue doorway is the way out.",trs:walk+"Walk up to a desk terminal to use it. The blue doorway leads out.",hosp:walk+"The lifts are at the back of the lobby; walk up to them to change floor. The blue doorways lead out."}[scene]}
+    border:walk+"Go through the gate and into the blue doorway marked Arrivals.",imm:walk+(touch?"Walk up to Violet to talk to her.":"Walk up to Violet and press E to talk to her."),bank:walk+"The blue doorway is the way out.",gov:walk+"The blue doorway is the way out.",trs:walk+"Walk up to a desk terminal to use it. The blue doorway leads out.",hosp:walk+"The lifts are at the back of the lobby; walk up to them to change floor. The blue doorways lead out."}[scene];hudNav()}
 /* The airport's departures board: choose a state and fly there. */
 function departures(){choosing=true;const el=document.getElementById("choose");el.hidden=false;
   el.innerHTML=`<div class="card"><h1>${STATES[me.town].air}</h1><p>Departures. Choose where to fly. You arrive outside that state's airport.</p><div class="lab">Flights today</div>
@@ -4283,7 +4577,7 @@ function becomeCitizen(c){AUTH.char=c;me.gender=c.gender;me.outfit=c.look||(ROST
   me.role=c.role||"citizen";me.cash=+c.cash||0;me.cert={no:c.cert_no,name:c.name,dob:c.dob,gender:c.gender,state:c.home_state,date:fmtDate(c.cert_date)};me.entered=true;showCash();govRefresh()}
 /* ---- the money in your hand, top right ---- */
 const cashEl=document.createElement("div");cashEl.className="cashpill";cashEl.hidden=true;document.body.appendChild(cashEl);
-function showCash(){if(AUTH.char){cashEl.textContent="K"+Number(me.cash||0).toLocaleString("en-GB");cashEl.hidden=false}else cashEl.hidden=true}
+function showCash(){if(AUTH.char){const t="K"+Number(me.cash||0).toLocaleString("en-GB");if(cashEl.textContent!==t)cashEl.innerHTML=hico("wallet",18)+"<span>"+t+"</span>";cashEl.hidden=false}else cashEl.hidden=true}
 /* ---- the sign-in screen: it uses the same card as choosing a character. An email already typed is kept when the form is redrawn. ---- */
 function authScreen(msg,isError){chooserOn=false;choosing=true;const el=document.getElementById("choose"),login=AUTH.mode==="login",typed=document.getElementById("a_email"),last=(typed&&typed.value)||(stored()||{}).email||"";el.hidden=false;document.getElementById("guide").hidden=true;
   el.innerHTML=`<div class="card auth"><h1>Delta City RP</h1><p>${login?"Welcome back. Log in to continue where you left off.":"Create your account. Your citizen, money and progress are saved to it."}</p>
