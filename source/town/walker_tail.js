@@ -1,7 +1,7 @@
 /* ============================ people who walk ============================
    The player's own character, drawn with its skeleton moved on the graphics chip. The walk and
    run are the same measured gait as in the walking test; it works on any character whose bones
-   carry the standard names, so the woman and Henry share it. */
+   carry the standard names, so all the characters share it. */
 const WALKER=(()=>{
 const D=Math.PI/180;let WOMAN=null;
 const SKINP=program(`attribute vec3 p,n;attribute vec2 uv;attribute vec4 j,w,paint;uniform vec4 B[84];uniform mat4 vp,model;uniform vec3 lo;uniform float span;uniform vec2 uvlo,uvspan;varying vec3 vn;varying vec2 vu;varying vec4 vpaint;

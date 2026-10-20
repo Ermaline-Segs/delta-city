@@ -265,9 +265,9 @@ document.getElementById("choose").addEventListener("click",e=>{const b=e.target.
   else if(b.dataset.stay)shut();else if(b.dataset.fly){const to=b.dataset.fly;shut();toTown(to,"air","Flying to "+to+"...",16)}});
 const guide0=guide;guide=function(){guide0();if(choosing)document.getElementById("guide").hidden=true};
 ui();chooser();requestAnimationFrame(frame);
-Promise.resolve().then(()=>{WALKER.init();return Promise.all([WALKER.load("girl",{idle:"f_idle",walk:"f_walk",jog:"f_jog",back:"f_back"}),WALKER.load("henry",{idle:"m_idle",walk:"m_walk",jog:"m_jog",back:"m_back"}),WALKER.load("c_party2",{idle:"f_idle",walk:"f_walk",jog:"f_jog",back:"f_back"}),WALKER.load("c_club",{idle:"f_idle",walk:"f_walk",jog:"f_jog",back:"f_back"})])}).then(([w,h,p2,club])=>{w.armIn=8;CAST.violet=w;
+Promise.resolve().then(()=>{WALKER.init();return Promise.all([WALKER.load("girl",{idle:"f_idle",walk:"f_walk",jog:"f_jog",back:"f_back"}),WALKER.load("c_party2",{idle:"f_idle",walk:"f_walk",jog:"f_jog",back:"f_back"}),WALKER.load("c_club",{idle:"f_idle",walk:"f_walk",jog:"f_jog",back:"f_back"})])}).then(([w,p2,club])=>{w.armIn=8;CAST.violet=w;
   // everyone a player can choose, by gender. The first in each list is the default.
-  ROSTER.Male=[{key:"henry",name:"Henry",m:h}];ROSTER.Female=[{key:"party",name:"Zoey",m:p2},{key:"club",name:"Tracy",m:club}];PLAYERS.Male=h;PLAYERS.Female=p2;
+  ROSTER.Male=[];ROSTER.Female=[{key:"party",name:"Zoey",m:p2},{key:"club",name:"Tracy",m:club}];PLAYERS.Female=p2;
   // each one's photograph (for the certificate) and full-length picture (for choosing), framed to their own height
   const still={p:0,run:0,amt:0},bg=[.84,.88,.92];for(const g of["Male","Female"])for(const c of ROSTER[g]){const hy=c.m.rest[c.m.index.Head][13],dr=VP=>WALKER.draw(c.m,VP,0,0,0,Math.PI,still,2,null,"");
     PICS[g][c.key]={face:snap(300,396,[.1,hy+.1,.94],[0,hy+.065,0],.5,bg,dr),body:snap(240,440,[.5,hy*.66,hy*2.3],[0,hy*.57,0],.5,bg,dr)}}
@@ -296,7 +296,7 @@ CSS=r'''.guide{pointer-events:none}
 @media (max-width:760px){.mini{width:112px;height:112px;top:calc(96px + env(safe-area-inset-top,0px))}.mapmenu{width:auto;grid-auto-flow:column;top:6px;left:6px;right:6px;overflow-x:auto}.mapmenu button{white-space:nowrap;padding:8px 10px}.picks{top:calc(10px + env(safe-area-inset-top,0px));left:auto}}
 select.who{font:inherit;font-weight:600;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:8px 12px;max-width:min(78vw,340px)}'''
 out=out.replace("[hidden]{display:none !important}","[hidden]{display:none !important}\n"+CSS,1)
-MODELS="".join('<script type="application/json" id="%s">%s</script>\n'%(i,open('/home/claude/w/models/'+f).read()) for i,f in (("m_terminal","terminal.json"),("m_audi","audi.json"),("henry","henry.json"),("girl","../game3d/woman.json"),("c_party2","party2.json"),("c_club","club.json"),("anims","../anim/anims.json")))
+MODELS="".join('<script type="application/json" id="%s">%s</script>\n'%(i,open('/home/claude/w/models/'+f).read()) for i,f in (("m_terminal","terminal.json"),("m_audi","audi.json"),("girl","../game3d/woman.json"),("c_party2","party2.json"),("c_club","club.json"),("anims","../anim/anims.json")))
 out=out.replace('<canvas id="mini"',MODELS+'<canvas id="mini"',1)
 open('town.html','w',encoding='utf-8').write(out)
 js=out[out.rindex('<script>')+8:out.rindex('</script>')]; open('/tmp/town.js','w').write(js)

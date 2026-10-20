@@ -14,7 +14,7 @@
 - `source/town/bank_tail.js`, `immigration_tail.js`, `gov_tail.js` – the insides of the banks, Immigration, and the government buildings.
 - `source/town/walker_tail.js` – the characters and their recorded movement.
 - `source/town/build_asaba.py` – joins everything into `index.html` and holds the game's own logic (map, routes, car, doors, chooser).
-- `source/models/*.json` – the converted models: airport terminal, car, Henry, Zoey (`party2`), Tracy (`club`).
+- `source/models/*.json` – the converted models: airport terminal, car, Zoey (`party2`), Tracy (`club`).
 - `source/character/woman.json` – Violet.
 - `source/anim/anims.json` – the recorded movements.
 - `source/models/pack_*.py`, `source/anim/*.py` – the converters that made those files from the original downloads.
