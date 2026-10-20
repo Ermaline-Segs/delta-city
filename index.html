@@ -89,7 +89,7 @@ body.driving .hud{display:none}
 .wbtn{position:fixed;z-index:4;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px;padding:5px 12px 5px 5px;border-radius:24px;border:2px solid rgba(255,255,255,.9);background:rgba(15,31,51,.78);color:#fff;font:700 13.5px system-ui,sans-serif;white-space:nowrap;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .wbtn svg{width:28px;height:28px;padding:4px;border-radius:50%;background:#FBBF24;color:#14263D;box-sizing:border-box}.wbtn{transition:opacity .2s}
 .wtag{position:fixed;z-index:4;transform:translate(-50%,-100%);display:flex;align-items:center;gap:8px;padding:5px 10px 5px 5px;max-width:min(78vw,300px);border-radius:12px;background:rgba(12,22,38,.82);border:1px solid rgba(255,255,255,.22);color:#fff;font:600 12.5px/1.25 system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.28);backdrop-filter:blur(3px);transition:opacity .2s,transform .2s;pointer-events:none;margin-top:-8px}
-.wtag.tap{pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent}.wtag::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:rgba(12,22,38,.82)}
+.wtag.tap{pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent}.wtag::after{content:"";position:absolute;left:calc(50% + var(--ax,0px));bottom:-6px;margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:rgba(12,22,38,.82)}
 .wtag .ti{font-style:normal;font-size:16px;width:26px;height:26px;display:grid;place-items:center;border-radius:8px;background:rgba(255,255,255,.12);flex:none}.wtag .tb{display:grid;gap:2px;min-width:0}
 .wtag .tt{font-weight:700;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wtag .ts{font-weight:500;font-size:11px;opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wtag .tp{display:block;height:3px;border-radius:2px;background:rgba(255,255,255,.18);overflow:hidden;margin-top:1px}.wtag .tp u{display:block;height:100%;background:#FBBF24;transition:width .4s}.wtag .tp[hidden]{display:none}
@@ -2930,12 +2930,13 @@ const tagHit=(a,b)=>a[0]<b[2]&&a[2]>b[0]&&a[1]<b[3]&&a[3]>b[1];
 // lay the frame's tags out: most important first, each at its own spot or the nearest free one just above or below it
 function tagLayout(){const R=TAGS.req;TAGS.req=[];R.sort((a,b)=>b.prio-a.prio);const placed=[],avoid=tagAvoid();
   for(const t of R){const el=t.el;if(el.hidden){el.hidden=false;el.classList.add("tin");el._x=t.sx;el._y=t.sy;requestAnimationFrame(()=>el.classList.remove("tin"))}
-    const W=el.offsetWidth||120,H=el.offsetHeight||34,box=(x,y)=>[x-W/2,y-H/2,x+W/2,y+H/2];let best=null;
-    for(const dy of[0,-(H+6),H+6,-2*(H+6),2*(H+6)]){const b=box(t.sx,t.sy+dy);if(b[1]<4||b[3]>innerHeight-4)continue;if(placed.some(q=>tagHit(q,b)))continue;if(avoid.some(q=>tagHit(q,b)))continue;best=[t.sx,t.sy+dy];break}
+    const W=el.offsetWidth||120,H=el.offsetHeight||34,box=(x,y)=>[x-W/2,y-H/2,x+W/2,y+H/2],cx=clamp(t.sx,W/2+6,innerWidth-W/2-6);let best=null;
+    // its own spot first (kept on screen), then just above or below it, then slid sideways: the pointer still aims at the target
+    search:for(const dx of[0,-W*.6,W*.6])for(const dy of[0,-(H+6),H+6,-2*(H+6),2*(H+6)]){const x=clamp(cx+dx,W/2+6,innerWidth-W/2-6),b=box(x,t.sy+dy);if(b[1]<4||b[3]>innerHeight-4)continue;if(placed.some(q=>tagHit(q,b)))continue;if(avoid.some(q=>tagHit(q,b)))continue;best=[x,t.sy+dy];break search}
     if(!best){if(t.prio>=5)best=[t.sx,t.sy];else{el.hidden=true;continue}}       // nowhere clear: a button still shows, a status tag waits
     // eased into place (a big jump, such as a camera cut, snaps)
     const k=Math.hypot(best[0]-el._x,best[1]-el._y)>140?1:.35;el._x+=(best[0]-el._x)*k;el._y+=(best[1]-el._y)*k;placed.push(box(el._x,el._y));
-    el.style.left=Math.round(el._x)+"px";el.style.top=Math.round(el._y)+"px";el.style.opacity=t.fade.toFixed(2)}}
+    el.style.left=Math.round(el._x)+"px";el.style.top=Math.round(el._y)+"px";el.style.opacity=t.fade.toFixed(2);el.style.setProperty("--ax",Math.round(clamp(t.sx-el._x,-W/2+14,W/2-14))+"px")}}
 // a status tag's content: an icon, the activity and its target, the detail, and progress (0..1, or null)
 function tagSet(el,icon,title,sub,pct){const k=icon+"|"+title;if(el._k!==k){el._k=k;el.querySelector(".ti").textContent=icon;el.querySelector(".tt").textContent=title;if(el._k0){el.classList.add("chg");setTimeout(()=>el.classList.remove("chg"),350)}el._k0=1}
   const s=el.querySelector(".ts");if(s.textContent!==sub)s.textContent=sub;const bar=el.querySelector(".tp");bar.hidden=pct==null;if(pct!=null){bar.firstChild.style.width=Math.round(pct*100)+"%";const pc=el.querySelector(".tpc"),t=Math.round(pct*100)+"%";if(pc.textContent!==t)pc.textContent=t}else el.querySelector(".tpc").textContent=""}
@@ -3286,7 +3287,7 @@ function mechDraw(T,VP,eye,t){const W=T.workshop;if(!W||Math.hypot(W.x-cam.x,W.z
 function mechTag(T,VP,w,h){const el=CARUI.job,W=T.workshop,C=T.car,J=C&&C.dmg&&C.dmg.job;if(!W||!J||Math.hypot(C.x-W.x,C.z-W.z)>3){el.hidden=true;return}
   const now=Date.now(),S=mechState(W,J,now),[icon,verb]=jobVerb(S.k),all=clamp01((now-J.start)/Math.max(1,J.until-J.start)),left=mmss(J.until-now);
   tagSet(el,icon,verb+" \u2014 "+carCfg(C).name,(S.walking?"Next: ":"")+JOBNAME(S.k)+(S.walking?"":" "+Math.round(S.pct*100)+"%")+" \u00B7 "+(S.step+1)+"/"+S.steps+" \u00B7 "+left+" left",all);
-  carUIPlace(el,[C.x,2.45+S.lift,C.z],VP,w,h,null,{prio:4,max:45})}
+  carUIPlace(el,[C.x,Math.min(3.7,2.45+S.lift),C.z],VP,w,h,null,{prio:4,max:45})}
 // your own car, on foot nearby: its plate and whether it is safe in a bay or on the clock to be taken back
 function vehTag(T,VP,w,h){const el=CARUI.veh,C=T.car;if(!C||!C.vid||driving||CARSEQ||TOW||C.dmg&&C.dmg.job){el.hidden=true;return}const d=Math.hypot(C.x-cam.x,C.z-cam.z);if(d<3.2||d>28){el.hidden=true;return}
   const w_=parkWhere(T,C),inBay=w_&&w_.bay!=null,left=C.abandonedAt?C.abandonedAt+GAR.cfg.abandon_s*1000-garNow():0,D=carD(C);
