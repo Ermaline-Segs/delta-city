@@ -61,6 +61,45 @@ Wheelbase 2.34 m, track 1.44 m.
 
 Wheelbase 2.29 m, track 1.56 m.
 
+## Yellow taxi: Toyota Corolla E180 (`taxi_corolla.glb`)
+
+- **Source:** "2014 Toyota Corolla E180 EU (with interior)" by Armored Wave, **CC-BY 4.0**, credited in `../CREDITS.md`.
+- **Changes:**
+  - Painted taxi yellow, with a roof sign added.
+  - The four doors cut out, each pivoted on its hinge.
+  - Wheels and steering wheel separated.
+  - Reduced from 84,000 to 19,118 triangles.
+  - Textures reduced to 1024 px.
+- **Size:** 4.34 m long, 2.04 m wide (including mirrors), 1.51 m high (including the roof sign). The file is 2.9 MB.
+- **Driver:** sits on the **left**.
+- **Interior:** the original was kept: seats, dashboard, door cards, centre console and belts.
+
+| Part | Pivot `[x, y, z]` (m) | Notes |
+|---|---|---|
+| `door_FL` | `[-0.845, 0.770, -0.870]` | hinged on its front edge; 1.06 m long, 1.00 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_FR` | `[0.845, 0.770, -0.870]` | hinged on its front edge; 1.06 m long, 1.00 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `door_RL` | `[-0.852, 0.770, 0.210]` | hinged on its front edge; 0.69 m long, 1.00 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_RR` | `[0.852, 0.770, 0.210]` | hinged on its front edge; 0.69 m long, 1.00 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `wheel_FL` | `[-0.610, 0.307, -1.253]` | radius 0.31 m |
+| `wheel_FR` | `[0.612, 0.307, -1.252]` | radius 0.31 m |
+| `wheel_RL` | `[-0.610, 0.307, 1.293]` | radius 0.31 m |
+| `wheel_RR` | `[0.610, 0.308, 1.293]` | radius 0.31 m |
+| `steering_wheel` | `[-0.359, 0.843, -0.553]` | tilted 14 deg from vertical; spins about its own local Z axis, with positive meaning turning left. Keep the loaded quaternion `q0` and set `steering_wheel.quaternion.copy(q0).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), angle))` |
+
+Each door includes its window, its frame and its inner door card. The front doors also carry the mirrors, as on the real car.
+
+**Seats** are given as hip points: where a seated character's pelvis goes, in metres, in the root node's space.
+
+| Seat | Hip point `[x, y, z]` |
+|---|---|
+| driver | `[-0.360, 0.600, 0.120]` |
+| front passenger | `[0.360, 0.600, 0.120]` |
+| rear left | `[-0.360, 0.600, 0.730]` |
+| rear right | `[0.360, 0.600, 0.730]` |
+| rear middle | `[0.000, 0.600, 0.730]` |
+
+The driver plus three passengers use the driver's seat, the front passenger seat, rear left and rear right. The rear middle seat is a fifth place if you want one.
+
 ## Door check (`previews/`)
 
 For each car: `<car>_driver_open.png` (front-left corner, driver's door open 60 deg), `<car>_top_open.png` (from above, both doors open 60 deg) and `<car>_closed.png` (doors shut).
@@ -78,5 +117,4 @@ For each car: `<car>_driver_open.png` (front-left corner, driver's door open 60 
 ## Not done yet
 
 - **Audi R8:** the original model is not in the repository. Only `source/models/audi.json` is there, a packed copy made from `Downloads/Audi+R8.glb`: about 93,000 triangles, vertex colours, no recorded author or licence. It was not converted.
-- **A realistic saloon:** waiting for a download.
 - **Car sounds:** not started yet.
