@@ -58,7 +58,31 @@ insert into car_parks(id, state, name, x, z, bays) values
   ('ozoro-1', 'Ozoro', 'Ozoro Central Car Park', -40.4, 12.5,  5),
   ('ozoro-2', 'Ozoro', 'Ozoro South Car Park',    12.5, -32.4, 5),
   ('agbor-1', 'Agbor', 'Agbor Central Car Park', -40.4, 12.5,  5),
-  ('agbor-2', 'Agbor', 'Agbor South Car Park',    12.5, -32.4, 5)
+  ('agbor-2', 'Agbor', 'Agbor South Car Park',    12.5, -32.4, 5),
+  ('asaba-3', 'Asaba', 'Asaba Car Park 3', 12.5, -38.4, 5),
+  ('asaba-4', 'Asaba', 'Asaba Car Park 4', -36.4, -12.5, 5),
+  ('asaba-5', 'Asaba', 'Asaba Car Park 5', 152, -65, 5),
+  ('asaba-6', 'Asaba', 'Asaba Car Park 6', 12.5, 32.4, 5),
+  ('asaba-7', 'Asaba', 'Asaba Car Park 7', 144.4, 12.5, 5),
+  ('asaba-8', 'Asaba', 'Asaba Car Park 8', -92.4, -12.5, 5),
+  ('warri-3', 'Warri', 'Warri Car Park 3', -12.5, 71, 5),
+  ('warri-4', 'Warri', 'Warri Car Park 4', -63, 104, 5),
+  ('warri-5', 'Warri', 'Warri Car Park 5', 105, 104, 5),
+  ('warri-6', 'Warri', 'Warri Car Park 6', 55, 12.5, 5),
+  ('warri-7', 'Warri', 'Warri Car Park 7', -113, 80, 5),
+  ('warri-8', 'Warri', 'Warri Car Park 8', 155, 80, 5),
+  ('ozoro-3', 'Ozoro', 'Ozoro Car Park 3', -12.5, -32.4, 5),
+  ('ozoro-4', 'Ozoro', 'Ozoro Car Park 4', 12.5, 32.4, 5),
+  ('ozoro-5', 'Ozoro', 'Ozoro Car Park 5', -12.5, -96.4, 5),
+  ('ozoro-6', 'Ozoro', 'Ozoro Car Park 6', -89, -106.9, 5),
+  ('ozoro-7', 'Ozoro', 'Ozoro Car Park 7', -46.1, 84.5, 5),
+  ('ozoro-8', 'Ozoro', 'Ozoro Car Park 8', 12.5, 90.4, 5),
+  ('agbor-3', 'Agbor', 'Agbor Car Park 3', -12.5, -32.4, 5),
+  ('agbor-4', 'Agbor', 'Agbor Car Park 4', 12.5, 32.4, 5),
+  ('agbor-5', 'Agbor', 'Agbor Car Park 5', -12.5, -96.4, 5),
+  ('agbor-6', 'Agbor', 'Agbor Car Park 6', -89, -106.9, 5),
+  ('agbor-7', 'Agbor', 'Agbor Car Park 7', -46.1, 84.5, 5),
+  ('agbor-8', 'Agbor', 'Agbor Car Park 8', 12.5, 90.4, 5)
 on conflict (id) do update set state = excluded.state, name = excluded.name, x = excluded.x, z = excluded.z, bays = excluded.bays;
 
 create sequence if not exists vehicle_plate_seq;
