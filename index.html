@@ -88,7 +88,7 @@ body.driving .hud{display:none}
 @media (orientation:landscape) and (max-height:430px){.dcond{display:none}.dleft{flex-direction:row}}
 .wbtn{position:fixed;z-index:4;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px;padding:5px 12px 5px 5px;border-radius:24px;border:2px solid rgba(255,255,255,.9);background:rgba(15,31,51,.78);color:#fff;font:700 13.5px system-ui,sans-serif;white-space:nowrap;touch-action:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .wbtn svg{width:30px;height:30px;padding:4px;border-radius:50%;background:#FBBF24;color:#14263D;box-sizing:border-box}
-.cdsub{margin:-4px 0 10px;opacity:.75;font-size:14px}.cdhealth{display:flex;align-items:baseline;gap:8px;margin:6px 0 8px}.cdhealth b{font-size:34px;font-variant-numeric:tabular-nums}.cdhealth span{opacity:.75}
+.cdsub{margin:-4px 0 10px;opacity:.75;font-size:14px}.vlist{margin:8px 0;text-align:left}.vrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:14px}.vrow small{display:block;opacity:.75;font-size:12.5px;margin-top:2px}.vbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.vtag{background:#b8860b;color:#fff;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700}.admsp{display:flex;align-items:center;gap:6px;font-size:13px}.cdhealth{display:flex;align-items:baseline;gap:8px;margin:6px 0 8px}.cdhealth b{font-size:34px;font-variant-numeric:tabular-nums}.cdhealth span{opacity:.75}
 .cdwarn{margin:4px 0 12px;padding-left:20px;color:#b42318;font-weight:700;font-size:14px;text-align:left}.cdok{color:#15803d;font-weight:700;margin:4px 0 10px}
 .cdrow{display:grid;grid-template-columns:1fr minmax(80px,140px) 92px;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px;text-align:left}.cdrow b{text-align:right;font-variant-numeric:tabular-nums}
 .cdbar{display:block;height:8px;border-radius:6px;background:rgba(0,0,0,.1);overflow:hidden}.cdbar em{display:block;height:100%}
@@ -625,7 +625,7 @@ function modern(o){const w=o.w,d=o.d,fl=o.floors||3,fh=3.6,h=fl*fh,base=.6;
 
 /* ================================ what to show ================================ */
 const BUILDINGS=[];let MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]},BLOCKS=[];
-const KINDS=[[/^Highway/,"Transport","\u{1F6E3}\uFE0F"],[/Workshop/,"Transport","🔧"],[/Filling Station/,"Transport","⛽"],[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Border/,"Transport","🚧"],[/Port\b/,"Transport","⚓"],[/Transport/,"Transport","🚌"],
+const KINDS=[[/Car Park/,"Transport","🅿️"],[/^Highway/,"Transport","\u{1F6E3}\uFE0F"],[/Workshop/,"Transport","🔧"],[/Filling Station/,"Transport","⛽"],[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Border/,"Transport","🚧"],[/Port\b/,"Transport","⚓"],[/Transport/,"Transport","🚌"],
   [/Federal/,"Government","🏛"],[/Villa\b/,"Government","🏰"],[/State Government/,"Government","🏛"],[/Court/,"Government","⚖"],[/Police/,"Government","🛡"],[/Immigration/,"Government","🛂"],[/Agricultur|Resources|Food/,"Government","🌿"],
   [/Bank/,"Services","🏦"],[/Hospital/,"Services","✚"],[/University/,"Services","🎓"],[/Utilities/,"Services","⚡"],[/Housing/,"Services","🏠"],[/Hotel|Guest|Suites|Hyatti/,"Services","🛏"]];
 const mark=(name,x,z,color)=>{const w=wpt(x,z),k=KINDS.find(q=>q[0].test(name))||[0,"Districts","📍"];MAPD.places.push({name,x:w[0],z:w[1],color:color||"#14263D",group:k[1],icon:k[2]})};
@@ -2173,7 +2173,7 @@ let scene="border",busy=false,talking=false,choosing=true,flying=false,testOpen=
    The first seconds in a new place (while a town is built or a building loads) do not count. */
 const QMAX=Math.min(window.devicePixelRatio||1,1.25),QSET={key:"",until:0,cap:Math.min(window.devicePixelRatio||1,1.25),capAt:0};      /* cap: just below the last level that proved too much; raised again after 45 s, to try higher */
 const SAMPLE={no:"DC-ASB-0001",name:"Sample Citizen",dob:"01 September 1996",gender:"Female",state:"Asaba",date:"10 October 2026"};
-const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);roadJoins();highway(st);workshop(st,t);station(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
+const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);roadJoins();highway(st);workshop(st,t);station(st,t);carParks(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400)}
 function fadeTo(text,change){if(busy)return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
 const stand=(s,o)=>{scene=s;me.inside=s==="imm";Object.assign(me,{y:0,pitch:.03},o||{});SNAPCAM=true};
@@ -2186,7 +2186,7 @@ let HV=null,HFLOOR_N=0;
 const toHosp=(n,fromLift)=>fadeTo(STATES[me.town].hosp+": "+HFLOORS.find(f=>f.n===n).name,()=>{HV=hospOf(n,STATES[me.town].hosp);HFLOOR_N=n;const L=HV.F.lift;stand("hosp",fromLift?{x:L.x,z:L.z+1.4,yaw:Math.PI}:{x:0,z:7.4,yaw:0})});
 const toGov=(kind,spot)=>fadeTo(GOV_SPEC[kind](me.town).title,()=>{GV=govOf(kind,me.town);govSpot=spot;stand("gov",{x:0,z:G_LD-1.6,yaw:0})});
 // arrive in a town, standing outside one of its doors and facing away from it
-const toTown=(st,spot,text,dist,pos)=>fadeTo(text||st,()=>{me.town=st;driving=false;const T=townOf(st),d=T.spots[spot]||T.spots.imm;TGY=0;scene="town";me.inside=false;me.entered=true;Object.assign(cam,pos?{x:pos.x,y:1.7,z:pos.z,yaw:pos.yaw||0,pitch:0}:{x:d.x+d.fx*(dist||5),y:1.7,z:d.z+d.fz*(dist||5),yaw:Math.atan2(-d.fx,-d.fz),pitch:0});SNAPCAM=true;if(!T.car)parkCar(T)});
+const toTown=(st,spot,text,dist,pos)=>fadeTo(text||st,()=>{me.town=st;driving=false;const T=townOf(st),d=T.spots[spot]||T.spots.imm;TGY=0;scene="town";me.inside=false;me.entered=true;Object.assign(cam,pos?{x:pos.x,y:1.7,z:pos.z,yaw:pos.yaw||0,pitch:0}:{x:d.x+d.fx*(dist||5),y:1.7,z:d.z+d.fz*(dist||5),yaw:Math.atan2(-d.fx,-d.fz),pitch:0});SNAPCAM=true;if(!T.car&&!garOn())parkCar(T);garResume()});
 // one car, parked at the kerb of the road nearest to where you arrive
 function parkCar(T){let best=null;for(const r of T.map.roads){if(r.bridge)continue;const vx=r.x1-r.x0,vz=r.z1-r.z0,L=Math.hypot(vx,vz),t=clamp(((cam.x-r.x0)*vx+(cam.z-r.z0)*vz)/(L*L),.08,.92),x=r.x0+vx*t,z=r.z0+vz*t,d=Math.hypot(cam.x-x,cam.z-z);if(!best||d<best.d)best={d,x,z,ux:vx/L,uz:vz/L,w:r.w}}
   if(!best)return;const side=((cam.x-best.x)*-best.uz+(cam.z-best.z)*best.ux)>=0?1:-1,off=best.w/2-1.4;T.car={x:best.x-best.uz*side*off,z:best.z+best.ux*side*off,yaw:Math.atan2(-best.ux,-best.uz),v:0};if(T.savedCar){const s=T.savedCar;T.savedCar=null;if(s.pos&&(s.job||s.shop)){T.car.x=s.pos[0];T.car.z=s.pos[1];T.car.yaw=s.pos[2]}delete s.pos;T.car.dmg=s}}       // a car left at the workshop is still there
@@ -2821,7 +2821,7 @@ function crashWrite(){try{const out={};for(const[st,T]of Object.entries(TOWNS)){
     for(const o of T.map.dyn||[])if(o.at)dyn[o.i]={s:o.state,b:o.bend||0,dx:o.dx||0,dz:o.dz||0,x:o.x,z:o.z,yaw:o.yaw,tip:o.tip||0,tdx:o.tdx||0,tdz:o.tdz||0,p:o.push||0,sc:o.scuff||0,lk:o.leak||0,g:o.glassGone||0,w:o.water?{on:o.water.on,t0:o.water.t0,off:o.water.off||0,r0:o.water.r0||0}:null,at:o.at,
       d:DYN.debris.filter(d=>d.o===o&&d.rest).map(d=>[d.mesh,+d.x.toFixed(2),+d.z.toFixed(2),+d.yaw.toFixed(2)])};
     const trees=(T.treeInst||[]).filter(t=>t.fall).map(t=>[+t[1].toFixed(2),+t[2].toFixed(2),t.fall.dx,t.fall.dz,t.fall.kind,t.fall.at]);
-    out[st]={dyn,marks:(T.marks||[]).map(m=>({x:m.x,z:m.z,y:m.y,nx:m.nx,nz:m.nz,kind:m.kind,at:m.at})),trees,car:T.car&&T.car.dmg?Object.assign({},T.car.dmg,{pos:[T.car.x,T.car.z,T.car.yaw]}):null}}
+    out[st]={dyn,marks:(T.marks||[]).map(m=>({x:m.x,z:m.z,y:m.y,nx:m.nx,nz:m.nz,kind:m.kind,at:m.at})),trees,car:T.car&&T.car.dmg?Object.assign({},T.car.dmg,{pos:[T.car.x,T.car.z,T.car.yaw],vid:T.car.vid||0}):null}}
     localStorage.setItem(CRASH.KEY,JSON.stringify(out))}catch(e){}}
 // a town just built: put back the damage it had
 function crashLoad(st,T){let all;try{all=JSON.parse(localStorage.getItem(CRASH.KEY)||"null")}catch(e){}const s=all&&all[st];if(!s)return;
@@ -2856,6 +2856,7 @@ const spotClear=(T,x,z)=>!T.blocks.concat(T.vblocks||[]).some(w=>x>w[0]-.35&&x<w
    driver's door, or the passenger's if that side is blocked. ---- */
 let CARSEQ=null,CAMBL=null,LASTCAM=null;
 function carEnter(){if(CARSEQ||driving||busy||choosing||scene!=="town")return;const T=townOf(me.town),C=T.car;if(!C)return;const D=carD(C);
+  if(!garCanDrive(C)){toast("You do not have the keys to this vehicle");return}
   if(D.job){toast("Your car is in the workshop being repaired: ready in "+mmss(D.job.until-Date.now())+".");return}
   const door=carDoors(C).driver,s=Math.sign(door.stand[0]),[lx,lz]=carLoc(C,cam.x,cam.z),pts=[];
   if(lx*s<1.2){const T2=T,ok=z=>[-1,1].every(a=>{const q=carPt(C,[a*1.65,0,z]);return spotClear(T2,q[0],q[2])}),near=lz>=0?2.95:-2.95,zc=ok(near)||!ok(-near)?near:-near;       // round the nearer end of the car (or the clear one) to its driver's side
@@ -2866,9 +2867,9 @@ function carExit(){if(CARSEQ||busy)return;const T=townOf(me.town),C=T.car;if(!C|
   if(!spotClear(T,p[0],p[2])){door=ds.passenger;p=carPt(C,door.stand);if(!spotClear(T,p[0],p[2])){dashToast("There is no room to open a door here. Move the car first.",3);return}msg="The driver's side is blocked, so you got out on the passenger side."}
   const seat=carPt(C,door.seat);driving=false;C.v=0;VEH.gear="P";VEH.ind="off";vehicleLetGo();sndUpdate(false);dashUpdate();
   CAMBL={from:LASTCAM,t0:NOW,dur:.9};cam.x=seat[0];cam.z=seat[2];cam.yaw=Math.atan2(-(p[0]-seat[0]),-(p[2]-seat[2]));VIEW.yaw=C.yaw;SNAPCAM=false;
-  CARSEQ={stage:"out",C,t0:NOW,from:[seat[0],seat[2]],to:[p[0],p[2]],msg}}
+  const left=garLeft(C);CARSEQ={stage:"out",C,t0:NOW,from:[seat[0],seat[2]],to:[p[0],p[2]],msg:msg?msg+(left?" "+left:""):left}}
 function carSeated(C){driving=true;VEH.belt=false;setTimeout(carBase,600);cam.pitch=0;Object.assign(VEH,{gear:"P",orbit:0,lastVY:VIEW.yaw,camPos:null,hand:false,ind:"off",engine:false,engHint:0});sndStart();if(!CARL.low)buildCarLights();CAMBL={from:LASTCAM,t0:NOW,dur:.9};
-  const D=carD(C);if(D.shop){D.shop=false;crashSave()}
+  const D=carD(C);if(D.shop){D.shop=false;crashSave()}GAR.beatT=-1e9;
   toast(touch?"Driving: hold GO to drive and BRAKE to stop; drag the wheel to steer. Tap R to reverse. Stop, then tap the door to get out.":"Driving: W go, S brake, A and D steer, Space handbrake. Gears 1 to 4: P R N D. Q and R indicators, G hazards, H lights, C camera, F horn. Stop, then E or the door to get out.")}
 // each frame of the sequence: the way to walk (a direction), or null while standing, turning or stepping in or out
 function carSeqStep(){const S=CARSEQ;if(!S)return null;const C=S.C;
@@ -2891,11 +2892,12 @@ function carUIInit(){if(CARUI.door)return;const mk=(id,svg,label,fn)=>{const b=d
   CARUI.cond=mk("condBtn",ico('<path d="M3 16v-3l2-5h14l2 5v3H3z"/><circle cx="7.5" cy="16.5" r="1.8"/><circle cx="16.5" cy="16.5" r="1.8"/><path d="M12 9.5v3"/>'),"Car condition",carPanel);
   CARUI.fuel=mk("fuelBtn",ico('<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8l3 2v8a1.5 1.5 0 0 0 3 0v-7l-3-3"/>'),"Refuel",refuelPanel);
   CARUI.job=mk("jobTag",ico('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>')," ",()=>repairPanel());
+  CARUI.park=mk("parkBtn",ico('<rect x="4" y="3" width="16" height="18" rx="3"/><path d="M10 17V8h3a2.5 2.5 0 0 1 0 5h-3"/>'),"Car park",()=>{const P=garNear(townOf(me.town));if(P)garPanel(P)});
   CARUI.bay=mk("bayBtn",ico('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>'),"Repair bay",repairPanel)}
 function carUIPlace(el,p,VP,w,h,label){const x=VP[0]*p[0]+VP[4]*p[1]+VP[8]*p[2]+VP[12],y=VP[1]*p[0]+VP[5]*p[1]+VP[9]*p[2]+VP[13],q=VP[3]*p[0]+VP[7]*p[1]+VP[11]*p[2]+VP[15];
   if(q<=.1){el.hidden=true;return}const sx=(x/q*.5+.5)*w,sy=(1-(y/q*.5+.5))*h;if(sx<-40||sx>w+40||sy<-40||sy>h+40){el.hidden=true;return}
   el.hidden=false;el.style.left=Math.round(sx)+"px";el.style.top=Math.round(sy)+"px";if(label){const s=el.querySelector("span");if(s.textContent!==label)s.textContent=label}}
-function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,CARUI.fuel,CARUI.job];CARUI.near=false;
+function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,CARUI.fuel,CARUI.job,CARUI.park];CARUI.near=false;
   if(scene!=="town"||flying||busy||choosing||mapOpen||talking||CARSEQ||TOW){for(const b of all)b.hidden=true;return}
   const C=T.car;let door=false,cond=false,bay=false;
   if(C){const dr=carDoors(C).driver,hp=carPt(C,dr.handle),D=C.dmg;
@@ -2903,6 +2905,7 @@ function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,
       }}
   const W=T.workshop;if(W&&!driving&&Math.hypot(W.x-cam.x,W.z-cam.z)<7.5){carUIPlace(CARUI.bay,[W.x-W.fx*1.2,2.2,W.z-W.fz*1.2],VP,w,h);bay=true}
   let fuel=false;const pump=C&&stationPump(T,C);if(pump&&Math.abs(C.v)<.3&&(driving||Math.hypot(C.x-cam.x,C.z-cam.z)<5)){carUIPlace(CARUI.fuel,[pump.p[0],1.9,pump.p[1]],VP,w,h,C.dmg&&C.dmg.refuel?"Refuelling...":"Refuel");fuel=true}
+  const PK=garNear(T);if(PK)carUIPlace(CARUI.park,driving&&T.car?[T.car.x,2.2,T.car.z]:[PK.term[0],2.1,PK.term[1]],VP,w,h);else CARUI.park.hidden=true;
   mechTag(T,VP,w,h);if(!door)CARUI.door.hidden=true;if(!cond)CARUI.cond.hidden=true;if(!bay)CARUI.bay.hidden=true;if(!fuel)CARUI.fuel.hidden=true}
 
 /* ---- the car's condition, read from its damage record ---- */
@@ -2920,7 +2923,7 @@ function carWarnings(D){const W=[];if(D.fire>0)W.push("FIRE: the car is burning.
 function carPanel(){const T=townOf(me.town),C=T.car;if(!C)return;const D=carD(C),hp=carHealth(D),col=v=>v<.25?"#16a34a":v<.6?"#d97706":"#dc2626",bar=(label,v,txt)=>`<div class="cdrow"><span>${label}</span><i class="cdbar"><em style="width:${Math.round(100*(1-v))}%;background:${col(v)}"></em></i><b>${txt||Math.round(100*(1-v))+"%"}</b></div>`;
   const W=carWarnings(D),job=D.job,shop=T.workshop,tow=shop&&!job&&!(D.fire>0)&&(D.ver||D.fuel<=.02)&&!(Math.hypot(C.x-shop.x,C.z-shop.z)<3);
   choosing=true;const el=document.getElementById("choose");el.hidden=false;
-  el.innerHTML=`<div class="card cdcard"><h1>Car condition</h1><p class="cdsub">${esc(carCfg(C).name)}${job?" &middot; in the workshop, ready in "+mmss(job.until-Date.now()):""}</p>
+  el.innerHTML=`<div class="card cdcard"><h1>Car condition</h1><p class="cdsub">${esc(carCfg(C).name)}${job?" &middot; in the workshop, ready in "+mmss(job.until-Date.now()):""}</p><p class="cdsub">${garLine(C)}</p>
     <div class="cdhealth"><b style="color:${col(1-hp/100)}">${hp}%</b><span>overall health</span></div>
     ${W.length?`<ul class="cdwarn">${W.map(w=>`<li>${esc(w)}</li>`).join("")}</ul>`:`<p class="cdok">No warnings.</p>`}
     ${D.fire>0?`<p class="cdfire">The car is on fire. Get away from it; it can be repaired only once the fire is out.</p>`:""}
@@ -2955,9 +2958,130 @@ function workshop(st,t){const S=WORKSHOPS[st];if(!S)return;const turn=Math.atan2
     solidBox(-4,-D/2+.55,3.3,.9);solidBox(4.6,-D/2+.5,1.4,.7);solidBox(5.7,-1.6,.8,.8);solidBox(-6.05,-2.95,.7,1.4);
     mark(S.name,0,2);const b=wpt(0,.4),f=wpt(0,1.4);t.workshop={st,name:S.name,x:b[0],z:b[1],fx:f[0]-b[0],fz:f[1]-b[1],yaw:turn}})}
 
+/* ================================ owned vehicles, car parks and keys ================================
+   Every vehicle belongs to a citizen (by their permanent account id) and lives on the server (supabase_vehicles.sql):
+   stored in a bay of a car park, or out on the road as the one live copy (it carries a secret token given when it was
+   brought out). New citizens get no vehicle; the Chief Admin gives them out. You bring a car out at the car park it is
+   kept in, and put it back in any car park bay. A car left outside a car park is taken back to its car park 15 minutes
+   after it was left (timed by the server), or as soon as you walk more than 250 m away from it; a car in a bay stays.
+   Damage goes with the car. Guests (no account) get a practice car that is not saved on the server. */
+const CARPARKS={Asaba:[{id:"asaba-1",name:"Asaba Central Car Park",x:-12.5,z:-88.4,f:[1,0]},{id:"asaba-2",name:"Asaba East Car Park",x:106.5,z:-117,f:[0,1]}],
+  Warri:[{id:"warri-1",name:"Warri Central Car Park",x:-12.5,z:117,f:[1,0]},{id:"warri-2",name:"Warri Market Car Park",x:45,z:80,f:[0,1]}],
+  Ozoro:[{id:"ozoro-1",name:"Ozoro Central Car Park",x:-40.4,z:12.5,f:[0,-1]},{id:"ozoro-2",name:"Ozoro South Car Park",x:12.5,z:-32.4,f:[-1,0]}],
+  Agbor:[{id:"agbor-1",name:"Agbor Central Car Park",x:-40.4,z:12.5,f:[0,-1]},{id:"agbor-2",name:"Agbor South Car Park",x:12.5,z:-32.4,f:[-1,0]}]};
+const PARKBAY={n:5,w:3.2,d:5.4,z:-.9};       // in the car park's own metres: x along the road, z towards it; each bay's centre is at z
+// while a town is being built: clear each car park's plot, then lay it out (tarmac, numbered bays, the P sign and the terminal)
+function carParks(st,t){t.parks=[];for(const P of CARPARKS[st]||[]){const turn=Math.atan2(P.f[0],P.f[1]),c=Math.cos(turn),s=Math.sin(turn),wp=(lx,lz)=>[P.x+c*lx+s*lz,P.z-s*lx+c*lz];
+    const loc=(x,z)=>{const dx=x-P.x,dz=z-P.z;return[c*dx-s*dz,s*dx+c*dz]},inPlot=(x,z)=>{const[a,b]=loc(x,z);return Math.abs(a)<9.8&&b>-5&&b<5.2};
+    const gone=new Set();MAPD.dyn=MAPD.dyn.filter(o=>{if(!inPlot(o.x,o.z))return true;gone.add(o.b);return false});
+    for(let i=TREES.inst.length-1;i>=0;i--){const q=TREES.inst[i];if(inPlot(q[1],q[2])){TREES.inst.splice(i,1);for(const b of BLOCKS){const g=BTAG.get(b);if(g&&g.t===q)gone.add(b)}}}
+    for(let i=BLOCKS.length-1;i>=0;i--)if(gone.has(BLOCKS[i]))BLOCKS.splice(i,1);
+    const n=PARKBAY.n,bw=PARKBAY.w,L=n*bw+1.6,WHITE="#f4f3ef",BLUE="#1d4ed8";
+    at(P.x,P.z,turn,()=>{
+      box(0,0,0,L,.035,8.6,"#4a4d52",K.tile);                                                                        // the tarmac
+      for(let i=0;i<=n;i++)box((i-n/2)*bw,.036,PARKBAY.z,.1,.01,PARKBAY.d,WHITE);box(0,.036,PARKBAY.z-PARKBAY.d/2,n*bw,.01,.1,WHITE);
+      box(0,0,-4.25,L,.45,.25,"#cfc8b8");for(const x of[-L/2,L/2])box(x,0,-.2,.25,.16,8.2,"#cfc8b8");               // the back kerb and the side kerbs
+      for(let i=0;i<n;i++){const x=(i-(n-1)/2)*bw;box(x,0,-4.05,.08,.9,.08,"#5b6470");sign(x,.9,-4.0,.62,.46,String(i+1),BLUE,"#ffffff")}
+      cyl(-L/2+.5,0,3.7,.07,3,"#5b6470",8);sign(-L/2+.5,2.2,3.76,1,1,"P",BLUE,"#ffffff");sign(-L/2+.5,1.55,3.76,2.4,.36,P.name.toUpperCase(),"#14263d","#ffffff");
+      box(L/2-.7,0,3.5,.6,1.45,.42,"#2b3a4a");box(L/2-.7,1.0,3.72,.42,.3,.02,"#7dd3fc",K.glow);box(L/2-.7,1.45,3.5,.7,.06,.5,"#1f2a36");   // the car park terminal
+      SOLIDTAG="cwall";solidBox(0,-4.25,L,.3);SOLIDTAG=null;solidBox(L/2-.7,3.5,.7,.55);solidBox(-L/2+.5,3.7,.2,.2);
+      mark(P.name,0,0)});
+    const bays=[];for(let i=0;i<n;i++){const p=wp((i-(n-1)/2)*bw,PARKBAY.z);bays.push({i,x:p[0],z:p[1],yaw:Math.atan2(-P.f[0],-P.f[1])})}       // a car in a bay faces the road
+    const tm=wp(L/2-.7,4.3);t.parks.push({id:P.id,name:P.name,st,x:P.x,z:P.z,turn,f:P.f,bays,term:tm,loc})}}
+// which car park (and bay) a car is standing in, or null
+function parkWhere(T,C){for(const P of T.parks||[]){const[a,b]=P.loc(C.x,C.z);if(Math.abs(a)>PARKBAY.n*PARKBAY.w/2+.8||b<-4.2||b>4.6)continue;
+    let bay=null;for(const B of P.bays)if(Math.hypot(B.x-C.x,B.z-C.z)<1.5)bay=B.i;return{P,bay}}return null}
+
+const GAR={list:[],parks:[],cfg:{despawn_distance_m:250,abandon_s:900},skew:0,syncT:-1e9,beatT:-1e9,beating:false,out:null,keysFor:null,found:[],panel:null,ruleT:0};
+const garOn=()=>typeof AUTH!=="undefined"&&!!AUTH.user&&!AUTH.offline&&!!AUTH.char;
+async function garCall(fn,body){await freshToken();return supa("/rest/v1/rpc/"+fn,{method:"POST",auth:true,body:body||{}})}
+const garNow=()=>Date.now()+GAR.skew;          // the server's clock
+function garTake(d){if(d&&d.now)GAR.skew=new Date(d.now).getTime()-Date.now()}
+function garMine(){for(const[st,T]of Object.entries(TOWNS))if(T.car&&T.car.vid)return{st,T,C:T.car};return null}
+const garPark=id=>{for(const L of Object.values(CARPARKS))for(const P of L)if(P.id===id)return P;return null};
+const garHold=C=>TOW&&TOW.C===C?"tow":C.dmg&&C.dmg.job?"repair":C.dmg&&C.dmg.refuel?"refuel":C.dmg&&C.dmg.fire>0?"fire":null;
+// how far the driver is from the car: in another state, as far as can be; inside a building, from where they went in
+function garDist(st,C){if(st!==me.town)return 1e6;if(scene==="town")return Math.hypot(cam.x-C.x,cam.z-C.z);return GAR.out&&GAR.out[2]===st?Math.hypot(GAR.out[0]-C.x,GAR.out[1]-C.z):1e6}
+async function garSync(){if(!garOn())return;try{const d=await garCall("veh_mine");garTake(d);GAR.list=d.vehicles||[];GAR.parks=d.parks||[];if(d.cfg)GAR.cfg=d.cfg;GAR.syncT=NOW;garResume()}catch(e){}}
+// a car of mine that the server says is out with me: put it back in the world (after a reload, or on another phone)
+function garResume(){const v=GAR.list.find(q=>q.out_by_me&&q.token),M=garMine();
+  if(M&&(!v||v.id!==M.C.vid)){garGone(M.T,M.C,"Your car was taken back to the car park.");return}
+  if(!v||M||v.state!==me.town)return;const T=townOf(v.state);let x,z,yaw;
+  if(v.pos&&isFinite(v.pos.x)){x=v.pos.x;z=v.pos.z;yaw=v.pos.yaw||0}else{const P=(T.parks||[]).find(p=>p.id===v.park),B=P&&P.bays[v.in_bay||0];if(!B)return;x=B.x;z=B.z;yaw=B.yaw}
+  let dmg=v.damage&&Object.keys(v.damage).length?v.damage:null;const s=T.savedCar;if(s&&s.vid===v.id){dmg=Object.assign({},s);delete dmg.pos;delete dmg.vid}T.savedCar=null;
+  garPlace(T,v,x,z,yaw,dmg)}
+function garPlace(T,v,x,z,yaw,dmg){T.car={x,z,yaw,v:0,vid:v.id,token:v.token,plate:v.plate,special:!!v.special,model:v.model||"audi",mine:!!v.mine,abandonedAt:v.abandoned_at?new Date(v.abandoned_at).getTime():0};
+  if(dmg)T.car.dmg=dmg;carD(T.car);T.car.dmg.ver=(T.car.dmg.ver||0)+1;crashSave(true);return T.car}
+// the car is no longer ours to have out: whoever is in it gets out, and it goes
+function garGone(T,C,msg){if(T.car!==C)return;if(driving&&townOf(me.town)===T){const p=carPt(C,carDoors(C).driver.stand);driving=false;C.v=0;VEH.gear="P";vehicleLetGo();sndUpdate(false);dashUpdate();cam.x=p[0];cam.z=p[2];CARSEQ=null}
+  T.car=null;crashSave(true);if(msg)toast(msg)}
+function garDmg(D){const o=JSON.parse(JSON.stringify(D));delete o.said;return o}
+// report on the car that is out: where it is, its damage, whether someone is in it and whether it stands in a bay
+async function garBeat(){const M=garMine();if(!M||!garOn()||GAR.beating)return;const{st,T,C}=M,w=parkWhere(T,C);GAR.beating=true;GAR.beatT=NOW;
+  try{const r=await garCall("veh_update",{p_vehicle:C.vid,p_token:C.token,p_pos:{x:+C.x.toFixed(2),z:+C.z.toFixed(2),yaw:+C.yaw.toFixed(3)},p_damage:garDmg(carD(C)),
+      p_occupied:driving&&st===me.town&&scene==="town",p_park:w?w.P.id:null,p_in_bay:w&&w.bay!=null?w.bay:null,p_hold:garHold(C),p_owner_dist:Math.round(garDist(st,C)),p_state:st});
+    garTake(r);if(r&&r.gone){garGone(T,C,r.gone);garSync()}else if(r){C.abandonedAt=r.abandoned_at?new Date(r.abandoned_at).getTime():0;C.inBay=r.in_bay}}catch(e){}
+  GAR.beating=false}
+// each frame: remember where the driver last stood outside, report every 10 seconds, and at once when a rule is reached
+function garTick(){if(scene==="town")GAR.out=[cam.x,cam.z,me.town];if(!garOn())return;if(NOW-GAR.syncT>60)garSync();const M=garMine();if(!M)return;
+  let due=NOW-GAR.beatT>10;const C=M.C;
+  if(!garHold(C)&&!(driving&&M.st===me.town)&&NOW-GAR.ruleT>3){const far=garDist(M.st,C)>GAR.cfg.despawn_distance_m,late=C.abandonedAt&&garNow()-C.abandonedAt>GAR.cfg.abandon_s*1000;if(far||late){due=true;GAR.ruleT=NOW}}
+  if(due)garBeat()}
+// keys: the car can be driven by its owner or someone holding its keys (the server only lists those cars)
+const garCanDrive=C=>!C.vid||GAR.list.some(v=>v.id===C.vid&&v.out_by_me);
+// after getting out: a car outside a car park is on the 15-minute clock
+function garLeft(C){GAR.beatT=-1e9;if(!C.vid)return"";const T=townOf(me.town),w=parkWhere(T,C);if(w&&w.bay!=null)return"Parked in bay "+(w.bay+1)+" of "+w.P.name+". It stays here safely.";
+  return"Your car is outside a car park bay. If you leave it here, it is taken back to its car park in "+Math.round(GAR.cfg.abandon_s/60)+" minutes."}
+function garLine(C){if(!C||!C.vid)return C?"Practice car (not saved to an account)":"";const T=townOf(me.town),w=parkWhere(T,C);
+  return esc(C.plate||"")+(C.special?" &middot; Chief Admin vehicle":"")+(w&&w.bay!=null?" &middot; in bay "+(w.bay+1)+" of "+esc(w.P.name):C.abandonedAt?" &middot; taken back to the car park in "+mmss(C.abandonedAt+GAR.cfg.abandon_s*1000-garNow()):"")}
+
+/* ---- the car park terminal ---- */
+function garNear(T){if(scene!=="town"||!T.parks)return null;for(const P of T.parks){if(Math.hypot(P.term[0]-cam.x,P.term[1]-cam.z)<3)return P;
+    if(driving&&T.car&&Math.abs(T.car.v)<.3){const w=parkWhere(T,T.car);if(w&&w.P===P)return P}}return null}
+function garPanel(P){GAR.panel=P;GAR.keysFor=null;GAR.found=[];choosing=true;const el=document.getElementById("choose");el.hidden=false;garDraw("Loading your vehicles...");if(garOn())garSync().then(()=>{if(GAR.panel===P&&choosing)garDraw()})}
+function garFree(P,v){const S=GAR.parks.find(q=>q.id===P.id),taken=new Set(S?S.taken:[]);if(v&&v.park===P.id&&v.in_bay!=null)taken.delete(v.in_bay);return P.bays.filter(B=>!taken.has(B.i))}
+function garDraw(note){const P=GAR.panel,el=document.getElementById("choose");if(!P)return;const T=townOf(P.st),M=garMine();
+  const shell=b=>`<div class="card rpcard"><h1>${esc(P.name)}</h1><p class="cdsub">${garOn()?garFree(P).length+" of "+P.bays.length+" bays free":"Car park"}</p>${b}<p class="amsg" id="gpMsg">${esc(note||"")}</p><button class="go ghost" data-stay="1">Close</button></div>`;
+  if(!garOn()){el.innerHTML=shell(`<p>Sign in to your account to keep a vehicle in a car park. The practice car is for guests and is not saved.</p>`);return}
+  if(GAR.keysFor){const v=GAR.list.find(q=>q.id===GAR.keysFor);if(!v){GAR.keysFor=null;return garDraw()}
+    el.innerHTML=shell(`<p><b>Keys to ${esc(v.plate)}</b></p><p>People holding keys can bring the car out of its car park and drive it. You can take them back at any time; if they have the car out, it goes back to the car park.</p>
+      <div class="vlist">${(v.keys||[]).length?(v.keys||[]).map(k=>`<div class="vrow"><div><b>${esc(k.name||"Citizen")}</b><small>Has keys</small></div><button class="btn2s" data-vp="revoke" data-v="${esc(k.holder)}">Take back</button></div>`).join(""):`<p>Nobody else has keys.</p>`}</div>
+      <div class="cbrow"><input id="gpQ" placeholder="Name of the citizen"><button class="btn2s" data-vp="find">Find</button></div>
+      <div class="vlist">${GAR.found.map(f=>`<div class="vrow"><div><b>${esc(f.name)}</b></div><button class="btn2s" data-vp="give" data-v="${esc(f.owner)}">Give keys</button></div>`).join("")}</div>
+      <button class="go ghost" data-vp="back">Back to my vehicles</button>`);
+    const q=document.getElementById("gpQ");q.addEventListener("keydown",e=>{if(e.key==="Enter")garAct("find")});return}
+  if(!GAR.list.length){el.innerHTML=shell(`<p>You do not have a vehicle yet. New citizens do not get one; vehicles are given out by the Chief Admin for now.</p>`);return}
+  const rows=GAR.list.map(v=>{let st="",btn="";
+    if(v.status==="stored")st=v.park===P.id?(v.bay!=null?"In bay "+(v.bay+1):"At the office, waiting for a free bay"):"Kept at "+((garPark(v.park)||{}).name||"another car park");
+    else if(v.out_by_me){const C=M&&M.C.vid===v.id?M.C:null,w=C&&M.T===T?parkWhere(T,C):null;st=w&&w.P===P?(w.bay!=null?"Here, in bay "+(w.bay+1):"Here in the car park"):"Out with you in "+esc(v.state||"");
+      if(w&&w.P===P){const free=garFree(P,v),bay=w.bay!=null&&free.some(B=>B.i===w.bay)?w.bay:(free[0]||{}).i;
+        btn=bay!=null?`<button class="btn2s" data-vp="store" data-v="${v.id}" data-b="${bay}">Store in bay ${bay+1}</button>`:"<small>No free bay</small>"}}
+    else st="Out on the road";
+    if(v.status==="stored"&&v.park===P.id)btn=`<button class="btn2s" data-vp="spawn" data-v="${v.id}">Retrieve</button>`;
+    if(v.mine)btn+=` <button class="btn2s" data-vp="keys" data-v="${v.id}">Keys</button>`;
+    const D=v.damage||{},hp=Object.keys(D).length?carHealth(Object.assign(carDmg0(),D)):100;
+    return`<div class="vrow"><div><b>${esc(v.plate)}</b> ${esc((CARS[v.model]||CARS.audi).name)}${v.special?` <span class="vtag">Chief Admin</span>`:""}<small>${v.mine?"Yours":"Keys from "+esc(v.owner_name||"its owner")} &middot; condition ${hp}%</small><small>${st}</small></div><div class="vbtns">${btn}</div></div>`}).join("");
+  el.innerHTML=shell(`<div class="vlist">${rows}</div>`)}
+async function garAct(what,arg,bay){const P=GAR.panel,msg=document.getElementById("gpMsg"),say=(t,err)=>{if(msg){msg.textContent=t;msg.classList.toggle("err",!!err)}};if(!P||!garOn())return;
+  try{if(what==="keys"){GAR.keysFor=+arg;GAR.found=[];return garDraw()}
+    if(what==="back"){GAR.keysFor=null;return garDraw()}
+    if(what==="find"){const r=await garCall("veh_find_citizen",{p_query:(document.getElementById("gpQ").value||"").trim()});GAR.found=r||[];return garDraw(GAR.found.length?"":"No citizen found by that name.")}
+    if(what==="give"){const r=await garCall("veh_key_give",{p_vehicle:GAR.keysFor,p_holder:arg});GAR.found=[];await garSync();return garDraw((r&&r.name||"They")+" now has keys.")}
+    if(what==="revoke"){await garCall("veh_key_revoke",{p_vehicle:GAR.keysFor,p_holder:arg});await garSync();return garDraw("Keys taken back.")}
+    if(what==="spawn"){if(garMine())return say("You already have a vehicle out. Store it in a car park first.",true);say("Bringing your car out...");
+      const r=await garCall("veh_spawn",{p_vehicle:+arg,p_park:P.id});garTake(r);if(r.error)return say(r.error,true);const v=r.vehicle,T=townOf(P.st),B=P.bays[v.in_bay||0];
+      garPlace(T,v,B.x,B.z,B.yaw,v.damage&&Object.keys(v.damage).length?v.damage:null);GAR.beatT=NOW;await garSync();choosing=false;document.getElementById("choose").hidden=true;
+      return toast(v.plate+" is ready in bay "+(B.i+1)+". Walk to the driver's door to get in.")}
+    if(what==="store"){const M=garMine();if(!M||M.C.vid!==+arg)return say("Drive the car into this car park first.",true);const C=M.C;if(Math.abs(C.v)>.3)return say("Stop the car first.",true);say("Storing...");
+      const b=+bay,B=P.bays[b];await garCall("veh_store",{p_vehicle:C.vid,p_token:C.token,p_park:P.id,p_bay:b,p_pos:{x:+C.x.toFixed(2),z:+C.z.toFixed(2)},p_damage:garDmg(carD(C))});
+      const wasIn=driving;garGone(M.T,C,"");if(wasIn){cam.x=P.term[0];cam.z=P.term[1];cam.yaw=Math.atan2(P.f[0],P.f[1])}await garSync();choosing=false;document.getElementById("choose").hidden=true;
+      return toast("Stored in bay "+(b+1)+" of "+P.name+". It stays here safely until you bring it out.")}}
+  catch(e){say(e.message,true)}}
+
 /* ---- paying: through the server, from the signed-in citizen's cash to the state's account ---- */
-async function payService(amount,state,reason){if(typeof AUTH==="undefined"||!AUTH.user||AUTH.offline||!AUTH.char)throw new Error("Sign in to your account to pay. Guests cannot pay for services.");
-  await freshToken();const r=await supa("/rest/v1/rpc/pay_service",{method:"POST",auth:true,body:{p_amount:Math.round(amount),p_state:state,p_reason:reason}});if(r&&r.cash!=null){me.cash=+r.cash;showCash()}return r}
+async function payService(amount,state,reason,veh){if(typeof AUTH==="undefined"||!AUTH.user||AUTH.offline||!AUTH.char)throw new Error("Sign in to your account to pay. Guests cannot pay for services.");
+  await freshToken();const r=veh&&veh.id?await supa("/rest/v1/rpc/veh_pay",{method:"POST",auth:true,body:{p_vehicle:veh.id,p_amount:Math.round(amount),p_state:state,p_reason:reason,p_fields:veh.fields}})       // a car of yours: the parts paid for may then be made good
+    :await supa("/rest/v1/rpc/pay_service",{method:"POST",auth:true,body:{p_amount:Math.round(amount),p_state:state,p_reason:reason}});if(r&&r.cash!=null){me.cash=+r.cash;showCash()}return r}
 
 /* ---- repairs: each damaged part, priced and timed from its damage, or everything at once. Prices in kobo-free
    naira at full damage, and minutes of real time at full damage. ---- */
@@ -2989,7 +3113,7 @@ function repairTotal(){const box_=document.getElementById("choose"),full=box_.qu
 async function repairAct(what){const T=townOf(me.town),C=T.car,W=T.workshop,msg=document.getElementById("rpMsg");
   if(what==="towask")return towPanel();if(what==="tow")return towGo();if(what.startsWith("fuel"))return fuelGo(+what.slice(4));
   if(what!=="pay"||!C||!W)return;const D=carD(C);if(D.job)return;const R=repairChosen();if(!R.items.length)return;const btn=document.getElementById("rpPay");btn.disabled=true;msg.classList.remove("err");msg.textContent="Paying "+kfmt(R.price)+"...";
-  try{await payService(R.price,W.st,"Car repair at "+W.name+": "+R.names)}catch(e){msg.textContent=e.message;msg.classList.add("err");btn.disabled=false;return}
+  try{await payService(R.price,W.st,"Car repair at "+W.name+": "+R.names,C.vid?{id:C.vid,fields:R.items}:null)}catch(e){msg.textContent=e.message;msg.classList.add("err");btn.disabled=false;return}
   // paid: the job is written down at once, so a reload cannot lose it
   const mins={};for(const q of repairItems(D))mins[q.k]=q.mins;D.job={id:Date.now(),st:W.st,items:R.items,names:R.names,price:R.price,start:Date.now(),until:Date.now()+R.mins*60000,mins,done:[]};jobPlan(D.job);D.shop=true;crashSave(true);choosing=false;document.getElementById("choose").hidden=true;toast("Paid "+kfmt(R.price)+". The mechanic is starting work; your car will be ready in "+R.mins+" minutes.")}
 // a finished repair: the chosen parts are made good, once (the job is removed and saved in the same step)
@@ -3261,7 +3385,7 @@ function refuelPanel(){const T=townOf(me.town),S=T.station,C=T.car;if(!S||!C)ret
     ${room<1?`<p>The tank is full.</p>`:opt(Math.min(10,room),"Add")+opt(room>10?Math.min(20,room):0,"Add")+opt(room>20?room:0,"Fill up")}<p class="amsg" id="rpMsg"></p>`}<button class="go ghost" data-stay="1">Close</button></div>`}
 async function fuelGo(L){const T=townOf(me.town),S=T.station,C=T.car,msg=document.getElementById("rpMsg");if(!S||!C||!L)return;const D=carD(C);if(D.refuel)return;for(const b of document.querySelectorAll('#choose [data-rp^="fuel"]'))b.disabled=true;
   msg.classList.remove("err");msg.textContent="Paying "+kfmt(L*FUELPRICE)+"...";
-  try{await payService(L*FUELPRICE,S.st,"Fuel: "+L+" litres at "+S.name)}catch(e){msg.textContent=e.message;msg.classList.add("err");for(const b of document.querySelectorAll('#choose [data-rp^="fuel"]'))b.disabled=false;return}
+  try{await payService(L*FUELPRICE,S.st,"Fuel: "+L+" litres at "+S.name,C.vid?{id:C.vid,fields:["fuel"]}:null)}catch(e){msg.textContent=e.message;msg.classList.add("err");for(const b of document.querySelectorAll('#choose [data-rp^="fuel"]'))b.disabled=false;return}
   D.refuel={to:Math.min(1,D.fuel+L/TANK)};crashSave(true);choosing=false;document.getElementById("choose").hidden=true;toast("Paid "+kfmt(L*FUELPRICE)+". Refuelling "+L+" litres...")}
 // each frame: a car being refuelled fills at 3 litres a second; the engine will not start meanwhile
 function fuelTick(dt){for(const T of Object.values(TOWNS)){const D=T.car&&T.car.dmg;if(!D||!D.refuel)continue;D.fuel=Math.min(D.refuel.to,D.fuel+3*dt/TANK);if(D.fuel>=D.refuel.to-1e-6){D.fuel=D.refuel.to;D.refuel=null;crashSave(true);if(T===townOf(me.town))toast("Refuelled: "+Math.round(D.fuel*TANK)+" litres in the tank.")}}}
@@ -3464,12 +3588,17 @@ function mapVans(){const box_=document.getElementById("vanPins"),T=townOf(me.tow
    The database checks that the person asking is the Chief Admin, and that the role exists. ---- */
 async function adminPanel(msg){choosing=true;const el=document.getElementById("choose");el.hidden=false;const q=(document.getElementById("admQ")||{}).value||"";
   el.innerHTML=`<div class="card cbcard"><h1>Chief Admin: roles</h1><p>Find a citizen by name or certificate number, choose their role, and click Set. They get it within a minute.</p>
-    <div class="cbrow"><input id="admQ" placeholder="Name or certificate number" value="${esc(q)}"><button class="btn2s" data-adm="find">Find</button></div><p class="amsg">${esc(msg||"")}</p><div id="admList"></div><button class="go" data-stay="1">Close</button></div>`;
+    <div class="cbrow"><input id="admQ" placeholder="Name or certificate number" value="${esc(q)}"><button class="btn2s" data-adm="find">Find</button></div><p class="amsg">${esc(msg||"")}</p><div id="admList"></div>
+    <h3>Give a vehicle</h3><p>Find the citizen above, then press Give car on their row. The car is put in a free bay of the car park you choose.</p>
+    <div class="cbrow"><select id="admPark">${Object.values(CARPARKS).flat().map(P=>`<option value="${P.id}">${esc(P.name)}</option>`).join("")}</select><label class="admsp"><input type="checkbox" id="admSpecial"> Chief Admin special vehicle</label></div>
+    <button class="go" data-stay="1">Close</button></div>`;
   const inp=document.getElementById("admQ");inp.addEventListener("keydown",e=>{if(e.key==="Enter")adminAct("find")});if(q)adminAct("find")}
 async function adminAct(what){const list=document.getElementById("admList");if(!list)return;
   if(typeof AUTH==="undefined"||!AUTH.user||AUTH.offline){list.innerHTML="<p>The role tool works on the live game while signed in.</p>";return}
   try{if(what==="find"){const rows=await cbCall("admin_find",{p_query:(document.getElementById("admQ").value||"").trim()});
-      list.innerHTML=rows.length?`<table class="cbt"><tr><th>Citizen</th><th>Certificate</th><th>Role</th><th></th></tr>${rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.cert_no||"")}</td><td><select data-owner="${r.owner}">${ROLES.filter(x=>x[0]!=="newcomer").map(([k,l])=>`<option value="${k}" ${k===r.role?"selected":""}>${esc(l)}</option>`).join("")}</select></td><td><button class="btn2s" data-adm="set:${r.owner}">Set</button></td></tr>`).join("")}</table>`:"<p>No citizen found.</p>"}
+      list.innerHTML=rows.length?`<table class="cbt"><tr><th>Citizen</th><th>Certificate</th><th>Role</th><th></th></tr>${rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.cert_no||"")}</td><td><select data-owner="${r.owner}">${ROLES.filter(x=>x[0]!=="newcomer").map(([k,l])=>`<option value="${k}" ${k===r.role?"selected":""}>${esc(l)}</option>`).join("")}</select></td><td><button class="btn2s" data-adm="set:${r.owner}">Set</button> <button class="btn2s" data-adm="car:${r.owner}">Give car</button></td></tr>`).join("")}</table>`:"<p>No citizen found.</p>"}
+    else if(what.startsWith("car:")){const sp=document.getElementById("admSpecial").checked,pk=document.getElementById("admPark").value,r=await cbCall("veh_admin_provision",{p_owner:what.slice(4),p_model:"audi",p_special:sp,p_park:pk});
+      const m=document.querySelector("#choose .amsg");if(m){m.classList.remove("err");m.textContent="Gave "+r.name+" "+(sp?"the Chief Admin special vehicle":"a car")+": "+r.plate+", in bay "+(r.bay+1)+" of "+((garPark(r.park)||{}).name||r.park)+"."}garSync()}
     else if(what.startsWith("set:")){const owner=what.slice(4),sel=document.querySelector(`#admList select[data-owner="${owner}"]`);await cbCall("admin_set_role",{p_owner:owner,p_role:sel.value});
       const row=sel.closest("tr");adminPanel((row?row.cells[0].textContent:"Citizen")+" is now "+((ROLES.find(r=>r[0]===sel.value)||[0,sel.value])[1])+".")}}
   catch(e){const m=document.querySelector("#choose .amsg");if(m){m.textContent=e.message;m.classList.add("err")}}}
@@ -3510,7 +3639,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   const sx=VEL.x*dt,sz=VEL.z*dt;
   if(scene==="town"){
     const C=T.car,hitT=(x,z,r)=>T.blocks.some(w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r);
-    if(!busy&&!mapOpen)dynUpdate(T,dt);repairTick();vansPoll();if(mapOpen&&NOW-(VANS.mapT||0)>.5){VANS.mapT=NOW;mapVans()}fuelTick(dt);if(scene==="town")carSim(townOf(me.town),dt);fxStep(dt);
+    if(!busy&&!mapOpen)dynUpdate(T,dt);repairTick();garTick();vansPoll();if(mapOpen&&NOW-(VANS.mapT||0)>.5){VANS.mapT=NOW;mapVans()}fuelTick(dt);if(scene==="town")carSim(townOf(me.town),dt);fxStep(dt);
     if(driving&&C){if(!busy&&!mapOpen)vehicleStep(C,T,dt);
       cam.x=C.x;cam.z=C.z;cam.yaw=C.yaw;cam.y=1.7;if(route)followRoute(t)}
     else if(!busy&&!choosing&&!mapOpen){
@@ -3784,7 +3913,7 @@ function ui(){guide();const el=document.getElementById("picks");el.innerHTML="";
     else if(scene==="imm"||scene==="border")add("Go to the town",()=>toTown(me.entered?me.town:(me.cert&&STATES[me.cert.state]?me.cert.state:"Asaba"),"imm",null,9));
     add("Start again at the border",()=>toBorder(true))}
   const walk=touch?"Left thumb: move. Drag elsewhere to look around, pinch to zoom. Hold Run to run. ":"W A S D move, Shift runs, Space jumps. Click the scene to look around with the mouse (Esc frees it); the wheel zooms; V switches view. ";
-  document.getElementById("tip").textContent={town:walk+(touch?"":"Hold Shift to run. ")+"Tap the round map for directions. Blue doorways lead inside. Walk up to the red car to drive it.",
+  document.getElementById("tip").textContent={town:walk+(touch?"":"Hold Shift to run. ")+"Tap the round map for directions. Blue doorways lead inside. "+(garOn()?"Your vehicles are kept in the car parks (P on the map).":"Walk up to the red car to drive it."),
     border:walk+"Go through the gate and into the blue doorway marked Arrivals.",imm:walk+(touch?"Walk up to Violet to talk to her.":"Walk up to Violet and press E to talk to her."),bank:walk+"The blue doorway is the way out.",gov:walk+"The blue doorway is the way out.",trs:walk+"Walk up to a desk terminal to use it. The blue doorway leads out.",hosp:walk+"The lifts are at the back of the lobby; walk up to them to change floor. The blue doorways lead out."}[scene]}
 /* The airport's departures board: choose a state and fly there. */
 function departures(){choosing=true;const el=document.getElementById("choose");el.hidden=false;
@@ -3803,7 +3932,7 @@ document.getElementById("choose").addEventListener("change",e=>{if(e.target.data
 document.getElementById("choose").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const shut=()=>{choosing=false;document.getElementById("choose").hidden=true};
   if(b.dataset.g){pick.gender=b.dataset.g;pick.outfit="";chooser()}else if(b.dataset.o){pick.outfit=b.dataset.o;chooser()}
   else if(b.dataset.go){chooserOn=false;me.gender=pick.gender;me.outfit=pick.outfit;const c=ROSTER[me.gender].find(q=>q.key===me.outfit);if(c)PLAYERS[me.gender]=c.m;shut();guide()}
-  else if(b.dataset.floor!==undefined){const n=+b.dataset.floor;shut();if(n!==HFLOOR_N)toHosp(n,true)}else if(b.dataset.adm)adminAct(b.dataset.adm);else if(b.dataset.gt){govTab=b.dataset.gt;govDraw()}else if(b.dataset.ga)govAct(b.dataset.ga,b.dataset.owner);else if(b.dataset.gd)govAct("dismiss",b.dataset.gd);else if(b.dataset.gw)govClock(b.dataset.gw==="in");else if(b.dataset.cb)cbAction(b.dataset.cb);else if(b.dataset.rp)repairAct(b.dataset.rp);else if(b.dataset.auth)authClick(b.dataset.auth);else if(b.dataset.stay)shut();else if(b.dataset.fly){const to=b.dataset.fly;shut();toTown(to,"air","Flying to "+to+"...",16)}});
+  else if(b.dataset.floor!==undefined){const n=+b.dataset.floor;shut();if(n!==HFLOOR_N)toHosp(n,true)}else if(b.dataset.adm)adminAct(b.dataset.adm);else if(b.dataset.gt){govTab=b.dataset.gt;govDraw()}else if(b.dataset.ga)govAct(b.dataset.ga,b.dataset.owner);else if(b.dataset.gd)govAct("dismiss",b.dataset.gd);else if(b.dataset.gw)govClock(b.dataset.gw==="in");else if(b.dataset.cb)cbAction(b.dataset.cb);else if(b.dataset.vp)garAct(b.dataset.vp,b.dataset.v,b.dataset.b);else if(b.dataset.rp)repairAct(b.dataset.rp);else if(b.dataset.auth)authClick(b.dataset.auth);else if(b.dataset.stay)shut();else if(b.dataset.fly){const to=b.dataset.fly;shut();toTown(to,"air","Flying to "+to+"...",16)}});
 const guide0=guide;guide=function(){guide0();if(choosing)document.getElementById("guide").hidden=true};
 /* ================================ accounts and saving ================================
    Players sign in with email and password. Their citizen (name, certificate, cash, home state, where they
