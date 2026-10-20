@@ -166,3 +166,18 @@ Converted the same way as the Characters section (plain `.fbx`, colour and opaci
 ## Modular characters (`modular/`)
 
 Made with [MPFB 2](https://extensions.blender.org/add-ons/mpfb/) 2.0.18 (the MakeHuman plugin for Blender, GPL; only its output is used here) from the official [MakeHuman asset packs](https://static.makehumancommunity.org/assets/assetpacks/index.html). Everything in `modular/` is **CC0** (MakeHuman system assets, skins 01–03, system eye materials 01–02, system clothes and hair materials, hair 01, eyebrows 01, eyelashes 01, shirts 01, pants 01, skirts 01, dress 01, shoes 01, suits 01/02/05, underwear 01/04, glasses 01, hats 01/02, jewelry 01, clothes materials 01), **except the 34 hairstyles from Hair 02 and Hair 03, which are CC-BY** and listed under "Credits required" above. Bodies, face presets and pieces were built, fitted and exported by script; heavy pieces were reduced to at most 10,000 triangles and textures capped (hair 1024 px, other pieces 512 px, bodies 1024 px). Full file list, triangles, sizes and per-file licence: `modular/modular.md`.
+
+## Vehicles (`vehicles/`)
+
+| File | Source | Author | Licence | Triangles |
+|---|---|---|---|---|
+| `vehicles/uaz_452.glb` | [UAZ-452 Utility Van Lowpoly](https://opengameart.org/content/uaz-452-utility-van-lowpoly) (OpenGameArt) | Mehozavr | CC0 | 2,776 |
+| `vehicles/vw_corrado.glb` | [Car VW Corradon](https://opengameart.org/content/car-vw-corradon) (OpenGameArt) | rohezal | CC0 | 6,524 |
+
+Both were changed in Blender:
+- Doors cut out of the shell along their painted lines, with pivots set on the hinges.
+- Wheels and the steering wheel made separate parts.
+- A simple interior and inner lining added.
+- The Corrado was converted from centimetres to metres.
+
+Part names and pivots are in `vehicles/vehicles.md`.
