@@ -115,7 +115,7 @@ body.driving .stick,body.driving .tbtn{display:none!important}
 .mapbody{position:relative}.mapmenu{position:absolute;left:10px;top:10px;z-index:3;background:rgba(15,31,51,.92);border-radius:14px;padding:6px;display:grid;gap:2px;width:150px}.mapmenu button{background:transparent;color:#e7edf5;border-color:transparent;border-radius:10px;text-align:left;font-size:14px;padding:9px 12px}.mapmenu button.on{background:#1d6fd6;color:#fff}.mapmenu small{color:#b9c6d6;font-size:11.5px;padding:6px 10px 4px;line-height:1.3}
 .mapview{position:absolute;inset:0;overflow:auto;background:#d4cca8;touch-action:pan-x pan-y}.stage{position:relative}.stage img{display:block;width:100%;height:100%;-webkit-user-drag:none}.stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.stage polyline{fill:none;stroke:#1d9bf0;stroke-width:5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
 .pin{position:absolute;transform:translate(-18px,-100%);display:flex;align-items:center;gap:6px;background:rgba(15,31,51,.93);color:#fff;border:0;border-radius:999px;padding:3px 10px 3px 3px;font-size:12.5px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.4);margin-top:-8px}.pin::after{content:"";position:absolute;left:14px;bottom:-8px;border:5px solid transparent;border-top:8px solid rgba(15,31,51,.93);border-bottom:0}
-.pin i{font-style:normal;width:26px;height:26px;border-radius:50%;background:#1d4ed8;display:grid;place-items:center;font-size:14px;border:2px solid #fff}.pin.small{padding:3px;transform:translate(-16px,-100%)}.pin.small span{display:none}.pin.on{background:#1d9bf0}.pin.on::after{border-top-color:#1d9bf0}.pin.road{background:rgba(255,255,255,.9);color:#111827;padding:2px 9px;transform:translate(-50%,-50%);margin:0}.pin.road i{display:none}.pin.road::after{display:none}
+.pin i{font-style:normal;width:26px;height:26px;border-radius:50%;background:#1d4ed8;display:grid;place-items:center;font-size:14px;border:2px solid #fff}.pin.small{padding:3px;transform:translate(-16px,-100%)}.pin.small span{display:none}.pin.park i{background:#dc2626;font:800 15px system-ui,sans-serif;color:#fff}.pin.on{background:#1d9bf0}.pin.on::after{border-top-color:#1d9bf0}.pin.road{background:rgba(255,255,255,.9);color:#111827;padding:2px 9px;transform:translate(-50%,-50%);margin:0}.pin.road i{display:none}.pin.road::after{display:none}
 .mepin{position:absolute;color:#e11d48;font-size:26px;line-height:1;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 6px #fff;pointer-events:none;z-index:2}
 .zoom{position:absolute;left:10px;bottom:10px;z-index:3;display:grid;gap:4px}.zoom button{width:44px;height:44px;border-radius:12px;background:rgba(15,31,51,.92);color:#fff;border-color:transparent;font-size:22px;padding:0}
 .compass{position:absolute;right:14px;bottom:14px;z-index:3;width:64px;height:64px;border-radius:50%;background:rgba(15,31,51,.92);border:2px solid rgba(255,255,255,.5);color:#fff;display:grid;place-items:start center;font-size:12px}.compass i{position:absolute;left:50%;top:50%;width:0;height:0;border:7px solid transparent;border-bottom:22px solid #e11d48;transform:translate(-50%,-78%)}
@@ -632,7 +632,7 @@ function modern(o){const w=o.w,d=o.d,fl=o.floors||3,fh=3.6,h=fl*fh,base=.6;
 
 /* ================================ what to show ================================ */
 const BUILDINGS=[];let MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]},BLOCKS=[];
-const KINDS=[[/Car Park/,"Transport","🅿️"],[/^Highway/,"Transport","\u{1F6E3}\uFE0F"],[/Workshop/,"Transport","🔧"],[/Filling Station/,"Transport","⛽"],[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Border/,"Transport","🚧"],[/Port\b/,"Transport","⚓"],[/Transport/,"Transport","🚌"],
+const KINDS=[[/Car Park/,"Transport","P"],[/^Highway/,"Transport","\u{1F6E3}\uFE0F"],[/Workshop/,"Transport","🔧"],[/Filling Station/,"Transport","⛽"],[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Border/,"Transport","🚧"],[/Port\b/,"Transport","⚓"],[/Transport/,"Transport","🚌"],
   [/Federal/,"Government","🏛"],[/Villa\b/,"Government","🏰"],[/State Government/,"Government","🏛"],[/Court/,"Government","⚖"],[/Police/,"Government","🛡"],[/Immigration/,"Government","🛂"],[/Agricultur|Resources|Food/,"Government","🌿"],
   [/Bank/,"Services","🏦"],[/Hospital/,"Services","✚"],[/University/,"Services","🎓"],[/Utilities/,"Services","⚡"],[/Housing/,"Services","🏠"],[/Hotel|Guest|Suites|Hyatti/,"Services","🛏"]];
 const mark=(name,x,z,color)=>{const w=wpt(x,z),k=KINDS.find(q=>q[0].test(name))||[0,"Districts","📍"];MAPD.places.push({name,x:w[0],z:w[1],color:color||"#14263D",group:k[1],icon:k[2]})};
@@ -2953,7 +2953,7 @@ function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,
       }}
   const W=T.workshop;if(W&&!driving&&Math.hypot(W.x-cam.x,W.z-cam.z)<7.5){carUIPlace(CARUI.bay,[W.x-W.fx*1.2,2.3,W.z-W.fz*1.2],VP,w,h,null,{prio:6,max:12});bay=true}
   let fuel=false;const pump=C&&stationPump(T,C);if(pump&&Math.abs(C.v)<.3&&(driving||Math.hypot(C.x-cam.x,C.z-cam.z)<5)){carUIPlace(CARUI.fuel,[pump.p[0],2.1,pump.p[1]],VP,w,h,C.dmg&&C.dmg.refuel?"Refuelling...":"Refuel",{prio:6,max:12});fuel=true}
-  const PK=garNear(T);if(PK)carUIPlace(CARUI.park,driving&&T.car?[T.car.x,2.2,T.car.z]:[PK.term[0],2.2,PK.term[1]],VP,w,h,null,{prio:6,max:14});else CARUI.park.hidden=true;
+  const PK=garNear(T);if(PK)carUIPlace(CARUI.park,driving&&T.car?[T.car.x,2.2,T.car.z]:[PK.term[0],1.75,PK.term[1]],VP,w,h,null,{prio:6,max:14});else CARUI.park.hidden=true;
   mechTag(T,VP,w,h);vehTag(T,VP,w,h);if(!door)CARUI.door.hidden=true;if(!cond)CARUI.cond.hidden=true;if(!bay)CARUI.bay.hidden=true;if(!fuel)CARUI.fuel.hidden=true;tagLayout()}
 
 /* ---- the car's condition, read from its damage record ---- */
@@ -3013,10 +3013,10 @@ function workshop(st,t){const S=WORKSHOPS[st];if(!S)return;const turn=Math.atan2
    kept in, and put it back in any car park bay. A car left outside a car park is taken back to its car park 15 minutes
    after it was left (timed by the server), or as soon as you walk more than 250 m away from it; a car in a bay stays.
    Damage goes with the car. Guests (no account) get a practice car that is not saved on the server. */
-const CARPARKS={Asaba:[{id:"asaba-1",name:"Asaba Central Car Park",x:-12.5,z:-88.4,f:[1,0]},{id:"asaba-2",name:"Asaba East Car Park",x:106.5,z:-117,f:[0,1]},{id:"asaba-3",name:"Asaba Car Park 3",x:12.5,z:-38.4,f:[-1,0]},{id:"asaba-4",name:"Asaba Car Park 4",x:-36.4,z:-12.5,f:[0,1]},{id:"asaba-5",name:"Asaba Car Park 5",x:152,z:-65,f:[1,0]},{id:"asaba-6",name:"Asaba Car Park 6",x:12.5,z:32.4,f:[-1,0]},{id:"asaba-7",name:"Asaba Car Park 7",x:144.4,z:12.5,f:[0,-1]},{id:"asaba-8",name:"Asaba Car Park 8",x:-92.4,z:-12.5,f:[0,1]}],
-  Warri:[{id:"warri-1",name:"Warri Central Car Park",x:-12.5,z:117,f:[1,0]},{id:"warri-2",name:"Warri Market Car Park",x:45,z:80,f:[0,1]},{id:"warri-3",name:"Warri Car Park 3",x:-12.5,z:71,f:[1,0]},{id:"warri-4",name:"Warri Car Park 4",x:-63,z:104,f:[0,-1]},{id:"warri-5",name:"Warri Car Park 5",x:105,z:104,f:[0,-1]},{id:"warri-6",name:"Warri Car Park 6",x:55,z:12.5,f:[0,-1]},{id:"warri-7",name:"Warri Car Park 7",x:-113,z:80,f:[0,1]},{id:"warri-8",name:"Warri Car Park 8",x:155,z:80,f:[0,1]}],
-  Ozoro:[{id:"ozoro-1",name:"Ozoro Central Car Park",x:-40.4,z:12.5,f:[0,-1]},{id:"ozoro-2",name:"Ozoro South Car Park",x:12.5,z:-32.4,f:[-1,0]},{id:"ozoro-3",name:"Ozoro Car Park 3",x:-12.5,z:-32.4,f:[1,0]},{id:"ozoro-4",name:"Ozoro Car Park 4",x:12.5,z:32.4,f:[-1,0]},{id:"ozoro-5",name:"Ozoro Car Park 5",x:-12.5,z:-96.4,f:[1,0]},{id:"ozoro-6",name:"Ozoro Car Park 6",x:-89,z:-106.9,f:[0,-1]},{id:"ozoro-7",name:"Ozoro Car Park 7",x:-46.1,z:84.5,f:[0,1]},{id:"ozoro-8",name:"Ozoro Car Park 8",x:12.5,z:90.4,f:[-1,0]}],
-  Agbor:[{id:"agbor-1",name:"Agbor Central Car Park",x:-40.4,z:12.5,f:[0,-1]},{id:"agbor-2",name:"Agbor South Car Park",x:12.5,z:-32.4,f:[-1,0]},{id:"agbor-3",name:"Agbor Car Park 3",x:-12.5,z:-32.4,f:[1,0]},{id:"agbor-4",name:"Agbor Car Park 4",x:12.5,z:32.4,f:[-1,0]},{id:"agbor-5",name:"Agbor Car Park 5",x:-12.5,z:-96.4,f:[1,0]},{id:"agbor-6",name:"Agbor Car Park 6",x:-89,z:-106.9,f:[0,-1]},{id:"agbor-7",name:"Agbor Car Park 7",x:-46.1,z:84.5,f:[0,1]},{id:"agbor-8",name:"Agbor Car Park 8",x:12.5,z:90.4,f:[-1,0]}]};
+const CARPARKS={Asaba:[{id:"asaba-1",name:"Asaba Central Car Park",x:-12.5,z:-88.4,f:[1,0]},{id:"asaba-2",name:"Asaba GRA Car Park",x:106.5,z:-117,f:[0,1]},{id:"asaba-3",name:"Asaba Car Park 3",x:12.5,z:-38.4,f:[-1,0]},{id:"asaba-4",name:"Asaba Car Park 4",x:-36.4,z:-12.5,f:[0,1]},{id:"asaba-5",name:"Asaba Car Park 5",x:152,z:-65,f:[1,0]},{id:"asaba-6",name:"Asaba Car Park 6",x:12.5,z:32.4,f:[-1,0]},{id:"asaba-7",name:"Asaba Car Park 7",x:144.4,z:12.5,f:[0,-1]},{id:"asaba-8",name:"Asaba Car Park 8",x:-92.4,z:-12.5,f:[0,1]},{id:"asaba-9",name:"Asaba Township Car Park",x:77.3,z:155.6,f:[0.043,0.999]},{id:"asaba-10",name:"Asaba Cable Point Car Park",x:182,z:68,f:[0,1]}],
+  Warri:[{id:"warri-1",name:"Warri Central Car Park",x:-12.5,z:117,f:[1,0]},{id:"warri-2",name:"Warri Market Car Park",x:45,z:80,f:[0,1]},{id:"warri-3",name:"Warri Car Park 3",x:-12.5,z:71,f:[1,0]},{id:"warri-4",name:"Warri Car Park 4",x:-63,z:104,f:[0,-1]},{id:"warri-5",name:"Warri Car Park 5",x:105,z:104,f:[0,-1]},{id:"warri-6",name:"Warri Car Park 6",x:55,z:12.5,f:[0,-1]},{id:"warri-7",name:"Warri Car Park 7",x:-113,z:80,f:[0,1]},{id:"warri-8",name:"Warri Car Park 8",x:155,z:80,f:[0,1]},{id:"warri-9",name:"Warri GRA Car Park",x:112.4,z:-79.5,f:[0,-1]},{id:"warri-10",name:"Warri Township Car Park",x:179,z:-12.5,f:[0,1]},{id:"warri-11",name:"Warri Barracks Car Park",x:-95,z:-12.5,f:[0,1]}],
+  Ozoro:[{id:"ozoro-1",name:"Ozoro Central Car Park",x:-40.4,z:12.5,f:[0,-1]},{id:"ozoro-2",name:"Ozoro South Car Park",x:12.5,z:-32.4,f:[-1,0]},{id:"ozoro-3",name:"Ozoro Car Park 3",x:-12.5,z:-32.4,f:[1,0]},{id:"ozoro-4",name:"Ozoro Car Park 4",x:12.5,z:32.4,f:[-1,0]},{id:"ozoro-5",name:"Ozoro Estate Car Park",x:-12.5,z:-96.4,f:[1,0]},{id:"ozoro-6",name:"Ozoro Car Park 6",x:-89,z:-106.9,f:[0,-1]},{id:"ozoro-7",name:"Ozoro Car Park 7",x:-46.1,z:84.5,f:[0,1]},{id:"ozoro-8",name:"Ozoro Car Park 8",x:12.5,z:90.4,f:[-1,0]},{id:"ozoro-9",name:"Ozoro Township Car Park",x:121.9,z:-17,f:[1,0]}],
+  Agbor:[{id:"agbor-1",name:"Agbor Central Car Park",x:-40.4,z:12.5,f:[0,-1]},{id:"agbor-2",name:"Agbor South Car Park",x:12.5,z:-32.4,f:[-1,0]},{id:"agbor-3",name:"Agbor Car Park 3",x:-12.5,z:-32.4,f:[1,0]},{id:"agbor-4",name:"Agbor Car Park 4",x:12.5,z:32.4,f:[-1,0]},{id:"agbor-5",name:"Agbor Estate Car Park",x:-12.5,z:-96.4,f:[1,0]},{id:"agbor-6",name:"Agbor Car Park 6",x:-89,z:-106.9,f:[0,-1]},{id:"agbor-7",name:"Agbor Car Park 7",x:-46.1,z:84.5,f:[0,1]},{id:"agbor-8",name:"Agbor Car Park 8",x:12.5,z:90.4,f:[-1,0]},{id:"agbor-9",name:"Agbor Township Car Park",x:121.9,z:-17,f:[1,0]}]};
 const PARKBAY={n:5,w:3.2,d:5.4,z:-.9};       // in the car park's own metres: x along the road, z towards it; each bay's centre is at z
 // while a town is being built: clear each car park's plot, then lay it out (tarmac, numbered bays, the P sign and the terminal)
 function carParks(st,t){t.parks=[];for(const P of CARPARKS[st]||[]){const turn=Math.atan2(P.f[0],P.f[1]),c=Math.cos(turn),s=Math.sin(turn),wp=(lx,lz)=>[P.x+c*lx+s*lz,P.z-s*lx+c*lz];
@@ -3029,13 +3029,17 @@ function carParks(st,t){t.parks=[];for(const P of CARPARKS[st]||[]){const turn=M
       box(0,0,0,L,.035,8.6,"#4a4d52",K.tile);                                                                        // the tarmac
       for(let i=0;i<=n;i++)box((i-n/2)*bw,.036,PARKBAY.z,.1,.01,PARKBAY.d,WHITE);box(0,.036,PARKBAY.z-PARKBAY.d/2,n*bw,.01,.1,WHITE);
       box(0,0,-4.25,L,.45,.25,"#cfc8b8");for(const x of[-L/2,L/2])box(x,0,-.2,.25,.16,8.2,"#cfc8b8");               // the back kerb and the side kerbs
-      for(let i=0;i<n;i++){const x=(i-(n-1)/2)*bw;box(x,0,-4.05,.08,.9,.08,"#5b6470");sign(x,.9,-4.0,.62,.46,String(i+1),BLUE,"#ffffff")}
-      cyl(-L/2+.5,0,3.7,.07,3,"#5b6470",8);sign(-L/2+.5,2.2,3.76,1,1,"P",BLUE,"#ffffff");sign(-L/2+.5,1.55,3.76,2.4,.36,P.name.toUpperCase(),"#14263d","#ffffff");
+      for(let i=0;i<n;i++)paintDigit((i-(n-1)/2)*bw,PARKBAY.z+1.4,i+1,WHITE);       // each bay's number, painted on the ground at its open end
+      cyl(-L/2+.5,0,3.7,.07,3,"#5b6470",8);sign(-L/2+.5,2.2,3.76,1,1,"P","#dc2626","#ffffff");sign(-L/2+.5,1.55,3.76,2.4,.36,P.name.toUpperCase(),"#14263d","#ffffff");
       box(L/2-.7,0,3.5,.6,1.45,.42,"#2b3a4a");box(L/2-.7,1.0,3.72,.42,.3,.02,"#7dd3fc",K.glow);box(L/2-.7,1.45,3.5,.7,.06,.5,"#1f2a36");   // the car park terminal
       SOLIDTAG="cwall";solidBox(0,-4.25,L,.3);SOLIDTAG=null;solidBox(L/2-.7,3.5,.7,.55);solidBox(-L/2+.5,3.7,.2,.2);
-      mark(P.name,0,0)});
+      mark(P.name,0,0,"#dc2626")});
     const bays=[];for(let i=0;i<n;i++){const p=wp((i-(n-1)/2)*bw,PARKBAY.z);bays.push({i,x:p[0],z:p[1],yaw:Math.atan2(-P.f[0],-P.f[1])})}       // a car in a bay faces the road
     const tm=wp(L/2-.7,4.3);t.parks.push({id:P.id,name:P.name,st,x:P.x,z:P.z,turn,f:P.f,bays,term:tm,loc})}}
+// a number painted on the ground in white strips, like the bay lines: read upright from the +z side (top of the digit towards -z)
+const DIGSEG={1:"bc",2:"abged",3:"abgcd",4:"fgbc",5:"afgcd",6:"afgedc",7:"abc",8:"abcdefg",9:"abcdfg",0:"abcdef"};
+function paintDigit(x,z,d,col){const h=.42,w=.48,t=.1,y=.036,seg={a:[0,-h,w,t],g:[0,0,w,t],d:[0,h,w,t],f:[-w/2,-h/2,t,h],b:[w/2,-h/2,t,h],e:[-w/2,h/2,t,h],c:[w/2,h/2,t,h]};
+  for(const k of DIGSEG[d]||""){const[dx,dz,sx,sz]=seg[k];box(x+dx,y,z+dz,sx,.01,sz,col)}}
 // which car park (and bay) a car is standing in, or null
 function parkWhere(T,C){for(const P of T.parks||[]){const[a,b]=P.loc(C.x,C.z);if(Math.abs(a)>PARKBAY.n*PARKBAY.w/2+.8||b<-4.2||b>4.6)continue;
     let bay=null;for(const B of P.bays)if(Math.hypot(B.x-C.x,B.z-C.z)<1.5)bay=B.i;return{P,bay}}return null}
@@ -3050,7 +3054,9 @@ const garPark=id=>{for(const L of Object.values(CARPARKS))for(const P of L)if(P.
 const garHold=C=>TOW&&TOW.C===C?"tow":C.dmg&&C.dmg.job?"repair":C.dmg&&C.dmg.refuel?"refuel":C.dmg&&C.dmg.fire>0?"fire":null;
 // how far the driver is from the car: in another state, as far as can be; inside a building, from where they went in
 function garDist(st,C){if(st!==me.town)return 1e6;if(scene==="town")return Math.hypot(cam.x-C.x,cam.z-C.z);return GAR.out&&GAR.out[2]===st?Math.hypot(GAR.out[0]-C.x,GAR.out[1]-C.z):1e6}
-async function garSync(){if(!garOn())return;try{const d=await garCall("veh_mine");garTake(d);GAR.list=d.vehicles||[];GAR.parks=d.parks||[];if(d.cfg)GAR.cfg=d.cfg;GAR.syncT=NOW;garResume()}catch(e){}}
+async function garSync(){if(!garOn())return;try{const d=await garCall("veh_mine");garTake(d);GAR.list=d.vehicles||[];GAR.parks=d.parks||[];if(d.cfg)GAR.cfg=d.cfg;GAR.syncT=NOW;GAR.err="";garResume()}catch(e){GAR.syncT=NOW;if(!e.offline)GAR.err=garWhy(e)}}
+// a server error, said plainly: most often the vehicle part of the database has not been set up yet
+const garWhy=e=>(e.status===404||/could not find the function|schema cache|function [\w.]+\(.*\) does not exist/i.test(e.message))?"Car parks are not switched on in the database yet. The owner needs to run supabase_vehicles.sql in the Supabase SQL editor once.":e.message;
 // a car of mine that the server says is out with me: put it back in the world (after a reload, or on another phone)
 function garResume(){const v=GAR.list.find(q=>q.out_by_me&&q.token),M=garMine();
   if(M&&(!v||v.id!==M.C.vid)){garGone(M.T,M.C,"Your car was taken back to the car park.");return}
@@ -3091,6 +3097,7 @@ function garFree(P,v){const S=GAR.parks.find(q=>q.id===P.id),taken=new Set(S?S.t
 function garDraw(note){const P=GAR.panel,el=document.getElementById("choose");if(!P)return;const T=townOf(P.st),M=garMine();
   const shell=b=>`<div class="card rpcard"><h1>${esc(P.name)}</h1><p class="cdsub">${garOn()?garFree(P).length+" of "+P.bays.length+" bays free":"Car park"}</p>${b}<p class="amsg" id="gpMsg">${esc(note||"")}</p><button class="go ghost" data-stay="1">Close</button></div>`;
   if(!garOn()){el.innerHTML=shell(`<p>Sign in to your account to keep a vehicle in a car park. The practice car is for guests and is not saved.</p>`);return}
+  if(GAR.err&&!GAR.list.length){el.innerHTML=shell(`<p class="amsg err">${esc(GAR.err)}</p>`);return}
   if(GAR.keysFor){const v=GAR.list.find(q=>q.id===GAR.keysFor);if(!v){GAR.keysFor=null;return garDraw()}
     el.innerHTML=shell(`<p><b>Keys to ${esc(v.plate)}</b></p><p>People holding keys can bring the car out of its car park and drive it. You can take them back at any time; if they have the car out, it goes back to the car park.</p>
       <div class="vlist">${(v.keys||[]).length?(v.keys||[]).map(k=>`<div class="vrow"><div><b>${esc(k.name||"Citizen")}</b><small>Has keys</small></div><button class="btn2s" data-vp="revoke" data-v="${esc(k.holder)}">Take back</button></div>`).join(""):`<p>Nobody else has keys.</p>`}</div>
@@ -3311,7 +3318,7 @@ async function towGo(){const T=townOf(me.town),C=T.car,W=T.workshop,msg=document
 /* ---- the tow truck at work: it pulls up in front of the car, lifts its front wheels and drives it along the roads to the
    workshop, with the driver at the wheel and you in the passenger seat. The camera rides alongside. Skip jumps to the end. ---- */
 let TOWTRUCK=null,TOW=null;
-function towTruckScene(){if(TOWTRUCK)return TOWTRUCK;const keep=[BAKE,CLEAR_GLASS,CELL];BAKE=null;CLEAR_GLASS=false;CELL=0;reset();
+function towTruckScene(){if(TOWTRUCK)return TOWTRUCK;const keep=[BAKE,CLEAR_GLASS,CELL];BAKE=null;CLEAR_GLASS=true;CELL=0;reset();       // see-through glass, so the people in the cab show from the front too
   // built facing +z, 2.3 m wide and 7 m long, standing on the ground at its middle; the driver sits on the left (+x)
   const Y="#f2b705",DK="#1f2937",ST="#c9ced6",GL="#9cc3dc",P=K.gold;       // painted steel
   const wheel=(x,z)=>{const r=.48,w=.34,n=12,c=hex("#15181d"),h=hex("#9aa3ad"),s=x>0?1:-1;for(let k=0;k<n;k++){const a=k/n*6.2832,b=(k+1)/n*6.2832,P=(xx,t,rr)=>[xx,.48+Math.sin(t)*rr,z+Math.cos(t)*rr];
@@ -3645,19 +3652,19 @@ function mapVans(){const box_=document.getElementById("vanPins"),T=townOf(me.tow
 async function adminPanel(msg){choosing=true;const el=document.getElementById("choose");el.hidden=false;const q=(document.getElementById("admQ")||{}).value||"";
   el.innerHTML=`<div class="card cbcard"><h1>Chief Admin: roles</h1><p>Find a citizen by name or certificate number, choose their role, and click Set. They get it within a minute.</p>
     <div class="cbrow"><input id="admQ" placeholder="Name or certificate number" value="${esc(q)}"><button class="btn2s" data-adm="find">Find</button></div><p class="amsg">${esc(msg||"")}</p><div id="admList"></div>
-    <h3>Give a vehicle</h3><p>Find the citizen above, then press Give car on their row. The car is put in a free bay of the car park you choose.</p>
-    <div class="cbrow"><select id="admPark">${Object.values(CARPARKS).flat().map(P=>`<option value="${P.id}">${esc(P.name)}</option>`).join("")}</select><label class="admsp"><input type="checkbox" id="admSpecial"> Chief Admin special vehicle</label></div>
+    <h3>Give a vehicle</h3><p>Find the citizen above, then press Give car on their row, or give one to yourself. The car is put in a free bay of the car park you choose.</p>
+    <div class="cbrow"><select id="admPark">${Object.values(CARPARKS).flat().map(P=>`<option value="${P.id}">${esc(P.name)}</option>`).join("")}</select><label class="admsp"><input type="checkbox" id="admSpecial"> Chief Admin special vehicle</label><button class="btn2s" data-adm="car:${AUTH.user?AUTH.user.id:""}">Give myself a car</button></div>
     <button class="go" data-stay="1">Close</button></div>`;
   const inp=document.getElementById("admQ");inp.addEventListener("keydown",e=>{if(e.key==="Enter")adminAct("find")});if(q)adminAct("find")}
 async function adminAct(what){const list=document.getElementById("admList");if(!list)return;
   if(typeof AUTH==="undefined"||!AUTH.user||AUTH.offline){list.innerHTML="<p>The role tool works on the live game while signed in.</p>";return}
   try{if(what==="find"){const rows=await cbCall("admin_find",{p_query:(document.getElementById("admQ").value||"").trim()});
       list.innerHTML=rows.length?`<table class="cbt"><tr><th>Citizen</th><th>Certificate</th><th>Role</th><th></th></tr>${rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.cert_no||"")}</td><td><select data-owner="${r.owner}">${ROLES.filter(x=>x[0]!=="newcomer").map(([k,l])=>`<option value="${k}" ${k===r.role?"selected":""}>${esc(l)}</option>`).join("")}</select></td><td><button class="btn2s" data-adm="set:${r.owner}">Set</button> <button class="btn2s" data-adm="car:${r.owner}">Give car</button></td></tr>`).join("")}</table>`:"<p>No citizen found.</p>"}
-    else if(what.startsWith("car:")){const sp=document.getElementById("admSpecial").checked,pk=document.getElementById("admPark").value,r=await cbCall("veh_admin_provision",{p_owner:what.slice(4),p_model:"audi",p_special:sp,p_park:pk});
+    else if(what.startsWith("car:")){if(what.length<6)return;const sp=document.getElementById("admSpecial").checked,pk=document.getElementById("admPark").value,r=await cbCall("veh_admin_provision",{p_owner:what.slice(4),p_model:"audi",p_special:sp,p_park:pk});
       const m=document.querySelector("#choose .amsg");if(m){m.classList.remove("err");m.textContent="Gave "+r.name+" "+(sp?"the Chief Admin special vehicle":"a car")+": "+r.plate+", in bay "+(r.bay+1)+" of "+((garPark(r.park)||{}).name||r.park)+"."}garSync()}
     else if(what.startsWith("set:")){const owner=what.slice(4),sel=document.querySelector(`#admList select[data-owner="${owner}"]`);await cbCall("admin_set_role",{p_owner:owner,p_role:sel.value});
       const row=sel.closest("tr");adminPanel((row?row.cells[0].textContent:"Citizen")+" is now "+((ROLES.find(r=>r[0]===sel.value)||[0,sel.value])[1])+".")}}
-  catch(e){const m=document.querySelector("#choose .amsg");if(m){m.textContent=e.message;m.classList.add("err")}}}
+  catch(e){const m=document.querySelector("#choose .amsg");if(m){m.textContent=what.startsWith("car:")?garWhy(e):e.message;m.classList.add("err")}}}
 // a role given while someone is playing reaches them within a minute
 setInterval(async()=>{if(typeof AUTH==="undefined"||!AUTH.char||!AUTH.user)return;try{await freshToken();const rows=await supa("/rest/v1/characters?select=role&owner=eq."+AUTH.user.id,{auth:true});const r=rows&&rows[0]&&rows[0].role;
   if(r&&r!==me.role){me.role=r;AUTH.char.role=r;ui();toast("Your role is now: "+((ROLES.find(x=>x[0]===r)||[0,r])[1])+".")}}catch(e){}},60000);
@@ -3876,7 +3883,7 @@ function drawBig(){const T=townOf(me.town),A=aerial(T),stage=document.getElement
   let h=`<img src="${A.url}" alt="${me.town} seen from above" draggable="false">`;
   if(route)h+=`<svg viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="${route.pts.map(p=>A.proj(p[0],p[1],.5).map(v=>v.toFixed(2)).join(",")).join(" ")}"/></svg>`;
   T.map.places.forEach((p,i)=>{if(mapGroup!=="All"&&p.group!==mapGroup)return;if(mapGroup==="All"&&p.road)return;const q=A.proj(p.x,p.z,p.road?0:6),on=route&&route.place===p;
-    h+=`<button class="pin${on?" on":""}${p.road?" road":""}${mapGroup==="All"&&mapZoom<2&&!on?" small":""}" data-i="${i}" title="${esc2(p.name)}" aria-label="${esc2(p.name)}" style="left:${q[0].toFixed(2)}%;top:${q[1].toFixed(2)}%"><i>${p.icon}</i><span>${esc2(p.name)}</span></button>`});
+    h+=`<button class="pin${on?" on":""}${p.road?" road":""}${/Car Park/.test(p.name)?" park":""}${mapGroup==="All"&&mapZoom<2&&!on?" small":""}" data-i="${i}" title="${esc2(p.name)}" aria-label="${esc2(p.name)}" style="left:${q[0].toFixed(2)}%;top:${q[1].toFixed(2)}%"><i>${p.icon}</i><span>${esc2(p.name)}</span></button>`});
   const m=A.proj(cam.x,cam.z,1),f=A.proj(cam.x-Math.sin(cam.yaw)*12,cam.z-Math.cos(cam.yaw)*12,1),ang=Math.atan2(f[0]-m[0],-(f[1]-m[1])/A.ratio)*57.3;
   h+=`<div id="vanPins"></div>`;h+=`<div class="mepin" style="left:${m[0].toFixed(2)}%;top:${m[1].toFixed(2)}%;transform:translate(-50%,-50%) rotate(${ang.toFixed(0)}deg)" title="You are here">▲</div>`;stage.innerHTML=h;
   document.querySelectorAll("#mapMenu button").forEach(bt=>bt.classList.toggle("on",bt.dataset.g===mapGroup));return m}
