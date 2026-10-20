@@ -165,6 +165,7 @@ select.who{font:inherit;font-weight:600;font-size:14px;border:1px solid var(--li
 <div id="clock" class="clockpill" hidden></div>
 <button id="towSkip" class="towskip" hidden>Skip to the workshop</button>
 <button id="vanStop" class="towskip" hidden>Stop following</button>
+<div id="fireWarn" class="firewarn" hidden>FIRE! Get out of the car</div>
 <style>
 .clockpill{display:grid;grid-template-columns:auto auto;column-gap:7px;align-items:center;line-height:1.1}
 .clockpill .wx{grid-row:1/3;width:24px;height:24px;display:block}.clockpill .cw{font-size:11px;font-weight:600;color:#cbd5e1}
@@ -178,6 +179,19 @@ body.driving .clockpill{top:calc(10px + env(safe-area-inset-top,0px))}
 body.towing .guide,body.towing .tip,body.towing .stick,body.towing .tbtn,body.towing .picks{display:none!important}
 .pin.vanpin{background:#1d2b44;z-index:3}.pin.vanpin i{background:#f2b705;font-size:15px}.pin.vanpin span{font-size:11.5px}
 .cbh{margin:14px 0 4px;font-size:15px}.cbscroll{overflow-x:auto;max-width:100%}.cbscroll .cbt{min-width:520px}.vst{font-weight:800}.vst-load{color:#b45309}.vst-trans,.vst-appr{color:#1d4ed8}.vst-hwy{color:#7c3aed}.vst-unload{color:#0f766e}.vst-done{color:#15803d}
+/* the condition chips: six small icons, each one part of the car, coloured by its state; tap for the full panel */
+.dcond{display:grid!important;grid-template-columns:repeat(2,auto);gap:4px;width:auto!important;padding:5px!important;border-radius:12px!important}
+.dchip{display:flex;flex-direction:column;align-items:center;justify-content:center;width:34px;height:36px;border-radius:9px;background:rgba(34,197,94,.16);color:#4ade80;font-style:normal}
+.dchip svg{width:17px;height:17px}.dchip b{font-size:9.5px;line-height:1;margin-top:2px;color:#e5edf7;font-variant-numeric:tabular-nums}
+.dchip.warn{background:rgba(245,158,11,.2);color:#fbbf24}.dchip.bad{background:rgba(239,68,68,.25);color:#f87171}.dchip.dead{background:#dc2626;color:#fff;animation:dblink 1s steps(2) infinite}
+@keyframes dblink{50%{opacity:.45}}
+/* warning lamps only show while lit */
+.dbar i{display:none}.dbar i.on,.dbar i.bad,.dbar i.hi,.dbar i.blink{display:grid}.dbar:not(:has(i.on,i.bad,i.hi,i.blink)){display:none}
+#wTemp.bad,#wOil.bad,#wBat.bad,#wFire.bad{color:#ef4444}#wFire.on{color:#f97316}
+.firewarn{position:fixed;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:6;background:#dc2626;color:#fff;font:800 17px system-ui,sans-serif;padding:9px 18px;border-radius:12px;box-shadow:0 0 0 3px rgba(255,255,255,.75),0 6px 20px rgba(220,38,38,.6);animation:dblink .7s steps(2) infinite;pointer-events:none}
+@media (max-width:760px) and (orientation:portrait){.dchip{width:28px;height:30px;border-radius:7px}.dchip svg{width:14px;height:14px}.dchip b{font-size:8.5px}}
+@media (orientation:landscape) and (max-height:500px){.dcond{display:grid!important;grid-template-columns:repeat(6,auto);top:calc(102px + var(--top))!important;left:calc(12px + var(--lft))!important}.dchip{width:28px;height:30px}.dchip svg{width:14px;height:14px}.dchip b{font-size:8.5px}}
+.cdfire{background:#dc2626;color:#fff;font-weight:800;padding:8px 10px;border-radius:8px;margin:4px 0 10px}
 .towskip{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:5;font:700 15px system-ui,sans-serif;color:#fff;background:rgba(15,31,51,.9);border:2px solid rgba(255,255,255,.8);border-radius:999px;padding:10px 18px;cursor:pointer}
 /* the door sign: a small round car-door button at the bottom right, while you stand by the driver's door */
 #doorBtn{left:auto!important;top:auto!important;right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:none;flex-direction:column;gap:2px;padding:0;border:0;background:none;font-size:11px;text-shadow:0 1px 3px #000}
@@ -2220,7 +2234,7 @@ function sndStart(){if(SND.ctx)return;try{const A=window.AudioContext||window.we
   const n=c.createBufferSource();n.buffer=nb;n.loop=true;const bp=c.createBiquadFilter();bp.type="bandpass";bp.frequency.value=1400;bp.Q.value=2;SND.tg=c.createGain();SND.tg.gain.value=0;n.connect(bp);bp.connect(SND.tg);SND.tg.connect(out);n.start()}catch(e){SND.ctx=null}}
 function sndClick(){const c=SND.ctx;if(!c)return;try{const s=c.createBufferSource(),g=c.createGain();s.buffer=SND.noise;g.gain.setValueAtTime(.12,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.03);s.connect(g);g.connect(SND.out);s.start();s.stop(c.currentTime+.04)}catch(e){}}
 function sndUpdate(on){const c=SND.ctx;if(!c)return;const t=c.currentTime,k=.08;
-  SND.eg.gain.setTargetAtTime(on&&VEH.engine?.05+.07*VEH.thr:0,t,k);const f=34+VEH.rpm*120;SND.o1.frequency.setTargetAtTime(f,t,k);SND.o2.frequency.setTargetAtTime(f*.5,t,k);SND.lp.frequency.setTargetAtTime(500+VEH.rpm*1400,t,k);
+  SND.eg.gain.setTargetAtTime(on&&VEH.engine?.05+.07*VEH.thr:0,t,k);const f=(34+VEH.rpm*120)*(1+(DMG.rough||0)*(Math.random()-.5)*.35);SND.o1.frequency.setTargetAtTime(f,t,k);SND.o2.frequency.setTargetAtTime(f*.5,t,k);SND.lp.frequency.setTargetAtTime(500+VEH.rpm*1400,t,k);
   SND.hg.gain.setTargetAtTime(on&&VEH.horn?.09:0,t,.02);SND.tg.gain.setTargetAtTime(on?Math.min(.14,VEH.slip*.12+(VEH.brk>.5&&Math.abs(VEH.lastV)>8?.05:0)):0,t,.05)}
 /* ---- the physics, once a frame ---- */
 function vehicleStep(C,T,dt){const cfg=VEH.cfg,pw=carEngine(C,dt),ty=carUse(C,dt),wet=dynWet(T,C.x,C.z),hitT=(x,z,r)=>T.blocks.some(w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r);
@@ -2242,6 +2256,7 @@ function vehicleStep(C,T,dt){const cfg=VEH.cfg,pw=carEngine(C,dt),ty=carUse(C,dt
   // something solid in the way: the collision works out what happens to the car and to it, and if it gave way the car carries on
   if(hit){if(crashAt(T,C,hit[0],hit[1],hit[2],cfg)){C.x=nx;C.z=nz}}else{C.x=nx;C.z=nz}
   // the body: leans out on corners, dips under braking, lifts under acceleration
+  {const Dv=carD(C),vib=Math.max(0,Dv.susp-.3)+.5*Dv.rim.reduce((s,v)=>s+v,0)+.4*Dv.steer;if(vib>0&&Math.abs(C.v)>3)VEH.jolt=Math.min(1,VEH.jolt+vib*dt*Math.abs(C.v)*.14*Math.random())}
   const lat=C.v*yr,lon=(C.v-v0)/Math.max(dt,1e-3);VEH.roll+=(clamp(lat*.011,-.07,.07)-VEH.roll)*Math.min(1,dt*6);VEH.pitch+=(clamp(-lon*.006,-.05,.05)-VEH.pitch)*Math.min(1,dt*5);VEH.jolt*=Math.max(0,1-dt*5);
   // the engine: five automatic gears; the needle rises through each one and drops at the change
   const sp=Math.abs(C.v),step=cfg.vmax/5,gi=Math.min(4,Math.floor(sp/step)),frac=(sp-gi*step)/step;{const want=!VEH.engine?0:(VEH.gear==="D"||VEH.gear==="R")&&sp>.5?.18+.72*frac*(.55+.45*VEH.thr)+.05*gi:.12+.3*VEH.thr*(VEH.gear==="N"||VEH.gear==="P"?1:.4);VEH.rpm+=(Math.min(1,want)-VEH.rpm)*Math.min(1,dt*6)}
@@ -2249,14 +2264,16 @@ function vehicleStep(C,T,dt){const cfg=VEH.cfg,pw=carEngine(C,dt),ty=carUse(C,dt
   VEH.blink+=dt;const on=(VEH.blink*1.5)%1<.5;if(VEH.ind!=="off"&&on!==VEH.blinkOn)sndClick();VEH.blinkOn=on;
   // an indicator cancels itself once the turn it signalled is complete
   if(VEH.ind==="left"||VEH.ind==="right"){VEH.indTurn=(VEH.indTurn||0)+yr*dt*(VEH.ind==="left"?-1:1);if(VEH.indTurn<-.9&&Math.abs(VEH.steer)<.05){VEH.ind="off";VEH.indTurn=0}}
-  VEH.lastV=C.v;VEH.model=mul(mul(trans(C.x,0,C.z),rotY(C.yaw+Math.PI)),mul(mrotX(VEH.pitch+VEH.jolt*.03*Math.sin(NOW*40)),mrotZ(VEH.roll)));sndUpdate(true)}
+  VEH.lastV=C.v;{const t=carSag(C);VEH.model=mul(mul(trans(C.x,t.y,C.z),rotY(C.yaw+Math.PI)),mul(mrotX(VEH.pitch+t.p+VEH.jolt*.03*Math.sin(NOW*40)),mrotZ(VEH.roll+t.r)))}sndUpdate(true)}
+// how a burst tyre lets the car settle onto that corner
+function carSag(C){const f=(C.dmg||{}).flat;if(!f||!(f[0]||f[1]||f[2]||f[3]))return{y:0,p:0,r:0};return{y:-.035*(f[0]+f[1]+f[2]+f[3]),p:.028*((f[2]+f[3])-(f[0]+f[1])),r:.035*((f[0]+f[2])-(f[1]+f[3]))}}
 // the car's lamps to draw this frame
 function carLamps(driven){const L=[],night=LIGHT.night>.05;if(!CARL.low)return L;const on=driven&&(VEH.ind==="hazard"||VEH.ind==="left"||VEH.ind==="right")&&VEH.blinkOn;
-  const D=(townOf(me.town).car||{}).dmg||{},side=(k,on)=>{for(const s of["L","R"])if(on&&!D[(k==="low"||k==="high"?"hl":"tl")+s])L.push(CARL[k+s])};
+  const D=(townOf(me.town).car||{}).dmg||{},flick=DMG.flick,side=(k,on)=>{if(flick&&(k==="low"||k==="high"))return;for(const s of["L","R"])if(on&&!D[(k==="low"||k==="high"?"hl":"tl")+s])L.push(CARL[k+s])};
   side("low",VEH.lights===1);side("high",VEH.lights===2);side("tail",VEH.lights>0);side("brake",driven&&VEH.brk>.1);if(driven&&VEH.brk>.1)L.push(CARL.brakeTop);if(driven&&VEH.gear==="R")L.push(CARL.rev);
   if(on&&(VEH.ind==="left"||VEH.ind==="hazard"))L.push(CARL.indL);if(on&&(VEH.ind==="right"||VEH.ind==="hazard"))L.push(CARL.indR);return L}
 // headlights light the road at night: two lights ahead of the car, further and brighter on high beam
-function carHeadlightLamps(C){if(!C||!VEH.lights||LIGHT.night<.05)return[];const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),d=VEH.lights===2?13:7,s=VEH.lights===2?1.8:1.25,rx=-fz,rz=fx;
+function carHeadlightLamps(C){if(!C||!VEH.lights||LIGHT.night<.05||DMG.flick)return[];const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),d=VEH.lights===2?13:7,s=VEH.lights===2?1.8:1.25,rx=-fz,rz=fx;
   const D=C.dmg||{},out=[];if(!D.hlR)out.push([C.x+fx*d+rx*.8,1.1,C.z+fz*d+rz*.8,s]);if(!D.hlL)out.push([C.x+fx*d-rx*.8,1.1,C.z+fz*d-rz*.8,s]);return out}
 /* ---- controls ---- */
 function setGear(g){const C=townOf(me.town).car;if(!C)return;const still=Math.abs(C.v)<.4;
@@ -2278,7 +2295,9 @@ const ICO={cam:SVG('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" 
   power:SVG('<path d="M12 3v8"/><path d="M6.5 6.5a8 8 0 1 0 11 0"/>'),park:SVG('<circle cx="12" cy="12" r="9"/><path d="M10 16V8h3a2.5 2.5 0 0 1 0 5h-3"/>'),exit:SVG('<path d="M14 4h5v16h-5"/><circle cx="7" cy="5" r="1.8"/><path d="M5 21l2-6-2-3 2-4 3 3 3 1M9 15l2 6"/>'),
   left:SVG('<path d="M20 12H5M11 5l-7 7 7 7"/>'),right:SVG('<path d="M4 12h15M13 5l7 7-7 7"/>'),hazard:SVG('<path d="M12 3l10 18H2z"/><path d="M12 9l5 9H7z"/>'),
   low:SVG('<path d="M13 5c5 0 8 3 8 7s-3 7-8 7z"/><path d="M3 9h7M3 13h7M3 17h7"/>'),high:SVG('<path d="M13 5c5 0 8 3 8 7s-3 7-8 7z"/><path d="M3 8h7M3 12h7M3 16h7"/>'),
-  warn:SVG('<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/>'),fuel:SVG('<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8l3 2v8a1.5 1.5 0 0 0 3 0v-7l-3-3"/>'),
+  warn:SVG('<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/>'),temp:SVG('<path d="M10 14V5a2 2 0 0 1 4 0v9a4 4 0 1 1-4 0z"/><path d="M12 9v7M16 6h3M16 9h3"/>'),
+  oil:SVG('<path d="M3 13l4-3h6l2 2h4l2-2v3l-7 4H6z"/><path d="M20 13c.6 1 1 1.7 1 2.2a1 1 0 0 1-2 0c0-.5.4-1.2 1-2.2z"/>'),batt:SVG('<rect x="3" y="7" width="18" height="12" rx="2"/><path d="M7 7V5M17 7V5M7 13h3M15.5 11.5v3M14 13h3"/>'),
+  flame:SVG('<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.4 1.3-3.9 2.4-5.2.3 1.6 1 2.4 1.9 2.7-.6-2.8.2-5.3.7-7.5z"/>'),fuel:SVG('<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8l3 2v8a1.5 1.5 0 0 0 3 0v-7l-3-3"/>'),
   eng:SVG('<path d="M4 10h2V8h4V6h4v2h3l2 3h2v5h-2l-2 2H9l-3-3H4z"/>'),wrench:SVG('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>'),
   body:SVG('<path d="M3 15v-3l2-5h14l2 5v3H3z"/><path d="M7 7l1 4h8l1-4"/>'),tyre:SVG('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3v5.5M12 15.5V21M3 12h5.5M15.5 12H21"/>')};
 const dash=document.createElement("div");dash.id="dash";dash.hidden=true;
@@ -2291,24 +2310,24 @@ const dash=document.createElement("div");dash.id="dash";dash.hidden=true;
     <g id="dNeedle"><path d="M100 52L100 22" stroke="#f97316" stroke-width="4.5" stroke-linecap="round"/></g>
     <text id="dSpd" x="100" y="98" text-anchor="middle" font-size="44" font-weight="800" fill="#fff">0</text><text id="dUnit" x="100" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#cbd5e1">KM/H</text>
     <circle cx="100" cy="146" r="14" fill="none" stroke="#e5edf7" stroke-width="2"/><text id="dGear" x="100" y="152" text-anchor="middle" font-size="17" font-weight="800" fill="#fff">P</text><text x="100" y="186" text-anchor="middle" font-size="9" fill="#94a3b8">RPM x1000</text></svg>`;
-  const row=(id,ico,name)=>`<div class="dcr"><i class="dci">${ico}</i><span>${name}</span><b id="${id}">100%</b><u><em id="${id}B"></em></u></div>`;
+  const chip=(id,ico,name)=>`<i class="dchip" id="${id}" title="${name}">${ico}<b id="${id}V">100</b></i>`;
   dash.innerHTML=`<div class="dleft"><button class="rb" data-dk="cam" aria-label="Change camera">${ICO.cam}</button><button class="rb" data-dk="horn" id="dHorn" aria-label="Horn">${ICO.horn}</button>
       <button class="rb" data-dk="belt" id="dBelt" aria-label="Seatbelt">${ICO.belt}</button><button class="rb" data-dk="car" id="dCar" aria-label="Car condition">${ICO.car}</button></div>
-    <div class="dcond" id="dCond" role="button" tabindex="0" aria-label="Vehicle condition"><div class="dch">Vehicle Condition</div><div class="dcb"><i class="dcar"><svg viewBox="0 0 30 64" aria-hidden="true"><rect x="2" y="9" width="4" height="11" rx="1.5" fill="#111827"/><rect x="24" y="9" width="4" height="11" rx="1.5" fill="#111827"/><rect x="2" y="44" width="4" height="11" rx="1.5" fill="#111827"/><rect x="24" y="44" width="4" height="11" rx="1.5" fill="#111827"/>
-      <path d="M8 2h14c3 0 5 3 5 7v46c0 4-2 7-5 7H8c-3 0-5-3-5-7V9c0-4 2-7 5-7z" fill="#e5e7eb" stroke="#94a3b8"/><path d="M7 17c4-2 12-2 16 0l-2 8H9z" fill="#475569"/><path d="M9 45h12l2 6c-4 2-12 2-16 0z" fill="#475569"/><rect x="9" y="27" width="12" height="16" rx="2" fill="#cbd5e1"/></svg></i><div class="dcrows">${row("cEng",ICO.eng,"Engine")}${row("cBody",ICO.body,"Body")}${row("cTyre",ICO.tyre,"Tyres")}${row("cFuel",ICO.fuel,"Fuel")}</div></div></div>
+    <div class="dcond" id="dCond" role="button" tabindex="0" aria-label="Vehicle condition: tap for details">${chip("cEng",ICO.eng,"Engine")}${chip("cBody",ICO.body,"Body")}${chip("cTyre",ICO.tyre,"Tyres")}${chip("cCool",ICO.temp,"Cooling")}${chip("cElec",ICO.batt,"Electrical")}${chip("cFuel",ICO.fuel,"Fuel")}</div>
     <div class="dlamps"><button data-dk="left" id="dIL" aria-label="Left indicator">${ICO.left}</button><button data-dk="right" id="dIR" aria-label="Right indicator">${ICO.right}</button>
       <button data-dk="hazard" id="dHz" class="wide" aria-label="Hazard lights">${ICO.hazard}</button><button data-dk="low" id="dLo" aria-label="Low beam">${ICO.low}</button><button data-dk="high" id="dHi" aria-label="High beam">${ICO.high}</button>
-      <button data-dk="car" id="dWarn" aria-label="Warnings">${ICO.warn}</button><button data-dk="car" id="dFuelL" aria-label="Fuel">${ICO.fuel}</button></div>
+</div>
     <div class="dgears">${["P","R","N","D"].map(g=>`<button data-dg="${g}">${g}</button>`).join("")}</div>
     <div class="dright"><label><button class="rb" data-dk="engine" id="dEngB" aria-label="Start or stop the engine">${ICO.power}</button><span>Engine</span></label><label><button class="rb" data-dk="hand" id="dHand" aria-label="Handbrake">${ICO.park}</button><span>Handbrake</span></label><label><button class="rb" data-dk="exit" aria-label="Exit vehicle">${ICO.exit}</button><span>Exit Vehicle</span></label></div>
-    <div class="dmeter"><div class="dbar"><i id="wInd">${ICO.left}</i><i id="wBelt">${ICO.belt}</i><i id="wEng">${ICO.eng}</i><i id="wPark">${ICO.park}</i><i id="wLt">${ICO.low}</i></div><div class="dialw" id="dDial">${dial}</div>
+    <div class="dmeter"><div class="dbar"><i id="wInd">${ICO.left}</i><i id="wBelt">${ICO.belt}</i><i id="wEng">${ICO.eng}</i><i id="wTemp">${ICO.temp}</i><i id="wOil">${ICO.oil}</i><i id="wBat">${ICO.batt}</i><i id="wFire">${ICO.flame}</i><i id="wPark">${ICO.park}</i><i id="wLt">${ICO.low}</i></div><div class="dialw" id="dDial">${dial}</div>
       <div class="dfuel"><i id="dAL" class="darr">${ICO.left}</i><i class="fi">${ICO.fuel}</i><b>E</b><u><em id="dFuel"></em></u><b>F</b><i id="dAR" class="darr">${ICO.right}</i></div></div>
     <div class="dmsg" id="dMsg"></div>`}
 document.body.appendChild(dash);
 document.getElementById("dDial").addEventListener("click",()=>{VEH.mph=!VEH.mph;dashUpdate(true)});document.getElementById("dCond").addEventListener("click",()=>carPanel());
 let dashMsgT=0;function dashToast(t,dur){const m=document.getElementById("dMsg");m.textContent=t;m.classList.add("on");dashMsgT=NOW+(dur||1.6)}
 const dashSet=(id,f)=>{const e=document.getElementById(id);if(e)f(e)},dashOn=(id,c,on)=>dashSet(id,e=>{if(e.classList.contains(c)!==!!on)e.classList.toggle(c,!!on)});
-function dashBar(id,v){const p=Math.round(clamp(v,0,1)*100);dashSet(id,e=>{const t=p+"%";if(e.textContent!==t)e.textContent=t});dashSet(id+"B",e=>{e.style.width=p+"%";e.style.background=p>60?"#22c55e":p>30?"#f59e0b":"#ef4444"})}
+// one condition chip: its number, and a colour from green through amber to red (red flashing when nearly gone)
+function dashBar(id,v){const p=Math.round(clamp(v,0,1)*100);dashSet(id+"V",e=>{const t=String(p);if(e.textContent!==t)e.textContent=t});dashSet(id,e=>{const c=p>70?"ok":p>40?"warn":p>15?"bad":"dead";if(e.dataset.c!==c){e.dataset.c=c;e.className="dchip "+c}})}
 function dashUpdate(){if(!driving){dash.hidden=true;return}const C=townOf(me.town).car;if(!C)return;dash.hidden=false;const D=carD(C),kmh=Math.abs(C.v)*3.6,bl=VEH.blinkOn;
   dashSet("dSpd",e=>{const t=String(Math.round(VEH.mph?kmh*.6214:kmh));if(e.textContent!==t)e.textContent=t});dashSet("dUnit",e=>{const t=VEH.mph?"MPH":"KM/H";if(e.textContent!==t)e.textContent=t});
   dashSet("dGear",e=>{if(e.textContent!==VEH.gear)e.textContent=VEH.gear});dashSet("dNeedle",e=>e.setAttribute("transform",`rotate(${(-135+270*clamp(VEH.rpm,0,1)).toFixed(1)} 100 100)`));
@@ -2316,9 +2335,10 @@ function dashUpdate(){if(!driving){dash.hidden=true;return}const C=townOf(me.tow
   const L=bl&&(VEH.ind==="left"||VEH.ind==="hazard"),R=bl&&(VEH.ind==="right"||VEH.ind==="hazard");dashOn("dIL","on",L);dashOn("dIR","on",R);dashOn("dAL","on",L);dashOn("dAR","on",R);dashOn("wInd","on",L||R);
   dashOn("dHz","on",VEH.ind==="hazard");dashOn("dLo","on",VEH.lights===1);dashOn("dHi","on",VEH.lights===2);dashOn("wLt","on",VEH.lights===1);dashOn("wLt","hi",VEH.lights===2);
   dashOn("dEngB","run",!!VEH.engine);const hand=VEH.hand||!!keys[" "];dashOn("dHand","on",hand);dashOn("wPark","on",hand);dashOn("dBelt","on",VEH.belt);dashOn("wBelt","on",!VEH.belt);dashOn("wBelt","blink",!VEH.belt&&kmh>15&&bl);
-  const engBad=D.dead||D.engine>.4||D.temp>125,engWarn=engBad||D.engine>.1||D.radiator>.15||D.temp>108;dashOn("wEng","on",engWarn&&!engBad);dashOn("wEng","bad",engBad);dashOn("dWarn","on",engWarn||carWarnings(D).length>0);
-  dashOn("dFuelL","on",D.fuel<.15);dashSet("dFuel",e=>{e.style.width=Math.round(D.fuel*100)+"%";e.style.background=D.fuel<.15?"#ef4444":"#38bdf8"});
-  dashBar("cEng",1-D.engine);dashBar("cBody",1-carBody(D));dashBar("cTyre",1-carTyres(D));dashBar("cFuel",D.fuel);
+  const engBad=D.dead||D.engine>.4||D.oil<.25,engWarn=engBad||D.engine>.15;dashOn("wEng","on",engWarn&&!engBad);dashOn("wEng","bad",engBad);
+  dashOn("wTemp","bad",D.temp>112);dashOn("wOil","bad",D.oil<.35||D.oilLeak>.15);dashOn("wBat","bad",D.elec>.35);dashOn("wFire","bad",D.fire>0&&bl);dashOn("wFire","on",D.fire>0&&!bl);
+  dashSet("dFuel",e=>{e.style.width=Math.round(D.fuel*100)+"%";e.style.background=D.fuel<.15?"#ef4444":"#38bdf8"});
+  dashBar("cEng",D.burnt?0:1-D.engine);dashBar("cBody",1-carBody(D));dashBar("cTyre",1-carTyres(D));dashBar("cCool",carCooling(D));dashBar("cElec",1-D.elec);dashBar("cFuel",D.fuel);
   if(NOW>dashMsgT)document.getElementById("dMsg").classList.remove("on")}
 /* ---- touch: the steering wheel bottom left, the brake and accelerator pedals bottom right ---- */
 const dpad=document.createElement("div");dpad.id="dpad";dpad.hidden=true;dpad.innerHTML=`<div id="wheel"><div id="wheelIn"><svg viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef1f5"/><stop offset=".45" stop-color="#a3abb7"/><stop offset="1" stop-color="#4b5361"/></linearGradient><radialGradient id="wh" cx="50%" cy="38%" r="65%"><stop offset="0" stop-color="#4b5361"/><stop offset="1" stop-color="#151a21"/></radialGradient></defs>
@@ -2339,7 +2359,7 @@ function vehicleLetGo(){VEH.touch.steer=VEH.touch.thr=VEH.touch.brk=0;VEH.horn=f
 // the seatbelt: off when you get in; a lamp and a chime remind you while moving without it
 function engineToggle(){const C=townOf(me.town).car;if(!C)return;const D=carD(C);
   if(VEH.engine){VEH.engine=false;dashToast("Engine off");sndBeep(300,.12);return}
-  const why=D.dead?"The engine won't start: it is too badly damaged. Call the tow truck.":D.fuel<=0?"The engine won't start: the tank is empty.":D.refuel?"Wait until the refuelling is finished.":"";
+  const why=D.fire>0?"The car is on fire! Get out.":D.elec>=.92?"The engine won't start: an electrical fault.":D.dead?"The engine won't start: it is too badly damaged. Call the tow truck.":D.fuel<=0?"The engine won't start: the tank is empty.":D.refuel?"Wait until the refuelling is finished.":"";
   if(why){dashToast(why,2.6);sndBeep(180,.25);return}VEH.engine=true;VEH.rpm=.35;dashToast("Engine started");sndBeep(520,.08)}
 function beltToggle(){VEH.belt=!VEH.belt;dashToast(VEH.belt?"Seatbelt on":"Seatbelt off");sndBeep(VEH.belt?1200:600,.06)}
 // the clock beside the cash, in Nigerian time, while in town
@@ -2352,7 +2372,7 @@ let clockT=0;function clockTick(){const el=document.getElementById("clock");if(!
 function sndBeep(f,d){const c=SND.ctx;if(!c)return;try{const o=c.createOscillator(),g=c.createGain();o.frequency.value=f;g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g);g.connect(SND.out);o.start();o.stop(c.currentTime+d+.02)}catch(e){}}
 
 // the car's drawing position: with its body motion while driven
-function carModel(C){return TOW&&TOW.C===C&&TOW.carM?TOW.carM:driving&&VEH.model?VEH.model:C.dmg&&C.dmg.job?mul(trans(C.x,jobLift(C),C.z),rotY(C.yaw+Math.PI)):mul(trans(C.x,0,C.z),rotY(C.yaw+Math.PI))}
+function carModel(C){return TOW&&TOW.C===C&&TOW.carM?TOW.carM:driving&&VEH.model?VEH.model:C.dmg&&C.dmg.job?mul(trans(C.x,jobLift(C),C.z),rotY(C.yaw+Math.PI)):C.dmg&&C.dmg.flat&&C.dmg.flat.some(f=>f)?(t=>mul(mul(trans(C.x,t.y,C.z),rotY(C.yaw+Math.PI)),mul(mrotX(t.p),mrotZ(t.r))))(carSag(C)):mul(trans(C.x,0,C.z),rotY(C.yaw+Math.PI))}
 // the driving camera: chase, close, or the driver's seat. Drag (or the mouse) to look around; it swings back behind after a moment.
 function vehicleCam(C,wallAt,dt){if(VEH.lastVY===null)VEH.lastVY=VIEW.yaw;const dv=VIEW.yaw-VEH.lastVY;if(Math.abs(dv)>1e-4){VEH.orbit+=dv;VEH.orbitAt=NOW}VEH.lastVY=VIEW.yaw;if(NOW-VEH.orbitAt>2.5)VEH.orbit*=Math.max(0,1-dt*2.5);
   const yaw=C.yaw+VEH.orbit,fx=-Math.sin(yaw),fz=-Math.cos(yaw),cfx=-Math.sin(C.yaw),cfz=-Math.cos(C.yaw);
@@ -2444,8 +2464,9 @@ function dynLamps(T){const L=T.map.dyn||[],out=[];for(const o of L)if(o.type==="
    Each part from 0 (sound) to 1 (wrecked); headlights and tail lights are whole or broken. A damaged radiator leaks
    coolant; once the coolant runs low the engine overheats, loses power, and seizes if it is kept running too hot.
    A wrecked engine, chassis or suspension leaves the car undrivable. Dents change the car's shape where it was hit. */
-const carDmg0=()=>({bumperF:0,bumperR:0,bonnet:0,grille:0,trunk:0,sideL:0,sideR:0,hlL:0,hlR:0,tlL:0,tlR:0,radiator:0,engine:0,susp:0,chassis:0,under:0,coolant:1,temp:90,hot:0,dead:false,dents:[],ver:0,fuel:1,tyre:[0,0,0,0],flat:[0,0,0,0]});
-const carD=C=>{const D=C.dmg||(C.dmg=carDmg0());if(D.fuel==null)D.fuel=1;if(!D.tyre)D.tyre=[0,0,0,0];if(!D.flat)D.flat=[0,0,0,0];return D};
+const carDmg0=()=>({bumperF:0,bumperR:0,bonnet:0,grille:0,trunk:0,sideL:0,sideR:0,hlL:0,hlR:0,tlL:0,tlR:0,radiator:0,engine:0,susp:0,chassis:0,under:0,coolant:1,temp:90,hot:0,dead:false,dents:[],ver:0,fuel:1,tyre:[0,0,0,0],flat:[0,0,0,0],
+  oil:1,oilLeak:0,fuelLeak:0,elec:0,steer:0,steerDir:0,rim:[0,0,0,0],ws:0,rw:0,winL:0,winR:0,fire:0,fireT:0,burnt:0,hang:{}});
+const carD=C=>{const D=C.dmg||(C.dmg=carDmg0());if(!D.oilLeak&&D.oil==null||!D.rim||D.hang==null){const Z=carDmg0();for(const k in Z)if(D[k]==null)D[k]=Z[k]}if(D.fuel==null)D.fuel=1;if(!D.tyre)D.tyre=[0,0,0,0];if(!D.flat)D.flat=[0,0,0,0];return D};
 const clamp01=v=>v<0?0:v>1?1:v;
 /* apply an impact to the car: dv is the change in its speed (m/s) the blow caused, ct where and how it landed:
    zone F (front), R (rear), L or R side (local x: + is the car's left), the contact width w, low for things under the bumper.
@@ -2460,13 +2481,150 @@ function crashCar(C,dv,ct){const D=carD(C),was=JSON.stringify(D),s=dv,add=(k,v)=
   const tyreHit=(i,v)=>{if(v<=0)return;D.tyre[i]=clamp01(D.tyre[i]+v);if(D.tyre[i]>.7&&!D.flat[i]){D.flat[i]=1;said.push(TYRENAME[i]+" tyre burst")}};carD(C);
   if(ct.zone==="F"){const k=(s-3.5)*.09*(ct.low?1.6:1);if(ct.x>-.3)tyreHit(0,k);if(ct.x<.3)tyreHit(1,k)}else if(ct.zone==="R"){const k=(s-5)*.05;if(ct.x>-.3)tyreHit(2,k);if(ct.x<.3)tyreHit(3,k)}else{const k=(s-3)*.08,a=ct.zone==="L"?0:1;tyreHit(a,k);tyreHit(a+2,k)}
   add("susp",(s-7)*.07*(ct.low?1.3:1));add("chassis",(s-10)*.06);
+  // behind the panels: the oil sump and fuel tank, the wiring, the steering, the wheels, and the glass
+  const P0=JSON.parse(was),pre={ws:D.ws,rw:D.rw,winL:D.winL,winR:D.winR,rim:D.rim.slice(),oilLeak:D.oilLeak,fuelLeak:D.fuelLeak,elec:D.elec,steer:D.steer,bF:P0.bumperF||0,bR:P0.bumperR||0};
+  if(ct.zone==="F"){add("oilLeak",(s-(ct.low?4.5:7))*.08);add("elec",(s-6)*.06);add("ws",(s-4.5)*.075*(ct.low?.5:1));add("steer",(s-5.5)*.05);if(s>6){if(ct.x>.15)D.rim[0]=clamp01(D.rim[0]+(s-6)*.08);if(ct.x<-.15)D.rim[1]=clamp01(D.rim[1]+(s-6)*.08)}}
+  else if(ct.zone==="R"){add("fuelLeak",(s-5.5)*.09);add("rw",(s-4)*.1);if(s>7){if(ct.x>.15)D.rim[2]=clamp01(D.rim[2]+(s-7)*.06);if(ct.x<-.15)D.rim[3]=clamp01(D.rim[3]+(s-7)*.06)}}
+  else{const Lt=ct.zone==="L";add(Lt?"winL":"winR",(s-3.2)*.13);add("elec",(s-8)*.03);if(Math.abs(ct.z||0)>.6){add("steer",(s-5)*.05);const i=(ct.z>0?0:2)+(Lt?0:1);D.rim[i]=clamp01(D.rim[i]+(s-4)*.09)}}
+  if(ct.low)add("oilLeak",(s-3)*.05);
+  if(D.steer>pre.steer+.01)D.steerDir=ct.zone==="L"||(ct.zone!=="Rs"&&(ct.x||0)>0)?-1:1;       // the car pulls towards the side that was hit
+  for(const[k,b0]of[["bumperF",pre.bF],["bumperR",pre.bR]])if(D[k]>=.72&&b0<.72)D.hang[k]=(ct.x||0)>0?-1:1;       // a bumper torn loose hangs from the end that was hit
+  for(const[k,t,lim]of[["ws","windscreen",.3],["rw","rear window",.6],["winL","left window",.6],["winR","right window",.6]])if(D[k]>=lim&&pre[k]<lim)said.push(t+(k==="ws"?(D[k]>=.8?" shattered":" cracked"):" smashed"));
+  if(D.ws>=.8&&pre.ws<.8&&pre.ws>=.3)said.push("windscreen shattered");
+  for(const[k,t,lim]of[["oilLeak","oil sump leaking",.15],["fuelLeak","fuel tank leaking",.15],["elec","wiring damaged",.4],["steer","steering knocked out of line",.25]])if(D[k]>=lim&&pre[k]<lim)said.push(t);
+  D.rim.forEach((r,i)=>{if(r>=.3&&pre.rim[i]<.3)said.push(TYRENAME[i]+" wheel bent")});
+  // metal on something hard throws sparks at the point of contact; a heavy blow also shorts the wiring
+  if(ct.hard&&s>2.5&&ct.px!=null){const fx0=-Math.sin(C.yaw),fz0=-Math.cos(C.yaw),sg=Math.sign(C.v||1);fxSparks([ct.px,.35+.3*Math.random(),ct.pz],[-fx0*sg*.6,.5,-fz0*sg*.6],Math.min(50,Math.round(6+s*3)),2+s*.25)}
+  if(s>8&&D.elec>.4)fxSparks(carWorld(C,CARFX.batt),[0,1,0],10,1.4,true);
+  // fire is rare: only a heavy blow to an engine, fuel tank or wiring that is already badly damaged can start one
+  if(!D.fire&&!D.burnt&&s>7&&(D.engine>.7||D.fuelLeak>.5||D.elec>.85)){const pf=clamp((D.engine-.6)*1.2+D.fuelLeak*.5+(D.elec-.7)*.4+(s-12)*.03,0,.8);if(dmgChance(s,(ct.x||0)+(ct.z||0)*3+D.dents.length)<pf)D.fireNext=1}
   const dep=clamp01((s-1.2)*.045*narrow)*.75;if(dep>.015)D.dents.push({zone:ct.zone,x:ct.x||0,z:ct.z||0,d:+dep.toFixed(3),w:Math.max(.25,ct.w*.5)});if(D.dents.length>12)D.dents.splice(0,D.dents.length-12);
   if(!D.dead&&(D.engine>=.85||D.chassis>=.9||D.susp>=.95)){D.dead=true}
   const P=JSON.parse(was);for(const[k,t]of[["bumperF","front bumper"],["bumperR","rear bumper"],["grille","grille"],["bonnet","bonnet"],["trunk","boot"],["sideL","left side"],["sideR","right side"],["under","underbody"],["susp","suspension"],["chassis","chassis"],["radiator","radiator"],["engine","engine"]]){
     const a=P[k],b=D[k];if(b-a<.04)continue;const st=k==="radiator"?(b>.15?"leaking":"knocked"):b<.25?"scratched":b<.6?"dented":"badly damaged";said.push(t+" "+st)}
   for(const[k,t]of[["hlL","left headlight"],["hlR","right headlight"],["tlL","left tail light"],["tlR","right tail light"]])if(D[k]&&!P[k])said.push(t+" smashed");
   if(D.dead&&!P.dead)said.push("the car cannot drive on");
-  if(said.length||dep>.015)D.ver++;crashSave();return said.length?said.slice(0,4).join(", "):s<1.5?"a few scratches":""}
+  if(said.length||dep>.015)D.ver++;crashSave();if(D.fireNext){delete D.fireNext;setTimeout(()=>fireStart(C,"The engine caught fire in the crash"),600)}return said.length?said.slice(0,4).join(", "):s<1.5?"a few scratches":""}
+/* ---------------------------------------- what a damaged car does ----------------------------------------
+   Everything here follows the car's one damage record (carD): the same numbers drive the smoke, steam, sparks, fire,
+   drips and puddles, the way the car drives, the warning lamps, the condition chips and the workshop's repair list.
+     oil        oil left in the engine, 1 full; oilLeak: the sump and seals, 0 sound .. 1 wrecked
+     fuelLeak   the tank and fuel lines;  elec: the wiring and battery;  steer: the wheels knocked out of line (steerDir: which way)
+     rim[4]     bent wheel rims;  ws, rw, winL, winR: the windscreen, rear window and side windows (cracked, then broken)
+     fire       0 none .. 1 fully ablaze; fireT: seconds at full blaze; burnt: the car after a fire burnt out
+   Where things come from on the car (car metres: across + left, up, along + front) is in CARFX. ---- */
+const CARFX={engine:[0,.92,1.35],rad:[0,.5,2.0],sump:[0,.14,1.25],fuel:[.42,.2,-1.25],batt:[.52,.78,1.62],under:[0,.06,.55],
+  wheels:[[.92,.33,1.22],[-.92,.33,1.22],[.92,.33,-1.43],[-.92,.33,-1.43]]};
+// a point on the car, in the world, as the car is drawn now (leaning, bouncing)
+function carWorld(C,p){const M=carModel(C);return[M[0]*p[0]+M[4]*p[1]+M[8]*p[2]+M[12],M[1]*p[0]+M[5]*p[1]+M[9]*p[2]+M[13],M[2]*p[0]+M[6]*p[1]+M[10]*p[2]+M[14]]}
+// a deterministic chance from the blow itself, so the same crash always ends the same way
+const dmgChance=(a,b)=>{const x=Math.sin(a*12.9898+b*78.233)*43758.5453;return x-Math.floor(x)};
+
+/* ---- particles: one small pool, drawn as soft camera-facing patches (smoke, steam, drips), flat patches on the ground
+   (puddles), and glowing streaks and flames. Never more than FX.max at once; far from the camera fewer are made. ---- */
+const FX={max:240,n:0,S:16,P:new Float32Array(240*16),wind:[.55,0,.22],prog:null,buf:null,ibuf:null,arr:null,acc:{},puddles:[]};
+const FXT={smoke:0,steam:1,drip:2,spark:3,fire:4,espark:5,tyre:6};
+function fxEmit(type,x,y,z,vx,vy,vz,life,size,grow,r,g,b,a){if(FX.n>=FX.max)return;const o=FX.n++*FX.S,P=FX.P;
+  P[o]=x;P[o+1]=y;P[o+2]=z;P[o+3]=vx;P[o+4]=vy;P[o+5]=vz;P[o+6]=0;P[o+7]=life;P[o+8]=size;P[o+9]=grow;P[o+10]=type;P[o+11]=r;P[o+12]=g;P[o+13]=b;P[o+14]=a;P[o+15]=Math.random()}
+// a steady stream: rate per second, spread over frames
+function fxRate(key,rate,dt,fn){if(rate<=0){FX.acc[key]=0;return}let a=(FX.acc[key]||0)+rate*dt;while(a>=1){fn();a-=1}FX.acc[key]=a}
+const rnd=(a)=>(Math.random()-.5)*2*(a||1);
+function fxStep(dt){const P=FX.P,S=FX.S,w=FX.wind,t=NOW*.05;w[0]=.55*Math.cos(t)+.2;w[2]=.4*Math.sin(t*1.3);
+  for(let i=0;i<FX.n;i++){const o=i*S;P[o+6]+=dt;if(P[o+6]>=P[o+7]){FX.n--;if(i<FX.n){P.copyWithin(o,FX.n*S,FX.n*S+S)}i--;continue}
+    const ty=P[o+10];
+    if(ty===FXT.spark||ty===FXT.espark){P[o+4]-=9.8*dt;if(P[o+1]<.02&&P[o+4]<0){P[o+1]=.02;P[o+4]*=-.3;P[o+3]*=.6;P[o+5]*=.6}}
+    else if(ty===FXT.drip){P[o+4]-=9.8*dt;if(P[o+1]<=.01){puddleAdd(P[o],P[o+2],P[o+11],P[o+12],P[o+13]);P[o+6]=P[o+7];continue}}
+    else if(ty===FXT.fire){P[o+4]+=(1.6-P[o+4])*dt*2;P[o+3]+=(w[0]*.3-P[o+3])*dt;P[o+5]+=(w[2]*.3-P[o+5])*dt}
+    else{const k=Math.min(1,dt*.8);P[o+3]+=(w[0]-P[o+3])*k;P[o+5]+=(w[2]-P[o+5])*k;P[o+4]+=((ty===FXT.tyre?.35:1.1)-P[o+4])*dt*.9;P[o+8]+=P[o+9]*dt}
+    P[o]+=P[o+3]*dt;P[o+1]+=P[o+4]*dt;P[o+2]+=P[o+5]*dt}
+  // puddles slowly soak away
+  for(let i=FX.puddles.length-1;i>=0;i--){const q=FX.puddles[i];q.a-=dt/600;if(q.a<=0)FX.puddles.splice(i,1)}}
+// a drop reaching the ground joins a puddle of its kind nearby, or starts one
+function puddleAdd(x,z,r,g,b){const L=FX.puddles;let q=L.find(p=>Math.hypot(p.x-x,p.z-z)<p.r+.25&&Math.abs(p.c[0]-r)<.05&&Math.abs(p.c[1]-g)<.05);
+  if(q){q.r=Math.min(1.1,q.r+.012);q.a=Math.min(.75,q.a+.02);return}if(L.length>=16)L.shift();L.push({x,z,r:.12,a:.35,c:[r,g,b],s:Math.random()})}
+function fxInit(){if(FX.prog)return;
+  FX.prog=program(`attribute vec3 p;attribute vec2 c;attribute float s;attribute vec4 col;attribute vec3 st;attribute float fl;uniform mat4 vp;uniform vec3 R,U,eye;varying vec2 vc;varying vec4 vcol;varying float vk;
+void main(){vec3 w;vk=fl;if(fl>1.5){w=p+vec3(c.x*s,.015,c.y*s);}else if(fl>.5){vec3 d=normalize(st+vec3(0.,.0001,0.)),toE=normalize(eye-p),sd=normalize(cross(d,toE));w=p+d*c.y*max(length(st),s)+sd*c.x*s*.35;}
+else{w=p+(R*c.x+U*c.y)*s;}gl_Position=vp*vec4(w,1.);vc=c;vcol=col;}`,
+`precision mediump float;varying vec2 vc;varying vec4 vcol;varying float vk;uniform float dim;
+void main(){float r=length(vc);float a;if(vk>1.5){float e=1.-.12*sin(atan(vc.y,vc.x)*5.+vcol.a*30.);if(r>e)discard;a=smoothstep(e,e*.55,r);}
+else if(vk>.5){a=smoothstep(1.,.0,abs(vc.x))*smoothstep(1.,.3,abs(vc.y));}else{if(r>1.)discard;a=smoothstep(1.,.15,r);a*=a;}
+gl_FragColor=vec4(vcol.rgb*(vk>.5&&vk<1.5?1.:dim),vcol.a*a);}`);
+  FX.buf=gl.createBuffer();const I=new Uint16Array((FX.max+16)*6);for(let i=0;i<FX.max+16;i++){const v=i*4;I.set([v,v+1,v+2,v,v+2,v+3],i*6)}FX.ibuf=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,FX.ibuf);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,I,gl.STATIC_DRAW);
+  FX.arr=new Float32Array((FX.max+16)*4*14)}
+function fxDraw(VP,eye,to){if(!FX.n&&!FX.puddles.length)return;fxInit();const P=FX.P,S=FX.S,A=FX.arr,fw=nrm(sub(to,eye)),R=nrm(cross(fw,[0,1,0])),U=cross(R,fw),list=[[],[]];
+  for(let i=0;i<FX.n;i++){const ty=P[i*S+10];(ty===FXT.spark||ty===FXT.fire||ty===FXT.espark?list[1]:list[0]).push(i)}
+  const d2=i=>{const o=i*S;return(P[o]-eye[0])**2+(P[o+1]-eye[1])**2+(P[o+2]-eye[2])**2};list[0].sort((a,b)=>d2(b)-d2(a));
+  const pr=FX.prog;gl.useProgram(pr.p);gl.uniformMatrix4fv(pr.u.vp,false,VP);gl.uniform3fv(pr.u.R,R);gl.uniform3fv(pr.u.U,U);gl.uniform3fv(pr.u.eye,eye);gl.uniform1f(pr.u.dim,1-.7*LIGHT.night);
+  gl.bindBuffer(gl.ARRAY_BUFFER,FX.buf);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,FX.ibuf);const F=4*14;
+  const att=(n,size,off)=>{const l=pr.a[n];gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,size,gl.FLOAT,false,F,off*4)};
+  gl.disable(gl.CULL_FACE);gl.enable(gl.BLEND);gl.depthMask(false);
+  const put=(k,x,y,z,s,r,g,b,a,sx,sy,sz,fl)=>{const C=[[-1,-1],[1,-1],[1,1],[-1,1]];for(let v=0;v<4;v++){const o=(k*4+v)*14;A[o]=x;A[o+1]=y;A[o+2]=z;A[o+3]=C[v][0];A[o+4]=C[v][1];A[o+5]=s;A[o+6]=r;A[o+7]=g;A[o+8]=b;A[o+9]=a;A[o+10]=sx;A[o+11]=sy;A[o+12]=sz;A[o+13]=fl}};
+  for(const pass of[0,1]){let k=0;
+    if(pass===0)for(const q of FX.puddles)put(k++,q.x,0,q.z,q.r,q.c[0],q.c[1],q.c[2],q.a*(.85+.15*q.s),0,0,0,2);
+    for(const i of list[pass]){const o=i*S,life=P[o+7],f=P[o+6]/life,ty=P[o+10];let a=P[o+14],r=P[o+11],g=P[o+12],b=P[o+13],s=P[o+8],fl=0,sx=0,sy=0,sz=0;
+      if(ty===FXT.spark||ty===FXT.espark){fl=1;a*=1-f;const k2=.035;sx=P[o+3]*k2;sy=P[o+4]*k2;sz=P[o+5]*k2}
+      else if(ty===FXT.fire){a*=Math.sin(Math.PI*Math.min(1,f*1.6))*(1-f*.5);g*=1-f*.7;b*=1-f;s*=1-f*.45}
+      else if(ty===FXT.drip)a*=1;else a*=Math.min(1,f*5)*(1-f);
+      put(k++,P[o],P[o+1],P[o+2],s,r,g,b,a,sx,sy,sz,fl)}
+    if(!k)continue;gl.bufferData(gl.ARRAY_BUFFER,A.subarray(0,k*F),gl.DYNAMIC_DRAW);att("p",3,0);att("c",2,3);att("s",1,5);att("col",4,6);att("st",3,10);att("fl",1,13);
+    gl.blendFunc(gl.SRC_ALPHA,pass?gl.ONE:gl.ONE_MINUS_SRC_ALPHA);gl.drawElements(gl.TRIANGLES,k*6,gl.UNSIGNED_SHORT,0)}
+  for(const n of["p","c","s","col","st","fl"])gl.disableVertexAttribArray(pr.a[n]);gl.depthMask(true);gl.disable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA)}
+// a shower of sparks at a point, thrown along a direction (metal on metal, or a rim on the road)
+function fxSparks(p,dir,n,speed,elec){for(let k=0;k<n;k++){const sp=speed*(.5+Math.random()),c=elec?[.75,.85,1]:[1,.78+.2*Math.random(),.35];
+  fxEmit(elec?FXT.espark:FXT.spark,p[0],p[1],p[2],dir[0]*sp+rnd(1.6),Math.abs(dir[1])*sp+1.2+Math.random()*2.2,dir[2]*sp+rnd(1.6),.25+Math.random()*.35,.05,0,c[0],c[1],c[2],1)}}
+
+/* ---- each frame, for the car in this town: the damage that goes on by itself (leaks, oil starvation, fire), and what it
+   gives off. Effects are only made near the camera. ---- */
+let dmgSaveT=0,DMG={misfire:0,elecT:0,fireMsg:0};
+function carSim(T,dt){const C=T.car;DMG.rough=0;DMG.flick=false;if(!C||!C.dmg)return;const D=carD(C),run=driving&&VEH.engine&&!D.dead&&D.fuel>0,v=driving?Math.abs(C.v):0;let changed=false;
+  DMG.rough=Math.max(0,D.engine-.3)+(D.oil<.25?.4:0)+(NOW<DMG.misfire?.6:0);DMG.flick=D.elec>.6&&Math.random()<(D.elec-.55)*.7;
+  // a fire warning that cannot be missed while sitting in a burning car
+  const fw=document.getElementById("fireWarn");if(fw){const on=driving&&D.fire>0;if(fw.hidden===on)fw.hidden=!on}
+  // leaks and their consequences
+  if(D.oilLeak>.1&&D.oil>0){D.oil=Math.max(0,D.oil-D.oilLeak*(run?.0025:.0005)*dt);changed=true}
+  if(run&&D.oil<.25){D.engine=Math.min(1,D.engine+(.25-D.oil)*.02*dt);if(D.engine>=.85&&!D.dead){D.dead=true;D.ver++;dashToast("The engine has seized: it ran without oil",3.2)}changed=true}
+  if(D.fuelLeak>.12&&D.fuel>0){D.fuel=Math.max(0,D.fuel-D.fuelLeak*.0006*dt);changed=true}
+  if(!run)D.temp+=(32-D.temp)*Math.min(1,dt*.006);
+  // fire: grows while untreated, stops the car, and in the end burns itself out
+  if(D.fire>0){const was=D.fire;if(D.fireT<150){D.fire=Math.min(1,D.fire+dt*(.004+.012*D.fuelLeak+(D.fuel>.05?.002:0)));if(D.fire>=.97)D.fireT=(D.fireT||0)+dt}
+    else{D.fire=Math.max(0,D.fire-dt*.012);if(D.fire===0){D.burnt=1;D.dead=true;D.elec=1;D.ver++;toast("The fire has burnt itself out. The car is a burnt wreck: it needs the workshop.")}}
+    D.engine=Math.min(1,D.engine+dt*.006*D.fire);D.elec=Math.min(1,D.elec+dt*.01*D.fire);if(D.fire>.5&&!D.dead){D.dead=true;dashToast("The fire has spread: the car cannot be driven",3)}
+    if((was<.3&&D.fire>=.3)||(was<.65&&D.fire>=.65))D.ver++;changed=true}
+  else if(D.fuelLeak>.35&&driving&&v>3&&(D.under>.5||D.flat.some(f=>f))&&Math.random()<dt*.02*D.fuelLeak){fireStart(C,"Leaking fuel caught fire from the sparks")}
+  if(changed&&NOW-dmgSaveT>5){dmgSaveT=NOW;crashSave()}
+  // electrical faults: the engine misses now and then
+  if(run&&D.elec>.55&&NOW>DMG.misfire&&Math.random()<dt*(D.elec-.5)*1.4)DMG.misfire=NOW+.25+Math.random()*.4;
+  // what it gives off (only near the camera; fewer further away)
+  const dist=Math.hypot(C.x-cam.x,C.z-cam.z),lod=dist>70?0:dist>35?.5:1;if(!lod)return;
+  const W=p=>carWorld(C,p),fwd=[-Math.sin(C.yaw),0,-Math.cos(C.yaw)],hot=clamp((D.temp-108)/25,0,1),eng=clamp((D.engine-.35)/.65,0,1),key=k=>"c"+k;
+  // engine smoke: light grey when running hot, darker and thicker as the engine fails
+  fxRate(key("eng"),lod*((run||D.temp>100)?(hot*6+eng*(4+14*eng)):D.engine>.8&&!D.fire?1.2:0),dt,()=>{const p=W([CARFX.engine[0]+rnd(.45),CARFX.engine[1],CARFX.engine[2]+rnd(.35)]),dk=eng>.6?.32-.15*eng:.72,a=.28+.25*eng;
+    fxEmit(FXT.smoke,p[0],p[1],p[2],rnd(.2),.9+Math.random()*.5,rnd(.2),2.4+Math.random()*1.6,.28+.2*eng,.55+.5*eng,dk,dk,dk*1.02,a)});
+  // steam from a broken radiator or boiling coolant
+  fxRate(key("steam"),lod*((D.radiator>.15&&(run||D.temp>95))?3+9*D.radiator:0)+lod*(D.temp>118?10*hot:0),dt,()=>{const p=W([CARFX.rad[0]+rnd(.4),CARFX.rad[1]+.25,CARFX.rad[2]]);
+    fxEmit(FXT.steam,p[0],p[1],p[2],fwd[0]*.6+rnd(.3),1.1+Math.random()*.6,fwd[2]*.6+rnd(.3),1.4+Math.random(),.22,.75,.96,.97,.98,.32)});
+  // tyre smoke: skidding, or running on a burst tyre
+  if(driving){fxRate(key("skid"),lod*(VEH.slip>.3&&v>4?20*Math.min(1.5,VEH.slip):0),dt,()=>{for(const i of[2,3]){const w=CARFX.wheels[i],p=W([w[0],.12,w[2]]);fxEmit(FXT.tyre,p[0],p[1],p[2],rnd(.4),.3,rnd(.4),1.6+Math.random(),.35,.9,.86,.86,.86,.3)}});
+    D.flat.forEach((f,i)=>fxRate(key("flat"+i),lod*(f&&v>2?3+v*.6:0),dt,()=>{const w=CARFX.wheels[i],p=W([w[0],.1,w[2]]);fxEmit(FXT.tyre,p[0],p[1],p[2],rnd(.3),.25,rnd(.3),1.2,.25,.6,.8,.8,.8,.28)}));
+    // sparks: a damaged underbody scraping the road, a bare rim on the road
+    const back=[-fwd[0]*v*.35,.6,-fwd[2]*v*.35];
+    fxRate(key("scrape"),lod*((D.under>.5||D.susp>.7)&&v>3?(D.under+D.susp)*18:0),dt,()=>fxSparks(W([rnd(.5),.04,CARFX.under[2]+rnd(.6)]),back,2,1));
+    D.flat.forEach((f,i)=>fxRate(key("rim"+i),lod*(f&&D.tyre[i]>=.95&&v>3?14+v:0),dt,()=>{const w=CARFX.wheels[i];fxSparks(W([w[0],.03,w[2]]),back,2,1)}))}
+  // electrical sparks from damaged wiring
+  if(D.elec>.5&&NOW>DMG.elecT){DMG.elecT=NOW+.4+Math.random()*(2.6-2*D.elec);if(lod)fxSparks(W(CARFX.batt),[rnd(.5),1,rnd(.5)],4+Math.round(6*D.elec),1.2,true)}
+  // drips from leaks, which pool on the ground under a car standing still
+  fxRate(key("oil"),lod*(D.oilLeak>.15&&D.oil>0?(1.5+5*D.oilLeak)*(run?1:.5):0),dt,()=>{const p=W([CARFX.sump[0]+rnd(.15),CARFX.sump[1],CARFX.sump[2]+rnd(.15)]);fxEmit(FXT.drip,p[0],p[1],p[2],0,-.2,0,3,.028,0,.11,.08,.05,.9)});
+  fxRate(key("cool"),lod*(D.radiator>.15&&D.coolant>0?2+5*D.radiator:0),dt,()=>{const p=W([CARFX.rad[0]+rnd(.3),.22,CARFX.rad[2]-.15]);fxEmit(FXT.drip,p[0],p[1],p[2],0,-.2,0,3,.026,0,.25,.82,.42,.75)});
+  fxRate(key("fuel"),lod*(D.fuelLeak>.15&&D.fuel>0?2+6*D.fuelLeak:0),dt,()=>{const p=W([CARFX.fuel[0]+rnd(.12),CARFX.fuel[1],CARFX.fuel[2]+rnd(.12)]);fxEmit(FXT.drip,p[0],p[1],p[2],0,-.2,0,3,.026,0,.78,.62,.42,.5)});
+  // fire: flames over the engine, with thick black smoke above them
+  if(D.fire>0){fxRate(key("fire"),lod*(10+38*D.fire),dt,()=>{const sp=.35+.6*D.fire,p=W([rnd(sp),CARFX.engine[1]-.05,CARFX.engine[2]+rnd(sp*.8)]);fxEmit(FXT.fire,p[0],p[1],p[2],rnd(.2),.8,rnd(.2),.55+.5*Math.random()*D.fire,.25+.35*D.fire,0,1,.62,.2,.95)});
+    fxRate(key("fsmoke"),lod*(5+16*D.fire),dt,()=>{const p=W([rnd(.4),CARFX.engine[1]+.5+.6*D.fire,CARFX.engine[2]+rnd(.4)]);fxEmit(FXT.smoke,p[0],p[1],p[2],rnd(.2),1.5,rnd(.2),3.5+Math.random()*2,.5,1.1,.1,.09,.09,.55)})}}
+// the fire's own light at night, flickering, among the lamps that light the road
+function fireLamps(T){const C=T&&T.car,D=C&&C.dmg;if(!D||!(D.fire>0))return[];const p=carWorld(C,[0,1.5,CARFX.engine[2]]);return[[p[0],p[1],p[2],(.8+.6*D.fire)*(.85+.15*Math.sin(NOW*23)+.1*Math.sin(NOW*7))]]}
+// a fire starts on the car (from a crash, or leaking fuel meeting sparks)
+function fireStart(C,why){const D=carD(C);if(D.fire>0||D.burnt)return;D.fire=.06;D.fireT=0;D.ver++;crashSave(true);if(driving)VEH.engine=false;dashToast((why||"The engine is on fire")+". Get out of the car!",4);sndBeep(260,.4)}
+
 // the car's shape with its dents, rebuilt only when the damage changes
 let CARBASE=null,CARSCENE0=null;
 const carKind=c=>c[0]>220&&c[1]>220?K.glow:c[0]>220?K.glow:c[0]>150&&c[1]<70?K.gold:c[0]<40&&c[2]>44?K.glass:0;
@@ -2484,7 +2642,17 @@ function carMesh(C){const D=C&&C.dmg;if(!CARSCENE0)CARSCENE0=CARSCENE;if(!D||!D.
       for(const d of dents){if(d.zone==="F"||d.zone==="R"){const s=d.zone==="F"?1:-1,zf=L-z*s,reach=d.d+.55;if(zf>reach)continue;const lx=x/Wd-d.x,wl=Math.exp(-lx*lx/(d.w*d.w/(Wd*Wd))),k=wl*(1-zf/reach),m=d.d*k;
           if(m<.002)continue;z-=s*m*(1+.35*Math.sin(x*21+y*13));y+=(y>.8?m*.35*Math.sin(x*9+d.x*5):-m*.12)+m*.12*Math.sin(z*31+x*17);x*=1-m*.08;x+=m*.1*Math.sin(y*27+z*19);hit=Math.max(hit,k)}
         else{const s=d.zone==="L"?1:-1,xf=Wd-x*s,reach=d.d+.3;if(xf>reach)continue;const lz=z-d.z,wl=Math.exp(-lz*lz/(d.w*d.w)),k=wl*(1-xf/reach),m=d.d*k;if(m<.002)continue;x-=s*m*(1+.3*Math.sin(z*23+y*15));y+=m*.1*Math.sin(z*29);hit=Math.max(hit,k)}}
+      const ko=v*4,cr=col[ko],cg=col[ko+1],cb=col[ko+2],isGlass=Math.abs(col[ko+3]-K.glass)<1e-4,isGlow=Math.abs(col[ko+3]-K.glow)<1e-4;let glassSt=0,pane=null;
+      if(D.bonnet>.55&&!isGlass&&y>.72&&z>.95&&z<L-.2){const f=(D.bonnet-.55)/.45,u=(z-.95)/(L-1.15);y+=f*.17*Math.sin(Math.PI*u)*(1-Math.abs(x)/Wd*.55);hit=Math.max(hit,f*.6)}
+      for(const[k,sg]of[["bumperF",1],["bumperR",-1]]){const b=D[k];if(b<.72||isGlass)continue;const zf=L-z*sg;if(zf>.34||y>.62)continue;const sd=D.hang[k]||1,f=(b-.72)/.28,u=clamp((x*sd+Wd)/(2*Wd),0,1);y=Math.max(.03,y-f*.45*u);z-=sg*f*.1*u;hit=Math.max(hit,.4)}
+      if(Math.abs(x)>.55&&((cr<70&&cg<70&&cb<70)||(cr>150&&Math.abs(cr-cg)<14&&Math.abs(cg-cb)<14&&Math.abs(x)>.82)))for(let i=0;i<4;i++){const w=CARFX.wheels[i];if(Math.sign(x)!==Math.sign(w[0]))continue;const dy=y-w[1],dz=z-w[2];if(dy*dy+dz*dz>.42*.42)continue;
+        if(D.flat[i]&&dy<0){y=w[1]+dy*.55;hit=Math.max(hit,.01)}if(D.rim[i]>.3){x+=dy*.25*D.rim[i]*Math.sign(w[0]);z+=dy*.06*D.rim[i];hit=Math.max(hit,.01)}}
+      if(isGlass){pane=z>.3&&y>.8&&Math.abs(x)<.98?"ws":z<-.4&&y>.85?"rw":x>.6?"winL":x<-.6?"winR":null;const g=pane?D[pane]:0;
+        if(D.burnt||(pane&&pane!=="ws"&&g>=.6)){x=pane==="winL"?.9:pane==="winR"?-.9:0;y=1;z=pane==="rw"?-1:pane==="ws"?.8:.4;hit=Math.max(hit,.01)}      // toughened side and rear glass falls out in pieces
+        else if(pane==="ws"&&g>=.3)glassSt=g>=.8?2:1}
       if(hit>0){moved[v]=1;changed=true}p[v*3]=x;p[v*3+1]=y;p[v*3+2]=z;const o=v*4;
+      if(glassSt){const crack=Math.abs(Math.sin(x*41+y*57)*Math.sin(z*47-x*33+y*11));if(glassSt===2||crack>.86){const m=glassSt===2?.75:1;col[o]=cr+(222-cr)*m;col[o+1]=cg+(228-cg)*m;col[o+2]=cb+(234-cb)*m;col[o+3]=0;changed=true}}
+      if((D.burnt||D.fire>.3)&&!isGlass){const f=D.burnt?.78:z>.4?clamp((D.fire-.3)*1.3,0,.75)*clamp((z-.4)/1.2,0,1):0;if(f>.01){const gy=(col[o]+col[o+1]+col[o+2])/3;col[o]=(col[o]*(1-f)+gy*.35*f)*(1-f*.6);col[o+1]=(col[o+1]*(1-f)+gy*.33*f)*(1-f*.6);col[o+2]=(col[o+2]*(1-f)+gy*.32*f)*(1-f*.6);if(isGlow&&D.burnt)col[o+3]=0;changed=true}}
       // broken headlights and tail lights go dark; dented metal is scuffed darker
       const glow=Math.abs(col[o+3]-K.glow)<1e-4;if(glow&&((z>L-.5&&((x>0&&D.hlL)||(x<0&&D.hlR)))||(z<-L+.5&&((x>0&&D.tlL)||(x<0&&D.tlR))))){col[o]*=.25;col[o+1]*=.25;col[o+2]*=.27;col[o+3]=0;changed=true}
       else if(hit>.15){const f=1-.45*Math.min(1,hit);col[o]*=f;col[o+1]*=f;col[o+2]*=f}}
@@ -2500,7 +2668,8 @@ function carEngine(C,dt){const D=carD(C);if(!VEH.engine||D.dead||D.fuel<=0||D.re
   if(D.radiator>.15)D.coolant=Math.max(0,D.coolant-D.radiator*.022*dt);
   const want=90+Math.max(0,.65-D.coolant)/.65*62+(D.radiator>.6?12:0)+VEH.thr*6*(D.coolant<.5?1:0);D.temp+=(want-D.temp)*Math.min(1,dt*.12);
   if(D.temp>135){D.hot+=dt;if(D.hot>8){D.engine=1;D.dead=true;D.ver++;dashToast("The engine has overheated and seized",3);crashSave();return 0}}else D.hot=Math.max(0,D.hot-dt*.5);
-  return (1-.72*D.engine)*(D.temp>125?.5:1)}
+  if(D.elec>=.92||D.fire>.5)return 0;
+  return (1-.72*D.engine)*(D.temp>125?.5:1)*(D.oil<.3?.55+1.5*D.oil:1)*(NOW<DMG.misfire?.15:1)}
 // the tow truck: the car is taken away, repaired, and brought back to where it stood
 
 /* ---------------------------------------- the impact ---------------------------------------- */
@@ -2528,7 +2697,7 @@ function crashAt(T,C,b,px,pz,cfg){const o=DYNOF.get(b),Z=carZone(C,px,pz,cfg),ta
   if(vn<1||NOW-(key.hitAt||-9)<CRASH.COOL){if(vn>0)carImpulse(C,n,vn,px,pz);return false}
   key.hitAt=NOW;const E=.5*CRASH.MASS*vn*vn/1000,h={n,vn,E,px,pz,zone:Z.zone,x:Z.x,z:Z.z};VEH.jolt=Math.min(1,VEH.jolt+vn/10);
   if(o)return crashObject(T,C,o,h);if(tree)return crashTree(T,C,tag,b,h);
-  const F=CRASH.fixed[tag||"wall"]||CRASH.fixed.wall,dvn=(1+F.e)*vn;carImpulse(C,n,dvn,px,pz);const car=crashCar(C,dvn,{zone:Z.zone,x:Z.x,z:Z.z,w:F.w,low:F.low});
+  const F=CRASH.fixed[tag||"wall"]||CRASH.fixed.wall,dvn=(1+F.e)*vn;carImpulse(C,n,dvn,px,pz);const car=crashCar(C,dvn,{zone:Z.zone,x:Z.x,z:Z.z,w:F.w,low:F.low,px,pz,hard:true});
   let obj="the "+F.name+(tag==="fallen"?" is in the way":" is unharmed"),lv=0;
   if(F.marks&&E>=2){const kind=E<25?"scuff":E<90?"paint":"crack";wallMark(T,b,px,pz,n,kind,F.low);lv=kind==="scuff"?0:kind==="paint"?1:2;obj="the "+F.name+(kind==="scuff"?" has scuff marks":kind==="paint"?" has paint marks and scrapes":" is cracked, chips knocked off")+"; it stands"}
   crashSay(dvn,lv,obj,car);return false}
@@ -2549,7 +2718,7 @@ function crashObject(T,C,o,h){const P=dynProps(o),Ty=DYN.types[o.type],m=CRASH.M
     if(P.glass&&!o.glassGone){o.glassGone=1;dynSpray(T,o,"shard",8,n,2)}obj="the "+Ty.name+" bent over"+(o.type==="hydrant"?" and is leaking":"")+(P.glass?"; its glass shattered":"");dynDamaged(o)}
   else if(E>=P.mark){dvn=1.08*vn;o.scuff=1;o.wob=NOW;o.wobA=.05;o.dx=n[0];o.dz=n[1];obj="the "+Ty.name+" held, scuffed";dynDamaged(o)}
   else{dvn=1.1*vn;o.wob=NOW;o.wobA=.015+.02*E/Math.max(1,P.mark);o.dx=n[0];o.dz=n[1];obj="the "+Ty.name+" held, unharmed"}
-  carImpulse(C,n,dvn,h.px,h.pz);const car=crashCar(C,dvn,{zone:h.zone,x:h.x,z:h.z,w:ctW,low});
+  carImpulse(C,n,dvn,h.px,h.pz);const car=crashCar(C,dvn,{zone:h.zone,x:h.x,z:h.z,w:ctW,low,px:h.px,pz:h.pz,hard:P.fixed!==false});
   crashSay(dvn,lv||0,obj+(o.variant&&o.variant!=="standard"?" ("+o.variant+")":""),car);return pass}
 // a loose object set moving at speed vo along n, turning if it was struck off-centre, and tipping over if struck hard
 function dynShove(o,n,vo,h){const P=dynProps(o),Ty=DYN.types[o.type];if(o.state!==3){o.state=3;o.x0=o.x;o.z0=o.z;o.yaw0=o.yaw;o.tip=0}
@@ -2574,7 +2743,7 @@ function crashTree(T,C,tag,b,h){const t=tag.t,[sp,x,z,H]=t,{n,vn,E}=h,kind=sp===
     treeFall(T,t,b,n,kind);obj=kind==="shrub"?"the shrub was flattened":"the young tree was knocked down";lv=kind==="shrub"?0:1}
   else{dvn=(1+(kind==="mature"?CRASH.tree.mature.e:.15))*vn;obj=(kind==="shrub"?"the shrub":kind==="young"?"the young tree":"the tree")+" stands";
     if(E>4)treeLeaves(t,Math.min(14,3+E/6));if(E>12&&kind!=="shrub"){wallMark(T,null,x-n[0]*.22,z-n[1]*.22,n,"bark");obj+=", bark scraped off";lv=1}}
-  carImpulse(C,n,dvn,h.px,h.pz);const car=crashCar(C,dvn,{zone:h.zone,x:h.x,z:h.z,w:kind==="shrub"?1.4:CRASH.tree.mature.w,low:false});crashSay(dvn,lv,obj,car);return pass}
+  carImpulse(C,n,dvn,h.px,h.pz);const car=crashCar(C,dvn,{zone:h.zone,x:h.x,z:h.z,w:kind==="shrub"?1.4:CRASH.tree.mature.w,low:false,px:h.px,pz:h.pz,hard:false});crashSay(dvn,lv,obj,car);return pass}
 function treeLeaves(t,cnt){const[sp,x,z,H]=t;for(let i=0;i<cnt;i++)DYN.debris.push({o:null,mesh:"leaf",x:x+(Math.sin(i*7.1)*1.6),y:H*.6+((i*3)%5)*.3,z:z+Math.cos(i*5.3)*1.6,vx:Math.sin(i)*.4,vz:Math.cos(i*1.7)*.4,vy:0,yaw:i,rx:0,wy:(i%5-2)*2,wx:(i%3-1)*3,rest:0,leaf:1});dynTrim()}
 // the tree leaves its block of the town's trees (that block is rebuilt without it) and falls on its own, then lies there
 function treeFall(T,t,b,n,kind,done){b.splice(0,4,1e9,1e9,1e9,1e9);t.fall={dx:n[0],dz:n[1],a:kind==="shrub"?1.35:1.5,t0:done?NOW-9:NOW,kind,at:done||Date.now()};treeCell(T,t);if(!done)crashSave()}
@@ -2731,7 +2900,7 @@ function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,
   const C=T.car;let door=false,cond=false,bay=false;
   if(C){const dr=carDoors(C).driver,hp=carPt(C,dr.handle),D=C.dmg;
     if(!driving){if(Math.hypot(hp[0]-cam.x,hp[2]-cam.z)<=2.5){const el=CARUI.door,s=el.querySelector("span"),lb=D&&D.job?"In repair "+mmss(D.job.until-Date.now()):"Get In";el.hidden=false;if(s.textContent!==lb)s.textContent=lb;door=true;CARUI.near=true}
-      if(Math.hypot(C.x-cam.x,C.z-cam.z)<5.5){carUIPlace(CARUI.cond,[C.x,1.75,C.z],VP,w,h);cond=true}}}
+      }}
   const W=T.workshop;if(W&&!driving&&Math.hypot(W.x-cam.x,W.z-cam.z)<7.5){carUIPlace(CARUI.bay,[W.x-W.fx*1.2,2.2,W.z-W.fz*1.2],VP,w,h);bay=true}
   let fuel=false;const pump=C&&stationPump(T,C);if(pump&&Math.abs(C.v)<.3&&(driving||Math.hypot(C.x-cam.x,C.z-cam.z)<5)){carUIPlace(CARUI.fuel,[pump.p[0],1.9,pump.p[1]],VP,w,h,C.dmg&&C.dmg.refuel?"Refuelling...":"Refuel");fuel=true}
   mechTag(T,VP,w,h);if(!door)CARUI.door.hidden=true;if(!cond)CARUI.cond.hidden=true;if(!bay)CARUI.bay.hidden=true;if(!fuel)CARUI.fuel.hidden=true}
@@ -2739,18 +2908,23 @@ function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,
 /* ---- the car's condition, read from its damage record ---- */
 const CARPARTS=[["engine","Engine",.2],["chassis","Chassis",.15],["susp","Suspension",.1],["radiator","Radiator",.08],["bumperF","Front bumper",.06],["bumperR","Rear bumper",.05],
   ["bonnet","Bonnet",.06],["grille","Grille",.03],["trunk","Boot",.04],["sideL","Left side",.06],["sideR","Right side",.06],["under","Underbody",.05]];
-function carHealth(D){let s=0;for(const[k,,w]of CARPARTS)s+=w*(D[k]||0);for(const k of["hlL","hlR","tlL","tlR"])s+=.0075*(D[k]?1:0);return Math.round(100*(1-Math.min(1,s)))}
-function carWarnings(D){const W=[];if(D.dead)W.push("Vehicle too damaged to drive");if(D.engine>=.3&&!D.dead)W.push("Engine requires repair");if(D.temp>115)W.push("Engine overheating");
+function carHealth(D){if(D.burnt)return 0;let s=0;for(const[k,,w]of CARPARTS)s+=w*(D[k]||0);for(const k of["hlL","hlR","tlL","tlR"])s+=.0075*(D[k]?1:0);
+  s+=.05*(D.oilLeak||0)+.05*(D.fuelLeak||0)+.06*(D.elec||0)+.03*(D.steer||0)+.02*(D.ws||0)+.01*((D.rw||0)+(D.winL||0)+(D.winR||0))+.015*(D.rim||[0]).reduce((a,v)=>a+v,0)+(D.fire||0)*.3;return Math.round(100*(1-Math.min(1,s)))}
+function carWarnings(D){const W=[];if(D.fire>0)W.push("FIRE: the car is burning. Keep away.");if(D.burnt)W.push("Burnt out: the car needs the workshop");if(D.dead)W.push("Vehicle too damaged to drive");
+  if(D.oilLeak>.15)W.push("Oil leaking: oil "+Math.round(D.oil*100)+"%");else if(D.oil<.5)W.push("Oil low");if(D.fuelLeak>.15)W.push("Fuel leaking: risk of fire");
+  if(D.elec>=.92)W.push("Electrical failure: the engine will not start");else if(D.elec>.35)W.push("Electrical fault: lights and engine may cut out");if(D.steer>.25)W.push("Wheels out of line: the car pulls to the "+(D.steerDir<0?"left":"right"));
+  if(D.ws>=.8)W.push("Windscreen shattered");else if(D.ws>=.3)W.push("Windscreen cracked");if((D.rim||[]).some(v=>v>.3))W.push("Bent wheel rim: vibration");if(D.engine>=.3&&!D.dead)W.push("Engine requires repair");if(D.temp>115)W.push("Engine overheating");
   if(D.radiator>.15)W.push("Radiator leaking: coolant "+Math.round(D.coolant*100)+"%");else if(D.coolant<.6)W.push("Coolant low");if(D.susp>=.4)W.push("Suspension damaged: the car may pull to one side");if(D.chassis>=.4)W.push("Chassis bent");
   if(D.fuel<=0)W.push("Out of fuel");else if(D.fuel<.15)W.push("Fuel low");if(D.flat.some(f=>f))W.push("Burst tyre: "+D.flat.map((f,i)=>f?TYRENAME[i]:"").filter(Boolean).join(", "));else if(D.tyre.some(v=>v>.7))W.push("Tyres worn");
   if(D.hlL||D.hlR)W.push((D.hlL&&D.hlR?"Both headlights":D.hlL?"Left headlight":"Right headlight")+" broken");if(D.tlL||D.tlR)W.push((D.tlL&&D.tlR?"Both tail lights":D.tlL?"Left tail light":"Right tail light")+" broken");return W}
 function carPanel(){const T=townOf(me.town),C=T.car;if(!C)return;const D=carD(C),hp=carHealth(D),col=v=>v<.25?"#16a34a":v<.6?"#d97706":"#dc2626",bar=(label,v,txt)=>`<div class="cdrow"><span>${label}</span><i class="cdbar"><em style="width:${Math.round(100*(1-v))}%;background:${col(v)}"></em></i><b>${txt||Math.round(100*(1-v))+"%"}</b></div>`;
-  const W=carWarnings(D),job=D.job,shop=T.workshop,tow=shop&&!job&&(D.ver||D.fuel<=.02)&&!(Math.hypot(C.x-shop.x,C.z-shop.z)<3);
+  const W=carWarnings(D),job=D.job,shop=T.workshop,tow=shop&&!job&&!(D.fire>0)&&(D.ver||D.fuel<=.02)&&!(Math.hypot(C.x-shop.x,C.z-shop.z)<3);
   choosing=true;const el=document.getElementById("choose");el.hidden=false;
   el.innerHTML=`<div class="card cdcard"><h1>Car condition</h1><p class="cdsub">${esc(carCfg(C).name)}${job?" &middot; in the workshop, ready in "+mmss(job.until-Date.now()):""}</p>
     <div class="cdhealth"><b style="color:${col(1-hp/100)}">${hp}%</b><span>overall health</span></div>
     ${W.length?`<ul class="cdwarn">${W.map(w=>`<li>${esc(w)}</li>`).join("")}</ul>`:`<p class="cdok">No warnings.</p>`}
-    ${bar("Engine",D.engine)}<div class="cdrow"><span>Temperature</span><i class="cdbar"><em style="width:${Math.round(Math.min(100,Math.max(0,(D.temp-30)/1.2)))}%;background:${D.temp>125?"#dc2626":D.temp>108?"#d97706":"#16a34a"}"></em></i><b>${Math.round(D.temp)}&deg;C</b></div>
+    ${D.fire>0?`<p class="cdfire">The car is on fire. Get away from it; it can be repaired only once the fire is out.</p>`:""}
+    ${bar("Engine",D.burnt?1:D.engine)}${bar("Cooling",1-carCooling(D))}${bar("Electrical",D.elec)}${bar("Oil",1-D.oil,Math.round(D.oil*100)+"%"+(D.oilLeak>.15?" (leaking)":""))}${bar("Fuel system",D.fuelLeak,D.fuelLeak>.15?"leaking":"")}${bar("Steering",D.steer)}${bar("Windscreen",D.ws,D.ws>=.8?"shattered":D.ws>=.3?"cracked":"")}${bar("Wheels",Math.max(...(D.rim||[0])),(D.rim||[]).some(v=>v>.3)?"bent":"")}<div class="cdrow"><span>Temperature</span><i class="cdbar"><em style="width:${Math.round(Math.min(100,Math.max(0,(D.temp-30)/1.2)))}%;background:${D.temp>125?"#dc2626":D.temp>108?"#d97706":"#16a34a"}"></em></i><b>${Math.round(D.temp)}&deg;C</b></div>
     ${bar("Fuel",1-D.fuel,Math.round(D.fuel*TANK)+" L")}${bar("Tyres",carTyres(D),D.flat.some(f=>f)?D.flat.map((f,i)=>f?TYRENAME[i]:"").filter(Boolean).join(", ")+" burst":"")}${bar("Coolant",1-D.coolant)}${bar("Front bumper",D.bumperF)}${bar("Rear bumper",D.bumperR)}${bar("Left side",D.sideL)}${bar("Right side",D.sideR)}${bar("Bonnet",D.bonnet)}${bar("Radiator",D.radiator)}${bar("Suspension",D.susp)}${bar("Chassis",D.chassis)}
     <div class="cdrow"><span>Headlights</span><i></i><b>${D.hlL&&D.hlR?"both broken":D.hlL?"left broken":D.hlR?"right broken":"working"}</b></div><div class="cdrow"><span>Tail lights</span><i></i><b>${D.tlL&&D.tlR?"both broken":D.tlL?"left broken":D.tlR?"right broken":"working"}</b></div>
     ${tow?`<button class="go" data-rp="towask">Call a tow truck to the ${esc(shop.name)}</button>`:""}<button class="go ghost" data-stay="1">Close</button></div>`}
@@ -2789,13 +2963,17 @@ async function payService(amount,state,reason){if(typeof AUTH==="undefined"||!AU
    naira at full damage, and minutes of real time at full damage. ---- */
 const REPAIRS=[["engine","Engine",75000,12],["chassis","Chassis straightening",45000,10],["susp","Suspension",21000,7],["radiator","Radiator",13500,5],
   ["bumperF","Front bumper",10500,4],["bumperR","Rear bumper",9000,3],["bonnet","Bonnet",12000,4],["grille","Grille",5500,2],["trunk","Boot lid",9000,3],
-  ["sideL","Left side panels",13500,5],["sideR","Right side panels",13500,5],["under","Underbody",10500,4]];
+  ["sideL","Left side panels",13500,5],["sideR","Right side panels",13500,5],["under","Underbody",10500,4],
+  ["oilLeak","Oil sump and seals (and fresh oil)",30000,5],["fuelLeak","Fuel tank and lines",36000,6],["elec","Electrical wiring",27000,6],["steer","Steering and wheel alignment",12000,3],
+  ["ws","Windscreen",24000,4],["rw","Rear window",12000,3],["winL","Left window",9000,2],["winR","Right window",9000,2]];
 function repairItems(D){const L=[];for(const[k,name,price,mins]of REPAIRS){const v=D[k]||0;if(v<.03)continue;L.push({k,name,price:Math.max(1500,Math.round(price*v/500)*500),mins:Math.max(1,Math.round(mins*v))})}
   for(const[k,name]of[["hlL","Left headlight"],["hlR","Right headlight"],["tlL","Left tail light"],["tlR","Right tail light"]])if(D[k])L.push({k,name,price:k[0]==="h"?7500:3500,mins:k[0]==="h"?2:1});
-  for(let i=0;i<4;i++)if(D.flat[i]||D.tyre[i]>.25)L.push({k:"ty"+i,name:"New tyre, "+TYRENAME[i]+(D.flat[i]?" (burst)":""),price:10500,mins:1});
+  for(let i=0;i<4;i++){const bent=(D.rim||[])[i]>.3;if(D.flat[i]||D.tyre[i]>.25||bent)L.push({k:"ty"+i,name:(bent?"New wheel and tyre, ":"New tyre, ")+TYRENAME[i]+(D.flat[i]?" (burst)":""),price:bent?25500:10500,mins:bent?2:1})}
+  if(D.oil<.95&&!(D.oilLeak>=.03))L.push({k:"oil",name:"Engine oil top-up",price:4500,mins:1});
+  if(D.burnt)L.unshift({k:"burnt",name:"Fire damage: rewiring, seats and trim",price:180000,mins:15});
   if(D.coolant<.97)L.push({k:"coolant",name:"Coolant refill",price:Math.max(1000,Math.round(4500*(1-D.coolant)/500)*500),mins:1});return L}
 const repairFull=L=>({price:Math.round(L.reduce((s,q)=>s+q.price,0)*.9/500)*500,mins:Math.max(1,Math.round(L.reduce((s,q)=>s+q.mins,0)*.7))});
-function repairPanel(){const T=townOf(me.town),W=T.workshop,C=T.car;if(!W)return;choosing=true;const el=document.getElementById("choose");el.hidden=false;const D=C?carD(C):null;
+function repairPanel(){const T=townOf(me.town),W=T.workshop,C=T.car;if(!W)return;if(C&&C.dmg&&C.dmg.fire>0){toast("The car is on fire. Nothing can be repaired until the fire is out.");return}choosing=true;const el=document.getElementById("choose");el.hidden=false;const D=C?carD(C):null;
   const inBay=C&&Math.hypot(C.x-W.x,C.z-W.z)<2.2&&Math.abs(C.v)<.3,shell=b=>`<div class="card rpcard"><h1>${esc(W.name)}</h1><p class="cdsub">Repair bay &middot; payments go to the ${esc(W.st)} State account</p>${b}<button class="go ghost" data-stay="1">Close</button></div>`;
   if(D&&D.job){const ms=mechState(W,D.job,Date.now());el.innerHTML=shell(`<p>Your car is being repaired: ${esc(D.job.names)}.</p><p>The mechanic is ${ms.walking?"going to":"working on"} the <b>${esc(JOBNAME(ms.k).toLowerCase())}</b> (part ${ms.step+1} of ${ms.steps}).</p><p class="cdhealth"><b>${mmss(D.job.until-Date.now())}</b><span>until it is ready</span></p><p>You cannot drive it until the work is finished. You can leave and come back; the time keeps running.</p>`);return}
   if(!inBay){el.innerHTML=shell(`<p>Drive your car into the bay, between the yellow lines, and stop. Then come to the mechanic here to choose repairs.</p>`);return}
@@ -2816,7 +2994,7 @@ async function repairAct(what){const T=townOf(me.town),C=T.car,W=T.workshop,msg=
   const mins={};for(const q of repairItems(D))mins[q.k]=q.mins;D.job={id:Date.now(),st:W.st,items:R.items,names:R.names,price:R.price,start:Date.now(),until:Date.now()+R.mins*60000,mins,done:[]};jobPlan(D.job);D.shop=true;crashSave(true);choosing=false;document.getElementById("choose").hidden=true;toast("Paid "+kfmt(R.price)+". The mechanic is starting work; your car will be ready in "+R.mins+" minutes.")}
 // a finished repair: the chosen parts are made good, once (the job is removed and saved in the same step)
 function repairFinish(C){const D=carD(C),J=D.job;if(!J)return;for(const k of J.items)if(!(J.done||[]).includes(k))jobApply(D,k);
-  if(J.items.includes("radiator")&&D.coolant>=.97)D.temp=90;D.dead=D.engine>=.85||D.chassis>=.9||D.susp>=.95;D.hot=0;D.job=null;D.lastJob=J.id;D.ver++;crashSave(true);return J}
+  if(J.items.includes("radiator")&&D.coolant>=.97)D.temp=90;D.dead=D.engine>=.85||D.chassis>=.9||D.susp>=.95||!!D.burnt||D.elec>=.92;D.hot=0;D.job=null;D.lastJob=J.id;D.ver++;crashSave(true);return J}
 let jobT=0;function repairTick(){if(NOW-jobT<1)return;jobT=NOW;const now=Date.now();for(const[st,T]of Object.entries(TOWNS)){const C=T.car;if(!C||!C.dmg||!C.dmg.job)continue;const D=C.dmg,J=D.job,here=st===me.town&&scene==="town";J.done=J.done||[];let changed=false;
     for(const q of jobPlan(J))if(now>=q.t1&&now<J.until&&!J.done.includes(q.k)){jobApply(D,q.k);J.done.push(q.k);changed=true;if(here)toast("Mechanic: "+JOBNAME(q.k).toLowerCase()+" done.")}
     if(now>=J.until){const F=repairFinish(C);if(here)toast("Your car is ready at the "+((T.workshop||{}).name||"workshop")+": "+F.names+".")}else if(changed)crashSave(true)}}
@@ -2893,11 +3071,12 @@ const npcFor=(role,key)=>{const r=NPC_ROLES[role],name=Array.isArray(r)?r[Math.a
    for anyone watching. (When workshops become player businesses, a player mechanic would carry out these same steps.) ---- */
 const JOBSPOT={engine:[0,3],radiator:[.35,3],bonnet:[-.35,3],grille:[0,3],bumperF:[-.5,3],coolant:[.6,3],hlL:[.75,3],hlR:[-.75,3],
   bumperR:[0,-3],trunk:[.4,-3],tlL:[.75,-3],tlR:[-.75,-3],sideL:[1.75,.8],sideR:[-1.75,.8],ty0:[1.75,1.35],ty1:[-1.75,1.35],ty2:[1.75,-1.35],ty3:[-1.75,-1.35],
-  susp:[1.75,-.3],chassis:[-1.75,-.3],under:[1.75,.3]};
-const JOBLIFT=new Set(["susp","chassis","under","ty0","ty1","ty2","ty3"]),JOBSPARK=new Set(["bumperF","bumperR","bonnet","grille","trunk","sideL","sideR","chassis","under"]);
-const JOBNAME=k=>(REPAIRS.find(r=>r[0]===k)||[0,{hlL:"Left headlight",hlR:"Right headlight",tlL:"Left tail light",tlR:"Right tail light",coolant:"Coolant"}[k]||(k.startsWith("ty")?"Tyre, "+TYRENAME[+k[2]]:k)])[1];
+  susp:[1.75,-.3],chassis:[-1.75,-.3],under:[1.75,.3],
+  oilLeak:[1.75,.9],fuelLeak:[1.75,-1.1],steer:[-1.75,1.1],elec:[.55,3],oil:[.2,3],ws:[1.75,1.6],rw:[-.3,-3],winL:[1.75,0],winR:[-1.75,0],burnt:[-1.75,.4]};
+const JOBLIFT=new Set(["susp","chassis","under","ty0","ty1","ty2","ty3","oilLeak","fuelLeak","steer"]),JOBSPARK=new Set(["bumperF","bumperR","bonnet","grille","trunk","sideL","sideR","chassis","under"]);
+const JOBNAME=k=>(REPAIRS.find(r=>r[0]===k)||[0,{hlL:"Left headlight",hlR:"Right headlight",tlL:"Left tail light",tlR:"Right tail light",coolant:"Coolant",oil:"Oil top-up",burnt:"Fire damage"}[k]||(k.startsWith("ty")?"Tyre, "+TYRENAME[+k[2]]:k)])[1];
 // the plan: each part's share of the job's time, in the order the mechanic goes round the car (front, left, rear, right, then the lift)
-function jobPlan(J){if(J.plan)return J.plan;const order=["coolant","radiator","engine","bonnet","grille","bumperF","hlL","hlR","sideL","trunk","bumperR","tlL","tlR","sideR","ty0","ty2","ty3","ty1","susp","under","chassis"],
+function jobPlan(J){if(J.plan)return J.plan;const order=["burnt","coolant","oil","radiator","engine","elec","bonnet","grille","bumperF","hlL","hlR","ws","sideL","winL","trunk","bumperR","tlL","tlR","rw","sideR","winR","ty0","ty2","ty3","ty1","steer","oilLeak","susp","fuelLeak","under","chassis"],
     ks=J.items.slice().sort((a,b)=>order.indexOf(a)-order.indexOf(b)),w=ks.map(k=>(J.mins&&J.mins[k])||1),sum=w.reduce((s,v)=>s+v,0),start=J.start||J.until-ks.length*60000;let t=start;
   J.plan=ks.map((k,i)=>{const t0=t;t+=(J.until-start)*w[i]/sum;return{k,t0,t1:i===ks.length-1?J.until:t}});return J.plan}
 // round the car: the mechanic keeps to a rectangle 3.5 m by 6 m around it, measured as a distance along its edge
@@ -2935,14 +3114,15 @@ function mechDraw(T,VP,eye,t){const W=T.workshop;if(!W||Math.hypot(W.x-cam.x,W.z
 function mechTag(T,VP,w,h){const el=CARUI.job,W=T.workshop,C=T.car,J=C&&C.dmg&&C.dmg.job;if(!W||!J||Math.hypot(W.x-cam.x,W.z-cam.z)>40){el.hidden=true;return}
   const S=mechState(W,J,Date.now());carUIPlace(el,[W.x,2.2+S.lift,W.z],VP,w,h,`${JOBNAME(S.k)} ${S.walking?"…":Math.round(S.pct*100)+"%"} · ${S.step+1}/${S.steps} · ${mmss(J.until-Date.now())}`)}
 // each part is made good when its step ends; the whole job closes at its end time
-function jobApply(D,k){if(k==="coolant"){D.coolant=1;D.temp=90;D.hot=0}else if(k.startsWith("ty")){D.tyre[+k[2]]=0;D.flat[+k[2]]=0}else if(k in D)D[k]=0;
+function jobApply(D,k){if(k==="coolant"){D.coolant=1;D.temp=90;D.hot=0}else if(k.startsWith("ty")){D.tyre[+k[2]]=0;D.flat[+k[2]]=0;if(D.rim)D.rim[+k[2]]=0}
+  else if(k==="oil")D.oil=1;else if(k==="burnt"){D.burnt=0;D.fire=0;D.fireT=0;D.elec=0}else if(k in D){D[k]=0;if(k==="oilLeak")D.oil=1;if(k==="steer")D.steerDir=0;if(k==="bumperF"||k==="bumperR")delete D.hang[k]}
   const zone={F:["bumperF","bonnet","grille"],R:["bumperR","trunk"],L:["sideL"],Rs:["sideR"]};D.dents=D.dents.filter(d=>(zone[d.zone]||[]).some(q=>D[q]>.02));D.ver++}
 
 
 /* ---- the tow truck: paid, and it takes the car to the state's workshop (it does not repair it) ---- */
 const towPrice=(C,W)=>Math.round((6000+15*Math.hypot(C.x-W.x,C.z-W.z))/500)*500;
 function towCar(){towPanel()}
-function towPanel(){const T=townOf(me.town),C=T.car,W=T.workshop;if(!C||!W||TOW)return;choosing=true;const el=document.getElementById("choose");el.hidden=false;
+function towPanel(){const T=townOf(me.town),C=T.car,W=T.workshop;if(!C||!W||TOW)return;if(C.dmg&&C.dmg.fire>0){toast("The tow truck will not take a burning car. Wait until the fire is out.");return}choosing=true;const el=document.getElementById("choose");el.hidden=false;
   const there=Math.hypot(C.x-W.x,C.z-W.z)<3;el.innerHTML=`<div class="card rpcard"><h1>Tow truck</h1>${there?`<p>Your car is already at the ${esc(W.name)}.</p>`:`<p>A tow truck takes your car to the ${esc(W.name)}, where you can choose repairs. It does not repair the car.</p>
     <div class="rptot">Price <b>${kfmt(towPrice(C,W))}</b> &middot; paid to the ${esc(W.st)} State account</div><p class="amsg" id="rpMsg"></p><button class="go" data-rp="tow" id="rpPay">Pay and call the tow truck</button>`}<button class="go ghost" data-stay="1">Close</button></div>`}
 async function towGo(){const T=townOf(me.town),C=T.car,W=T.workshop,msg=document.getElementById("rpMsg"),btn=document.getElementById("rpPay");if(!C||!W)return;const price=towPrice(C,W);btn.disabled=true;msg.classList.remove("err");msg.textContent="Paying "+kfmt(price)+"...";
@@ -3005,14 +3185,15 @@ let TOWSEAT=.62;
    worn or burst tyres grip less (a burst one pulls the car to its side and limits its speed). Tyres are replaced at
    the workshop; fuel is bought at a filling station. ---- */
 const TANK=50,FUELPRICE=950,TYRENAME=["front left","front right","rear left","rear right"];
-const carBody=D=>(D.bumperF+D.bumperR+D.bonnet+D.grille+D.trunk+D.sideL+D.sideR)/7;
-const carTyres=D=>Math.min(1,D.tyre.reduce((s,v)=>s+v,0)/4+.25*D.flat.reduce((s,v)=>s+v,0));
+const carBody=D=>Math.min(1,(D.bumperF+D.bumperR+D.bonnet+D.grille+D.trunk+D.sideL+D.sideR+.5*((D.ws||0)+(D.rw||0)+(D.winL||0)+(D.winR||0)))/9+(D.burnt?.6:0));
+const carCooling=D=>clamp(1-Math.max(D.radiator,1-D.coolant,(D.temp-100)/45),0,1);
+const carTyres=D=>Math.min(1,D.tyre.reduce((s,v)=>s+v,0)/4+.25*D.flat.reduce((s,v)=>s+v,0)+.15*(D.rim||[0]).reduce((s,v)=>s+v,0));
 let fuelSaveT=0;
 function carUse(C,dt){const D=carD(C),v=Math.abs(C.v);
   if(VEH.engine&&D.fuel>0&&!D.dead&&!D.refuel){D.fuel=Math.max(0,D.fuel-(.0012+v*.00016*(.5+VEH.thr))*dt/TANK);if(D.fuel===0){VEH.engine=false;dashToast("Out of fuel. The engine has stopped.",3);crashSave()}}
   for(let i=0;i<4;i++)D.tyre[i]=Math.min(1,D.tyre[i]+v*dt/150000+(i>1?1.3:1)*VEH.slip*v*dt*.00005);
   if(NOW-fuelSaveT>15&&v>.5){fuelSaveT=NOW;crashSave()}
-  const flats=D.flat.reduce((s,f)=>s+f,0);return{grip:1-.35*D.tyre.reduce((s,v)=>s+v,0)/4-.22*flats,pull:((D.flat[1]+D.flat[3])-(D.flat[0]+D.flat[2]))*.07,vmax:flats?.55:1}}
+  const flats=D.flat.reduce((s,f)=>s+f,0),rims=D.rim.reduce((s,v)=>s+v,0);return{grip:1-.35*D.tyre.reduce((s,v)=>s+v,0)/4-.22*flats-.05*rims-.18*Math.max(0,D.susp-.3),pull:((D.flat[1]+D.flat[3])-(D.flat[0]+D.flat[2]))*.07+D.steer*D.steerDir*.045+((D.rim[1]+D.rim[3])-(D.rim[0]+D.rim[2]))*.03+(D.susp>.4?(D.susp-.4)*.06*(D.steerDir||1):0),vmax:flats?.55:1}}
 // the driver, after a crash: the seatbelt makes the difference (the game has no injuries yet; this is reported only)
 function driverHurt(dv){if(dv<1.2)return"";if(VEH.belt)return dv<6?"":dv<11?"shaken":dv<16?"bruised by the seatbelt":"injured";return dv<3?"shaken":dv<6?"bruised (no seatbelt)":dv<10?"hurt, thrown against the wheel (no seatbelt)":"badly hurt (no seatbelt)"}
 
@@ -3305,7 +3486,7 @@ const DOORWAYS={treasury:()=>{if(!allowed(TRS_ALL)){toast("The National Treasury
 let doorCool=0;
 function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.016,dt=Math.min(.05,real);last=t;NOW=t;updateLight();
   document.body.classList.toggle("driving",driving);document.body.classList.toggle("towing",!!TOW);dpad.hidden=!(driving&&touch);clockTick();if(frames%3===0)dashUpdate();if(!driving)sndUpdate(false);
-  if(scene==="town"&&LIGHT.night>0){const T0=townOf(me.town),hl=carHeadlightLamps(T0.car),L=dynLamps(T0).map(p=>[p,(p[0]-cam.x)**2+(p[2]-cam.z)**2]).sort((a,b)=>a[1]-b[1]).slice(0,12-hl.length);LIGHT.lamps.fill(0);hl.forEach((p,i)=>LIGHT.lamps.set(p,i*4));L.forEach(([p],i)=>LIGHT.lamps.set([p[0],p[1],p[2],1],(i+hl.length)*4))}
+  if(scene==="town"&&LIGHT.night>0){const T0=townOf(me.town),hl=carHeadlightLamps(T0.car).concat(fireLamps(T0)),L=dynLamps(T0).map(p=>[p,(p[0]-cam.x)**2+(p[2]-cam.z)**2]).sort((a,b)=>a[1]-b[1]).slice(0,12-hl.length);LIGHT.lamps.fill(0);hl.forEach((p,i)=>LIGHT.lamps.set(p,i*4));L.forEach(([p],i)=>LIGHT.lamps.set([p[0],p[1],p[2],1],(i+hl.length)*4))}
   /* ---- moving on foot ----
      W and S move along the way the camera faces (flattened onto the ground), A and D to its side; together they move
      diagonally, never faster than straight. The mouse turns the camera, not the body. The body turns smoothly: towards
@@ -3329,7 +3510,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   const sx=VEL.x*dt,sz=VEL.z*dt;
   if(scene==="town"){
     const C=T.car,hitT=(x,z,r)=>T.blocks.some(w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r);
-    if(!busy&&!mapOpen)dynUpdate(T,dt);repairTick();vansPoll();if(mapOpen&&NOW-(VANS.mapT||0)>.5){VANS.mapT=NOW;mapVans()}fuelTick(dt);
+    if(!busy&&!mapOpen)dynUpdate(T,dt);repairTick();vansPoll();if(mapOpen&&NOW-(VANS.mapT||0)>.5){VANS.mapT=NOW;mapVans()}fuelTick(dt);if(scene==="town")carSim(townOf(me.town),dt);fxStep(dt);
     if(driving&&C){if(!busy&&!mapOpen)vehicleStep(C,T,dt);
       cam.x=C.x;cam.z=C.z;cam.yaw=C.yaw;cam.y=1.7;if(route)followRoute(t)}
     else if(!busy&&!choosing&&!mapOpen){
@@ -3379,7 +3560,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     if(TOW&&TOW.truckM&&scene==="town"){TOWTRUCK.model=TOW.truckM;TOWTRUCK.fogFar=150;drawScene(TOWTRUCK,VP,eye,false);towPeople(VP,t)}
   {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing&&!TOW&&!FOLLOW;      // your own character, seen from behind
     if(show){const town=scene==="town";WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:me.y)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"")}}
-  for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE&&!(driving&&VEH.cam===2))drawSceneClear(CARSCENE,VP,eye,t);if(TOW&&TOW.truckM&&scene==="town")drawSceneClear(TOWTRUCK,VP,eye,t);if(scene==="town")vansDraw(VP,eye,t,true);
+  for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE&&!(driving&&VEH.cam===2))drawSceneClear(CARSCENE,VP,eye,t);if(TOW&&TOW.truckM&&scene==="town")drawSceneClear(TOWTRUCK,VP,eye,t);if(scene==="town")vansDraw(VP,eye,t,true);if(scene==="town")fxDraw(VP,eye,to);
   if(scene==="town"&&frames%3===0)drawMini(T);document.getElementById("mini").hidden=scene!=="town"||choosing;
   frames++;acc+=real;if(acc>=.5){const fps=frames/acc;document.getElementById("fps").textContent=Math.round(fps);frames=0;acc=0;let tris2=0;const tris=scene==="town"?0:parts.reduce((s,S)=>s+S.tris,0)+(scene==="imm"?15450:0);
     if(scene==="town")tris2=parts.reduce((s,S)=>s+S.bufs.concat(S.clear).reduce((q,x)=>q+x.n/3,0),0);const info=document.getElementById("info");info.textContent=({town:me.town,border:"The border gate",bank:"Inside "+STATES[me.town].bank,imm:"Inside Immigration",gov:GV?GV.title:"",hosp:HV?HV.title:"",trs:"Inside the National Treasury"})[scene]+", "+Math.round((scene==="town"?tris2:tris)/1000)+"k triangles, "+cv.width+"x"+cv.height;info.appendChild(document.createElement("br"));info.appendChild(document.createTextNode(GPU));
