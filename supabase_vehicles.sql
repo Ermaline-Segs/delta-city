@@ -308,40 +308,77 @@ begin
                   where v.owner = me or exists(select 1 from vehicle_keys k where k.vehicle_id = v.id and k.holder = me and k.revoked_at is null)));
 end $$;
 
--- bring a stored vehicle out of the car park it is in. Returns the vehicle (with its token) and the bay it stands in,
--- or {error} when the caller has no keys or the vehicle is already out.
+-- why a vehicle that is out cannot be moved right now (someone is driving it, it is being towed, repaired, refuelled or is
+-- burning), or null when it can be. A game that has stopped reporting does not count as someone driving.
+create or replace function public.veh_busy(v vehicles)
+returns text language sql stable security definer set search_path = public as $$
+  select case
+    when v.status <> 'active' then null
+    when v.occupied and v.last_seen > now() - make_interval(secs => (veh_cfg()->>'stale_s')::numeric) then 'someone is driving it right now'
+    when v.hold is not null and v.hold_since > now() - make_interval(secs => (veh_cfg()->>'hold_max_s')::numeric) then
+      case v.hold when 'tow' then 'it is being towed' when 'repair' then 'it is being repaired at the workshop'
+                  when 'refuel' then 'it is being refuelled' when 'fire' then 'it is on fire' else 'it is in use' end
+  end
+$$;
+
+-- spawn one of my vehicles (or one I hold keys to) in a free bay of this car park. Wherever the vehicle is - stored in
+-- another car park, or out on the road - it is moved here: the old copy is put away first (its token stops working, so
+-- it disappears from the game that had it) and its damage, fuel and the rest come with it. All of this happens under
+-- the vehicle's row lock, so two requests at once (two taps, two phones) can never make two copies. A second request
+-- for a car already standing in this car park just returns it. Each citizen has one vehicle out: another of theirs
+-- that is out is put away first. Refused (with the reason) when someone is driving the car, it is being towed,
+-- repaired or refuelled, or it is burning. Returns {vehicle, moved_from} or {error}.
 create or replace function public.veh_spawn(p_vehicle bigint, p_park text)
 returns jsonb language plpgsql security definer set search_path = public as $$
-declare me uuid := auth.uid(); v vehicles; b int; pk car_parks;
+declare me uuid := auth.uid(); v vehicles; o vehicles; b int; pk car_parks; why text; was jsonb;
 begin
   if me is null then raise exception 'Sign in to use your vehicles'; end if;
   perform veh_sweep();
+  select * into pk from car_parks where id = p_park;
+  if pk.id is null then return jsonb_build_object('error', 'That is not a car park'); end if;
   select * into v from vehicles where id = p_vehicle for update;
-  if not found then raise exception 'That vehicle does not exist'; end if;
-  -- these two refusals are answered (not raised) so that the attempt stays in the audit log
+  if not found then return jsonb_build_object('error', 'That vehicle does not exist'); end if;
+  -- refusals are answered (not raised) so that the attempt stays in the audit log
   if not veh_can_drive(v.id, me) then
-    perform veh_log(me, v.id, 'spawn refused', jsonb_build_object('why', 'no keys'));
+    perform veh_log(me, v.id, 'spawn refused', jsonb_build_object('why', 'no keys', 'park', p_park));
     return jsonb_build_object('error', 'You do not have the keys to this vehicle');
   end if;
+  -- already standing here for me (a repeated tap): nothing more to do
+  if v.status = 'active' and v.active_by = me and v.park_id = p_park and v.in_bay is not null and not v.occupied then
+    return jsonb_build_object('now', now(), 'vehicle', veh_row(v, me), 'already', true);
+  end if;
+  why := veh_busy(v);
+  if why is not null then
+    perform veh_log(me, v.id, 'spawn refused', jsonb_build_object('why', why, 'park', p_park));
+    return jsonb_build_object('error', 'You cannot spawn this car right now: ' || why || '.');
+  end if;
+  -- my other vehicle that is out goes back to its car park first (one out at a time), if that is safe
+  for o in select * from vehicles where status = 'active' and active_by = me and id <> v.id for update loop
+    why := veh_busy(o);
+    if why is not null then
+      return jsonb_build_object('error', 'Your other car (' || o.plate || ') cannot be put away right now: ' || why || '. Store it first.');
+    end if;
+    perform veh_put_away(o.id, me, 'another vehicle spawned');
+  end loop;
+  -- where it was before: out on the road (that copy is put away), or stored in a bay somewhere
+  was := jsonb_build_object('status', v.status, 'park', v.park_id, 'state', v.state, 'pos', v.pos);
   if v.status = 'active' then
-    perform veh_log(me, v.id, 'spawn refused', jsonb_build_object('why', 'already out'));
-    return jsonb_build_object('error', 'This vehicle is already out on the road');
+    perform veh_put_away(v.id, me, 'moved to ' || pk.name);
+    select * into v from vehicles where id = v.id;
   end if;
-  if v.park_id is distinct from p_park then
-    raise exception 'This vehicle is kept at %', coalesce((select name from car_parks where id = v.park_id), 'another car park');
-  end if;
-  if exists(select 1 from vehicles where status = 'active' and active_by = me) then
-    raise exception 'You already have a vehicle out. Store it in a car park first';
-  end if;
-  select * into pk from car_parks where id = p_park;
-  b := v.bay;
+  -- the bay: its own, when it is stored in this car park already; otherwise the first free one
+  b := case when v.park_id = p_park and v.bay is not null then v.bay end;
+  update vehicles set bay = null where id = v.id;          -- its old bay (in any car park) is free from here on
   if b is null then b := veh_free_bay(p_park); end if;
-  if b is null then raise exception 'Every bay at % is taken. Your car will be brought out when one is free', pk.name; end if;
-  update vehicles set status = 'active', bay = null, in_bay = b, state = pk.state, token = gen_random_uuid(), active_by = me,
-         occupied = false, hold = null, hold_since = null, abandoned_at = null, spawned_at = now(), last_seen = now(), pos = null
+  if b is null then        -- raised, so everything above (the old copy put away, the bay let go) is undone: nothing changes
+    raise exception 'All garage spaces are occupied. Please wait or try another space.';
+  end if;
+  update vehicles set status = 'active', park_id = p_park, bay = null, in_bay = b, state = pk.state, token = gen_random_uuid(),
+         active_by = me, occupied = false, hold = null, hold_since = null, abandoned_at = null, spawned_at = now(), last_seen = now(), pos = null
    where id = v.id returning * into v;
-  perform veh_log(me, v.id, 'spawn', jsonb_build_object('park', p_park, 'bay', b));
-  return jsonb_build_object('now', now(), 'vehicle', veh_row(v, me));
+  perform veh_log(me, v.id, case when was->>'status' = 'active' or was->>'park' is distinct from p_park then 'transfer' else 'spawn' end,
+                  jsonb_build_object('park', p_park, 'bay', b, 'from', was));
+  return jsonb_build_object('now', now(), 'vehicle', veh_row(v, me), 'moved_from', was);
 end $$;
 
 -- the game reports on a vehicle that is out (every few seconds while it is, and when something happens). Returns
@@ -550,7 +587,7 @@ end $$;
 -- only the game's functions are callable; the helpers are not
 revoke all on function public.veh_log(uuid, bigint, text, jsonb), public.veh_role(uuid), public.veh_num(jsonb), public.veh_can_drive(bigint, uuid),
   public.veh_free_bay(text), public.veh_merge_damage(jsonb, jsonb, jsonb), public.veh_put_away(bigint, uuid, text),
-  public.veh_sweep(), public.veh_row(vehicles, uuid) from public, anon, authenticated;
+  public.veh_sweep(), public.veh_row(vehicles, uuid), public.veh_busy(vehicles) from public, anon, authenticated;
 revoke all on function public.veh_mine(), public.veh_spawn(bigint, text),
   public.veh_update(bigint, uuid, jsonb, jsonb, boolean, text, int, text, numeric, text), public.veh_store(bigint, uuid, text, int, jsonb, jsonb),
   public.veh_despawn(bigint, uuid, text, jsonb), public.veh_pay(bigint, bigint, text, text, text[]), public.veh_find_citizen(text),
