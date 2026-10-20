@@ -3341,13 +3341,14 @@ const towAt=s=>{const{P,cum}=TOW;s=clamp(s,0,TOW.len);let i=1;while(i<cum.length
 // each frame: the truck follows the route (slower round corners), and the car swings along behind it on the lift
 function towStep(dt){const R=TOW;if(!R||R.done)return;const t=NOW-R.t0;if(t<1.2){towPose();return}       // a moment to hook up
   const a=towAt(R.s),b=towAt(R.s+7),turn=Math.abs(Math.atan2(Math.sin(Math.atan2(-(b[0]-a[0]),-(b[1]-a[1]))-R.yaw),Math.cos(Math.atan2(-(b[0]-a[0]),-(b[1]-a[1]))-R.yaw))),
-    want=Math.min(11,R.len-R.s<12?2+(R.len-R.s)*.7:11,turn>.35?4.5:11);R.v+=clamp(want-R.v,-6*dt,3*dt);R.s=Math.min(R.len,R.s+R.v*dt);
+    want=Math.min(11,R.len-R.s<12?1.2+(R.len-R.s)*.7:11,turn>.35?4.5:11);R.v+=clamp(want-R.v,-6*dt,3*dt);R.s=Math.min(R.len,R.s+R.v*dt);
   const p=towAt(R.s),q=towAt(R.s+3.2);R.x=p[0];R.z=p[1];if(Math.hypot(q[0]-p[0],q[1]-p[1])>.2){const y=Math.atan2(-(q[0]-p[0]),-(q[1]-p[1]));R.yaw+=Math.atan2(Math.sin(y-R.yaw),Math.cos(y-R.yaw))*Math.min(1,dt*4)}
-  towPose();cam.x=R.x;cam.z=R.z;cam.yaw=R.yaw;if(R.s>=R.len-.05&&R.v<.6)towEnd()}
+  towPose();cam.x=R.x;cam.z=R.z;cam.yaw=R.yaw;if(R.s>=R.len-.05){R.v=0;towEnd()}}       // at the workshop: it stops there and hands the car over
 function towPose(){const R=TOW,C=R.C,f=[-Math.sin(R.yaw),-Math.cos(R.yaw)],hx=R.x-f[0]*4.05,hz=R.z-f[1]*4.05;
   let dx=hx-C.x,dz=hz-C.z;const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;C.x=hx-dx*2.15;C.z=hz-dz*2.15;C.yaw=Math.atan2(-dx,-dz);
   R.carM=mul(mul(trans(C.x,.22,C.z),rotY(C.yaw+Math.PI)),mrotX(-.1));R.truckM=mul(trans(R.x,0,R.z),rotY(R.yaw+Math.PI))}
-function towEnd(){const R=TOW;if(!R||R.done)return;R.done=true;document.getElementById("towSkip").hidden=true;const{C,W}=R;
+// the car is handed over at the workshop (just after any fade that is still running)
+function towEnd(){const R=TOW;if(!R||R.done)return;if(busy){setTimeout(towEnd,400);return}R.done=true;document.getElementById("towSkip").hidden=true;const{C,W}=R;
   fadeTo(W.name,()=>{TOW=null;C.x=W.x;C.z=W.z;C.yaw=W.yaw;C.v=0;VEH.spin=0;carD(C).shop=true;crashSave(true);cam.x=W.x+W.fx*8.5;cam.z=W.z+W.fz*8.5;cam.yaw=Math.atan2(W.fx,W.fz);VIEW.yaw=cam.yaw;SNAPCAM=true;
     toast("Your car is at the "+W.name+". Go to the repair bay to choose repairs.")})}
 // the camera rides alongside on the passenger side, a little ahead, looking back along the truck to the car
