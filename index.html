@@ -2883,7 +2883,7 @@ async function npcLoad(name){const buf=await(await fetch("assets/characters/"+na
   return WALKER.adopt({lo,span,parts,bones,index,armDrop:0,clips:NPC_FEMALE.test(name)?Object.assign({},FCLIPS):Object.assign({},NPC_MCLIPS)})}
 // who does which job: a mechanic for each workshop, a driver for each tow, and guards for the vans
 const NPC_ROLES={mechanic:{Asaba:"Construction_Male_03",Warri:"Construction_Female_01",Ozoro:"Construction_Male_06",Agbor:"Construction_Female_01"},
-  driver:["Male_Adult_12","Pilot_Male_03"],guard:["Security_Male_01","Police_Male_01","Police_Male_04","Military_Male_06"]};
+  driver:["Male_Adult_12"],guard:["Security_Male_01","Police_Male_01","Police_Male_04","Military_Male_06"]};
 const npcFor=(role,key)=>{const r=NPC_ROLES[role],name=Array.isArray(r)?r[Math.abs(Math.floor(key||0))%r.length]:r[key]||Object.values(r)[0];return NPCMODEL(name)||CAST.mech||PLAYERS.Male}
 
 /* ---- the mechanic at work. A paid job is a plan of steps, one for each part, each with its own share of the time. For each
