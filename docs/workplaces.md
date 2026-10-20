@@ -4,11 +4,14 @@ Worked out from `docs/interiors_from_discord.md`: each post clocks in only in it
 building, in the state the post belongs to. Once clocked in, anywhere in that building keeps you at work; leaving it
 clocks you out. Posts at the hospital, the banks, Immigration and the Treasury keep those buildings' existing rules.
 
+The same post under two names: "Agriculture & Resources Officer" is "Agriculture & Resource Officer"; "Minister of Culture & Heritage" is "Minister of Information, Culture & Heritage".
+
 ## Asaba
 
 | Post | Building | Room |
 |---|---|---|
-| Agriculture & Resource Officer | Ministry of Agriculture & Resources | General Inspection |
+| Agricultural Inspector | Ministry of Agriculture & Resources | General Inspection |
+| Agriculture & Resource Officer (also "Agriculture & Resources Officer") | Ministry of Agriculture & Resources | General Inspection |
 | Attorney-General | Federal Council | Attorney General Office |
 | Business Officer | Ministry of Trade & Commerce | Import Export Office |
 | Chief Judge | The Supreme Court | Chief Judge Office |
@@ -22,6 +25,7 @@ clocks you out. Posts at the hospital, the banks, Immigration and the Treasury k
 | Detective | Police Force Headquarters | Police Operations |
 | Diplomat | Foreign Affairs | Diplomatic Services |
 | Director of Agriculture & Natural Resources | Ministry of Agriculture & Resources | Directors Office |
+| Director of Culture & Heritage | National Culture & Heritage Bureau | Directors Office |
 | Director of Housing & Urban Development | Asaba Housing Development | Director Housing Office |
 | Director of Infrastructure | National Public Utilities | Directors Office |
 | Director of Transport | National Transport Authority | Directors Office |
@@ -46,17 +50,19 @@ clocks you out. Posts at the hospital, the banks, Immigration and the Treasury k
 | Minister of Foreign Affairs | Foreign Affairs | Minister Of Foreign Affairs Office |
 | Minister of Health | Federal Council | Minister Of Health |
 | Minister of Housing & Infrastructure | Federal Council | Minister Of Housing Infrastructure |
-| Minister of Information, Culture & Heritage | Federal Council | Minister Of Information Culture Heritage |
+| Minister of Information, Culture & Heritage (also "Minister of Culture & Heritage") | Federal Council | Minister Of Information Culture Heritage |
 | Minister of National Statistics | National Bureau of Statistics | Minister Of National Statistics Office |
 | Minister of Trade & Commerce | Ministry of Trade & Commerce | Ministers Office |
 | Minister of Transport | Federal Council | Minister Of Transportation |
 | Plumber | National Public Utilities | Utilities Office |
+| Police Officer | Police Force Headquarters | Police Operations |
 | Police Rookie | Police Force Headquarters | Police Operations |
 | President | Federal Council | President Office |
 | Professor | Cambridge University | Professor Office |
 | Secretary to the State Government | Asaba State Government | Ssg Office |
 | Security Analyst | Police Force Headquarters | Security Intelligence |
 | Sergeant | Police Force Headquarters | Police Operations |
+| State Statistics Director | National Bureau of Statistics | Directors Office |
 | Statistician | National Bureau of Statistics | Statistical Services |
 | Student | Cambridge University | Lecture Halls |
 | Superintendent | Police Force Headquarters | Police Operations |
@@ -74,7 +80,8 @@ clocks you out. Posts at the hospital, the banks, Immigration and the Treasury k
 
 | Post | Building | Room |
 |---|---|---|
-| Agriculture & Resource Officer | Natural Resources Office | Inspection |
+| Agricultural Inspector | Natural Resources Office | Inspection |
+| Agriculture & Resource Officer (also "Agriculture & Resources Officer") | Natural Resources Office | Inspection |
 | Chief Registrar | Warri State High Court | Clerk Office |
 | Court Clerk | Warri State High Court | Clerk Office |
 | Dean of Students' Affairs | Warri State University | Academic Office |
@@ -96,6 +103,7 @@ clocks you out. Posts at the hospital, the banks, Immigration and the Treasury k
 | Land & Property Officer | Warri Housing Development | Housing Office |
 | Lecturer | Warri State University | Lecturers Office |
 | Plumber | Warri Public Utilities | Utilities Office |
+| Police Officer | Warri Police Command | Police Operations |
 | Police Rookie | Warri Police Command | Police Operations |
 | Professor | Warri State University | Lecturers Office |
 | Secretary to the State Government | Warri State Government | Ssg Office |
@@ -115,7 +123,8 @@ clocks you out. Posts at the hospital, the banks, Immigration and the Treasury k
 
 | Post | Building | Room |
 |---|---|---|
-| Agriculture & Resource Officer | Food Production & Regulation | Inspection |
+| Agricultural Inspector | Food Production & Regulation | Inspection |
+| Agriculture & Resource Officer (also "Agriculture & Resources Officer") | Food Production & Regulation | Inspection |
 | Chief Registrar | Ozoro State High Court | Clerk Office |
 | Court Clerk | Ozoro State High Court | Clerk Office |
 | Dean of Students' Affairs | Ozoro State University | Academic Office |
@@ -137,6 +146,7 @@ clocks you out. Posts at the hospital, the banks, Immigration and the Treasury k
 | Land & Property Officer | Ozoro Housing Development | Housing Office |
 | Lecturer | Ozoro State University | Lecturers Office |
 | Plumber | Ozoro Public Utilities | Utilities Office |
+| Police Officer | Ozoro Police Command | Police Operations |
 | Police Rookie | Ozoro Police Command | Police Operations |
 | Professor | Ozoro State University | Lecturers Office |
 | Secretary to the State Government | Ozoro State Government | Ssg Office |
@@ -156,7 +166,8 @@ clocks you out. Posts at the hospital, the banks, Immigration and the Treasury k
 
 | Post | Building | Room |
 |---|---|---|
-| Agriculture & Resource Officer | Agricultural Services Authority | Inspection |
+| Agricultural Inspector | Agricultural Services Authority | Inspection |
+| Agriculture & Resource Officer (also "Agriculture & Resources Officer") | Agricultural Services Authority | Inspection |
 | Chief Registrar | Agbor State High Court | Clerk Office |
 | Court Clerk | Agbor State High Court | Clerk Office |
 | Dean of Students' Affairs | Agbor State University | Academic Office |
@@ -178,6 +189,7 @@ clocks you out. Posts at the hospital, the banks, Immigration and the Treasury k
 | Land & Property Officer | Agbor Housing Development | Housing Office |
 | Lecturer | Agbor State University | Lecturers Office |
 | Plumber | Agbor Public Utilities | Utilities Office |
+| Police Officer | Agbor Police Command | Police Operations |
 | Police Rookie | Agbor Police Command | Police Operations |
 | Professor | Agbor State University | Lecturers Office |
 | Secretary to the State Government | Agbor State Government | Ssg Office |
@@ -193,4 +205,4 @@ clocks you out. Posts at the hospital, the banks, Immigration and the Treasury k
 | Vehicle Licensing Officer | State Ministry of Transport Agbor | Licensing Office |
 | Vice Chancellor | Agbor State University | Vice Chancellors Office |
 
-National posts (the President, ministers, the Federal Council, the Trade, Culture, Statistics and Foreign Affairs staff) are listed under Asaba.
+National posts (the President, ministers, the Federal Council, and the Trade, Culture, Statistics and Foreign Affairs staff) are listed under Asaba.

@@ -30,7 +30,7 @@ def match(a,b):
 PUBLIC=re.compile(r'^(Citizen of|Visitor |Deltans|@everyone|Asylum)')
 NOTPOST=('Chief Administrator','Cuffed','Jail','Outpatient','Hospitalized','Dental Patient','In-Surgery')
 OVERRIDE={"Dean of Students' Affairs":'academic-office','Professor':'professor-office|lecturers-office','Student':'lecture-halls','Chief Registrar':'clerk-office',
-  'Superintendent':'police-operations','Secretary to the State Government':'ssg-office','State Police & Security Commissioner':'commisioner-office|commissioner-office','Federal Council':'federal-chambers|🗂️chief-of-staff','Inspector-General of Police & Security':'igp-office'}
+  'Superintendent':'police-operations','Police Officer':'police-operations','Agricultural Inspector':'general-inspection|inspection','Director of Culture & Heritage':'directors-office','State Statistics Director':'directors-office','Secretary to the State Government':'ssg-office','State Police & Security Commissioner':'commisioner-office|commissioner-office','Federal Council':'federal-chambers|🗂️chief-of-staff','Inspector-General of Police & Security':'igp-office'}
 COUNCIL=re.compile(r'council|chambers')
 def score(p,r):
     pw=words(p)+sum((SYN.get(w,[]) for w in words(p)),[])
@@ -40,6 +40,10 @@ def score(p,r):
 def staffrooms(p,rooms):
     cand=[r for r in rooms if any(base(x)==p for x in r['use'])]
     return [r for r in cand if not any(PUBLIC.match(x) for x in r['use']+r['see'])] or cand
+# decided with the owner after phase 1 (only ever added to the guide): posts the database has that the guide's rooms do not name,
+# and the director's offices the Culture and Statistics bureaus did not have
+EXTRA_USE={'police':[(r'^police-operations$',['Police Officer'])],'agri':[(r'inspection$',['Agricultural Inspector'])]}
+NEW_ROOMS={'culture':[{'ch':'directors-office','use':['Director of Culture & Heritage'],'see':[]}],'stats':[{'ch':'directors-office','use':['State Statistics Director'],'see':[]}]}
 out=[];block=None
 for c in cats:
     name=c['cat']
@@ -48,11 +52,17 @@ for c in cats:
     if name.startswith('ROLES THE RULES') or not c['rooms']: continue
     typ=next((t for t,rx in TYPES if re.search(rx,name)),'other')
     rooms=[]
+    typ0=typ
     for r in c['rooms']:
         R=r['rules'];use=R.get('View + send',[])+R.get('Send, no history',[])+R.get('Runs the voice room',[])+R.get('May create private threads',[])
         see=R.get('Read-only',[])+R.get('Can see the channel',[])
         dedup=lambda L:list(dict.fromkeys(L))
         rooms.append({'ch':r['ch'],'name':plain(r['ch']),'use':dedup(use),'see':[x for x in dedup(see) if x not in use]})
+    for rx,add in EXTRA_USE.get(typ,[]):
+        for r in rooms:
+            if re.search(rx,r['ch']):r['use']=r['use']+[x for x in add if x not in r['use']]
+    for nr in NEW_ROOMS.get(typ,[]):
+        if not any(r['ch']==nr['ch'] for r in rooms):rooms.append({'ch':nr['ch'],'name':plain(nr['ch']),'use':list(nr['use']),'see':list(nr['see'])})
     posts=dict.fromkeys(base(p) for r in rooms for p in r['use'] if not PUBLIC.match(p) and 'Visitor' not in p and p not in NOTPOST)
     clock={}
     for p in posts:
