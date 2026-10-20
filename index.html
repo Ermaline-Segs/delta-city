@@ -611,7 +611,7 @@ function modern(o){const w=o.w,d=o.d,fl=o.floors||3,fh=3.6,h=fl*fh,base=.6;
 
 /* ================================ what to show ================================ */
 const BUILDINGS=[];let MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]},BLOCKS=[];
-const KINDS=[[/Workshop/,"Transport","🔧"],[/Filling Station/,"Transport","⛽"],[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Border/,"Transport","🚧"],[/Port\b/,"Transport","⚓"],[/Transport/,"Transport","🚌"],
+const KINDS=[[/^Highway/,"Transport","\u{1F6E3}\uFE0F"],[/Workshop/,"Transport","🔧"],[/Filling Station/,"Transport","⛽"],[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Border/,"Transport","🚧"],[/Port\b/,"Transport","⚓"],[/Transport/,"Transport","🚌"],
   [/Federal/,"Government","🏛"],[/Villa\b/,"Government","🏰"],[/State Government/,"Government","🏛"],[/Court/,"Government","⚖"],[/Police/,"Government","🛡"],[/Immigration/,"Government","🛂"],[/Agricultur|Resources|Food/,"Government","🌿"],
   [/Bank/,"Services","🏦"],[/Hospital/,"Services","✚"],[/University/,"Services","🎓"],[/Utilities/,"Services","⚡"],[/Housing/,"Services","🏠"],[/Hotel|Guest|Suites|Hyatti/,"Services","🛏"]];
 const mark=(name,x,z,color)=>{const w=wpt(x,z),k=KINDS.find(q=>q[0].test(name))||[0,"Districts","📍"];MAPD.places.push({name,x:w[0],z:w[1],color:color||"#14263D",group:k[1],icon:k[2]})};
@@ -2159,7 +2159,7 @@ let scene="border",busy=false,talking=false,choosing=true,flying=false,testOpen=
    The first seconds in a new place (while a town is built or a building loads) do not count. */
 const QMAX=Math.min(window.devicePixelRatio||1,1.25),QSET={key:"",until:0,cap:Math.min(window.devicePixelRatio||1,1.25),capAt:0};      /* cap: just below the last level that proved too much; raised again after 45 s, to try higher */
 const SAMPLE={no:"DC-ASB-0001",name:"Sample Citizen",dob:"01 September 1996",gender:"Female",state:"Asaba",date:"10 October 2026"};
-const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);workshop(st,t);station(st,t);t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
+const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);roadJoins();highway(st);workshop(st,t);station(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400)}
 function fadeTo(text,change){if(busy)return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
 const stand=(s,o)=>{scene=s;me.inside=s==="imm";Object.assign(me,{y:0,pitch:.03},o||{});SNAPCAM=true};
@@ -3020,6 +3020,41 @@ function driverHurt(dv){if(dv<1.2)return"";if(VEH.belt)return dv<6?"":dv<11?"sha
    board. Stop beside a pump and the Refuel icon appears; fuel is paid to the state's account. ---- */
 const STATIONS={Asaba:{x:202.4,z:16.9,f:[0,-1],name:"Asaba Filling Station"},Warri:{x:121,z:16.9,f:[0,-1],name:"Warri Filling Station"},
   Ozoro:{x:97.4,z:16.9,f:[0,-1],name:"Ozoro Filling Station"},Agbor:{x:97.4,z:16.9,f:[0,-1],name:"Agbor Filling Station"}};
+/* roads that stop short: a road whose end points at another road close by is carried on to meet it, and two roads that stop
+   short of a corner are both carried on to it; each new meeting gets a patch of tarmac over the kerbs. Roads that simply
+   leave the town keep their ends. */
+function roadJoins(){const R=MAPD.roads.filter(r=>!r.bridge),touches=(x,z,self)=>R.some(q=>{if(q===self)return false;const vx=q.x1-q.x0,vz=q.z1-q.z0,L2=vx*vx+vz*vz||1,u=clamp(((x-q.x0)*vx+(z-q.z0)*vz)/L2,0,1);return Math.hypot(x-q.x0-vx*u,z-q.z0-vz*u)<q.w/2+.6})||(MAPD.rounds||[]).some(c=>Math.abs(Math.hypot(x-c.x,z-c.z)-c.r)<5);
+  const ends=[];for(const r of R){const L=Math.hypot(r.x1-r.x0,r.z1-r.z0)||1,ux=(r.x1-r.x0)/L,uz=(r.z1-r.z0)/L;for(const[x,z,dx,dz]of[[r.x0,r.z0,-ux,-uz],[r.x1,r.z1,ux,uz]])if(!touches(x,z,r))ends.push({r,x,z,dx,dz,done:false})}
+  const join=(e,X,Z,w2)=>{roadSeg(e.x,e.z,X+e.dx*w2,Z+e.dz*w2,e.r.w,{bare:1});box(X,0,Z,Math.max(e.r.w,w2*2)+1.2,.235,Math.max(e.r.w,w2*2)+1.2,TAR,3/255);e.done=true};
+  // straight on into another road
+  for(const e of ends){let best=null;for(const q of R){if(q===e.r)continue;const vx=q.x1-q.x0,vz=q.z1-q.z0,den=e.dx*vz-e.dz*vx;if(Math.abs(den)<1e-6)continue;
+      const t=((q.x0-e.x)*vz-(q.z0-e.z)*vx)/den,u=((q.x0-e.x)*e.dz-(q.z0-e.z)*e.dx)/den,L=Math.hypot(vx,vz);if(t>.5&&t<=45&&u>=-q.w/2/L&&u<=1+q.w/2/L&&(!best||t<best.t))best={t,q}}
+    if(best)join(e,e.x+e.dx*best.t,e.z+e.dz*best.t,0)}
+  // two roads that stop short of the same corner
+  for(const a of ends)for(const b of ends){if(a===b||a.done||b.done||a.r===b.r||Math.abs(a.dx*b.dx+a.dz*b.dz)>.2)continue;const den=a.dx*b.dz-a.dz*b.dx,t1=((b.x-a.x)*b.dz-(b.z-a.z)*b.dx)/den,t2=((b.x-a.x)*a.dz-(b.z-a.z)*a.dx)/den;
+    if(t1>.5&&t1<=90&&t2>.5&&t2<=90){const X=a.x+a.dx*t1,Z=a.z+a.dz*t1;join(a,X,Z,b.r.w/2);join(b,X,Z,a.r.w/2)}}}
+/* the highway out of each town, towards the other states: until the roads between the states are built it runs a few
+   hundred metres out into the country, signposted, and the cash vans leave and arrive along it */
+const HIGHWAYS={Asaba:{from:[-244,-122],dir:[-.522,-.853]},Warri:{from:[244,0],dir:[1,0]},Ozoro:{from:[134,0],dir:[1,0]},Agbor:{from:[134,0],dir:[1,0]}},HIGHWAY_LEN=300;
+const highwayEnd=st=>{const H=HIGHWAYS[st];return H?[H.from[0]+H.dir[0]*HIGHWAY_LEN,H.from[1]+H.dir[1]*HIGHWAY_LEN]:null};
+function highway(st){const H=HIGHWAYS[st];if(!H)return;const[ex,ez]=highwayEnd(st),others=Object.keys(STATES).filter(s=>s!==st);
+  roadSeg(H.from[0],H.from[1],ex,ez,12,{noTrees:1});const a=Math.atan2(H.dir[0],H.dir[1]);
+  at(H.from[0]+H.dir[0]*28,H.from[1]+H.dir[1]*28,a,()=>{for(const s of[-1,1])box(s*7.6,0,0,.25,6.2,.25,"#59636e");box(0,4.2,0,15.4,2,.12,"#0b6b3a");
+    sign(0,4.35,.08,14.6,.8,"HIGHWAY",  "#0b6b3a","#ffffff");sign(0,5.15,.08,14.6,.85,others.join("  \u2022  "),"#0b6b3a","#ffffff")});
+  mark("Highway to "+others.join(", "),H.from[0]+H.dir[0]*40,H.from[1]+H.dir[1]*40,"#0b6b3a")}
+/* street objects never stand on a road: anything whose spot falls on the carriageway (a hydrant at a junction, a lamp at a
+   road's end) is moved sideways onto the walkway, with its outline and, for a lamp, where its light falls */
+const STREET_R={hydrant:.3,bench:.95,bin:.4,lamp:.25,sign:.4,tlight:.4,bus:1.9};
+function streetTidy(){if(!MAPD||!MAPD.dyn)return;for(const o of MAPD.dyn){const m=STREET_R[o.type]||.5;let x=o.x,z=o.z;
+  for(let pass=0;pass<10;pass++){let moved=false;
+    for(const r of MAPD.roads||[]){const vx=r.x1-r.x0,vz=r.z1-r.z0,L2=vx*vx+vz*vz||1,s=((x-r.x0)*vx+(z-r.z0)*vz)/L2;if(s<-.05||s>1.05)continue;const px=r.x0+vx*s,pz=r.z0+vz*s,dx=x-px,dz=z-pz,dd=Math.hypot(dx,dz),need=r.w/2+.6+m;
+      if(dd<need-.15){const L=Math.sqrt(L2),nx=dd>1e-3?dx/dd:-vz/L,nz=dd>1e-3?dz/dd:vx/L;x=px+nx*need;z=pz+nz*need;moved=true}}
+    for(const c of MAPD.rounds||[]){const dx=x-c.x,dz=z-c.z,dd=Math.hypot(dx,dz)||1;if(dd<c.r+m+.5&&dd>c.r*.6){x=c.x+dx/dd*(c.r+m+.5);z=c.z+dz/dd*(c.r+m+.5);moved=true}}
+    if(!moved)break}
+  const dx=x-o.x,dz=z-o.z;if(Math.abs(dx)+Math.abs(dz)<1e-3)continue;
+  for(const b of[o.b,o.box0]){b[0]+=dx;b[2]+=dx;b[1]+=dz;b[3]+=dz}
+  if(o.type==="lamp"&&MAPD.lamps){const L=MAPD.lamps.find(q=>Math.abs(q[0]-o.hx)<.01&&Math.abs(q[2]-o.hz)<.01);if(L){L[0]+=dx;L[2]+=dz}o.hx+=dx;o.hz+=dz}
+  o.x=x;o.z=z}}
 function station(st,t){const S=STATIONS[st];if(!S)return;const turn=Math.atan2(S.f[0],S.f[1]),c=Math.cos(turn),s=Math.sin(turn);
   const loc=(x,z)=>{const dx=x-S.x,dz=z-S.z;return[c*dx-s*dz,s*dx+c*dz]},inPlot=(x,z)=>{const[a,b]=loc(x,z);return Math.abs(a)<10.6&&b>-8.6&&b<14};
   const gone=new Set();MAPD.dyn=MAPD.dyn.filter(o=>{if(!inPlot(o.x,o.z))return true;gone.add(o.b);return false});
@@ -3142,8 +3177,8 @@ async function cbAction(what){if(what.startsWith("follow:"))return vanFollow(+wh
      Delivered    the database has paid the state
    Tap a van on the map (or Follow at the terminal) to ride along with the camera. The game's own numbers are in VANCFG;
    the times come from the server (cb_van_cfg). ---- */
-const VANCFG={poll:15,exitS:75,approachS:60,asabaApproachS:12,slotGap:7.5,kerb:3.3,lingerS:120,guardSpeed:1.3,
-  exit:[-244,-122],entry:{Warri:[244,0],Ozoro:[126,0],Agbor:[126,0]}};
+const VANCFG={poll:15,exitS:90,approachS:70,asabaApproachS:12,slotGap:7.5,kerb:3.3,lingerS:120,guardSpeed:1.3,
+  get exit(){return highwayEnd("Asaba")},get entry(){return{Warri:highwayEnd("Warri"),Ozoro:highwayEnd("Ozoro"),Agbor:highwayEnd("Agbor")}}};
 const VANS={list:[],off:0,next:0,miss:0,routes:{},sites:{}};
 const vanNow=()=>Date.now()+VANS.off;
 function vansTake(d,full){if(!d)return;if(d.now)VANS.off=Date.parse(d.now)-Date.now();const keep={};for(const v of VANS.list)keep[v.id]=v;
@@ -3222,13 +3257,18 @@ function vanFollow(id){const v=VANS.list.find(q=>q.id===id);if(!v)return;const n
   const town=S.where==="dest"||S.where==="bank"?v.state:"Asaba";
   if(S.where==="highway"){toast("Van "+v.seq+" of "+v.of+" is on the highway to "+v.state+": it arrives in "+vanLeft(v.arr-now)+".");return}
   if(!S.where){toast("That van has delivered its cash.");return}
-  const go=()=>{FOLLOW={id,cam:null};document.getElementById("vanStop").hidden=false;toast("Following van "+v.seq+" of "+v.of+" to "+v.state+".")};
+  // only the camera goes: you stay where you are (at the terminal, or in the street), and come back there when you stop
+  const term=document.getElementById("cbBody")&&!document.getElementById("choose").hidden?cbKind:null,back={scene,town:me.town,me:{x:me.x,y:me.y,z:me.z,yaw:me.yaw,pitch:me.pitch,inside:me.inside},cam:Object.assign({},cam),term};
   closeMap();choosing=false;document.getElementById("choose").hidden=true;cbClose();
-  if(scene!=="town"||me.town!==town){toTown(town,town==="Asaba"&&S.where!=="bank"?"treasury":"bank");setTimeout(go,900)}else go()}
-function vanUnfollow(msg){if(!FOLLOW)return;FOLLOW=null;document.getElementById("vanStop").hidden=true;SNAPCAM=true;if(msg)toast(msg)}
+  const go=()=>{FOLLOW={id,cam:null,back};document.getElementById("vanStop").hidden=false;toast("Watching van "+v.seq+" of "+v.of+" to "+v.state+".")};
+  if(scene!=="town"||me.town!==town)fadeTo("Watching the cash van",()=>{me.town=town;townOf(town);scene="town";me.inside=false;go()});else go()}
+function vanUnfollow(msg){if(!FOLLOW)return;const B=FOLLOW.back;FOLLOW=null;document.getElementById("vanStop").hidden=true;
+  const home=()=>{if(B){Object.assign(cam,B.cam);if(B.scene!=="town"){scene=B.scene;me.town=B.town;Object.assign(me,B.me)}else me.town=B.town}SNAPCAM=true;if(msg)toast(msg);if(B&&B.term)trsTerminal(B.term)};
+  if(B&&(B.scene!==scene||B.town!==me.town))fadeTo(B.scene==="trs"?"Back to the Central Bank":B.town,home);else home()}
 function vanCam(dt){const v=VANS.list.find(q=>q.id===FOLLOW.id),p=v&&vanPlace(v,vanNow(),me.town);
   if(!p){const S=v&&vanStage(v,vanNow());vanUnfollow(!v||!S.where?"The van has delivered its cash.":S.where==="highway"?"The van is on the highway to "+v.state+" now.":"The van has left this town.");return null}
   // driving: behind and above; parked: from across the road, looking past the van to the door, so the guards are in view
+  cam.x=p.x;cam.z=p.z;       // the town is drawn around the van (your own place is put back when you stop watching)
   const f=[-Math.sin(p.yaw),-Math.cos(p.yaw)];let want,to;
   if(p.site){const dx=p.x-p.site.door[0],dz=p.z-p.site.door[1],l=Math.hypot(dx,dz)||1;want=[p.x+dx/l*9-f[0]*3,4.6,p.z+dz/l*9-f[1]*3];to=[(p.x+p.site.door[0])/2,1.1,(p.z+p.site.door[1])/2]}
   else{want=[p.x-f[0]*11,5.2,p.z-f[1]*11];to=[p.x+f[0]*2,1.2,p.z+f[1]*2]}
@@ -3322,7 +3362,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   const fly=scene==="town",indoor=scene==="bank"||scene==="imm"||scene==="gov"||scene==="hosp"||scene==="trs",fovNow=fly?(w>h?.85:1.05):(w>h?1.05:1.25),PMs=PLAYERS[me.gender]||PLAYERS.Female;
   // the sun's picture first: the town near you, the car, and your own character all cast shadows
   if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE)lists.push([CARSCENE.bufs,carModel(T.car)]);dynShadows(T,lists,cam.x,cam.z);
-    shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing&&!TOW){gl.colorMask(true,true,true,true);WALKER.draw(PMs,lvp,cam.x,TGY+jump.y,cam.z,cam.yaw,gait,t,null,"");gl.colorMask(false,false,false,false)}})}
+    shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing&&!TOW&&!FOLLOW){gl.colorMask(true,true,true,true);WALKER.draw(PMs,lvp,cam.x,TGY+jump.y,cam.z,cam.yaw,gait,t,null,"");gl.colorMask(false,false,false,false)}})}
   if(scene==="town"){[eye,to]=carCamBlend(eye,to);LASTCAM=[eye.slice(),to.slice()]}if(TOW&&scene==="town"){towStep(dt);[eye,to]=towCam(dt)}if(FOLLOW&&scene==="town"){const c=vanCam(dt);if(c)[eye,to]=c}else{CAMBL=null;LASTCAM=null}
   gl.viewport(0,0,cv.width,cv.height);const VP=mul(persp(fovNow,w/h,fly?.25:.08,800),look(eye,to,[0,1,0]));if(scene==="town")carUI(T,VP,w,h);else if(CARUI.door)carUI(T,VP,w,h);
   gl.clearColor(LIGHT.fog[0],LIGHT.fog[1],LIGHT.fog[2],1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);if(!indoor)drawSky(eye,to,fovNow,w/h);
@@ -3337,7 +3377,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     if(scene==="town")dynDraw(T,VP,eye);
     if(scene==="town"){mechDraw(T,VP,eye,t);vansDraw(VP,eye,t,false)}
     if(TOW&&TOW.truckM&&scene==="town"){TOWTRUCK.model=TOW.truckM;TOWTRUCK.fogFar=150;drawScene(TOWTRUCK,VP,eye,false);towPeople(VP,t)}
-  {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing&&!TOW;      // your own character, seen from behind
+  {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing&&!TOW&&!FOLLOW;      // your own character, seen from behind
     if(show){const town=scene==="town";WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:me.y)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"")}}
   for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE&&!(driving&&VEH.cam===2))drawSceneClear(CARSCENE,VP,eye,t);if(TOW&&TOW.truckM&&scene==="town")drawSceneClear(TOWTRUCK,VP,eye,t);if(scene==="town")vansDraw(VP,eye,t,true);
   if(scene==="town"&&frames%3===0)drawMini(T);document.getElementById("mini").hidden=scene!=="town"||choosing;
@@ -3605,7 +3645,7 @@ const signUp=(email,password)=>supa("/auth/v1/signup",{method:"POST",body:{email
 async function loadCitizen(){await freshToken();const rows=await supa("/rest/v1/characters?select=*&owner=eq."+AUTH.user.id,{auth:true});return rows&&rows[0]||null}
 async function registerOnServer(c){await freshToken();return supa("/rest/v1/rpc/register_citizen",{method:"POST",auth:true,body:{p_name:c.name,p_dob:c.dob,p_gender:c.gender,p_state:c.state,p_look:me.outfit||""}})}
 let lastSave=0,saving=false;
-async function saveNow(final){if(!AUTH.char||saving||scene!=="town"||driving||flying||TOW)return;saving=true;const pos={x:+cam.x.toFixed(2),z:+cam.z.toFixed(2),yaw:+cam.yaw.toFixed(3)};
+async function saveNow(final){if(!AUTH.char||saving||scene!=="town"||driving||flying||TOW||FOLLOW)return;saving=true;const pos={x:+cam.x.toFixed(2),z:+cam.z.toFixed(2),yaw:+cam.yaw.toFixed(3)};
   try{await freshToken();await supa("/rest/v1/characters?owner=eq."+AUTH.user.id,{method:"PATCH",auth:true,keepalive:!!final,headers:{Prefer:"return=minimal"},body:{town:me.town,pos,updated_at:new Date().toISOString()}});AUTH.char.town=me.town;AUTH.char.pos=pos}catch(e){}saving=false}
 setInterval(()=>{if(Date.now()-lastSave>15000){lastSave=Date.now();saveNow(false)}},3000);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")saveNow(true)});
