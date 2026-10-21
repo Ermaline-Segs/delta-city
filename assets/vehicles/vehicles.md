@@ -7,7 +7,7 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 |---|---|---|---|---|
 | `uaz_452.glb` | UAZ-452 utility van ("bukhanka"), low poly | 2,776 | 227 KB | 256 px body, 128 px wheel, 32 px palette (PNG) |
 | `vw_corrado.glb` | VW Corrado coupé, low poly | 6,524 | 647 KB | 1467 x 360 px (PNG) |
-| `taxi_corolla.glb` | Toyota Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,118 | 2.9 MB | up to 1024 px (JPEG) |
+| `taxi_corolla.glb` | Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,159 | 2.9 MB | up to 1024 px (JPEG) |
 | `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus, red and white with BRT lettering, sliding passenger doors, seats and poles | 24,102 | 1.0 MB | none (plain materials) |
 | `harmony.glb` | Harmony: family saloon (the taxi's car in private colours) | 19,135 | 2.9 MB | up to 1024 px (JPEG) |
 | `comet.glb` | Comet: budget hatchback | 19,490 | 0.8 MB | up to 1024 px (JPEG) |
@@ -75,7 +75,8 @@ Wheelbase 2.29 m, track 1.56 m.
   - Painted taxi yellow, with a roof sign added.
   - The four doors cut out, each pivoted on its hinge.
   - Wheels and steering wheel separated.
-  - Reduced from 84,000 to 19,118 triangles.
+  - Maker badges removed.
+  - Reduced from 84,000 to 19,159 triangles.
   - Textures reduced to 1024 px.
 - **Size:** 4.34 m long, 2.04 m wide (including mirrors), 1.51 m high (including the roof sign). The file is 2.9 MB.
 - **Driver:** sits on the **left**.
