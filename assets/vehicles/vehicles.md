@@ -9,6 +9,7 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 | `vw_corrado.glb` | VW Corrado coupé, low poly | 6,524 | 647 KB | 1467 x 360 px (PNG) |
 | `taxi_corolla.glb` | Toyota Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,118 | 2.9 MB | up to 1024 px (JPEG) |
 | `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus, red and white with BRT lettering, sliding passenger doors, seats and poles | 24,102 | 1.0 MB | none (plain materials) |
+| `savanna.glb` | Savanna: small SUV | 36,523 | 3.4 MB | up to 1024 px (JPEG) |
 | `meridian.glb` | Meridian: family saloon | 39,522 | 3.8 MB | up to 1024 px (JPEG) |
 | `sovereign_gt.glb` | Sovereign GT: premium coupé, the Chief Administrator's car | 24,542 | 2.3 MB | up to 1024 px (JPEG) |
 
@@ -234,6 +235,39 @@ Previews: `previews/sovereign_gt_doors_open.png`, `previews/sovereign_gt_closed.
 | rear right | `[0.38, 0.62, 0.69]` |
 
 Previews: `previews/meridian_doors_open.png`, `previews/meridian_closed.png`, `previews/meridian_top_open.png`.
+
+## Savanna (`savanna.glb`)
+
+- **Type:** small SUV.
+- **Source:** "MMC Generic Small SUV Car" by MMC Works, **CC-BY 4.0**, credited in `../CREDITS.md`.
+- **Changes:** Renamed; four doors (with their windows and door cards), wheels and steering wheel separated and pivoted; simplified from 167,000 triangles; textures reduced to 1024 px.
+- **Size:** 4.19 m long, 1.95 m wide (including mirrors), 1.59 m high.
+- **File:** 36,523 triangles, 3.4 MB.
+- **Driver:** sits on the **left**.
+
+| Part | Pivot `[x, y, z]` (m) | Notes |
+|---|---|---|
+| `door_FL` | `[-0.87, 0.92, -0.81]` | hinged on its front edge; 1.16 m long, 1.12 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_FR` | `[0.87, 0.92, -0.81]` | hinged on its front edge; 1.16 m long, 1.12 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `door_RL` | `[-0.86, 0.93, 0.22]` | hinged on its front edge; 1.04 m long, 1.10 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_RR` | `[0.86, 0.93, 0.22]` | hinged on its front edge; 1.05 m long, 1.10 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `wheel_FL` | `[-0.74, 0.33, -1.37]` | radius 0.33 m |
+| `wheel_FR` | `[0.74, 0.33, -1.37]` | radius 0.33 m |
+| `wheel_RL` | `[-0.74, 0.33, 1.29]` | radius 0.33 m |
+| `wheel_RR` | `[0.74, 0.33, 1.29]` | radius 0.33 m |
+| `steering_wheel` | `[-0.37, 0.74, -0.82]` | tilted -50 deg from vertical; spins about its own local Z axis, with positive meaning turning left (same as the taxi) |
+
+**Seats** are given as hip points `[x, y, z]`:
+
+| Seat | Hip point |
+|---|---|
+| driver | `[-0.37, 0.67, 0.04]` |
+| rear left | `[-0.38, 0.77, 0.80]` |
+| rear middle | `[0.00, 0.77, 0.80]` |
+| rear right | `[0.38, 0.77, 0.80]` |
+| front right | `[0.37, 0.67, 0.04]` |
+
+Previews: `previews/savanna_doors_open.png`, `previews/savanna_closed.png`, `previews/savanna_top_open.png`.
 
 ## Door check (`previews/`)
 
