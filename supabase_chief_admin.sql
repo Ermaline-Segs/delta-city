@@ -19,8 +19,8 @@ begin
   if pk is null then raise exception 'Every bay in Asaba is taken'; end if;
   pl := 'DC-ADMIN-' || nextval('vehicle_plate_seq');
   insert into vehicles(plate, owner, model, special, status, park_id, bay, created_by)
-    values (pl, who, 'audi', true, 'stored', pk, b, who) returning id into id_;
-  perform veh_log(who, id_, 'provision', jsonb_build_object('owner', who, 'name', nm, 'model', 'audi', 'special', true, 'park', pk, 'bay', b, 'by', 'supabase_chief_admin.sql'));
+    values (pl, who, 'sovereign', true, 'stored', pk, b, who) returning id into id_;
+  perform veh_log(who, id_, 'provision', jsonb_build_object('owner', who, 'name', nm, 'model', 'sovereign', 'special', true, 'park', pk, 'bay', b, 'by', 'supabase_chief_admin.sql'));
   raise notice '% is the Chief Admin. Special car % is in bay % of %', nm, pl, b + 1, (select name from car_parks where id = pk);
 end $$;
 

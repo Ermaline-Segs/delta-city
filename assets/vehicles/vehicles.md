@@ -503,5 +503,5 @@ For each car: `<car>_driver_open.png` (front-left corner, driver's door open 60 
 
 ## Not done yet
 
-- **Audi R8:** the original model is not in the repository. Only `source/models/audi.json` is there, a packed copy made from `Downloads/Audi+R8.glb`: about 93,000 triangles, vertex colours, no recorded author or licence. It was not converted.
+- **Audi R8:** removed from the game. The Sovereign GT replaced it everywhere (the practice car, the Chief Admin's car, every garage car; `supabase_sovereign.sql` turns cars saved as Audis into Sovereign GTs). The game draws it from `source/models/sovereign.json`, packed from `sovereign_gt.glb` by `source/models/pack_sovereign.py`, with its doors, wheels and steering wheel joined to the body for now.
 - **Car sounds:** not started yet.

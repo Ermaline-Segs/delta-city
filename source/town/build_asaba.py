@@ -272,7 +272,7 @@ Promise.resolve().then(()=>{WALKER.init();return Promise.all([WALKER.load("girl"
   const still={p:0,run:0,amt:0},bg=[.84,.88,.92];for(const g of["Male","Female"])for(const c of ROSTER[g]){const hy=c.m.rest[c.m.index.Head][13],dr=VP=>WALKER.draw(c.m,VP,0,0,0,Math.PI,still,2,null,"");
     PICS[g][c.key]={face:snap(300,396,[.1,hy+.1,.94],[0,hy+.065,0],.5,bg,dr),body:snap(240,440,[.5,hy*.66,hy*2.3],[0,hy*.57,0],.5,bg,dr)}}
   ROSTER.ready=true;
-  BAKE=null;CLEAR_GLASS=false;CELL=0;reset();placeModel("m_audi",c=>c[0]>220&&c[1]>220?K.glow:c[0]>220?K.glow:c[0]>150&&c[1]<70?K.gold:c[0]<40&&c[2]>44?K.glass:0);CARSCENE=upload();CARSCENE.twoSided=true;
+  BAKE=null;CLEAR_GLASS=false;CELL=0;reset();placeModel("m_sgt",c=>c[0]>220&&c[1]>220?K.glow:c[0]>220?K.glow:c[0]>150&&c[1]<70?K.gold:c[0]<40&&c[2]>44?K.glass:0);CARSCENE=upload();CARSCENE.twoSided=true;
   if(choosing&&scene==="border")chooser()}).catch(e=>{console.error(e);toast("The characters could not be loaded. You can still play, but pictures will be missing.")});
 </script>
 </body>
@@ -296,7 +296,7 @@ CSS=r'''.guide{pointer-events:none}
 @media (max-width:760px){.mini{width:112px;height:112px;top:calc(96px + env(safe-area-inset-top,0px))}.mapmenu{width:auto;grid-auto-flow:column;top:6px;left:6px;right:6px;overflow-x:auto}.mapmenu button{white-space:nowrap;padding:8px 10px}.picks{top:calc(10px + env(safe-area-inset-top,0px));left:auto}}
 select.who{font:inherit;font-weight:600;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:8px 12px;max-width:min(78vw,340px)}'''
 out=out.replace("[hidden]{display:none !important}","[hidden]{display:none !important}\n"+CSS,1)
-MODELS="".join('<script type="application/json" id="%s">%s</script>\n'%(i,open('/home/claude/w/models/'+f).read()) for i,f in (("m_terminal","terminal.json"),("m_audi","audi.json"),("girl","../game3d/woman.json"),("c_party2","party2.json"),("c_club","club.json"),("anims","../anim/anims.json")))
+MODELS="".join('<script type="application/json" id="%s">%s</script>\n'%(i,open('/home/claude/w/models/'+f).read()) for i,f in (("m_terminal","terminal.json"),("m_sgt","sovereign.json"),("girl","../game3d/woman.json"),("c_party2","party2.json"),("c_club","club.json"),("anims","../anim/anims.json")))
 out=out.replace('<canvas id="mini"',MODELS+'<canvas id="mini"',1)
 open('town.html','w',encoding='utf-8').write(out)
 js=out[out.rindex('<script>')+8:out.rindex('</script>')]; open('/tmp/town.js','w').write(js)

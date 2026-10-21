@@ -98,7 +98,7 @@ create table if not exists vehicles (
   id           bigserial primary key,
   plate        text not null unique,
   owner        uuid not null,                         -- characters.owner: the citizen's permanent account id
-  model        text not null default 'audi',
+  model        text not null default 'sovereign',
   special      boolean not null default false,        -- the Chief Admin's special vehicle
   status       text not null default 'stored' check (status in ('stored', 'active')),
   park_id      text references car_parks(id),         -- stored: the car park it is in; active: the one it came from
@@ -119,6 +119,10 @@ create table if not exists vehicles (
   created_at   timestamptz not null default now(),
   created_by   uuid
 );
+-- the Audi R8 has left the game: every car saved as one is now the Sovereign GT (safe to run again)
+alter table vehicles alter column model set default 'sovereign';
+update vehicles set model = 'sovereign' where model = 'audi';
+
 create index if not exists vehicles_owner on vehicles (owner);
 create index if not exists vehicles_active on vehicles (status) where status = 'active';
 create unique index if not exists vehicles_one_per_bay on vehicles (park_id, bay) where status = 'stored' and bay is not null;
@@ -558,7 +562,7 @@ begin
   if me is null or veh_role(me) is distinct from 'admin' then raise exception 'Only the Chief Admin can give out vehicles'; end if;
   select name, role into who, whose_role from characters where owner = p_owner;
   if who is null then raise exception 'That citizen does not exist'; end if;
-  if coalesce(p_model, '') not in ('audi') then raise exception 'Unknown vehicle model'; end if;
+  if coalesce(p_model, '') not in ('sovereign') then raise exception 'Unknown vehicle model'; end if;
   if coalesce(p_special, false) and whose_role is distinct from 'admin' then raise exception 'The special vehicle can only be given to a Chief Admin'; end if;
   if not exists(select 1 from car_parks where id = p_park) then raise exception 'That is not a car park'; end if;
   perform 1 from car_parks where id = p_park for update;   -- one provision at a time per car park, so two never take the same bay
