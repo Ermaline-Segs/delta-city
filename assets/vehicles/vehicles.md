@@ -19,6 +19,28 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 | `meridian.glb` | Meridian: family saloon | 39,522 | 3.8 MB | up to 1024 px (JPEG) |
 | `sovereign_gt.glb` | Sovereign GT: premium coupé, the Chief Administrator's car | 24,542 | 2.3 MB | up to 1024 px (JPEG) |
 
+## Driver's side
+
+Every vehicle is **left-hand drive**, as in Nigeria. The steering wheel and the driver's seat are on the left (negative x).
+
+The Harmattan GT was built from an Australian right-hand-drive car, so its interior was mirrored. `previews/harmattan_gt_interior.png` shows it from above with the roof cut away.
+
+| File | Vehicle | Driver | Steering wheel `[x, y, z]` | Driver's hip point `[x, y, z]` | Note |
+|---|---|---|---|---|---|
+| `uaz_452.glb` | UAZ-452 van | left | `[-0.45, 1.36, -1.40]` | `[-0.45, 1.18, -0.92]` |  |
+| `vw_corrado.glb` | VW Corrado | left | `[-0.38, 0.82, -0.30]` | `[-0.38, 0.47, 0.12]` |  |
+| `taxi_corolla.glb` | Taxi | left | `[-0.36, 0.84, -0.55]` | `[-0.36, 0.60, 0.12]` |  |
+| `brt_bus.glb` | BRT bus | left | `[-0.75, 1.41, -5.40]` | `[-0.75, 1.01, -4.95]` |  |
+| `harmony.glb` | Harmony | left | `[-0.36, 0.84, -0.55]` | `[-0.36, 0.60, 0.12]` |  |
+| `sovereign_gt.glb` | Sovereign GT | left | `[-0.44, 0.83, -0.00]` | `[-0.44, 0.62, 0.29]` |  |
+| `meridian.glb` | Meridian | left | `[-0.38, 0.95, -0.58]` | `[-0.41, 0.57, -0.30]` |  |
+| `savanna.glb` | Savanna | left | `[-0.37, 0.74, -0.82]` | `[-0.37, 0.67, 0.04]` |  |
+| `comet.glb` | Comet | left | `[-0.34, 0.81, -0.42]` | `[-0.37, 0.34, 0.06]` |  |
+| `kite.glb` | Kite | left | `[-0.33, 1.00, -0.36]` | `[-0.33, 0.74, 0.05]` |  |
+| `vela_v12.glb` | Vela V12 | left | `[-0.37, 0.78, -0.66]` | `[-0.36, 0.60, 0.15]` |  |
+| `strada_rs.glb` | Strada RS | left | `[-0.38, 0.86, -0.17]` | `[-0.38, 0.55, 0.25]` |  |
+| `harmattan_gt.glb` | Harmattan GT | left | `[-0.42, 0.74, -0.42]` | `[-0.40, 0.62, 0.15]` | interior mirrored from right-hand drive |
+
 ## Coordinates (what the game sees after loading the `.glb`)
 
 - Metres. **+Y is up, the front of the car points toward -Z, the driver's (left) side is -X.**
