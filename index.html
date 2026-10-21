@@ -1968,7 +1968,8 @@ const GSTYLE={police:{pal:{wall:"#E9EDF1",feat:"#1d3b6e",trim:"#9aa7b4",carpet:"
   trade:{pal:{wall:"#EEF0F4",feat:"#1f4e79",trim:"#B99A5D",carpet:"#1b3355",wood:"#4a3222",floor:"#E2E4E8"},key:"TRADE"},
   culture:{pal:{wall:"#F3ECE2",feat:"#8a3d1f",trim:"#B99A5D",carpet:"#5a2a1a",wood:"#5a3a22",floor:"#E6DDD0"},key:"CULTURE"},
   stats:{pal:{wall:"#EEF0F2",feat:"#334155",trim:"#9aa7b4",carpet:"#2b3647",wood:"#4b3a2a",floor:"#DEE1E5"},key:"STATISTICS"},
-  foreign:{pal:{wall:"#EEF2EE",feat:"#14532d",trim:"#B99A5D",carpet:"#1d3b2a",wood:"#4a3222",floor:"#E0E5E0"},key:"FOREIGN AFFAIRS"}};
+  foreign:{pal:{wall:"#EEF2EE",feat:"#14532d",trim:"#B99A5D",carpet:"#1d3b2a",wood:"#4a3222",floor:"#E0E5E0"},key:"FOREIGN AFFAIRS"},
+  immstate:{pal:{wall:"#F4F6F8",feat:"#14263D",trim:"#AAB5C0",carpet:"#202D3A",wood:"#4b3a2a",floor:"#E4E8EB"},key:"IMMIGRATION"}};       // a state's immigration office, in the Immigration Authority's colours
 // what a room is for, from its channel's name: it decides the furniture
 function roomKind(ch){const c=ch.toLowerCase();
   if(/jail/.test(c))return"cells";if(/evidence/.test(c))return"evidence";if(/library/.test(c))return"library";if(/lecture-hall/.test(c))return"lecture";if(/court-room/.test(c))return"court";
@@ -1979,7 +1980,7 @@ function roomKind(ch){const c=ch.toLowerCase();
   return"office"}
 const isPublicRoom=r=>r.use.concat(r.see).some(n=>/^(Citizen of|Visitor |Deltans|@everyone|Asylum)/.test(n));
 function guideSpec(type,st){const B=guideBuilding(type,st),Y=GSTYLE[type];if(!B||!Y)return null;
-  const title=B.label.split(" ").map(w=>w==="&"||w==="-"?w:/^(OF|AND)$/.test(w)?w.toLowerCase():w[0]+w.slice(1).toLowerCase()).join(" ");
+  const title=type==="immstate"?st+" Immigration Office":B.label.split(" ").map(w=>w==="&"||w==="-"?w:/^(OF|AND)$/.test(w)?w.toLowerCase():w[0]+w.slice(1).toLowerCase()).join(" ");
   const rooms=B.rooms.map(r=>{const kind=roomKind(r.ch),use=r.use.concat(GUIDE_ADD.filter(a=>a[0].test(r.ch)).flatMap(a=>a[1]));return{ch:r.ch,name:r.name.toUpperCase(),plate:r.name.toUpperCase(),kind,w:kind==="office"?7:kind==="cells"||kind==="library"||kind==="field"?10:8.5,
     who:use.concat(r.see),use,see:r.see,pub:isPublicRoom(r)}});
   const headR=rooms.find(r=>r.kind==="court"||r.kind==="lecture"),side=rooms.filter(r=>r!==headR).sort((a,b)=>(b.pub?1:0)-(a.pub?1:0)),west=[],east=[];
@@ -1993,7 +1994,7 @@ const GUIDE_ADD=[[/evidence/,["Detective","Superintendent","State Police & Secur
 const COURT_WELL=["Attorney-General","Court Clerk","Chief Registrar","Cuffed","Jail"];
 // the doors to these buildings, by their place key in each town
 const GUIDE_DOORS=["police","court","util","uni","trans","house","agri","trade","culture","stats","foreign"];
-for(const t of GUIDE_DOORS)GOV_SPEC["g_"+t]=st=>guideSpec(t,st);
+for(const t of GUIDE_DOORS.concat(["immstate"]))GOV_SPEC["g_"+t]=st=>guideSpec(t,st);
 let GENTER=false;
 async function guideEnter(type){const S=guideSpec(type,me.town);if(!S){toast("This building has no inside yet.");return}if(GENTER)return;GENTER=true;
   try{await ipropsLoad(ipropsFor(S))}finally{GENTER=false}if(scene==="town")toGov("g_"+type,type)}
@@ -2302,6 +2303,7 @@ function hospOf(n,townName){const key=n+":"+townName;if(HOSP_CACHE[key])return H
    The player's own character, drawn with its skeleton moved on the graphics chip. The walk and
    run are the same measured gait as in the walking test; it works on any character whose bones
    carry the standard names, so all the characters share it. */
+const RUNBOOST=1.35;                            // running is this much faster than the jogging recordings (they play faster to match, so the feet do not slide)
 const WALKER=(()=>{
 const D=Math.PI/180;let WOMAN=null;
 const SKINP=program(`attribute vec3 p,n;attribute vec2 uv;attribute vec4 j,w,paint;uniform vec4 B[84];uniform mat4 vp,model;uniform vec3 lo;uniform float span;uniform vec2 uvlo,uvspan;varying vec3 vn;varying vec2 vu;varying vec4 vpaint;
@@ -2348,10 +2350,10 @@ function prepare(m){use(m);poseBones({});const n=m.bones.length;m.rest=[];for(le
     const a=P(i),e=P(I[c]),l=len(i,I[c]);return qbetween([(e[0]-a[0])/l,(e[1]-a[1])/l,(e[2]-a[2])/l],ANIM.restDir[b.name])});
   for(const s of["Left","Right"]){if(I[s+"Hand"]!==undefined)m.cinv[I[s+"Hand"]]=m.cinv[I[s+"ForeArm"]];for(const f of["Foot","ToeBase"])if(I[s+f]!==undefined)m.cinv[I[s+f]]=m.cinv[I[s+"Leg"]]}      // a hand follows its forearm's line-up and a foot its shin's, so a character that rests with lowered arms keeps natural wrists
   m.hipH=P(I.Hips)[1];m.legLen=len(I.LeftUpLeg,I.LeftLeg)+len(I.LeftLeg,I.LeftFoot);m.footY=P(I.LeftFoot)[1];m.toeY=P(I.LeftToeBase)[1];const k=m.legLen/ANIM.leg;
-  const cw=ANIM.clips[m.clips.walk],cj=ANIM.clips[m.clips.jog];m.speed={walk:cw.speed*k,run:Math.min(cj.speed*k,4.8)};m.jogRate=m.speed.run/(cj.speed*k);
+  const cw=ANIM.clips[m.clips.walk],cj=ANIM.clips[m.clips.jog];m.speed={walk:cw.speed*k,run:Math.min(cj.speed*k,4.8)*RUNBOOST};m.jogRate=m.speed.run/(cj.speed*k);
   /* for each direction of travel: the walking recording and the jogging one, with the speed the feet cover and how fast to play it.
      A direction with no jogging recording plays its walk faster instead. */
-  const C=n=>n&&ANIM.clips[n]?ANIM.clips[n]:null,comp=(wn,jn,rate,cap)=>{const ws=C(wn).speed*k,cj=C(jn);if(cj){const js=cj.speed*k,c=Math.min(js,cap);return[[wn,ws,1],[jn,c,c/js]]}return[[wn,ws,1],[wn,ws*rate,rate]]};
+  const C=n=>n&&ANIM.clips[n]?ANIM.clips[n]:null,comp=(wn,jn,rate,cap)=>{const ws=C(wn).speed*k,cj=C(jn);if(cj){const js=cj.speed*k,c=Math.min(js,cap)*RUNBOOST;return[[wn,ws,1],[jn,c,c/js]]}return[[wn,ws,1],[wn,ws*rate,rate]]};
   m.loco={f:comp(m.clips.walk,m.clips.jog,2.5,4.8),b:comp(C(m.clips.back)?m.clips.back:m.clips.walk,m.clips.jback,1.9,4.2),l:comp(C(m.clips.sl)?m.clips.sl:m.clips.walk,m.clips.jsl,2.2,4.4),r:comp(C(m.clips.sr)?m.clips.sr:m.clips.walk,m.clips.jsr,2.2,4.4)}}
 /* the walking recordings to mix for this moment, from how much the body moves forward, back, left and right (wf, wb, wl, wr),
    and how much it runs; with the length of one stride and the speed the feet travel at */
@@ -2578,25 +2580,25 @@ const toBank=()=>fadeTo(STATES[me.town].bank+": banking hall",()=>{bankOf(me.tow
 /* ================= floor plans: the rooms of the building you are in =================
    One plan per building (and floor), made from its real rooms, walls and doors. It decides which room you are in (for
    clocking in at your own room) and is drawn on the round map while you are inside. Rooms are [x0,z0,x1,z1]. */
-// the hospital's rooms, floor by floor, in the order of each floor's rooms: [name, room, who may enter (HWHO)]
-const HROOMS={0:[["Pharmacy","pharmacy","pharmacy"],["Hospital Lobby","lobby"],["Emergency & Nurses Station","nurses"],["Health Records","records","records"],["Laboratory","lab","lab"],["Lift Lobby"],
-    ["Consultation 1","consult","consult"],["Consultation 2","consult","consult"],["Consultation 3","consult","consult"],["X-ray","xray","xray"]],
-  1:[["Operating Theatre","theatre","theatre"],["Medical Staff Office","staff","staff"],["Lift Lobby"],["Corridor"],["Dental Room","dental","dental"],["Medical Director's Office","director","director"]],
-  3:[["Male Ward","ward","ward"],["Lift Lobby"],["Nurses' Desk","nurses"]],4:[["Female Ward","ward","ward"],["Lift Lobby"],["Nurses' Desk","nurses"]],
-  5:[["Private Room 1","ward","ward"],["Private Room 2","ward","ward"],["Private Room 3","ward","ward"],["Private Room 4","ward","ward"],["Private Ward","ward","ward"],["Lift Lobby"],["Nurses' Desk","nurses"]],
-  6:[["Delivery","ward","ward"],["Maternity Ward","ward","ward"],["Lift Lobby"],["Nurses' Desk","nurses"]]};
+// the hospital's rooms, floor by floor, in the order of each floor's rooms: [name, the guide's room, who may enter (HWHO)]
+const HROOMS={0:[["Pharmacy","pharmacy","pharmacy"],["Hospital Lobby",["hospital-lobby","lobby"]],["Emergency & Nurses Station","nurses-station"],["Health Records","health-records","records"],["Laboratory","laboratory","lab"],["Lift Lobby"],
+    ["Consultation 1","consultation","consult"],["Consultation 2","consultation","consult"],["Consultation 3","consultation","consult"],["X-ray","","xray"]],
+  1:[["Operating Theatre","operating-theatre","theatre"],["Medical Staff Office","medical-staff-office","staff"],["Lift Lobby"],["Corridor"],["Dental Room","dental-room","dental"],["Medical Director's Office","medical-directors-office","director"]],
+  3:[["Male Ward","male-ward","ward"],["Lift Lobby"],["Nurses' Desk"]],4:[["Female Ward","female-ward","ward"],["Lift Lobby"],["Nurses' Desk"]],
+  5:[["Private Room 1","private-ward","ward"],["Private Room 2","private-ward","ward"],["Private Room 3","private-ward","ward"],["Private Room 4","private-ward","ward"],["Private Ward","private-ward","ward"],["Lift Lobby"],["Nurses' Desk"]],
+  6:[["Delivery","","ward"],["Maternity Ward","","ward"],["Lift Lobby"],["Nurses' Desk"]]};
 const TROOMS=[["Entrance Hall"],["Banks Escalations","banks-escalations",TRS_ESC],["Reserve Office","reserve-office",TRS_RES],["Delta Central Bank","delta-central-bank",TRS_CB]];
 // the bank: the ground floor and the gallery upstairs; the special rooms come first (a room inside a bigger one)
-const BROOMS=[[0,[15,5,17,10],"ATM Services","atm","atm"],[0,[14.3,-2.4,17,4.4],"Staircase","","stairs"],[0,[-17,-10,-12,-7],"Auditing Room","auditing-room","audit"],
+const BROOMS=[[0,[15,5,17,10],"ATM Services","atm-services💳","atm"],[0,[14.3,-2.4,17,4.4],"Staircase","","stairs"],[0,[-17,-10,-12,-7],"Auditing Room","auditing-room","audit"],
   [0,[-17,-10,5.3,-2.6],"Tellers & Vault","deposit","tellers"],[0,[5.3,-10,17,-2.6],"Customer Service & Accounts","accounts"],[0,[-17,-2.6,17,10],"Banking Hall","service-hall"],
   [1,[-17,-10,-6,-5.4],"Director's Office","bank-directors-office","director"],[1,[-6,-10,5,-5.4],"Manager's Office","managers-office","stairs"],[1,[5,-10,17,-5.4],"Boardroom","","stairs"],
   [1,[14.3,-5.4,17,4.4],"Staircase","","stairs"],[1,[-17,-5.4,14.3,-2.2],"Gallery","","stairs"]];
-// the Immigration Authority
-const IROOMS=[[[-15,-11,-8.2,-4],"Inspection","inspection","staff"],[[-8.2,-11,-3.3,-4],"Holding","","staff"],[[-3.3,-11,3.5,-4],"Records","records","staff"],
-  [[3.5,-11,9,-4],"Deputy Comptroller-General","deputy","deputy"],[[9,-11,15,-4],"Comptroller-General","cg","cg"],[[15,-11,19,-4],"Travel Services","travel","travel"],
-  [[19,-11,23,-4],"Entry and Exit","entryexit","entryexit"],[[23,-11,27,-4],"State Comptroller's Office","sc","sc"],[[-15,-4,27,-2],"Staff Corridor","","staff"],
-  [[10.5,7,15,10],"Passport Delivery","passport","passport"],[[11,-2,15,7],"Immigration Office","permits","staff"],[[-3.6,-2,3.6,.6],"Registration Desk","registration"],[[-15,-2,11,10],"Registration Hall","hall"]];
-const fpTitle=t=>String(t||"").split(/\s+/).map(w=>/^[A-Z]{2,4}$/.test(w)&&!/^(THE|AND|OF|FOR|ROOM|HALL|DESK|WELL)$/.test(w)?w:/^(OF|AND|THE|FOR|TO)$/.test(w)?w.toLowerCase():w.charAt(0)+w.slice(1).toLowerCase()).join(" ").replace(/^./,c=>c.toUpperCase());
+// the Immigration Authority in Asaba, which also holds the guide's Arrivals & Registration and Asaba's own immigration rooms
+const IROOMS=[[[-15,-11,-8.2,-4],"Inspection","","staff"],[[-8.2,-11,-3.3,-4],"Holding","","staff"],[[-3.3,-11,3.5,-4],"Records","citizens-database","staff"],
+  [[3.5,-11,9,-4],"Deputy Comptroller-General","deputy-comptroller-general-office","deputy"],[[9,-11,15,-4],"Comptroller-General","comptroller-general-office","cg"],[[15,-11,19,-4],"Travel Services","travel-services","travel"],
+  [[19,-11,23,-4],"Entry and Exit","entry-and-exit","entryexit"],[[23,-11,27,-4],"State Comptroller's Office","state-comptroller-office","sc"],[[-15,-4,27,-2],"Staff Corridor","","staff"],
+  [[10.5,7,15,10],"Passport Delivery","passport-delivery","passport"],[[11,-2,15,7],"Immigration Office","immigration-office","staff"],[[-3.6,-2,3.6,.6],"Registration Desk","citizenship-application"],[[-15,-2,11,10],"Registration Hall",""]];
+const fpTitle=t=>String(t||"").split(/\s+/).map(w=>/^(IGP|SSG|ATM|VP|HQ|ICT|CEO|DC)$/.test(w)?w:/^(OF|AND|THE|FOR|TO)$/.test(w)?w.toLowerCase():w.charAt(0)+w.slice(1).toLowerCase()).join(" ").replace(/^./,c=>c.toUpperCase());
 // the plan of where I am, or null outside
 function fpPlan(){
   if(scene==="hosp"&&HV){const F=HV.F,N=HROOMS[F.n]||[];return{key:"hosp",title:STATES[me.town].hosp,floor:F.n===0?"G":String(F.n),floorName:F.name,foot:F.foot,walls:HV.walls,
@@ -2619,31 +2621,24 @@ function fpPlan(){
 const fpIn=(R,x,z)=>x>=R.r[0]&&x<=R.r[2]&&z>=R.r[1]&&z<=R.r[3];
 function fpRoomAt(P,x,z){if(!P)return null;if(x===undefined){x=me.x;z=me.z}for(const R of P.rooms)if(fpIn(R,x,z))return R;return null}
 
-/* ---- clocking in at your own room in the hospital, the banks, the Treasury and the Immigration Authority:
-   [post, building, the rooms that count, only where the state has the building inside (the capital)] */
-const ROOMCLOCK=[["Doctor","hosp",["consult"]],["Surgeon","hosp",["theatre"]],["Dentist","hosp",["dental"]],["Nurse","hosp",["nurses"]],["Pharmacist","hosp",["pharmacy"]],
-  ["Laboratory Scientist","hosp",["lab"]],["Patient Services Staff","hosp",["lobby"]],["Medical Director","hosp",["director"]],
-  ["Bank Manager","bank",["managers-office"]],["Customer Service Officer","bank",["accounts"]],["Account Officer","bank",["accounts"]],["Audit Officer","bank",["auditing-room"]],["State Banking Director","bank",["bank-directors-office"]],
-  ["Bank Governor","trs",["delta-central-bank"]],
-  ["Comptroller-General","imm",["cg"]],["Deputy Comptroller-General","imm",["deputy"]],["Citizenship Registrar","imm",["registration"]],
-  ["State Comptroller","imm",["sc"],true],["Immigration Services Agent","imm",["permits"],true],["Border Protection Officer","imm",["inspection"],true]];
-const RC_ROOM={consult:"a Consultation room",theatre:"the Operating Theatre",dental:"the Dental Room",nurses:"the Nurses Station",pharmacy:"the Pharmacy",lab:"the Laboratory",lobby:"the Hospital Lobby",
-  director:"the Medical Director's Office","managers-office":"the Manager's Office",accounts:"Customer Service & Accounts","auditing-room":"the Auditing Room","bank-directors-office":"the Director's Office",
-  "delta-central-bank":"Delta Central Bank",cg:"the Comptroller-General's office",deputy:"the Deputy Comptroller-General's office",registration:"the Registration Desk",sc:"the State Comptroller's Office",
-  permits:"the Immigration Office (Permits & Passes)",inspection:"Inspection"};
-const roomClockOf=p=>p&&ROOMCLOCK.find(e=>postIs(p.title,e[0])&&gnorm(p.title)===gnorm(e[0]))||null;
-// null: the post is not one of these (its old rule stays); otherwise whether I am at work
-function roomClockAtWork(p,staying){const E=roomClockOf(p);if(!E)return null;const[,sc,chs,cap]=E,st=p.state||"Asaba";
-  if(cap&&!(STATES[st]&&STATES[st].capital))return null;                         // a state immigration office with no inside yet keeps its old rule
-  if(scene!==sc||(sc!=="trs"&&sc!=="imm"&&me.town!==st))return false;if(staying)return true;
-  const R=fpRoomAt(fpPlan());return!!R&&chs.includes(R.ch)}
+/* ---- clocking in at your own room in the hospital, the banks, the Treasury and the Immigration Authority, in the room the
+   Discord guide gives each post (docs/interiors_from_discord.md). These buildings have their own insides, not ones built from a plan. */
+const GSCENE={hosp:"hosp",bank:"bank",treasury:"trs",imm:"imm",arrivals:"imm"};
+// the post's room in one of these buildings: {w (the guide's building and room), sc (the scene)}, or null
+function roomClockOf(p){const w=p&&typeof guideWork==="function"&&guideWork(p);if(!w)return null;const t=w.B.type;
+  const sc=t==="immstate"?((STATES[w.B.state||"Asaba"]||{}).capital?"imm":null):GSCENE[t];return sc?{w,sc}:null}       // a state immigration office outside the capital is built from the guide (g_immstate)
+const fpHas=(R,ch)=>!!ch&&(Array.isArray(R.ch)?R.ch.includes(ch):R.ch===ch);
+// null: the post is not one of these (its other rule applies); otherwise whether I am at work
+function roomClockAtWork(p,staying){const E=roomClockOf(p);if(!E)return null;const st=E.w.B.state||"Asaba";
+  if(scene!==E.sc||(E.sc!=="trs"&&E.sc!=="imm"&&me.town!==st))return false;if(staying)return true;
+  const R=fpRoomAt(fpPlan());return!!R&&fpHas(R,E.w.ch)}
 // where a post clocks in, in words (for My work and the quest card), or ""
-function workRoomText(p){const E=roomClockOf(p),st=p.state||"Asaba";
-  if(E&&!(E[3]&&!(STATES[st]&&STATES[st].capital))){const b={hosp:STATES[st].hosp,bank:STATES[st].bank,trs:"the National Treasury",imm:"the Immigration Authority"}[E[1]];return RC_ROOM[E[2][0]]+" in "+(E[1]==="hosp"||E[1]==="bank"?"the "+b+" ("+st+")":b)}
-  const w=typeof guideWork==="function"&&guideWork(p);if(w&&guideKind(w.B)){const r=w.B.rooms.find(q=>q.ch===w.ch);return r?"the "+r.name+" in the "+fpTitle(w.B.label):""}return""}
+function workRoomText(p){const w=typeof guideWork==="function"&&guideWork(p);if(!w)return"";const r=w.B.rooms.find(q=>q.ch===w.ch),E=roomClockOf(p),st=w.B.state||"Asaba";if(!r)return"";
+  if(E)return"the "+r.name+" in "+{hosp:"the "+STATES[st].hosp+" ("+st+")",bank:"the "+STATES[st].bank+" ("+st+")",trs:"the National Treasury",imm:"the Immigration Authority"}[E.sc];
+  return guideKind(w.B)?"the "+r.name+" in the "+fpTitle(w.B.label)+(w.B.type==="immstate"?" Immigration Office":""):""}
 // the rooms on this plan where one of my posts clocks in
 function fpMyRooms(P){const out=new Set();if(!P||!GOVME||!GOVME.posts)return out;
-  for(const p of GOVME.posts){const E=roomClockOf(p);if(E){if(E[1]===P.key&&!(E[3]&&!(STATES[p.state||"Asaba"]||{}).capital))for(const c of E[2])out.add(c);continue}
+  for(const p of GOVME.posts){const E=roomClockOf(p);if(E){if(E.sc===P.key)out.add(E.w.ch);continue}
     const w=P.key==="gov"&&typeof guideWork==="function"&&guideWork(p);if(w&&GV&&guideKind(w.B)===GV.kind&&me.town===(w.B.state||"Asaba"))out.add(w.ch)}return out}
 
 /* ---- drawing a plan: rooms, walls, doors, then the names and markers upright on top */
@@ -2652,7 +2647,7 @@ function fpPaint(g,P,toScr,px,opt){const mine=fpMyRooms(P),big=opt&&opt.big;
   const rect=(r,fill)=>{const[a,b]=toScr(r[0],r[1]),[c,d]=toScr(r[2],r[3]),[e,f]=toScr(r[2],r[1]),[h,i]=toScr(r[0],r[3]);g.fillStyle=fill;g.beginPath();g.moveTo(a,b);g.lineTo(e,f);g.lineTo(c,d);g.lineTo(h,i);g.closePath();g.fill()};
   // the outline of the building, then the rooms
   rect([P.foot[0]-.3,P.foot[1]-.3,P.foot[2]+.3,P.foot[3]+.3],FPC.wall);rect(P.foot,FPC.hall);
-  for(const R of P.rooms.slice().reverse())rect(R.r,R.lock?FPC.lock:mine.has(R.ch)?FPC.mine:/Corridor|Lobby|Hall|Staircase|Gallery/.test(R.name)?FPC.hall:FPC.room);
+  for(const R of P.rooms.slice().reverse())rect(R.r,R.lock?FPC.lock:[...mine].some(c=>fpHas(R,c))?FPC.mine:/Corridor|Lobby|Hall|Staircase|Gallery/.test(R.name)?FPC.hall:FPC.room);
   // walls dark; furniture (anything thicker than a wall) light, so it never hides a name
   for(const w of P.walls)rect(w,Math.min(w[2]-w[0],w[3]-w[1])<=.4?FPC.wall:"#d9cfb9");
   // doors: open (green) where you may go, shut (grey) where you may not
@@ -2670,7 +2665,7 @@ function fpPaint(g,P,toScr,px,opt){const mine=fpMyRooms(P),big=opt&&opt.big;
   // markers: my clock-in room, lifts, stairs, the way out
   const badge=(x,z,bg,draw,label)=>{const[px2,py]=toScr(x,z);g.fillStyle=bg;g.beginPath();g.arc(px2,py,big?14:16,0,6.2832);g.fill();g.lineWidth=2.5;g.strokeStyle="#f6f0e2";g.stroke();g.fillStyle="#fff";g.strokeStyle="#fff";g.lineWidth=2;draw(px2,py);
 };
-  for(const R of P.rooms)if(mine.has(R.ch)){const x=(R.r[0]+R.r[2])/2,z=R.r[1]+Math.min(1.4,(R.r[3]-R.r[1])*.25);badge(x,z,FPC.gold,(x,y)=>{g.strokeRect(x-5.5,y-3,11,8);g.strokeRect(x-2.5,y-5.5,5,2.5)},"Clock in here")}
+  for(const R of P.rooms)if([...mine].some(c=>fpHas(R,c))){const x=(R.r[0]+R.r[2])/2,z=R.r[1]+Math.min(1.4,(R.r[3]-R.r[1])*.25);badge(x,z,FPC.gold,(x,y)=>{g.strokeRect(x-5.5,y-3,11,8);g.strokeRect(x-2.5,y-5.5,5,2.5)},"Clock in here")}
   for(const[x,z]of P.lifts)badge(x,z,"#2b5d8a",(x,y)=>{g.beginPath();g.moveTo(x-4,y-1);g.lineTo(x,y-6);g.lineTo(x+4,y-1);g.moveTo(x-4,y+1);g.lineTo(x,y+6);g.lineTo(x+4,y+1);g.stroke()},"Lift");
   for(const[x,z]of P.stairs)badge(x,z,"#2b5d8a",(x,y)=>{g.beginPath();g.moveTo(x-6,y+5);g.lineTo(x-6,y+1);g.lineTo(x-2,y+1);g.lineTo(x-2,y-2);g.lineTo(x+2,y-2);g.lineTo(x+2,y-5);g.lineTo(x+6,y-5);g.stroke()},"Stairs");
   for(const[x,z]of P.exits)badge(x,z,FPC.ok,(x,y)=>{g.beginPath();g.moveTo(x-6,y);g.lineTo(x+4,y);g.moveTo(x,y-4);g.lineTo(x+4,y);g.lineTo(x,y+4);g.stroke();g.fillRect(x+5,y-6,2,12)},"Way out")}
@@ -4190,7 +4185,7 @@ setInterval(async()=>{if(typeof AUTH==="undefined"||!AUTH.char||!AUTH.user)retur
 
 let TV=null;
 const toTrs=()=>fadeTo("National Treasury",()=>{TV=trsOf();stand("trs",{x:0,z:9.4,yaw:0})});
-const DOORWAYS={treasury:()=>{if(!allowed(TRS_ALL)){toast("The National Treasury is open only to its officials: the Bank Governor, the Minister of Finance, the President, the Vice President, the Chief of Staff, and state Governors, SSGs and Banking Directors.");return}toTrs()},hosp:()=>toHosp(0,false),bank:()=>toBank(),imm:()=>STATES[me.town].capital?toImm(true):toast("This state immigration office has no inside yet. Registration is at the Immigration Authority in Asaba."),
+const DOORWAYS={treasury:()=>{if(!allowed(TRS_ALL)){toast("The National Treasury is open only to its officials: the Bank Governor, the Minister of Finance, the President, the Vice President, the Chief of Staff, and state Governors, SSGs and Banking Directors.");return}toTrs()},hosp:()=>toHosp(0,false),bank:()=>toBank(),imm:()=>STATES[me.town].capital?toImm(true):guideEnter("immstate"),       // outside the capital, the state's own immigration office (registration is still in Asaba)
   gov:()=>toGov("state","gov"),air:()=>departures(),
   fed:()=>allowed(ALL_FED)?toGov("federal","fed"):toast(GOV_SPEC.federal().noEntry),villa:()=>allowed(VILLA3)?toGov("villa","villa"):toast(GOV_SPEC.villa().noEntry),
   villa1:()=>allowed(VILLA3)?toGov("villa","villa1"):toast(GOV_SPEC.villa().noEntry),villa2:()=>allowed(VILLA3)?toGov("villa","villa2"):toast(GOV_SPEC.villa().noEntry),
@@ -4218,7 +4213,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     if(moving){gait.wf+=(W[0]/S-gait.wf)*k;gait.wb+=(W[1]/S-gait.wb)*k;gait.wl+=(W[2]/S-gait.wl)*k;gait.wr+=(W[3]/S-gait.wr)*k}
     gait.amt+=((moving?1:0)-gait.amt)*(frozen?1:Math.min(1,dt*(moving?MOVECFG.accel:MOVECFG.decel)));gait.run+=((moving&&runHeld()?1:0)-gait.run)*Math.min(1,dt*5);gait.jump=jump.t>=0?Math.min(.999,jump.t/.9):-1;
     if(PM){const B=WALKER.blend(PM,gait);gait.p+=dt*gait.amt*MOVECFG.speedScale/B.dur;gait.speed=B.speed*MOVECFG.speedScale}}
-  {const sp=moving?(PM?gait.speed:(runHeld()?4.6:2.6))*Math.min(1,amtIn):0,tx=moving?dx0/amtIn*sp:0,tz=moving?dz0/amtIn*sp:0,k=frozen||!onFoot?1:Math.min(1,dt*(moving?MOVECFG.accel:MOVECFG.decel));VEL.x+=(tx-VEL.x)*k;VEL.z+=(tz-VEL.z)*k}
+  {const sp=moving?(PM?gait.speed:(runHeld()?4.6*RUNBOOST:2.6))*Math.min(1,amtIn):0,tx=moving?dx0/amtIn*sp:0,tz=moving?dz0/amtIn*sp:0,k=frozen||!onFoot?1:Math.min(1,dt*(moving?MOVECFG.accel:MOVECFG.decel));VEL.x+=(tx-VEL.x)*k;VEL.z+=(tz-VEL.z)*k}
   const sx=VEL.x*dt,sz=VEL.z*dt;
   if(scene==="town"){
     const C=T.car,hitT=(x,z,r)=>T.blocks.some(w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r);
