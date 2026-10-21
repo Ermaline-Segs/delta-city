@@ -8,7 +8,7 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 | `uaz_452.glb` | UAZ-452 utility van ("bukhanka"), low poly | 2,776 | 227 KB | 256 px body, 128 px wheel, 32 px palette (PNG) |
 | `vw_corrado.glb` | VW Corrado coupé, low poly | 6,524 | 647 KB | 1467 x 360 px (PNG) |
 | `taxi_corolla.glb` | Toyota Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,118 | 2.9 MB | up to 1024 px (JPEG) |
-| `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus in BRT colours, sliding passenger doors, seats and poles | 25,032 | 1.0 MB | none (plain materials) |
+| `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus, red and white with BRT lettering, sliding passenger doors, seats and poles | 24,102 | 1.0 MB | none (plain materials) |
 
 ## Coordinates (what the game sees after loading the `.glb`)
 
@@ -107,11 +107,12 @@ The driver plus three passengers use the driver's seat, the front passenger seat
 - **Source:** "Low Poly Mercedes-Benz Citaro 530" by giosassets, **CC-BY 4.0**, credited in `../CREDITS.md`. The source was exterior only.
 - **Changes:**
   - Scaled to a real 12.0 m Citaro.
-  - Painted BRT blue, with see-through glass.
+  - Painted red and white: a red body and roof, a white band along the windows, "BRT" in white on both sides and in red on the front, and see-through glass.
+  - Wheels rebuilt as clean tyres and rims at the original wheel centres, because the source tyres fall apart when simplified.
   - Passenger doors `door_P1` and `door_P2` cut on the right (kerb) side, plus a driver's door on the left.
   - Wheels and steering wheel separated.
   - A full interior built: floor, inner lining, wheel-arch covers, red fabric seats on pedestals, yellow grab poles at the doors and every second row, ceiling grab rails along the aisle, and a driver's cab with seat, dashboard, partition and steering column.
-  - 25,032 triangles, 1.2 MB, no image textures.
+  - 24,102 triangles, 1.0 MB, no image textures.
 - **Size:** 12.02 m long, 2.57 m wide (including mirrors), 3.37 m high.
 - **Driver:** sits on the **left**, hip point `[-0.75, 1.01, -4.95]`. Passengers board on the right.
 - **Floor:** the passenger floor is at y = 0.36 m. The rear bench sits on a 0.24 m step.
