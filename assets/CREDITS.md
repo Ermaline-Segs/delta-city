@@ -200,3 +200,7 @@ Each folder has an `items.md` that lists every file with its source and licence,
 
   Texture sets used: dark_wood, walnut_veneer, oak_veneer_01, white_oak_veneer, kitchen_wood, wood_table_001, brown_leather, fabric_leather_02, velour_velvet, rough_linen, poly_wool_herringbone, fabric_pattern_07, quatrefoil_jacquard_fabric, floral_jacquard, hessian_230, marble_01, metal_plate_02.
 - **Poly Haven models (CC0):** Sofa 01, Sofa 02, Arm Chair 01, Modern Coffee Table 01, Dining Table, Painted Wooden Chair 01, Electric Stove, Wooden Bookshelf Worn, Steel Frame Shelves 01, Wooden Display Shelves 01, Cash Register 01, Wooden Crate 02 and Plastic Crate 02. Any over 5,000 triangles were reduced to under 5,000.
+
+## Sounds (`sounds/`)
+
+All **CC0**. They were cut, made mono and looped from recordings by Joseph Sardin at [BigSoundBank](https://bigsoundbank.com), plus two from OpenGameArt: "Crash Collision" by qubodup and "Elevator ding" by fvcalderan. Every file and its source is listed in `sounds/sounds.md`.
