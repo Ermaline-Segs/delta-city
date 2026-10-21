@@ -9,6 +9,7 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 | `vw_corrado.glb` | VW Corrado coupé, low poly | 6,524 | 647 KB | 1467 x 360 px (PNG) |
 | `taxi_corolla.glb` | Toyota Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,118 | 2.9 MB | up to 1024 px (JPEG) |
 | `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus, red and white with BRT lettering, sliding passenger doors, seats and poles | 24,102 | 1.0 MB | none (plain materials) |
+| `harmony.glb` | Harmony: family saloon (the taxi's car in private colours) | 19,135 | 2.9 MB | up to 1024 px (JPEG) |
 | `comet.glb` | Comet: budget hatchback | 19,490 | 0.8 MB | up to 1024 px (JPEG) |
 | `savanna.glb` | Savanna: small SUV | 36,523 | 3.4 MB | up to 1024 px (JPEG) |
 | `meridian.glb` | Meridian: family saloon | 39,522 | 3.8 MB | up to 1024 px (JPEG) |
@@ -302,6 +303,39 @@ Previews: `previews/savanna_doors_open.png`, `previews/savanna_closed.png`, `pre
 | rear right | `[0.38, 0.61, 1.14]` |
 
 Previews: `previews/comet_doors_open.png`, `previews/comet_closed.png`, `previews/comet_top_open.png`.
+
+## Harmony (`harmony.glb`)
+
+- **Type:** family saloon (the taxi's car in private colours).
+- **Source:** "2014 Toyota Corolla E180 EU (with interior)" by Armored Wave, **CC-BY 4.0**, credited in `../CREDITS.md`.
+- **Changes:** Renamed; painted dark blue; maker badges removed; four doors cut out and pivoted on their hinges, wheels and steering wheel separated; simplified from 84,000 triangles; textures reduced to 1024 px.
+- **Size:** 4.34 m long, 2.04 m wide (including mirrors), 1.38 m high.
+- **File:** 19,135 triangles, 2.9 MB.
+- **Driver:** sits on the **left**.
+
+| Part | Pivot `[x, y, z]` (m) | Notes |
+|---|---|---|
+| `door_FL` | `[-0.84, 0.77, -0.87]` | hinged on its front edge; 1.06 m long, 1.00 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_FR` | `[0.84, 0.77, -0.87]` | hinged on its front edge; 1.06 m long, 1.00 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `door_RL` | `[-0.85, 0.77, 0.21]` | hinged on its front edge; 0.69 m long, 1.00 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_RR` | `[0.85, 0.77, 0.21]` | hinged on its front edge; 0.69 m long, 1.00 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `wheel_FL` | `[-0.61, 0.31, -1.26]` | radius 0.31 m |
+| `wheel_FR` | `[0.61, 0.31, -1.25]` | radius 0.31 m |
+| `wheel_RL` | `[-0.61, 0.31, 1.29]` | radius 0.31 m |
+| `wheel_RR` | `[0.61, 0.31, 1.29]` | radius 0.31 m |
+| `steering_wheel` | `[-0.36, 0.84, -0.55]` | tilted 14 deg from vertical; spins about its own local Z axis, with positive meaning turning left (same as the taxi) |
+
+**Seats** are given as hip points `[x, y, z]`:
+
+| Seat | Hip point |
+|---|---|
+| driver | `[-0.36, 0.60, 0.12]` |
+| front passenger | `[0.36, 0.60, 0.12]` |
+| rear left | `[-0.36, 0.60, 0.73]` |
+| rear right | `[0.36, 0.60, 0.73]` |
+| rear middle | `[0.00, 0.60, 0.73]` |
+
+Previews: `previews/harmony_doors_open.png`, `previews/harmony_closed.png`, `previews/harmony_top_open.png`.
 
 ## Door check (`previews/`)
 
