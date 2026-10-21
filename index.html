@@ -1924,14 +1924,16 @@ function govRoom(S,r){const P=S.pal,s=r.side,xo=s*(G_SP+G_RD-.14),dT=s<0?-Math.P
   if(r.big){sofa(s*(G_SP+1.2),r.z0-2.2,dT,2);palmPot(xo-s*.7,r.z1+3.8)}}
 function govLights(S){const{SL,end}=govPlan(S),L=[],X1=G_SP+G_RD;for(let x=-8;x<=8;x+=4)for(let z=8;z>=end+1;z-=4){const inLobby=z>0,inRooms=z<0&&z>-SL&&Math.abs(x)<X1,inHead=S.head&&z<-SL;if(inLobby||inRooms||inHead)L.push([x,G_CEIL-.2,z,.22,4])}return L}
 const GOV_CACHE={};
-function govOf(kind,st){const key=kind+":"+st;if(GOV_CACHE[key])return GOV_CACHE[key];const S=GOV_SPEC[kind](st),lights=govLights(S),plan=govPlan(S);
+// a building first built while some of its furniture was still on the way (drawn as plain shapes) is built again, with the real pieces, once they have all come
+const ipropDone=n=>!IPROP_FILES[n]||!!(IPROP[n]&&(IPROP[n].tris||IPROP[n].failed));
+function govOf(kind,st){const key=kind+":"+st,C0=GOV_CACHE[key];if(C0&&!(C0.partial&&C0.partial.every(ipropDone)))return C0;const S=GOV_SPEC[kind](st),lights=govLights(S),plan=govPlan(S);
   const lit=fn=>{const s=captureLit(fn,lights,false,G_CEIL);s.ceil=[G_CEIL,G_CEIL];return s},scene=lit(()=>govInside(S)),walls=WALLS.slice(),gates=[],doors=[];
   const leaf=(x,z,open,side,color)=>{if(open)box(x+side*.12,0,z-.75-.62,.07,2.15,1.24,color);else{box(x,0,z,.08,2.15,1.36,color);box(x-side*.07,1,z+.5,.05,.07,.07,S.pal.trim,K.gold)}};
   for(const r of plan.rooms){const x=r.side*G_SP;gates.push({who:r.who,r:[x-.18,r.zc-.7,x+.18,r.zc+.7],msg:r.plate+": you do not have access to this room."});doors.push({who:r.who,shut:lit(()=>leaf(x,r.zc,false,r.side,S.pal.wood)),open:lit(()=>leaf(x,r.zc,true,r.side,S.pal.wood)),x,z:r.zc,dir:"v",w:1.36,mode:"swing"})}
   if(S.head&&S.head.well)gates.push({who:S.head.well,r:[-.75,-plan.SL-2.85,.75,-plan.SL-2.35],msg:"The well of the court is for the judge, the Attorney-General and the people in the case. Please stay in the public gallery."});
   if(S.head){gates.push({who:S.head.who,r:[-.8,-plan.SL-.18,.8,-plan.SL+.18],msg:S.head.plate+": you do not have access to this chamber."});
     doors.push({who:S.head.who,shut:lit(()=>{box(0,0,-plan.SL,1.56,2.2,.08,S.pal.wood,K.wood);box(.6,1,-plan.SL+.07,.07,.07,.05,S.pal.trim,K.gold)}),open:lit(()=>{box(-1.6,0,-plan.SL-.16,1.5,2.2,.07,S.pal.wood,K.wood)}),x:0,z:-plan.SL,dir:"h",w:1.56,mode:"swing"})}
-  return GOV_CACHE[key]={S,scene,walls,gates,doors,end:plan.end,title:S.title,kind,st,plan}}
+  const need=ipropsFor(S);return GOV_CACHE[key]={S,scene,walls,gates,doors,end:plan.end,title:S.title,kind,st,plan,partial:need.every(ipropDone)?null:need}}
 
 /* ================================ every building from the Discord server ================================
    docs/interiors_from_discord.md is the source of truth: each category is a building, each channel a room, and its
@@ -2774,7 +2776,7 @@ function p2Lobby(S,sign2){const P=S.pal,L=S.lobby,TO_DOOR=face(0,1),wall=(t)=>si
     for(const s of[-1,1]){box(s*7,.42,7.4,3,.08,.45,P.wood,K.wood);box(s*7,.42,7.65,3,.5,.08,P.wood,K.wood);gSolid(s*7,7.4,0,3,.6)}return}
   if(L==="shop"){// the till by the door, shelves in rows, fresh produce in crates, display shelves on the walls
     if(!iprop("scounter",-7,7.4,face(1,0)))box(-7,0,7.4,.64,1,1.84,P.wood,K.wood);gSolid(-7,7.4,Math.PI/2,1.84,.64);iprop("register",-7,7.1,face(1,0),{y:1.2})||box(-7,1.2,7.1,.5,.3,.5,"#111827");chair(-8.1,7.4,Math.PI/2,"#2a2f38");
-    for(const x of[-3.4,0,3.4])for(const z of[2.2,4.6]){if(!iprop("shelf",x,z,face(0,1)))box(x,0,z,1.2,1.6,.5,"#9aa3ad");if(!iprop("shelf",x,z-.52,face(0,-1)))box(x,0,z-.52,1.2,1.6,.5,"#9aa3ad");gSolid(x,z-.26,0,1.25,1.05)}
+    for(const x of[-3.4,0,3.4])for(const z of[2.2,4.6]){if(!iprop("shelf",x,z,face(0,-1)))box(x,0,z,1.2,1.6,.5,"#9aa3ad");if(!iprop("shelf",x,z-.52,face(0,1)))box(x,0,z-.52,1.2,1.6,.5,"#9aa3ad");/* this model's stocked side is its +Z */gSolid(x,z-.26,0,1.25,1.05)}
     for(const z of[1.6,3.4,5.2]){if(!iprop("dshelf",G_LW/2-.4,z,face(-1,0)))box(G_LW/2-.4,0,z,.37,1.56,1.08,P.wood,K.wood);gSolid(G_LW/2-.4,z,0,.4,1.1)}
     for(const x of[7,8.6])for(const z of[7.6,8.8]){iprop("crate",x,z,face(0,1))||box(x,0,z,.53,.46,1.1,"#8a6a48",K.wood);gSolid(x,z,0,.6,1.2)}
     for(const x of[-10.6,-9.3])iprop("steel",x,.5,face(0,1))||box(x,0,.5,1.1,2.1,.5,"#9aa3ad");gSolid(-10,.5,0,2.5,.55);sign2(-7,2.5,G_LD-.14,2.4,.34,"PAY HERE",P.feat,"#ffffff",Math.PI);return}
