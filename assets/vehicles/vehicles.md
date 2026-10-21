@@ -9,6 +9,7 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 | `vw_corrado.glb` | VW Corrado coupé, low poly | 6,524 | 647 KB | 1467 x 360 px (PNG) |
 | `taxi_corolla.glb` | Toyota Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,118 | 2.9 MB | up to 1024 px (JPEG) |
 | `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus, red and white with BRT lettering, sliding passenger doors, seats and poles | 24,102 | 1.0 MB | none (plain materials) |
+| `meridian.glb` | Meridian: family saloon | 39,522 | 3.8 MB | up to 1024 px (JPEG) |
 | `sovereign_gt.glb` | Sovereign GT: premium coupé, the Chief Administrator's car | 24,542 | 2.3 MB | up to 1024 px (JPEG) |
 
 ## Coordinates (what the game sees after loading the `.glb`)
@@ -200,6 +201,39 @@ Board through `door_P1` at the front, ride seated or standing, and get off throu
 | front right | `[0.45, 0.62, 0.29]` |
 
 Previews: `previews/sovereign_gt_doors_open.png`, `previews/sovereign_gt_closed.png`, `previews/sovereign_gt_top_open.png`.
+
+## Meridian (`meridian.glb`)
+
+- **Type:** family saloon.
+- **Source:** "Generic Sedan Car" by Márcio Meireles, **CC-BY 4.0**, credited in `../CREDITS.md`.
+- **Changes:** Renamed; four doors (with their windows and door cards), wheels and steering wheel separated and pivoted; simplified from 113,000 triangles; textures reduced to 1024 px.
+- **Size:** 4.98 m long, 2.15 m wide (including mirrors), 1.51 m high.
+- **File:** 39,522 triangles, 3.8 MB.
+- **Driver:** sits on the **left**.
+
+| Part | Pivot `[x, y, z]` (m) | Notes |
+|---|---|---|
+| `door_FL` | `[-0.84, 0.84, -1.21]` | hinged on its front edge; 1.42 m long, 1.15 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_FR` | `[0.84, 0.84, -1.21]` | hinged on its front edge; 1.42 m long, 1.15 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `door_RL` | `[-0.94, 0.84, 0.07]` | hinged on its front edge; 1.22 m long, 1.15 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_RR` | `[0.94, 0.84, 0.07]` | hinged on its front edge; 1.22 m long, 1.15 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `wheel_FL` | `[-0.82, 0.34, -1.58]` | radius 0.34 m |
+| `wheel_FR` | `[0.82, 0.34, -1.58]` | radius 0.34 m |
+| `wheel_RL` | `[-0.82, 0.34, 1.34]` | radius 0.34 m |
+| `wheel_RR` | `[0.82, 0.34, 1.34]` | radius 0.34 m |
+| `steering_wheel` | `[-0.38, 0.95, -0.58]` | tilted 18 deg from vertical; spins about its own local Z axis, with positive meaning turning left (same as the taxi) |
+
+**Seats** are given as hip points `[x, y, z]`:
+
+| Seat | Hip point |
+|---|---|
+| driver | `[-0.41, 0.57, -0.30]` |
+| front right | `[0.40, 0.57, -0.30]` |
+| rear left | `[-0.38, 0.62, 0.69]` |
+| rear middle | `[0.00, 0.62, 0.69]` |
+| rear right | `[0.38, 0.62, 0.69]` |
+
+Previews: `previews/meridian_doors_open.png`, `previews/meridian_closed.png`, `previews/meridian_top_open.png`.
 
 ## Door check (`previews/`)
 
