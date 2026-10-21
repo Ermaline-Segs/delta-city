@@ -9,6 +9,7 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 | `vw_corrado.glb` | VW Corrado coupé, low poly | 6,524 | 647 KB | 1467 x 360 px (PNG) |
 | `taxi_corolla.glb` | Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,159 | 2.9 MB | up to 1024 px (JPEG) |
 | `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus, red and white with BRT lettering, sliding passenger doors, seats and poles | 24,102 | 1.0 MB | none (plain materials) |
+| `vela_v12.glb` | Vela V12: fictional sports car | 30,890 | 3.2 MB | up to 1024 px (JPEG) |
 | `kite.glb` | Kite: budget city car (kei car) | 27,164 | 1.3 MB | up to 1024 px (JPEG) |
 | `harmony.glb` | Harmony: family saloon (the taxi's car in private colours) | 19,135 | 2.9 MB | up to 1024 px (JPEG) |
 | `comet.glb` | Comet: budget hatchback | 19,490 | 0.8 MB | up to 1024 px (JPEG) |
@@ -371,6 +372,34 @@ Previews: `previews/harmony_doors_open.png`, `previews/harmony_closed.png`, `pre
 | rear right | `[0.38, 0.76, 0.85]` |
 
 Previews: `previews/kite_doors_open.png`, `previews/kite_closed.png`, `previews/kite_top_open.png`.
+
+## Vela V12 (`vela_v12.glb`)
+
+- **Type:** fictional sports car.
+- **Source:** "Saba V12 '95 - Low poly model" by Daniel Zhabotinsky, **CC-BY 4.0**, credited in `../CREDITS.md`.
+- **Changes:** Renamed; badges and number plates removed; both doors cut out of the shell (with their windows and the matching part of the interior) and pivoted on their hinges; wheels and steering wheel separated.
+- **Size:** 4.51 m long, 2.22 m wide (including mirrors), 1.32 m high.
+- **File:** 30,890 triangles, 3.2 MB.
+- **Driver:** sits on the **left**.
+
+| Part | Pivot `[x, y, z]` (m) | Notes |
+|---|---|---|
+| `door_FL` | `[-0.92, 0.75, -0.90]` | hinged on its front edge; 1.46 m long, 1.01 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_FR` | `[0.92, 0.75, -0.90]` | hinged on its front edge; 1.46 m long, 1.01 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `wheel_FL` | `[-0.77, 0.33, -1.28]` | radius 0.33 m |
+| `wheel_FR` | `[0.77, 0.33, -1.28]` | radius 0.33 m |
+| `wheel_RL` | `[-0.80, 0.37, 1.47]` | radius 0.37 m |
+| `wheel_RR` | `[0.80, 0.37, 1.47]` | radius 0.37 m |
+| `steering_wheel` | `[-0.37, 0.78, -0.66]` | tilted 20 deg from vertical; spins about its own local Z axis, with positive meaning turning left (same as the taxi) |
+
+**Seats** are given as hip points `[x, y, z]`:
+
+| Seat | Hip point |
+|---|---|
+| driver | `[-0.36, 0.60, 0.15]` |
+| front right | `[0.36, 0.60, 0.15]` |
+
+Previews: `previews/vela_v12_doors_open.png`, `previews/vela_v12_closed.png`, `previews/vela_v12_top_open.png`.
 
 ## Door check (`previews/`)
 
