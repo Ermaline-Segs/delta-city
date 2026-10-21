@@ -9,6 +9,7 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 | `vw_corrado.glb` | VW Corrado coupé, low poly | 6,524 | 647 KB | 1467 x 360 px (PNG) |
 | `taxi_corolla.glb` | Toyota Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,118 | 2.9 MB | up to 1024 px (JPEG) |
 | `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus, red and white with BRT lettering, sliding passenger doors, seats and poles | 24,102 | 1.0 MB | none (plain materials) |
+| `sovereign_gt.glb` | Sovereign GT: premium coupé, the Chief Administrator's car | 24,542 | 2.3 MB | up to 1024 px (JPEG) |
 
 ## Coordinates (what the game sees after loading the `.glb`)
 
@@ -171,6 +172,34 @@ The driver plus three passengers use the driver's seat, the front passenger seat
 | middle area opposite door_P2 (wheelchair / buggy bay) | x -1.14 to 1.14 | z 0.30 to 1.90 | 3.6 m^2 |
 
 Board through `door_P1` at the front, ride seated or standing, and get off through `door_P2` in the middle.
+
+## Sovereign GT (`sovereign_gt.glb`)
+
+- **Type:** premium coupé, the Chief Administrator's car.
+- **Source:** "Generic Sport Coupé Car" by Márcio Meireles, **CC-BY 4.0**, credited in `../CREDITS.md`.
+- **Changes:** Renamed; doors (with their windows and door cards), wheels and steering wheel separated and pivoted; simplified from 114,000 triangles; textures reduced to 1024 px.
+- **Size:** 4.73 m long, 2.28 m wide (including mirrors), 1.38 m high.
+- **File:** 24,542 triangles, 2.3 MB.
+- **Driver:** sits on the **left**.
+
+| Part | Pivot `[x, y, z]` (m) | Notes |
+|---|---|---|
+| `door_FL` | `[-0.98, 0.78, -0.52]` | hinged on its front edge; 1.48 m long, 0.98 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_FR` | `[0.98, 0.78, -0.52]` | hinged on its front edge; 1.48 m long, 0.98 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `wheel_FL` | `[-0.84, 0.38, -1.43]` | radius 0.38 m |
+| `wheel_FR` | `[0.84, 0.38, -1.43]` | radius 0.38 m |
+| `wheel_RL` | `[-0.84, 0.38, 1.51]` | radius 0.38 m |
+| `wheel_RR` | `[0.84, 0.38, 1.51]` | radius 0.38 m |
+| `steering_wheel` | `[-0.44, 0.83, -0.00]` | tilted 21 deg from vertical; spins about its own local Z axis, with positive meaning turning left (same as the taxi) |
+
+**Seats** are given as hip points `[x, y, z]`:
+
+| Seat | Hip point |
+|---|---|
+| driver | `[-0.44, 0.62, 0.29]` |
+| front right | `[0.45, 0.62, 0.29]` |
+
+Previews: `previews/sovereign_gt_doors_open.png`, `previews/sovereign_gt_closed.png`, `previews/sovereign_gt_top_open.png`.
 
 ## Door check (`previews/`)
 
