@@ -9,6 +9,7 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 | `vw_corrado.glb` | VW Corrado coupé, low poly | 6,524 | 647 KB | 1467 x 360 px (PNG) |
 | `taxi_corolla.glb` | Toyota Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,118 | 2.9 MB | up to 1024 px (JPEG) |
 | `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus, red and white with BRT lettering, sliding passenger doors, seats and poles | 24,102 | 1.0 MB | none (plain materials) |
+| `comet.glb` | Comet: budget hatchback | 19,490 | 0.8 MB | up to 1024 px (JPEG) |
 | `savanna.glb` | Savanna: small SUV | 36,523 | 3.4 MB | up to 1024 px (JPEG) |
 | `meridian.glb` | Meridian: family saloon | 39,522 | 3.8 MB | up to 1024 px (JPEG) |
 | `sovereign_gt.glb` | Sovereign GT: premium coupé, the Chief Administrator's car | 24,542 | 2.3 MB | up to 1024 px (JPEG) |
@@ -268,6 +269,39 @@ Previews: `previews/meridian_doors_open.png`, `previews/meridian_closed.png`, `p
 | front right | `[0.37, 0.67, 0.04]` |
 
 Previews: `previews/savanna_doors_open.png`, `previews/savanna_closed.png`, `previews/savanna_top_open.png`.
+
+## Comet (`comet.glb`)
+
+- **Type:** budget hatchback.
+- **Source:** "Skoda Felicia w/ Basic Interior (1998 Facelift)" by SimonStrikesBack, **CC-BY 4.0**, credited in `../CREDITS.md`.
+- **Changes:** Renamed; maker logos and number-plate holders removed; scaled from 1/5 size to a real 3.86 m; the two-sided door parts split into four doors, pivoted with wheels and steering wheel.
+- **Size:** 3.88 m long, 1.70 m wide (including mirrors), 1.42 m high.
+- **File:** 19,490 triangles, 0.8 MB.
+- **Driver:** sits on the **left**.
+
+| Part | Pivot `[x, y, z]` (m) | Notes |
+|---|---|---|
+| `door_FL` | `[-0.77, 0.84, -0.67]` | hinged on its front edge; 1.11 m long, 1.02 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_FR` | `[0.77, 0.84, -0.67]` | hinged on its front edge; 1.11 m long, 1.02 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `door_RL` | `[-0.77, 0.84, 0.31]` | hinged on its front edge; 1.02 m long, 1.02 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_RR` | `[0.77, 0.84, 0.31]` | hinged on its front edge; 1.02 m long, 1.02 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `wheel_FL` | `[-0.68, 0.30, -1.09]` | radius 0.30 m |
+| `wheel_FR` | `[0.68, 0.30, -1.09]` | radius 0.30 m |
+| `wheel_RL` | `[-0.68, 0.30, 1.34]` | radius 0.30 m |
+| `wheel_RR` | `[0.68, 0.30, 1.34]` | radius 0.30 m |
+| `steering_wheel` | `[-0.34, 0.81, -0.42]` | tilted 29 deg from vertical; spins about its own local Z axis, with positive meaning turning left (same as the taxi) |
+
+**Seats** are given as hip points `[x, y, z]`:
+
+| Seat | Hip point |
+|---|---|
+| driver | `[-0.37, 0.34, 0.06]` |
+| front right | `[0.37, 0.34, 0.06]` |
+| rear left | `[-0.38, 0.61, 1.14]` |
+| rear middle | `[0.00, 0.61, 1.14]` |
+| rear right | `[0.38, 0.61, 1.14]` |
+
+Previews: `previews/comet_doors_open.png`, `previews/comet_closed.png`, `previews/comet_top_open.png`.
 
 ## Door check (`previews/`)
 
