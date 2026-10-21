@@ -248,12 +248,12 @@ body.towing .guide,body.towing .tip,body.towing .stick,body.towing .tbtn,body.to
 /* ---- the left column. Wide screens: the map, where you are, how you move, then the quest and you.
    Phones held upright: you, the quest, then the map. Phones on their side: the map beside the quest and you. */
 #hudCol{position:fixed;left:calc(14px + var(--sl));top:calc(14px + var(--st));width:var(--colw);display:grid;grid-template-columns:100%;gap:8px;z-index:2;align-items:start}
-#hudMap{display:grid;gap:6px;justify-items:start;min-width:0}
+#hudCol{pointer-events:none}#hudCol>*,#hudMap>*{pointer-events:auto}#hudMap{display:grid;gap:6px;justify-items:start;min-width:0;pointer-events:none}#hudMap .mbox{pointer-events:none}#hudMap .mbox>*{pointer-events:auto}
 #hudMap .mbox{position:relative;width:var(--map);height:var(--map)}
 #hudMap.nomap .mbox{height:0}body.mapfold #hudMap .mbox{height:32px}
 #miniFold{position:absolute;right:-8px;bottom:-8px;width:30px;height:30px;padding:0;border-radius:50%;display:grid;place-items:center;z-index:3;background:var(--h-dk);border:1px solid var(--h-dline);color:var(--h-on)}
 body.mapfold #miniFold{right:auto;left:0;bottom:auto;top:0}#hudMap.nomap:not(.fold) #miniFold{display:none}
-body:not(.driving) .mini{left:calc(var(--mapx));top:calc(var(--mapy));width:var(--map);height:var(--map);border-radius:22px;border:3px solid #f6f0e2;box-shadow:0 8px 22px rgba(25,32,22,.3)}
+body:not(.driving) .mini{left:calc(var(--mapx));top:calc(var(--mapy));width:var(--map);height:var(--map);border-radius:50%;border:3px solid #f6f0e2;box-shadow:0 8px 22px rgba(25,32,22,.3)}
 body.mapfold .mini{display:none!important}
 #hudLoc,#hudMove{display:flex;align-items:center;gap:9px;max-width:100%;border-radius:999px}
 #hudLoc{padding:4px 12px 4px 8px}#hudLoc svg{color:#7bd389}
@@ -287,7 +287,7 @@ body.mapfold .mini{display:none!important}
 #hudMap .clockpill{position:absolute;left:calc(100% + 10px);top:2px;right:auto;transform:none;white-space:nowrap;font-size:13px;padding:5px 11px;z-index:3}
 #hudMap .clockpill .wx{width:20px;height:20px}#hudMap .clockpill .cw{font-size:11px;color:var(--h-onm)}
 body.mapfold #hudMap .clockpill{left:40px}
-#hudNotes{position:fixed;right:calc(14px + var(--sr));top:calc(64px + var(--st));width:min(290px,36vw);display:flex;flex-direction:column;gap:7px;z-index:6;pointer-events:none}
+#hudNotes{position:fixed;right:calc(14px + var(--sr));top:calc(64px + var(--st));width:min(290px,36vw);display:flex;flex-direction:column;gap:7px;z-index:5;pointer-events:none}
 .hnote{display:flex;align-items:center;gap:9px;padding:6px 10px 6px 6px;font-size:12px;line-height:1.3;animation:hnin .25s ease-out;transition:opacity .35s,transform .35s;pointer-events:auto}
 .hnote b{display:block;font-size:12px;font-weight:800;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.hnote .nt{flex:1;min-width:0}.hnote .nd{display:block;color:var(--h-ok);font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hnote small{display:block;color:var(--h-mut);font-size:11px;margin-top:1px}
@@ -347,7 +347,7 @@ body.stats .hud b{font-size:14px}
   #hudCol #pcard{order:-2}#hudObj{order:-1}
   #hudNotes,.touch .tip{width:auto;max-width:none;left:auto;right:calc(12px + var(--sr));width:calc(100vw - var(--colw) - 40px - var(--sl) - var(--sr))}
   #hudNotes{top:calc(62px + var(--st))}
-  #hudMap .clockpill{left:5px;top:auto;bottom:5px;padding:2px 7px;font-size:11px;border-radius:8px;grid-template-columns:auto}#hudMap .clockpill .wx,#hudMap .clockpill .cw{display:none}.hnote{padding:7px 9px 7px 7px;gap:8px}.hnote .ni{width:28px;height:28px}.hnote b{font-size:12px}
+  #hudMap .clockpill{left:calc(100% + 6px);top:auto;bottom:2px;padding:3px 8px;font-size:11px;border-radius:9px;grid-template-columns:auto}#hudMap .clockpill .wx,#hudMap .clockpill .cw{display:none}.hnote{padding:7px 9px 7px 7px;gap:8px}.hnote .ni{width:28px;height:28px}.hnote b{font-size:12px}
   .touch .stick{bottom:calc(84px + var(--sb));left:calc(16px + var(--sl));width:116px;height:116px}
   .touch .trun{left:calc(142px + var(--sl));bottom:calc(88px + var(--sb));width:56px;height:56px}
   .touch .tjump{right:calc(16px + var(--sr));bottom:calc(86px + var(--sb));width:62px;height:62px}
@@ -358,10 +358,15 @@ body.stats .hud b{font-size:14px}
   #picks.sheet,#hudSheet{bottom:calc(76px + var(--sb))}.touch #picks.sheet,.touch #hudSheet{bottom:calc(76px + var(--sb))}
   body.sheet #hudCol,body.sheet .mini{visibility:hidden}}
 /* a phone on its side: the map in the first column, the quest and you beside it */
-@media (max-height:500px){#hudCol{grid-template-columns:150px var(--colw);width:auto}#hudMap{grid-row:1/span 2}#hudObj{grid-column:2}#pcard{grid-column:2}
+@media (max-height:500px){#hudMap .clockpill{left:50%;top:auto;bottom:-4px;transform:translateX(-50%);padding:2px 8px;font-size:11px;border-radius:9px;grid-template-columns:auto}#hudMap .clockpill .wx,#hudMap .clockpill .cw{display:none}
+  #hudCol{grid-template-columns:150px var(--colw);width:auto}#hudMap{grid-row:1/span 2}#hudObj{grid-column:2}#pcard{grid-column:2}
   :root{--colw:min(230px,30vw)}#hudNotes{width:min(300px,36vw);top:calc(62px + var(--st))}
   #picks.sheet,#hudSheet{max-height:calc(100vh - 110px);overflow:auto}#pcard .hb{max-height:max(70px,calc(100vh - 300px));overflow:auto}
   .touch .tip{bottom:calc(118px + var(--sb));max-width:min(320px,36vw)}.touch .act{right:calc(108px + var(--sr));bottom:calc(40px + var(--sb))}}
+/* the large floor plan */
+#planmap .mapcard{background:#fbf7ee}#planmap .maphead{background:#1f3a2c}.planbody{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;padding:4px}#planC{position:static;inset:auto;display:block;touch-action:auto}
+.planleg{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;padding:6px 8px;font-size:12px;color:#1c2a22}.planleg span{display:flex;align-items:center;gap:6px}.planleg i{width:14px;height:14px;border-radius:4px;border:1px solid rgba(0,0,0,.15)}
+@media (max-width:760px){#hudLoc .br{display:block;overflow:hidden;text-overflow:ellipsis;font-weight:600;color:#cfe9d6}#hudLoc .br i{display:none}#planmap .maphead .brand{display:none}#planmap .maphead b{font-size:14px;line-height:1.2}}
 /* while driving, towing or reading a panel the extras step aside (the driving screen has its own) */
 body.driving #hudCol,body.driving #hudBell,
 body.towing #hudCol,body.towing #nav,body.towing #picks.sheet,body.towing #hudSheet{display:none!important}
@@ -2570,6 +2575,123 @@ const allowed=who=>!who||me.role==="admin"||who.includes(me.role)||(me.roles||[]
 const toBorder=fresh=>fadeTo("The border gate",()=>{if(fresh){me.role="newcomer";me.cert=null;me.entered=false;form.name=form.dob=form.gender=form.state="";closeTalk();stand("border",{x:0,z:50,yaw:0});chooser()}else stand("border",{x:0,z:14.4,yaw:Math.PI})});
 const toImm=fromCity=>fadeTo("Delta City Immigration Authority",()=>stand("imm",fromCity?{x:-13.4,z:4.2,yaw:-Math.PI/2}:{x:0,z:9.6,yaw:0}));
 const toBank=()=>fadeTo(STATES[me.town].bank+": banking hall",()=>{bankOf(me.town);stand("bank",{x:0,z:8.4,yaw:0})});
+/* ================= floor plans: the rooms of the building you are in =================
+   One plan per building (and floor), made from its real rooms, walls and doors. It decides which room you are in (for
+   clocking in at your own room) and is drawn on the round map while you are inside. Rooms are [x0,z0,x1,z1]. */
+// the hospital's rooms, floor by floor, in the order of each floor's rooms: [name, room, who may enter (HWHO)]
+const HROOMS={0:[["Pharmacy","pharmacy","pharmacy"],["Hospital Lobby","lobby"],["Emergency & Nurses Station","nurses"],["Health Records","records","records"],["Laboratory","lab","lab"],["Lift Lobby"],
+    ["Consultation 1","consult","consult"],["Consultation 2","consult","consult"],["Consultation 3","consult","consult"],["X-ray","xray","xray"]],
+  1:[["Operating Theatre","theatre","theatre"],["Medical Staff Office","staff","staff"],["Lift Lobby"],["Corridor"],["Dental Room","dental","dental"],["Medical Director's Office","director","director"]],
+  3:[["Male Ward","ward","ward"],["Lift Lobby"],["Nurses' Desk","nurses"]],4:[["Female Ward","ward","ward"],["Lift Lobby"],["Nurses' Desk","nurses"]],
+  5:[["Private Room 1","ward","ward"],["Private Room 2","ward","ward"],["Private Room 3","ward","ward"],["Private Room 4","ward","ward"],["Private Ward","ward","ward"],["Lift Lobby"],["Nurses' Desk","nurses"]],
+  6:[["Delivery","ward","ward"],["Maternity Ward","ward","ward"],["Lift Lobby"],["Nurses' Desk","nurses"]]};
+const TROOMS=[["Entrance Hall"],["Banks Escalations","banks-escalations",TRS_ESC],["Reserve Office","reserve-office",TRS_RES],["Delta Central Bank","delta-central-bank",TRS_CB]];
+// the bank: the ground floor and the gallery upstairs; the special rooms come first (a room inside a bigger one)
+const BROOMS=[[0,[15,5,17,10],"ATM Services","atm","atm"],[0,[14.3,-2.4,17,4.4],"Staircase","","stairs"],[0,[-17,-10,-12,-7],"Auditing Room","auditing-room","audit"],
+  [0,[-17,-10,5.3,-2.6],"Tellers & Vault","deposit","tellers"],[0,[5.3,-10,17,-2.6],"Customer Service & Accounts","accounts"],[0,[-17,-2.6,17,10],"Banking Hall","service-hall"],
+  [1,[-17,-10,-6,-5.4],"Director's Office","bank-directors-office","director"],[1,[-6,-10,5,-5.4],"Manager's Office","managers-office","stairs"],[1,[5,-10,17,-5.4],"Boardroom","","stairs"],
+  [1,[14.3,-5.4,17,4.4],"Staircase","","stairs"],[1,[-17,-5.4,14.3,-2.2],"Gallery","","stairs"]];
+// the Immigration Authority
+const IROOMS=[[[-15,-11,-8.2,-4],"Inspection","inspection","staff"],[[-8.2,-11,-3.3,-4],"Holding","","staff"],[[-3.3,-11,3.5,-4],"Records","records","staff"],
+  [[3.5,-11,9,-4],"Deputy Comptroller-General","deputy","deputy"],[[9,-11,15,-4],"Comptroller-General","cg","cg"],[[15,-11,19,-4],"Travel Services","travel","travel"],
+  [[19,-11,23,-4],"Entry and Exit","entryexit","entryexit"],[[23,-11,27,-4],"State Comptroller's Office","sc","sc"],[[-15,-4,27,-2],"Staff Corridor","","staff"],
+  [[10.5,7,15,10],"Passport Delivery","passport","passport"],[[11,-2,15,7],"Immigration Office","permits","staff"],[[-3.6,-2,3.6,.6],"Registration Desk","registration"],[[-15,-2,11,10],"Registration Hall","hall"]];
+const fpTitle=t=>String(t||"").split(/\s+/).map(w=>/^[A-Z]{2,4}$/.test(w)&&!/^(THE|AND|OF|FOR|ROOM|HALL|DESK|WELL)$/.test(w)?w:/^(OF|AND|THE|FOR|TO)$/.test(w)?w.toLowerCase():w.charAt(0)+w.slice(1).toLowerCase()).join(" ").replace(/^./,c=>c.toUpperCase());
+// the plan of where I am, or null outside
+function fpPlan(){
+  if(scene==="hosp"&&HV){const F=HV.F,N=HROOMS[F.n]||[];return{key:"hosp",title:STATES[me.town].hosp,floor:F.n===0?"G":String(F.n),floorName:F.name,foot:F.foot,walls:HV.walls,
+    gates:HV.gates.map(g=>({r:g.r,ok:allowed(g.who)})),rooms:F.rooms.map((r,i)=>{const d=N[i]||[];return{r,name:d[0]||"",ch:d[1]||"",lock:!!d[2]&&!allowed(HWHO[d[2]])}}),
+    lifts:[[F.lift.x,F.lift.z]],stairs:[],exits:F.exits.map(e=>[e.x,e.z])}}
+  if(scene==="trs"&&TV)return{key:"trs",title:"National Treasury",floor:null,floorName:"",foot:TRS.foot,walls:TV.walls,gates:TV.gates.map(g=>({r:g.r,ok:allowed(g.who)})),
+    rooms:TRS.rooms.map((r,i)=>{const d=TROOMS[i];return{r,name:d[0],ch:d[1]||"",lock:!!d[2]&&!allowed(d[2])}}),lifts:[],stairs:[],exits:[[0,11]]};
+  if(scene==="bank"){const lv=me.y>1.6?1:0;return{key:"bank",title:STATES[me.town].bank,floor:lv?"1":"G",floorName:lv?"Gallery (upstairs)":"Ground floor",foot:lv?[-17,-10,17,-2.2]:[-17,-10,17,10],lv,
+    walls:BANK_WALLS.filter(w=>w[4]===undefined||w[4]===lv),gates:BANK_GATES.filter(g=>g.level===lv).map(g=>({r:g.r,ok:bankCan(g.key)})),
+    rooms:BROOMS.filter(b=>b[0]===lv).map(b=>({r:b[1],name:b[2],ch:b[3],lock:!!b[4]&&!bankCan(b[4])})),lifts:[],stairs:[[15.6,lv?-3.6:1]],exits:lv?[]:[[0,10]]}}
+  if(scene==="imm")return{key:"imm",title:"Immigration Authority",floor:null,floorName:"",foot:[-15,-11,27,10],walls:IMM_WALLS.filter(w=>w[4]!==-1),
+    gates:IMM_GATES.map(g=>({r:g.r,ok:immCan(g.key)})),rooms:IROOMS.map(d=>({r:d[0],name:d[1],ch:d[2],lock:!!d[3]&&!immCan(d[3])})),lifts:[],stairs:[],exits:[[0,10],[-15,4.2]]};
+  if(scene==="gov"&&GV&&GV.plan){const{rooms,SL}=GV.plan,R=[],X1=G_SP+G_RD;
+    for(const r of rooms)R.push({r:r.side>0?[G_SP,r.z1,X1,r.z0]:[-X1,r.z1,-G_SP,r.z0],name:fpTitle(r.plate||r.name),ch:r.ch||"",lock:!!r.who&&!allowed(r.who)});
+    const H=GV.S.head;if(H)R.push({r:[-G_CW/2,GV.end,G_CW/2,-SL],name:fpTitle(H.plate||H.name),ch:H.ch||"",lock:!!H.who&&!allowed(H.who)});
+    R.push({r:[-G_SP,-SL,G_SP,0],name:"Corridor",ch:""},{r:[-G_LW/2,0,G_LW/2,G_LD],name:"Lobby",ch:""});
+    return{key:"gov",title:fpTitle(GV.title||""),floor:null,floorName:"",foot:[-Math.max(G_LW/2,X1),GV.end,Math.max(G_LW/2,X1),G_LD],walls:GV.walls,gates:GV.gates.map(g=>({r:g.r,ok:allowed(g.who)})),
+      rooms:R,lifts:[],stairs:[],exits:[[0,G_LD]]}}
+  return null}
+const fpIn=(R,x,z)=>x>=R.r[0]&&x<=R.r[2]&&z>=R.r[1]&&z<=R.r[3];
+function fpRoomAt(P,x,z){if(!P)return null;if(x===undefined){x=me.x;z=me.z}for(const R of P.rooms)if(fpIn(R,x,z))return R;return null}
+
+/* ---- clocking in at your own room in the hospital, the banks, the Treasury and the Immigration Authority:
+   [post, building, the rooms that count, only where the state has the building inside (the capital)] */
+const ROOMCLOCK=[["Doctor","hosp",["consult"]],["Surgeon","hosp",["theatre"]],["Dentist","hosp",["dental"]],["Nurse","hosp",["nurses"]],["Pharmacist","hosp",["pharmacy"]],
+  ["Laboratory Scientist","hosp",["lab"]],["Patient Services Staff","hosp",["lobby"]],["Medical Director","hosp",["director"]],
+  ["Bank Manager","bank",["managers-office"]],["Customer Service Officer","bank",["accounts"]],["Account Officer","bank",["accounts"]],["Audit Officer","bank",["auditing-room"]],["State Banking Director","bank",["bank-directors-office"]],
+  ["Bank Governor","trs",["delta-central-bank"]],
+  ["Comptroller-General","imm",["cg"]],["Deputy Comptroller-General","imm",["deputy"]],["Citizenship Registrar","imm",["registration"]],
+  ["State Comptroller","imm",["sc"],true],["Immigration Services Agent","imm",["permits"],true],["Border Protection Officer","imm",["inspection"],true]];
+const RC_ROOM={consult:"a Consultation room",theatre:"the Operating Theatre",dental:"the Dental Room",nurses:"the Nurses Station",pharmacy:"the Pharmacy",lab:"the Laboratory",lobby:"the Hospital Lobby",
+  director:"the Medical Director's Office","managers-office":"the Manager's Office",accounts:"Customer Service & Accounts","auditing-room":"the Auditing Room","bank-directors-office":"the Director's Office",
+  "delta-central-bank":"Delta Central Bank",cg:"the Comptroller-General's office",deputy:"the Deputy Comptroller-General's office",registration:"the Registration Desk",sc:"the State Comptroller's Office",
+  permits:"the Immigration Office (Permits & Passes)",inspection:"Inspection"};
+const roomClockOf=p=>p&&ROOMCLOCK.find(e=>postIs(p.title,e[0])&&gnorm(p.title)===gnorm(e[0]))||null;
+// null: the post is not one of these (its old rule stays); otherwise whether I am at work
+function roomClockAtWork(p,staying){const E=roomClockOf(p);if(!E)return null;const[,sc,chs,cap]=E,st=p.state||"Asaba";
+  if(cap&&!(STATES[st]&&STATES[st].capital))return null;                         // a state immigration office with no inside yet keeps its old rule
+  if(scene!==sc||(sc!=="trs"&&sc!=="imm"&&me.town!==st))return false;if(staying)return true;
+  const R=fpRoomAt(fpPlan());return!!R&&chs.includes(R.ch)}
+// where a post clocks in, in words (for My work and the quest card), or ""
+function workRoomText(p){const E=roomClockOf(p),st=p.state||"Asaba";
+  if(E&&!(E[3]&&!(STATES[st]&&STATES[st].capital))){const b={hosp:STATES[st].hosp,bank:STATES[st].bank,trs:"the National Treasury",imm:"the Immigration Authority"}[E[1]];return RC_ROOM[E[2][0]]+" in "+(E[1]==="hosp"||E[1]==="bank"?"the "+b+" ("+st+")":b)}
+  const w=typeof guideWork==="function"&&guideWork(p);if(w&&guideKind(w.B)){const r=w.B.rooms.find(q=>q.ch===w.ch);return r?"the "+r.name+" in the "+fpTitle(w.B.label):""}return""}
+// the rooms on this plan where one of my posts clocks in
+function fpMyRooms(P){const out=new Set();if(!P||!GOVME||!GOVME.posts)return out;
+  for(const p of GOVME.posts){const E=roomClockOf(p);if(E){if(E[1]===P.key&&!(E[3]&&!(STATES[p.state||"Asaba"]||{}).capital))for(const c of E[2])out.add(c);continue}
+    const w=P.key==="gov"&&typeof guideWork==="function"&&guideWork(p);if(w&&GV&&guideKind(w.B)===GV.kind&&me.town===(w.B.state||"Asaba"))out.add(w.ch)}return out}
+
+/* ---- drawing a plan: rooms, walls, doors, then the names and markers upright on top */
+const FPC={room:"#fbf7ee",hall:"#f1eadb",lock:"#d4d2cc",mine:"#d9eedd",wall:"#26382e",ink:"#1c2a22",mut:"#6b7468",ok:"#2f8f4e",gold:"#b8860b"};
+function fpPaint(g,P,toScr,px,opt){const mine=fpMyRooms(P),big=opt&&opt.big;
+  const rect=(r,fill)=>{const[a,b]=toScr(r[0],r[1]),[c,d]=toScr(r[2],r[3]),[e,f]=toScr(r[2],r[1]),[h,i]=toScr(r[0],r[3]);g.fillStyle=fill;g.beginPath();g.moveTo(a,b);g.lineTo(e,f);g.lineTo(c,d);g.lineTo(h,i);g.closePath();g.fill()};
+  // the outline of the building, then the rooms
+  rect([P.foot[0]-.3,P.foot[1]-.3,P.foot[2]+.3,P.foot[3]+.3],FPC.wall);rect(P.foot,FPC.hall);
+  for(const R of P.rooms.slice().reverse())rect(R.r,R.lock?FPC.lock:mine.has(R.ch)?FPC.mine:/Corridor|Lobby|Hall|Staircase|Gallery/.test(R.name)?FPC.hall:FPC.room);
+  // walls dark; furniture (anything thicker than a wall) light, so it never hides a name
+  for(const w of P.walls)rect(w,Math.min(w[2]-w[0],w[3]-w[1])<=.4?FPC.wall:"#d9cfb9");
+  // doors: open (green) where you may go, shut (grey) where you may not
+  for(const G of P.gates){const r=G.r,cx=(r[0]+r[2])/2,cz=(r[1]+r[3])/2,wide=r[2]-r[0]>r[3]-r[1],L=Math.max(r[2]-r[0],r[3]-r[1]);
+    rect(wide?[r[0],cz-.22,r[2],cz+.22]:[cx-.22,r[1],cx+.22,r[3]],G.ok?FPC.room:"#9aa0a6");if(G.ok)rect(wide?[r[0],cz-.06,r[2],cz+.06]:[cx-.06,r[1],cx+.06,r[3]],FPC.ok)}
+  // names, small and upright, inside their rooms
+  const sc=px;g.textAlign="center";g.textBaseline="middle";
+  for(const R of P.rooms){if(!R.name||/Corridor|Staircase/.test(R.name)&&!big)continue;const[x,y]=toScr((R.r[0]+R.r[2])/2,(R.r[1]+R.r[3])/2),w=Math.min(R.r[2]-R.r[0],R.r[3]-R.r[1])*sc,W=Math.max(R.r[2]-R.r[0],R.r[3]-R.r[1])*sc;
+    const RW=(R.r[2]-R.r[0])*sc,fmin=big?9:17;let f=big?15:24,lines=[R.name];const fits=()=>{g.font=`700 ${f}px Inter,Segoe UI,system-ui,sans-serif`;return lines.every(l=>g.measureText(l).width<=RW*.9)};
+    if(!fits()&&R.name.includes(" ")){const ws=R.name.split(" ");let best=null;for(let i=1;i<ws.length;i++){const a=ws.slice(0,i).join(" "),b=ws.slice(i).join(" "),m=Math.max(a.length,b.length);if(!best||m<best[0])best=[m,a,b]}lines=[best[1],best[2]]}
+    while(!fits()&&f>fmin)f--;if(!fits()||w<f*1.2*lines.length&&!big)continue;
+    g.lineJoin="round";g.lineWidth=Math.max(3,f*.28);g.strokeStyle=R.lock?FPC.lock:"rgba(251,247,238,.92)";g.fillStyle=R.lock?"#6b6f74":FPC.ink;
+    lines.forEach((l,i)=>{const ly=y-(R.lock?f*.55:0)+(i-(lines.length-1)/2)*f*1.1;g.strokeText(l,x,ly);g.fillText(l,x,ly)});
+    if(R.lock){const lx=x,ly=y+f*.55;g.fillStyle="#7b7f84";g.fillRect(lx-5,ly-1,10,8);g.strokeStyle="#7b7f84";g.lineWidth=2;g.beginPath();g.arc(lx,ly-1,3.5,Math.PI,0);g.stroke()}}
+  // markers: my clock-in room, lifts, stairs, the way out
+  const badge=(x,z,bg,draw,label)=>{const[px2,py]=toScr(x,z);g.fillStyle=bg;g.beginPath();g.arc(px2,py,big?14:16,0,6.2832);g.fill();g.lineWidth=2.5;g.strokeStyle="#f6f0e2";g.stroke();g.fillStyle="#fff";g.strokeStyle="#fff";g.lineWidth=2;draw(px2,py);
+};
+  for(const R of P.rooms)if(mine.has(R.ch)){const x=(R.r[0]+R.r[2])/2,z=R.r[1]+Math.min(1.4,(R.r[3]-R.r[1])*.25);badge(x,z,FPC.gold,(x,y)=>{g.strokeRect(x-5.5,y-3,11,8);g.strokeRect(x-2.5,y-5.5,5,2.5)},"Clock in here")}
+  for(const[x,z]of P.lifts)badge(x,z,"#2b5d8a",(x,y)=>{g.beginPath();g.moveTo(x-4,y-1);g.lineTo(x,y-6);g.lineTo(x+4,y-1);g.moveTo(x-4,y+1);g.lineTo(x,y+6);g.lineTo(x+4,y+1);g.stroke()},"Lift");
+  for(const[x,z]of P.stairs)badge(x,z,"#2b5d8a",(x,y)=>{g.beginPath();g.moveTo(x-6,y+5);g.lineTo(x-6,y+1);g.lineTo(x-2,y+1);g.lineTo(x-2,y-2);g.lineTo(x+2,y-2);g.lineTo(x+2,y-5);g.lineTo(x+6,y-5);g.stroke()},"Stairs");
+  for(const[x,z]of P.exits)badge(x,z,FPC.ok,(x,y)=>{g.beginPath();g.moveTo(x-6,y);g.lineTo(x+4,y);g.moveTo(x,y-4);g.lineTo(x+4,y);g.lineTo(x,y+4);g.stroke();g.fillRect(x+5,y-6,2,12)},"Way out")}
+// the round map while inside: the plan around you, turning with your view like the street map
+function drawPlanMini(){const P=fpPlan(),s=miniC.width,g=miniC.getContext("2d");if(!P)return;const vy=VIEW.yaw,k=s/20,c=Math.cos(vy),n=Math.sin(vy);
+  const toScr=(x,z)=>{const dx=(x-me.x)*k,dz=(z-me.z)*k;return[s/2+dx*c-dz*n,s/2+dx*n+dz*c]};
+  g.setTransform(1,0,0,1,0,0);g.fillStyle="#e7e1d2";g.fillRect(0,0,s,s);fpPaint(g,P,toScr,k);
+  g.save();g.translate(s/2,s/2);g.rotate(-(cam.yaw-vy));g.fillStyle="#e11d48";g.strokeStyle="#fff";g.lineWidth=2.5;g.beginPath();g.moveTo(0,-13);g.lineTo(9,10);g.lineTo(0,5);g.lineTo(-9,10);g.closePath();g.fill();g.stroke();g.restore();
+  const nx=s/2+Math.sin(vy)*s*.41,ny=s/2-Math.cos(vy)*s*.41;g.fillStyle="#14263D";g.beginPath();g.arc(nx,ny,13,0,6.2832);g.fill();g.fillStyle="#fff";g.font="700 17px Segoe UI,system-ui,sans-serif";g.textAlign="center";g.textBaseline="middle";g.fillText("N",nx,ny+1);
+  if(P.floor){g.fillStyle="#1f3a2c";g.beginPath();g.roundRect?g.roundRect(14,s/2-20,58,40,10):g.rect(14,s/2-20,58,40);g.fill();g.fillStyle="#f6f0e2";g.font="800 24px Segoe UI,system-ui,sans-serif";g.fillText(P.floor==="G"?"G":"F"+P.floor,43,s/2+1)}}
+// the large plan: the whole floor, north up, with every name
+function openPlan(){const P=fpPlan();if(!P)return;let el=document.getElementById("planmap");
+  if(!el){el=document.createElement("div");el.id="planmap";el.className="bigmap";el.innerHTML=`<div class="mapcard"><div class="maphead"><span class="brand">FLOOR PLAN</span><b id="planTitle"></b><button id="planClose">Close</button></div><div class="planbody"><canvas id="planC"></canvas><div class="planleg"></div></div></div>`;
+    document.body.appendChild(el);el.querySelector("#planClose").addEventListener("click",closePlan)}
+  el.hidden=false;choosing=true;document.getElementById("planTitle").textContent=P.title+(P.floorName?" · "+P.floorName:"");
+  el.querySelector(".planleg").innerHTML=`<span><i style="background:${FPC.mine}"></i>Your clock-in room</span><span><i style="background:${FPC.lock}"></i>No entry for you</span><span><i style="background:${FPC.ok}"></i>Door you may use</span><span><i style="background:#9aa0a6"></i>Locked door</span><span><i style="background:${FPC.gold};border-radius:50%"></i>Clock in here</span><span><i style="background:#2b5d8a;border-radius:50%"></i>Lift or stairs</span><span><i style="background:${FPC.ok};border-radius:50%"></i>Way out</span>`;
+  requestAnimationFrame(()=>{const C=document.getElementById("planC"),box=C.parentElement.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1),W=Math.max(200,box.width-8),H=Math.max(200,box.height-46);
+    C.width=W*dpr;C.height=H*dpr;C.style.width=W+"px";C.style.height=H+"px";const g=C.getContext("2d"),f=P.foot,k=Math.min(W/(f[2]-f[0]+2),H/(f[3]-f[1]+2));g.setTransform(dpr,0,0,dpr,0,0);g.fillStyle="#e7e1d2";g.fillRect(0,0,W,H);
+    const ox=W/2-(f[0]+f[2])/2*k,oz=H/2-(f[1]+f[3])/2*k,toScr=(x,z)=>[ox+x*k,oz+z*k];fpPaint(g,P,toScr,k,{big:true});
+    const[x,y]=toScr(me.x,me.z);g.save();g.translate(x,y);g.rotate(-cam.yaw);g.fillStyle="#e11d48";g.strokeStyle="#fff";g.lineWidth=2.5;g.beginPath();g.moveTo(0,-13);g.lineTo(9,10);g.lineTo(0,5);g.lineTo(-9,10);g.closePath();g.fill();g.stroke();g.restore()})}
+function closePlan(){const el=document.getElementById("planmap");if(el)el.hidden=true;choosing=false}
 let HV=null,HFLOOR_N=0;
 // into the hospital: from the street to the ground floor, or by lift to another floor
 const toHosp=(n,fromLift)=>fadeTo(STATES[me.town].hosp+": "+HFLOORS.find(f=>f.n===n).name,()=>{HV=hospOf(n,STATES[me.town].hosp);HFLOOR_N=n;const L=HV.F.lift;stand("hosp",fromLift?{x:L.x,z:L.z+1.4,yaw:Math.PI}:{x:0,z:7.4,yaw:0})});
@@ -3868,7 +3990,7 @@ async function govRefresh(){if(!govOn())return;try{GOVME=await govCall("gov_me")
 setInterval(()=>{if(govOn()&&AUTH.char)govRefresh()},60000);
 // where each post is worked: inside its building, or at its building in town; state posts in their own state, national ones in Asaba
 const GOVPLACE={court:"court",police:"police",university:"universit",utilities:"utilit",transport:"transport",housing:"housing",agriculture:"agric"};
-function govAtWork(p,staying){if(!p)return false;const g=guideAtWork(p,staying);if(g!==null)return g;if(me.town!==(p.state||"Asaba"))return false;const w=p.workplace||"gov";
+function govAtWork(p,staying){if(!p)return false;const rc=roomClockAtWork(p,staying);if(rc!==null)return rc;const g=guideAtWork(p,staying);if(g!==null)return g;if(me.town!==(p.state||"Asaba"))return false;const w=p.workplace||"gov";
   if(w==="hosp"||w==="trs"||w==="bank"||w==="gov")return scene===w;if(w==="imm")return scene==="imm"||scene==="border";
   if(w.startsWith("place:")&&scene==="town"){const k=GOVPLACE[w.slice(6).toLowerCase()],P=townOf(me.town).map.places.find(q=>q.name.toLowerCase().includes(k));return !!P&&Math.hypot(cam.x-P.x,cam.z-P.z)<32}return false}
 const govAtAnyWork=()=>!!(GOVME&&(GOVME.posts||[]).some(p=>govAtWork(p,true)));       // once clocked in, anywhere in the building keeps you at work
@@ -3882,7 +4004,7 @@ function govWork(){choosing=true;const el=document.getElementById("choose");el.h
 function govWorkDraw(){const b=document.getElementById("gwBody");if(!b||!GOVME)return;const posts=GOVME.posts||[],t=GOVME.today||{seconds:0,clocked_in:false},here=posts.some(govAtWork);
   b.innerHTML=posts.length?`<div class="cbres">${posts.map(p=>`<div><span>${esc(p.title)}${p.state?" · "+esc(p.state):""}</span><b>${kfmt(p.pay)}/day</b></div>`).join("")}</div>
     <p><b>Today:</b> ${hm(t.seconds)} of 5h ${t.clocked_in?"· <b style='color:#16a34a'>clocked in</b>":""}</p>
-    ${t.clocked_in?`<button class="btn2s" data-gw="out">Clock out</button>`:here?`<button class="btn2s" data-gw="in">Clock in</button>`:`<p class="amsg">Go to your workplace to clock in: ${esc([...new Set(posts.map(p=>({hosp:"the hospital",trs:"the National Treasury",bank:"the bank",imm:"Immigration",gov:"your government building"}[p.workplace]||("the "+p.workplace.slice(6)+" building"))+" in "+(p.state||"Asaba")))].join(", or "))}.</p>`}
+    ${t.clocked_in?`<button class="btn2s" data-gw="out">Clock out</button>`:here?`<button class="btn2s" data-gw="in">Clock in</button>`:`<p class="amsg">Go to your workplace to clock in: ${esc([...new Set(posts.map(p=>workRoomText(p)||({hosp:"the hospital",trs:"the National Treasury",bank:"the bank",imm:"Immigration",gov:"your government building"}[p.workplace]||("the "+p.workplace.slice(6)+" building"))+" in "+(p.state||"Asaba")))].join(", or "))}.</p>`}
     <p><b>Pension fund:</b> ${kfmt(GOVME.pension)}</p>${(GOVME.payslips||[]).length?`<table class="cbt"><tr><th>Day</th><th>Post</th><th>Pay</th><th></th></tr>${GOVME.payslips.map(s=>`<tr><td>${esc(s.work_date)}</td><td>${esc(s.title)}</td><td>${kfmt(s.net)}</td><td>${s.status==="paid"?"paid":"<span title='"+esc(s.status)+"'>unpaid</span>"}</td></tr>`).join("")}</table>`:"<p>No payslips yet. A day with 5 hours clocked is paid the next day.</p>"}`
     :`<p>You don't hold a post yet. The President, the Vice President, the Chief of Staff or the Chief Admin can appoint you.</p>`}
 /* ---- the Government screen ---- */
@@ -4151,7 +4273,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing&&!TOW&&!FOLLOW;      // your own character, seen from behind
     if(show){const town=scene==="town";WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:me.y)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"")}}
   for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE&&!(driving&&VEH.cam===2))drawSceneClear(CARSCENE,VP,eye,t);if(TOW&&TOW.truckM&&scene==="town")drawSceneClear(TOWTRUCK,VP,eye,t);if(scene==="town")vansDraw(VP,eye,t,true);if(scene==="town")fxDraw(VP,eye,to);
-  if(scene==="town"&&frames%3===0)drawMini(T);document.getElementById("mini").hidden=scene!=="town"||choosing;
+  const fpOn=scene!=="town"&&!!fpPlan();if(frames%3===0){if(scene==="town")drawMini(T);else if(fpOn)drawPlanMini()}document.getElementById("mini").hidden=!(scene==="town"||fpOn)||choosing;
   frames++;acc+=real;if(acc>=.5){const fps=frames/acc;document.getElementById("fps").textContent=Math.round(fps);frames=0;acc=0;let tris2=0;const tris=scene==="town"?0:parts.reduce((s,S)=>s+S.tris,0)+(scene==="imm"?15450:0);
     if(scene==="town")tris2=parts.reduce((s,S)=>s+S.bufs.concat(S.clear).reduce((q,x)=>q+x.n/3,0),0);const info=document.getElementById("info");info.textContent=({town:me.town,border:"The border gate",bank:"Inside "+STATES[me.town].bank,imm:"Inside Immigration",gov:GV?GV.title:"",hosp:HV?HV.title:"",trs:"Inside the National Treasury"})[scene]+", "+Math.round((scene==="town"?tris2:tris)/1000)+"k triangles, "+cv.width+"x"+cv.height;info.appendChild(document.createElement("br"));info.appendChild(document.createTextNode(GPU));
     {const key=scene+"/"+me.town;if(key!==QSET.key){QSET.key=key;QSET.until=t+5}}const calm=t>QSET.until&&!busy&&!choosing;
@@ -4292,7 +4414,7 @@ document.getElementById("mapMenu").addEventListener("click",e=>{const bt=e.targe
 document.getElementById("zoomIn").addEventListener("click",()=>zoomMap(.5));document.getElementById("zoomOut").addEventListener("click",()=>zoomMap(-.5));
 function closeMap(){mapOpen=false;document.getElementById("bigmap").hidden=true}
 function choosePlace(p){if(route&&route.place===p){clearRoute();closeMap();toast("Directions cancelled.");return}setRoute(p);closeMap()}
-miniC.addEventListener("click",openMap);document.getElementById("mapClose").addEventListener("click",closeMap);document.getElementById("routeX").addEventListener("click",()=>{clearRoute();toast("Directions cancelled.")});
+miniC.addEventListener("click",()=>{if(scene!=="town"&&fpPlan())openPlan();else openMap()});document.getElementById("mapClose").addEventListener("click",closeMap);document.getElementById("routeX").addEventListener("click",()=>{clearRoute();toast("Directions cancelled.")});
 /* The way from one point to another along the roads. Roads are joined where they cross, where one
    ends against another, and at roundabouts; then the shortest chain of joins is found. */
 function findRoute(T,sx,sz,tx,tz){const segs=T.map.roads.map(r=>({a:[r.x0,r.z0],b:[r.x1,r.z1],cuts:[0,1]})),nodes=[],adj=[];
@@ -4425,7 +4547,7 @@ function hudNav(){if(!HUD.el.nav)return;const B=[["phone","Phone","phone"],["bag
 function hudSheet(){const el=HUD.el.sheet;if(!el)return;const k=HUD.open;el.hidden=k!=="phone"&&k!=="inv";if(el.hidden){el.innerHTML="";return}
   const signed=typeof AUTH!=="undefined"&&AUTH.user&&!AUTH.offline,go=fn=>()=>{HUD.open=null;hudNav();fn()};
   if(k==="phone"){const A=[];
-    if(scene==="town")A.push(["map","Map",go(()=>{if(!mapOpen)openMap()})]);
+    if(scene==="town")A.push(["map","Map",go(()=>{if(!mapOpen)openMap()})]);else if(fpPlan())A.push(["map","Floor plan",go(()=>openPlan())]);
     if(signed&&GOVME&&(GOVME.posts||[]).length)A.push(["work","My Work",go(()=>govWork())]);
     if(signed)A.push(["gov","Government",go(()=>govScreen())]);
     if(me.role==="admin"&&signed)A.push(["shield","Admin",go(()=>adminPanel())]);
@@ -4453,6 +4575,7 @@ function hudNotesDraw(){if(!HUD.el.bell)return;const d=HUD.el.bell.querySelector
   const H=HUD.el.hist;H.hidden=!HUD.histOpen;if(HUD.histOpen)H.innerHTML='<h4>NOTIFICATIONS</h4>'+(HUD.hist.length?HUD.hist.map(n=>`<div class="hnote k-${n.kind}">${hudNoteHTML(n,hudAgo(Date.now()-n.at))}</div>`).join(""):"<p>Nothing yet.</p>")}
 /* ---- where you are: the town, and the building you are in or the named place you are nearest */
 function hudWhere(){const town=me.town||"Delta City";let sub="";
+  {const P=fpPlan();if(P){const R=fpRoomAt(P);return[P.title,P.floorName||(P.key==="trs"||P.key==="imm"?"Delta City":town),R&&R.name||""]}}
   if(scene==="town"){const T=TOWNS[me.town];if(T){let best=null,bd=90;for(const p of T.map.places){if(p.road)continue;const d=Math.hypot(p.x-cam.x,p.z-cam.z);if(d<bd){bd=d;best=p}}sub=best?(bd<25?"At ":"Near ")+best.name:"Out and about"}}
   else sub={border:"The border gate",imm:"Immigration Authority",bank:"Inside "+(typeof BANK_NAME!=="undefined"?BANK_NAME:"the bank"),gov:GV&&GV.title,hosp:HV&&HV.title,trs:"National Treasury"}[scene]||"";
   return[scene==="border"||scene==="imm"&&!me.entered?"Delta City":town,sub]}
@@ -4462,8 +4585,8 @@ function hudObjective(){if(talking)return null;const rt=route&&route.place;
   const M=typeof garMine==="function"&&garMine(),C=M&&M.C||(TOWNS[me.town]&&TOWNS[me.town].car),J=C&&C.dmg&&C.dmg.job;
   if(J){const all=clamp01((Date.now()-J.start)/Math.max(1,J.until-J.start));return{short:"Car repair: "+Math.round(all*100)+"%",text:"Your car is being repaired: "+J.names+". Ready in "+mmss(J.until-Date.now())+".",pct:all}}
   if(GOVME&&GOVME.posts&&GOVME.posts.length&&GOVME.today){const sec=GOVME.today.seconds||0,on=GOVME.today.clocked_in;
-    if(!on&&sec<18000){const p=GOVME.posts[0],w=typeof guideWork==="function"&&guideWork(p),room=w?(w.B.rooms.find(r=>r.ch===w.ch)||{name:""}).name:"";
-      return{short:"Go to work",text:"Go to work as "+p.title+(room?": clock in at the "+room+" in the "+w.B.label.split(" ").map(x=>x[0]+x.slice(1).toLowerCase()).join(" "):"")+". Today: "+(sec/3600).toFixed(1)+" of 5 hours.",pct:Math.min(1,sec/18000)}}
+    if(!on&&sec<18000){const p=GOVME.posts[0],where=workRoomText(p);
+      return{short:"Go to work",text:"Go to work as "+p.title+(where?": clock in at "+where:"")+". Today: "+(sec/3600).toFixed(1)+" of 5 hours.",pct:Math.min(1,sec/18000)}}
     if(on)return{short:"On shift",text:"You are clocked in. Today: "+(sec/3600).toFixed(1)+" of 5 hours.",pct:Math.min(1,sec/18000)}}
   return null}
 /* ---- you: your photograph, name and work; folded open, two columns of what the game measures about you */
@@ -4479,7 +4602,7 @@ function hudCard(){const el=HUD.el.card;if(!el)return;const signed=typeof AUTH!=
   rows.push(`<div class="pnote">Needs (health, hunger, thirst...) arrive with life needs.</div>`);
   const hb=el.querySelector(".hb"),html=rows.join("");if(hb.dataset.h!==html){hb.innerHTML=html;hb.dataset.h=html}}
 /* ---- the map's own markers: your car, the nearest car parks, workshops, filling stations and markets, and your workplace; upright as the map turns */
-function hudMiniMarks(T,g,s,k,vy){const R=s*.42,at=(x,z)=>{const dx=(x-cam.x)*k,dz=(z-cam.z)*k,c=Math.cos(vy),n=Math.sin(vy);let px=dx*c-dz*n,py=dx*n+dz*c;const m=Math.max(Math.abs(px),Math.abs(py));if(m>R){px*=R/m;py*=R/m}return[s/2+px,s/2+py,m>R]};
+function hudMiniMarks(T,g,s,k,vy){const R=s*.42,at=(x,z)=>{const dx=(x-cam.x)*k,dz=(z-cam.z)*k,c=Math.cos(vy),n=Math.sin(vy);let px=dx*c-dz*n,py=dx*n+dz*c;const m=Math.hypot(px,py);if(m>R){px*=R/m;py*=R/m}return[s/2+px,s/2+py,m>R]};
   const badge=(x,z,bg,draw)=>{const[px,py,out]=at(x,z);g.globalAlpha=out?.8:1;g.fillStyle=bg;g.beginPath();g.arc(px,py,13,0,6.2832);g.fill();g.lineWidth=2.5;g.strokeStyle="#f6f0e2";g.stroke();g.fillStyle="#fff";g.strokeStyle="#fff";g.lineWidth=2;draw(px,py);g.globalAlpha=1};
   const near=(L,r,n)=>L.map(P=>[Math.hypot(P.x-cam.x,P.z-cam.z),P]).filter(a=>a[0]<r).sort((a,b)=>a[0]-b[0]).slice(0,n).map(a=>a[1]);
   const pl=T.map&&T.map.places||[];
@@ -4496,7 +4619,8 @@ function hudMoving(){if(driving)return["car","Driving"];if(TOW)return["car","Bei
   if(jump.t>=0)return["run","Jumping"];if(gait.amt>.35)return gait.run>.5?["run","Running"]:["walk","Walking"];return["stand","Standing"]}
 /* ---- every half second: the words and numbers */
 function hudTick(){hudInit();if(NOW-HUD.tick<.5)return;HUD.tick=NOW;document.body.classList.toggle("choosing",!!choosing);
-  const[a,b]=hudWhere(),lb=HUD.el.loc.querySelector("b"),ls=HUD.el.loc.querySelector("small");if(lb.textContent!==a)lb.textContent=a;if(ls.textContent!==b)ls.textContent=b;
+  // the building and the room (on a phone, the room on its own line)
+  const[a,b,rm]=hudWhere(),lb=HUD.el.loc.querySelector("b"),ls=HUD.el.loc.querySelector("small"),key=a+"|"+(rm||"");if(lb.dataset.k!==key){lb.dataset.k=key;lb.innerHTML=esc(a)+(rm?`<span class="br"><i> · </i>${esc(rm)}</span>`:"")}if(ls.textContent!==b)ls.textContent=b;
   const[mi,mt]=hudMoving(),me2=HUD.el.move;if(me2.dataset.m!==mt){me2.dataset.m=mt;me2.querySelector(".mi").innerHTML=hico(mi,18);me2.querySelector(".mt").textContent=mt}
   HUD.el.map.classList.toggle("nomap",miniC.hidden);HUD.el.loc.hidden=scene==="town"&&!!mapOpen;
   guide();const g=document.getElementById("guide"),tut=g.textContent;let O=null;if(!tut)O=hudObjective();
