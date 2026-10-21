@@ -1,12 +1,14 @@
 # Vehicles (`vehicles/`)
 
-Two drivable cars with doors, wheels and a steering wheel as separate named parts. Both are **CC0** from OpenGameArt (credits in `../CREDITS.md`).
+Four drivable vehicles with doors, wheels and a steering wheel as separate named parts. The van and the Corrado are **CC0** from OpenGameArt. The taxi and the BRT bus are **CC-BY 4.0** from Sketchfab, and their authors must be credited (they're listed under "Credits required" in `../CREDITS.md`).
 Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are rendered from the exported `.glb` files themselves.
 
 | File | Car | Triangles | Size | Textures |
 |---|---|---|---|---|
 | `uaz_452.glb` | UAZ-452 utility van ("bukhanka"), low poly | 2,776 | 227 KB | 256 px body, 128 px wheel, 32 px palette (PNG) |
 | `vw_corrado.glb` | VW Corrado coupé, low poly | 6,524 | 647 KB | 1467 x 360 px (PNG) |
+| `taxi_corolla.glb` | Toyota Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,118 | 2.9 MB | up to 1024 px (JPEG) |
+| `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus in BRT colours, sliding passenger doors, seats and poles | 25,032 | 1.0 MB | none (plain materials) |
 
 ## Coordinates (what the game sees after loading the `.glb`)
 
@@ -99,6 +101,75 @@ Each door includes its window, its frame and its inner door card. The front door
 | rear middle | `[0.000, 0.600, 0.730]` |
 
 The driver plus three passengers use the driver's seat, the front passenger seat, rear left and rear right. The rear middle seat is a fifth place if you want one.
+
+## BRT bus: Mercedes-Benz Citaro (`brt_bus.glb`)
+
+- **Source:** "Low Poly Mercedes-Benz Citaro 530" by giosassets, **CC-BY 4.0**, credited in `../CREDITS.md`. The source was exterior only.
+- **Changes:**
+  - Scaled to a real 12.0 m Citaro.
+  - Painted BRT blue, with see-through glass.
+  - Passenger doors `door_P1` and `door_P2` cut on the right (kerb) side, plus a driver's door on the left.
+  - Wheels and steering wheel separated.
+  - A full interior built: floor, inner lining, wheel-arch covers, red fabric seats on pedestals, yellow grab poles at the doors and every second row, ceiling grab rails along the aisle, and a driver's cab with seat, dashboard, partition and steering column.
+  - 25,032 triangles, 1.2 MB, no image textures.
+- **Size:** 12.02 m long, 2.57 m wide (including mirrors), 3.37 m high.
+- **Driver:** sits on the **left**, hip point `[-0.75, 1.01, -4.95]`. Passengers board on the right.
+- **Floor:** the passenger floor is at y = 0.36 m. The rear bench sits on a 0.24 m step.
+
+| Part | Pivot `[x, y, z]` (m) | Notes |
+|---|---|---|
+| `door_P1` | `[1.22, 0.29, -4.90]` | passenger door, 1.47 m wide, 2.49 m high, on the right (kerb) side. Pivot at the bottom centre of the door. **Slides**: to open, move it by `[0.07, 0.00, 1.49]`, i.e. 7 cm out from the side and 1.49 m toward the rear, along the outside of the body. Closed = its loaded position. |
+| `door_P2` | `[1.23, 0.29, 1.10]` | passenger door, 1.30 m wide, 2.49 m high, on the right (kerb) side. Pivot at the bottom centre of the door. **Slides**: to open, move it by `[0.07, 0.00, 1.32]`, i.e. 7 cm out from the side and 1.32 m toward the rear, along the outside of the body. Closed = its loaded position. |
+| `door_FL` | `[-1.26, 1.29, -5.64]` | driver's door, 0.81 m wide, 2.01 m high, on the left. Hinged on its front edge; open with negative `rotation.y` (up to about 80 deg). |
+| `wheel_FL` | `[-0.95, 0.48, -3.30]` | radius 0.48 m |
+| `wheel_RL` | `[-0.95, 0.48, 2.62]` | radius 0.48 m |
+| `wheel_FR` | `[0.95, 0.48, -3.30]` | radius 0.48 m |
+| `wheel_RR` | `[0.95, 0.48, 2.62]` | radius 0.48 m |
+| `steering_wheel` | `[-0.75, 1.41, -5.40]` | radius 0.25 m, tilted 40 deg from vertical (bus-style). Spin it about its local Z axis, the same as the taxi's; positive means turning left. |
+
+**Passenger seats (29)** are given as hip points `[x, y, z]`, all facing forward (toward -z). They are listed from the front to the rear, left to right. The last 5 are the rear bench.
+
+| Seat | Hip point |
+|---|---|
+| 1 | `[-0.91, 0.92, -2.34]` |
+| 2 | `[-0.48, 0.92, -2.34]` |
+| 3 | `[0.48, 0.92, -2.29]` |
+| 4 | `[0.91, 0.92, -2.29]` |
+| 5 | `[-0.91, 0.92, -1.56]` |
+| 6 | `[-0.48, 0.92, -1.56]` |
+| 7 | `[0.48, 0.92, -1.51]` |
+| 8 | `[0.91, 0.92, -1.51]` |
+| 9 | `[-0.91, 0.92, -0.78]` |
+| 10 | `[-0.48, 0.92, -0.78]` |
+| 11 | `[0.48, 0.92, -0.73]` |
+| 12 | `[0.91, 0.92, -0.73]` |
+| 13 | `[-0.91, 0.92, 0.00]` |
+| 14 | `[-0.48, 0.92, 0.00]` |
+| 15 | `[0.48, 0.92, 0.05]` |
+| 16 | `[0.91, 0.92, 0.05]` |
+| 17 | `[-0.91, 0.92, 3.90]` |
+| 18 | `[-0.48, 0.92, 3.90]` |
+| 19 | `[0.48, 0.92, 3.95]` |
+| 20 | `[0.91, 0.92, 3.95]` |
+| 21 | `[-0.91, 0.92, 4.68]` |
+| 22 | `[-0.48, 0.92, 4.68]` |
+| 23 | `[0.48, 0.92, 4.73]` |
+| 24 | `[0.91, 0.92, 4.73]` |
+| 25 | `[-0.92, 0.95, 5.45]` |
+| 26 | `[-0.46, 0.95, 5.45]` |
+| 27 | `[0.00, 0.95, 5.45]` |
+| 28 | `[0.46, 0.95, 5.45]` |
+| 29 | `[0.92, 0.95, 5.45]` |
+
+**Standing areas** (floor at y = 0.36 m; x across the bus, z along it):
+
+| Area | Across | Along | Floor area |
+|---|---|---|---|
+| aisle | x -0.27 to 0.27 | z -4.60 to 4.30 | 4.8 m^2 |
+| front entry (door_P1) | x 0.00 to 1.14 | z -5.63 to -4.20 | 1.6 m^2 |
+| middle area opposite door_P2 (wheelchair / buggy bay) | x -1.14 to 1.14 | z 0.30 to 1.90 | 3.6 m^2 |
+
+Board through `door_P1` at the front, ride seated or standing, and get off through `door_P2` in the middle.
 
 ## Door check (`previews/`)
 
