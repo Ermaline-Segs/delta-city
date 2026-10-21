@@ -9,6 +9,7 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 | `vw_corrado.glb` | VW Corrado coupé, low poly | 6,524 | 647 KB | 1467 x 360 px (PNG) |
 | `taxi_corolla.glb` | Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,159 | 2.9 MB | up to 1024 px (JPEG) |
 | `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus, red and white with BRT lettering, sliding passenger doors, seats and poles | 24,102 | 1.0 MB | none (plain materials) |
+| `harmattan_gt.glb` | Harmattan GT: vintage muscle coupé | 32,347 | 3.8 MB | up to 1024 px (JPEG) |
 | `strada_rs.glb` | Strada RS: premium sports coupé | 36,386 | 2.6 MB | up to 1024 px (JPEG) |
 | `vela_v12.glb` | Vela V12: fictional sports car | 30,890 | 3.2 MB | up to 1024 px (JPEG) |
 | `kite.glb` | Kite: budget city car (kei car) | 27,164 | 1.3 MB | up to 1024 px (JPEG) |
@@ -432,6 +433,37 @@ Previews: `previews/vela_v12_doors_open.png`, `previews/vela_v12_closed.png`, `p
 | rear right | `[0.38, 0.57, 1.00]` |
 
 Previews: `previews/strada_rs_doors_open.png`, `previews/strada_rs_closed.png`, `previews/strada_rs_top_open.png`.
+
+## Harmattan GT (`harmattan_gt.glb`)
+
+- **Type:** vintage muscle coupé.
+- **Source:** "Ford Falcon GT 1973" by Tom Zimmermann, **CC-BY 4.0**, credited in `../CREDITS.md`.
+- **Changes:** Renamed; converted from right-hand drive to left-hand drive by mirroring the interior (steering wheel and driver's seat now on the left; check: previews/harmattan_gt_interior.png); maker lettering removed; scaled to a real 4.72 m; both doors cut out of the shell and pivoted on their hinges; wheels cut out of the underside and steering wheel out of the dashboard; simplified from 96,000 triangles; textures reduced to 1024 px.
+- **Size:** 4.77 m long, 2.10 m wide (including mirrors), 1.46 m high.
+- **File:** 32,347 triangles, 3.8 MB.
+- **Driver:** sits on the **left**.
+
+| Part | Pivot `[x, y, z]` (m) | Notes |
+|---|---|---|
+| `door_FL` | `[-0.97, 0.81, -0.76]` | hinged on its front edge; 1.50 m long, 0.98 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_FR` | `[0.97, 0.81, -0.76]` | hinged on its front edge; 1.50 m long, 0.98 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `wheel_FL` | `[-0.70, 0.35, -1.48]` | radius 0.35 m |
+| `wheel_FR` | `[0.70, 0.35, -1.48]` | radius 0.35 m |
+| `wheel_RL` | `[-0.60, 0.34, 1.28]` | radius 0.34 m |
+| `wheel_RR` | `[0.60, 0.34, 1.28]` | radius 0.34 m |
+| `steering_wheel` | `[-0.42, 0.74, -0.42]` | tilted 12 deg from vertical; spins about its own local Z axis, with positive meaning turning left (same as the taxi) |
+
+**Seats** are given as hip points `[x, y, z]`:
+
+| Seat | Hip point |
+|---|---|
+| driver | `[-0.40, 0.62, 0.15]` |
+| front right | `[0.40, 0.62, 0.15]` |
+| rear left | `[-0.40, 0.62, 0.95]` |
+| rear middle | `[0.00, 0.62, 0.95]` |
+| rear right | `[0.40, 0.62, 0.95]` |
+
+Previews: `previews/harmattan_gt_doors_open.png`, `previews/harmattan_gt_closed.png`, `previews/harmattan_gt_top_open.png`.
 
 ## Door check (`previews/`)
 
