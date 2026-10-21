@@ -9,6 +9,7 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 | `vw_corrado.glb` | VW Corrado coupé, low poly | 6,524 | 647 KB | 1467 x 360 px (PNG) |
 | `taxi_corolla.glb` | Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,159 | 2.9 MB | up to 1024 px (JPEG) |
 | `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus, red and white with BRT lettering, sliding passenger doors, seats and poles | 24,102 | 1.0 MB | none (plain materials) |
+| `mula_van.glb` | Mula Van: budget minivan | 27,410 | 1.8 MB | up to 1024 px (JPEG) |
 | `harmattan_gt.glb` | Harmattan GT: vintage muscle coupé | 32,347 | 3.8 MB | up to 1024 px (JPEG) |
 | `strada_rs.glb` | Strada RS: premium sports coupé | 36,386 | 2.6 MB | up to 1024 px (JPEG) |
 | `vela_v12.glb` | Vela V12: fictional sports car | 30,890 | 3.2 MB | up to 1024 px (JPEG) |
@@ -31,6 +32,7 @@ The Harmattan GT was built from an Australian right-hand-drive car, so its inter
 | `vw_corrado.glb` | VW Corrado | left | `[-0.38, 0.82, -0.30]` | `[-0.38, 0.47, 0.12]` |  |
 | `taxi_corolla.glb` | Taxi | left | `[-0.36, 0.84, -0.55]` | `[-0.36, 0.60, 0.12]` |  |
 | `brt_bus.glb` | BRT bus | left | `[-0.75, 1.41, -5.40]` | `[-0.75, 1.01, -4.95]` |  |
+| `mula_van.glb` | Mula Van: budget minivan | 27,410 | 1.8 MB | up to 1024 px (JPEG) |
 | `harmony.glb` | Harmony | left | `[-0.36, 0.84, -0.55]` | `[-0.36, 0.60, 0.12]` |  |
 | `sovereign_gt.glb` | Sovereign GT | left | `[-0.44, 0.83, -0.00]` | `[-0.44, 0.62, 0.29]` |  |
 | `meridian.glb` | Meridian | left | `[-0.38, 0.95, -0.58]` | `[-0.41, 0.57, -0.30]` |  |
@@ -486,6 +488,34 @@ Previews: `previews/strada_rs_doors_open.png`, `previews/strada_rs_closed.png`, 
 | rear right | `[0.40, 0.62, 0.95]` |
 
 Previews: `previews/harmattan_gt_doors_open.png`, `previews/harmattan_gt_closed.png`, `previews/harmattan_gt_top_open.png`.
+
+## Mula Van (`mula_van.glb`)
+
+- **Type:** budget minivan.
+- **Source:** "Suzuki Carry Minivan" by ProPolyModels, **CC-BY 4.0**, credited in `../CREDITS.md`.
+- **Changes:** Renamed; maker lettering, wheel logos and number plates removed; turned straight and scaled from centimetres to a real 3.4 m; both front doors cut out of the shell and pivoted on their hinges; wheels and steering wheel separated; simplified from 152,000 triangles.
+- **Size:** 3.41 m long, 1.80 m wide (including mirrors), 1.96 m high.
+- **File:** 27,410 triangles, 1.8 MB.
+- **Driver:** sits on the **left**.
+
+| Part | Pivot `[x, y, z]` (m) | Notes |
+|---|---|---|
+| `door_FL` | `[-0.75, 1.28, -1.26]` | hinged on its front edge; 0.81 m long, 1.23 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_FR` | `[0.66, 1.06, -1.24]` | hinged on its front edge; 0.77 m long, 0.79 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `wheel_FL` | `[-0.61, 0.31, -0.95]` | radius 0.31 m |
+| `wheel_FR` | `[0.61, 0.31, -0.95]` | radius 0.31 m |
+| `wheel_RL` | `[-0.62, 0.31, 0.95]` | radius 0.31 m |
+| `wheel_RR` | `[0.62, 0.31, 0.95]` | radius 0.31 m |
+| `steering_wheel` | `[-0.33, 1.10, -1.25]` | tilted 44 deg from vertical; spins about its own local Z axis, with positive meaning turning left (same as the taxi) |
+
+**Seats** are given as hip points `[x, y, z]`:
+
+| Seat | Hip point |
+|---|---|
+| front right | `[0.25, 0.95, -0.80]` |
+| driver | `[-0.33, 0.95, -0.81]` |
+
+Previews: `previews/mula_van_doors_open.png`, `previews/mula_van_closed.png`, `previews/mula_van_top_open.png`.
 
 ## Door check (`previews/`)
 
