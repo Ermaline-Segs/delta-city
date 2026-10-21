@@ -9,6 +9,7 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 | `vw_corrado.glb` | VW Corrado coupé, low poly | 6,524 | 647 KB | 1467 x 360 px (PNG) |
 | `taxi_corolla.glb` | Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,159 | 2.9 MB | up to 1024 px (JPEG) |
 | `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus, red and white with BRT lettering, sliding passenger doors, seats and poles | 24,102 | 1.0 MB | none (plain materials) |
+| `kite.glb` | Kite: budget city car (kei car) | 27,164 | 1.3 MB | up to 1024 px (JPEG) |
 | `harmony.glb` | Harmony: family saloon (the taxi's car in private colours) | 19,135 | 2.9 MB | up to 1024 px (JPEG) |
 | `comet.glb` | Comet: budget hatchback | 19,490 | 0.8 MB | up to 1024 px (JPEG) |
 | `savanna.glb` | Savanna: small SUV | 36,523 | 3.4 MB | up to 1024 px (JPEG) |
@@ -337,6 +338,39 @@ Previews: `previews/comet_doors_open.png`, `previews/comet_closed.png`, `preview
 | rear middle | `[0.00, 0.60, 0.73]` |
 
 Previews: `previews/harmony_doors_open.png`, `previews/harmony_closed.png`, `previews/harmony_top_open.png`.
+
+## Kite (`kite.glb`)
+
+- **Type:** budget city car (kei car).
+- **Source:** "2015 Daihastu Cast Sport SAII LA250S" by SIU Car Garage, **CC-BY 4.0**, credited in `../CREDITS.md`.
+- **Changes:** Renamed; bonnet badge removed; four doors cut out of the shell and pivoted on their hinges; simple interior added (the source had none: lining, floor, dashboard, seats, steering column and steering wheel); wheels separated.
+- **Size:** 3.41 m long, 1.78 m wide (including mirrors), 1.86 m high.
+- **File:** 27,164 triangles, 1.3 MB.
+- **Driver:** sits on the **left**.
+
+| Part | Pivot `[x, y, z]` (m) | Notes |
+|---|---|---|
+| `door_FL` | `[-0.73, 0.85, -0.68]` | hinged on its front edge; 1.05 m long, 1.26 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_FR` | `[0.73, 0.85, -0.68]` | hinged on its front edge; 1.05 m long, 1.26 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `door_RL` | `[-0.72, 0.84, 0.38]` | hinged on its front edge; 0.71 m long, 1.28 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_RR` | `[0.72, 0.84, 0.38]` | hinged on its front edge; 0.71 m long, 1.28 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `wheel_FL` | `[-0.65, 0.30, -1.17]` | radius 0.29 m |
+| `wheel_FR` | `[0.65, 0.30, -1.17]` | radius 0.29 m |
+| `wheel_RL` | `[-0.65, 0.30, 1.27]` | radius 0.29 m |
+| `wheel_RR` | `[0.65, 0.30, 1.27]` | radius 0.29 m |
+| `steering_wheel` | `[-0.33, 1.00, -0.36]` | tilted 25 deg from vertical; spins about its own local Z axis, with positive meaning turning left (same as the taxi) |
+
+**Seats** are given as hip points `[x, y, z]`:
+
+| Seat | Hip point |
+|---|---|
+| driver | `[-0.33, 0.74, 0.05]` |
+| front right | `[0.33, 0.74, 0.05]` |
+| rear left | `[-0.38, 0.76, 0.85]` |
+| rear middle | `[0.00, 0.76, 0.85]` |
+| rear right | `[0.38, 0.76, 0.85]` |
+
+Previews: `previews/kite_doors_open.png`, `previews/kite_closed.png`, `previews/kite_top_open.png`.
 
 ## Door check (`previews/`)
 
