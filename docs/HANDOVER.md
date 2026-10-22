@@ -92,6 +92,8 @@ traffic lights, hydrants and breakable street objects; the cream-and-green HUD; 
   beds, mosquito nets, buckets and so on).
 - Invitations: build the rules now; seeing visitors move inside comes with live multiplayer.
 
+Implementation status (22 October 2026): `index.html` has an initial Rental Desk, home status and contract calls, a personal home marker, a private starter interior, and starter furniture hooks. This is partial Phase 3 work. The furniture shop workflows (buy, place, move, turn, remove, and sell back), full furnishing set, and visitor movement are not complete. The home contract calls need the matching Supabase SQL to be installed before they can be tested against an account. Registration and character-save functions were not part of this home update.
+
 ## 7. Live multiplayer
 
 Supabase Realtime (broadcast and presence, one channel per town or building). Show every signed-in player in the same

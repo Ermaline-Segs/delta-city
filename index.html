@@ -126,6 +126,7 @@ body.driving .stick,body.driving .tbtn{display:none!important}
 select.who{font:inherit;font-weight:600;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:8px 12px;max-width:min(78vw,340px)}
     .choose{position:fixed;inset:0;z-index:5;display:grid;place-items:center;padding:16px;background:rgba(10,18,32,.72);overflow:auto;touch-action:auto}
 .choose .card{width:min(620px,100%);background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px}
+.choose .homeoffer{padding:10px 0;border-top:1px solid var(--line);text-align:left}.choose .homeoffer b{display:block;margin:0 0 5px}.choose .homeprices{display:grid;grid-template-columns:1fr 1fr;gap:8px}.choose .homeprices .go{margin-top:4px;padding:10px 8px;font-size:14px}@media(max-width:480px){.choose .homeprices{grid-template-columns:1fr}.choose .card{max-height:calc(100dvh - 24px);overflow:auto;padding:16px}.choose h1{font-size:22px}}
 .choose h1{margin:0 0 4px;font-size:26px}.choose p{margin:0 0 12px;opacity:.8}.choose .lab{font-weight:700;font-size:14px;margin:12px 0 6px}
 .choose .seg{display:flex;gap:8px}.choose .seg button{flex:1;border-radius:12px;padding:11px}
 .choose .looks{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.choose .look{border-radius:14px;padding:6px 6px 10px;display:grid;gap:6px;justify-items:center;font-weight:700}
@@ -782,7 +783,7 @@ function modern(o){const w=o.w,d=o.d,fl=o.floors||3,fh=3.6,h=fl*fh,base=.6;
   for(const s of[-1,1])box(s*(ew/2+3),0,d/2+4.5,5,.5,2.2,"#3f8f4d")}                      // clipped hedges
 
 /* ================================ what to show ================================ */
-const BUILDINGS=[];let MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]},BLOCKS=[];
+const BUILDINGS=[],HOME_PLOTS={};let BUILDING_TOWN="",MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]},BLOCKS=[];
 const KINDS=[[/Car Park/,"Transport","P"],[/Trade & Commerce|Foreign Affairs|Culture & Heritage|Bureau of Statistics/,"Government","\u{1F3DB}\uFE0F"],[/^Highway/,"Transport","\u{1F6E3}\uFE0F"],[/Workshop/,"Transport","🔧"],[/Filling Station/,"Transport","⛽"],[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Border/,"Transport","🚧"],[/Port\b/,"Transport","⚓"],[/Transport/,"Transport","🚌"],
   [/Federal/,"Government","🏛"],[/Villa\b/,"Government","🏰"],[/State Government/,"Government","🏛"],[/Court/,"Government","⚖"],[/Police/,"Government","🛡"],[/Immigration/,"Government","🛂"],[/Agricultur|Resources|Food/,"Government","🌿"],
   [/Bank/,"Services","🏦"],[/Hospital/,"Services","✚"],[/University/,"Services","🎓"],[/Utilities/,"Services","⚡"],[/Housing/,"Services","🏠"],[/Hotel|Guest|Suites|Hyatti/,"Services","🛏"]];
@@ -881,7 +882,7 @@ function grandHotel(o){yardBox(0,0,o.yardW,o.yardD);solidBox(0,-3,24,14);mark(o.
   sign(0,2.75,9.02,6,.7,o.name,"#f4f4f2","#1f2f4d");box(0,.4,2.62,3,2.6,.08,"#17384f",1/255);entrance(0,.4,2.8,3,2.6,0,true);
   for(let k=0;k<6;k++)box(-W/2+3+k*2.6,.07,Dp/2-4.5,.12,.01,4.6,"#ffffff");                                                                                 // parking bays
   fence(W,Dp,"#eceae4",6,1.3);for(const s of[-1,1]){palm(s*(W/2-2.5),Dp/2-2.5,6.2);palm(s*(W/2-2.5),-Dp/2+2.5,6.2)}flag(8,Dp/2-2,8);flag(9.6,Dp/2-2,8)}
-function home(kind,x,z,turn,label){at(x,z,turn||0,()=>{yardBox(0,0,HOMES[kind].yardW,HOMES[kind].yardD);if(MODERN){modernHouse(Object.assign({yardW:HOMES[kind].yardW,yardD:HOMES[kind].yardD},MODERN_HOMES[kind]));return}HOMES[kind].draw();{const b=HOME_BODY[kind];if(b)solidBox(b[2],b[3],b[0],b[1])}if(label)plotSign(HOMES[kind].name,HOMES[kind].yardW/2-1.8,HOMES[kind].yardD/2+1)})}
+function home(kind,x,z,turn,label){if(BUILDING_TOWN&&HOME_PLOTS[BUILDING_TOWN])HOME_PLOTS[BUILDING_TOWN].push({kind,x,z,turn:turn||0,front:({villa:2.5,luxury:4.5,estate:4,flats:4,bungalow:4,semi:3.5,onebed:3,selfcon:3,singleroom:3})[kind]||4});at(x,z,turn||0,()=>{yardBox(0,0,HOMES[kind].yardW,HOMES[kind].yardD);if(MODERN){modernHouse(Object.assign({yardW:HOMES[kind].yardW,yardD:HOMES[kind].yardD},MODERN_HOMES[kind]));return}HOMES[kind].draw();{const b=HOME_BODY[kind];if(b)solidBox(b[2],b[3],b[0],b[1])}if(label)plotSign(HOMES[kind].name,HOMES[kind].yardW/2-1.8,HOMES[kind].yardD/2+1)})}
 function homesSample(){ground(160);const rows=[["villa","luxury","estate"],["flats","bungalow","semi"],["onebed","selfcon","singleroom"]],zs=[-38,0,34];
   rows.forEach((row,r)=>{box(0,0,zs[r]+[17,15,13][r],110,.05,6,TAR,3/255);row.forEach((k,i)=>{const x=(i-1)*32;home(k,x,zs[r],0,true);
     BUILDINGS.push({name:HOMES[k].name,x,z:zs[r]+HOMES[k].yardD/2+11,y:r===2?3.4:4.6,yaw:Math.PI})})})}
@@ -1445,7 +1446,7 @@ function marketsClear(st){const M=MARKETS[st];if(!M||typeof PROPS_ON==="undefine
 // the Lifestyle centre (the guide's clubhouse), on a plot checked to be clear of roads, buildings and car parks
 const LIFESITE={Asaba:[-122.4,-20.7,0],Warri:[-37,71.8,0],Ozoro:[-115,-98.7,Math.PI],Agbor:[-115,-98.7,Math.PI]};
 function lifestylePlace(st){const L=LIFESITE[st];if(!L||!guideBuilding("lifestyle",st))return;place({kind:"modern",key:"lifestyle",name:st.toUpperCase()+" LIFESTYLE",short:"Lifestyle Centre",w:22,d:12,floors:2,yardW:30,yardD:24,accent:"#1f3a2c"},L[0],L[1],L[2])}
-function buildTown(st){const C=STATES[st],SP={};PLACED_DOORS=[];const doors=()=>{for(const[k,d]of PLACED_DOORS)if(!SP[k]&&guideBuilding(k,st))SP[k]=d};BUILDINGS.length=0;MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);if(st==="Asaba")nationalOffices();lifestylePlace(st);marketsPlace(st,SP);doors();return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
+function buildTown(st){BUILDING_TOWN=st;HOME_PLOTS[st]=[];const C=STATES[st],SP={};PLACED_DOORS=[];const doors=()=>{for(const[k,d]of PLACED_DOORS)if(!SP[k]&&guideBuilding(k,st))SP[k]=d};BUILDINGS.length=0;MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);if(st==="Asaba")nationalOffices();lifestylePlace(st);marketsPlace(st,SP);doors();return{spots:SP,views:BUILDINGS.slice(),map:MAPD}}ground(320);
   const R0=9,R1=17,W=9,LEN=110,start=R1-.6;roundabout(R0,R1);
   for(let k=0;k<4;k++)road(Math.sin(k*Math.PI/2)*(start+LEN/2),-Math.cos(k*Math.PI/2)*(start+LEN/2),W,LEN,-k*Math.PI/2);
   const off=d=>W/2+4.2+d/2;                                    // how far a plot's centre sits from the middle of its road
@@ -1900,10 +1901,25 @@ const GOV_SPEC={
     sign:"PRESIDENTIAL VILLA",
     west:[{ch:"president-penthouse",name:"PRESIDENT'S PENTHOUSE",plate:"PRESIDENT'S PENTHOUSE",w:11,who:VILLA3,suite:true,big:true},{ch:"visitor-villa-1",name:"VISITOR VILLA 1",plate:"VISITOR VILLA 1",w:8,who:VILLA3,suite:true}],
     east:[{ch:"vice-president-penthouse",name:"VICE PRESIDENT'S PENTHOUSE",plate:"VICE PRESIDENT'S PENTHOUSE",w:11,who:VILLA3,suite:true,big:true},{ch:"visitor-villa-2",name:"VISITOR VILLA 2",plate:"VISITOR VILLA 2",w:8,who:VILLA3,suite:true}],head:null})};
-function govPlan(S){const sum=a=>a.reduce((t,r)=>t+r.w,0),SL=Math.max(sum(S.west),sum(S.east)),rooms=[];
+function govPlan(S){if(S.home)return{SL:0,rooms:[],end:-12};const sum=a=>a.reduce((t,r)=>t+r.w,0),SL=Math.max(sum(S.west),sum(S.east)),rooms=[];
   for(const[side,list]of[[-1,S.west],[1,S.east]]){let z=0;for(const r of list){rooms.push(Object.assign({side,z0:z,z1:z-r.w,zc:z-r.w/2},r));z-=r.w}}
   return{SL,rooms,end:-SL-(S.head?G_CD:0)}}
-function govInside(S){if(S.guide)guideRoomsStart();const P=S.pal,{SL,rooms,end}=govPlan(S),H=G_CEIL,X0=G_SP,X1=G_SP+G_RD,sign2=(x,y,z,w,h,t,bg,fg,turn)=>(S.silver?plate:label)(x,y,z,w,h,t,bg,fg,turn);
+function homeInside(S){const P=S.pal,H=G_CEIL;
+  floorGrid(-11,-11,11,10,0,P.floor,K.tile,.5);ceilGrid(-11,-11,11,10,H,"#ffffff",2);
+  wallRun(-11,10,-1.1,10,0,H,P.wall);wallRun(1.1,10,11,10,0,H,P.wall);wallRun(-11,-11,11,-11,0,H,P.wall);wallRun(-11,-11,-11,10,0,H,P.wall);wallRun(11,-11,11,10,0,H,P.wall);
+  wallRun(-11,-1, -1.2,-1,0,H,P.trim);wallRun(1.2,-1,11,-1,0,H,P.trim);wallRun(-3.5,-1,-3.5,-4.2,0,H,P.trim);wallRun(-3.5,-6.4,-3.5,-11,0,H,P.trim);wallRun(-11,-6.4,-3.5,-6.4,0,H,P.trim);
+  box(0,.02,4,8,.04,5.5,P.carpet,K.fabric);
+  if(!iprop("homeSofa",0,4,0))sofa(0,4,0,3);solid(0,4,5.1,1.5);
+  if(!iprop("homeTable",0,1,0))lowTable(0,1);solid(0,1,1.5,1);
+  if(!iprop("homeTvStand",0,-.35,Math.PI))box(0,0,-.35,2,.7,.45,P.wood,K.wood);if(!iprop("homeTv",0,-.75,Math.PI))box(0,.8,-.5,1.4,.85,.08,"#171b23");solid(0,-.3,2.2,.65);
+  if(!iprop("homeKitchen",-7,-4,0))box(-7,0,-4,6,.95,.7,P.wood,K.wood);solid(-7,-4,6,.8);
+  if(!iprop("homeFridge",-8,-9,0))box(-8,0,-9,.9,1.8,.8,"#d7dadd");solid(-8,-9,1,.9);
+  const bed=HOME_INFO&&HOME_INFO.home_type==="selfcon"?"homeSingleBed":"homeDoubleBed";if(!iprop(bed,5,-7,0)){box(5,0,-7,2, .3,2.2,P.wood,K.wood);box(5,.3,-7,1.9,.25,2.1,"#e9e5dc",K.fabric)}solid(5,-7,2.2,2.4);
+  if(!iprop("homeWardrobe",9,-8,Math.PI))box(9,0,-8,1.6,2,.65,P.wood,K.wood);solid(9,-8,1.7,.75);
+  if(!iprop("homeToilet",-7,-8,0))box(-7,0,-8,.7,.8,.8,"#f4f4f0");solid(-7,-8,.9,1);
+  box(0,H-.04,4,1.1,.05,.5,"#fffdf4",K.glow);box(0,H-.02,4,1.25,.03,.65,P.trim,K.gold);
+}
+function govInside(S){if(S.home)return homeInside(S);if(S.guide)guideRoomsStart();const P=S.pal,{SL,rooms,end}=govPlan(S),H=G_CEIL,X0=G_SP,X1=G_SP+G_RD,sign2=(x,y,z,w,h,t,bg,fg,turn)=>(S.silver?plate:label)(x,y,z,w,h,t,bg,fg,turn);
   const lamp=(x,z)=>{box(x,H-.05,z,1.3,.05,.64,"#fffdf4",K.glow);box(x,H-.03,z,1.44,.03,.78,P.trim,K.gold)};
   // floors, ceiling and lamps
   floorGrid(-G_LW/2,0,G_LW/2,G_LD,0,P.floor,K.tile,.5);floorGrid(-X1,-SL,X1,0,0,P.floor,K.tile,.5);if(S.head)floorGrid(-G_CW/2,end,G_CW/2,-SL,0,P.floor,K.tile,.5);
@@ -1946,7 +1962,7 @@ function govLights(S){const{SL,end}=govPlan(S),L=[],X1=G_SP+G_RD;for(let x=-8;x<
 const GOV_CACHE={};
 // a building first built while some of its furniture was still on the way (drawn as plain shapes) is built again, with the real pieces, once they have all come
 const ipropDone=n=>!IPROP_FILES[n]||!!(IPROP[n]&&(IPROP[n].tris||IPROP[n].failed));
-function govOf(kind,st){const key=kind+":"+st,C0=GOV_CACHE[key];if(C0&&!(C0.partial&&C0.partial.every(ipropDone)))return C0;const S=GOV_SPEC[kind](st),lights=govLights(S),plan=govPlan(S);
+function govOf(kind,st){const owner=kind==="home_instance"&&typeof AUTH!=="undefined"&&AUTH.user?AUTH.user.id:"",key=kind+":"+st+(owner?":"+owner:""),C0=GOV_CACHE[key];if(C0&&!(C0.partial&&C0.partial.every(ipropDone)))return C0;const S=GOV_SPEC[kind](st),lights=govLights(S),plan=govPlan(S);
   const lit=fn=>{const s=captureLit(fn,lights,false,G_CEIL);s.ceil=[G_CEIL,G_CEIL];return s},scene=lit(()=>govInside(S)),walls=WALLS.slice(),gates=[],doors=[];
   const leaf=(x,z,open,side,color)=>{if(open)box(x+side*.12,0,z-.75-.62,.07,2.15,1.24,color);else{box(x,0,z,.08,2.15,1.36,color);box(x-side*.07,1,z+.5,.05,.07,.07,S.pal.trim,K.gold)}};
   for(const r of plan.rooms){const x=r.side*G_SP;gates.push({who:r.who,r:[x-.18,r.zc-.7,x+.18,r.zc+.7],msg:r.plate+": you do not have access to this room."});doors.push({who:r.who,shut:lit(()=>leaf(x,r.zc,false,r.side,S.pal.wood)),open:lit(()=>leaf(x,r.zc,true,r.side,S.pal.wood)),x,z:r.zc,dir:"v",w:1.36,mode:"swing"})}
@@ -2035,16 +2051,18 @@ const IPROP={},IPROP_FILES={desk:"office/office_desk",edesk:"office/executive_de
   plant:"office/potted_plant",mtable:"office/meeting_table",notice:"office/notice_board",counter:"office/service_counter",waiting:"office/waiting_chairs",queue:"office/queue_posts_pair",
   front:"police/front_desk",lockers:"police/lockers",cellbars:"police/cell_bars",celldoor:"police/cell_door",jbench:"court/judges_bench",jchair:"court/judges_chair",
   witness:"court/witness_stand",dock:"court/dock",cbench:"court/court_bench",lbookshelf:"university/library_bookshelf",lshelves:"university/library_shelves",
-  rtable:"university/reading_table",whiteboard:"university/whiteboard",lectern:"university/lectern",lseat:"university/lecture_seating"};
+  rtable:"university/reading_table",whiteboard:"university/whiteboard",lectern:"university/lectern",lseat:"university/lecture_seating",
+  homeSofa:"home/living-room/sofa_3-seater_navy",homeTable:"home/living-room/centre_table_oak",homeTvStand:"home/living-room/tv_stand_oak",homeTv:"home/living-room/tv_43in_black",
+  homeKitchen:"home/kitchen/kitchen_base_units",homeFridge:"home/kitchen/fridge_white_starter",homeSingleBed:"home/bedroom/bed_single_starter",homeDoubleBed:"home/bedroom/bed_double_starter",homeWardrobe:"home/bedroom/wardrobe_starter",homeToilet:"home/bathroom/toilet_starter"};
 // the models one building needs, from its rooms' kinds (each file is fetched once, on the first visit)
 const IPROP_FOR={open:["desk"],counter:["counter","waiting","queue"],cells:["cellbars","celldoor"],evidence:["lockers","pcabinet"],library:["lbookshelf","lshelves","rtable"],
   records:["pcabinet"],control:["desk"],meeting:["mtable"],court:["jbench","jchair","witness","dock","cbench"],lecture:["whiteboard","lectern","lseat"]};
-function ipropsFor(S){const k=new Set(["edesk","ochair","cabinet","plant","notice"].concat(S.lobby&&LOBBY_PROPS[S.lobby]||[]));if(S.type==="police")["pcabinet","lockers","front"].forEach(x=>k.add(x));if(S.type==="uni")k.add("whiteboard");
+function ipropsFor(S){if(S.home)return["homeSofa","homeTable","homeTvStand","homeTv","homeKitchen","homeFridge",HOME_INFO&&HOME_INFO.home_type==="selfcon"?"homeSingleBed":"homeDoubleBed","homeWardrobe","homeToilet"];const k=new Set(["edesk","ochair","cabinet","plant","notice"].concat(S.lobby&&LOBBY_PROPS[S.lobby]||[]));if(S.type==="police")["pcabinet","lockers","front"].forEach(x=>k.add(x));if(S.type==="uni")k.add("whiteboard");
   for(const r of S.west.concat(S.east,S.head?[S.head]:[]))for(const x of IPROP_FOR[r.kind]||[])k.add(x);return[...k]}
 function ipropsLoad(names){const todo=names.filter(n=>!IPROP[n]);if(!todo.length)return Promise.resolve();
   const load=Promise.all(todo.map(n=>(IPROP[n]=IPROP[n]||ipropRead(IPROP_FILES[n]).then(p=>IPROP[n]=p).catch(e=>{console.warn("furniture "+n+": "+e.message);IPROP[n]={failed:1}}))));
   return Promise.race([load,new Promise(r=>setTimeout(r,8000))])}          // never hold the door for long: what is not here yet is drawn simply
-async function ipropRead(file){const buf=await(await fetch("assets/interiors/"+file+".glb")).arrayBuffer(),dv=new DataView(buf);if(dv.getUint32(0,true)!==0x46546C67)throw new Error("not a GLB file");
+async function ipropRead(file){const buf=await(await fetch((file.startsWith("home/")?"assets/":"assets/interiors/")+file+".glb")).arrayBuffer(),dv=new DataView(buf);if(dv.getUint32(0,true)!==0x46546C67)throw new Error("not a GLB file");
   const jl=dv.getUint32(12,true),J=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,20,jl))),bin=20+jl+8;
   const view=i=>{const v=J.bufferViews[i];return{o:bin+(v.byteOffset||0),len:v.byteLength,stride:v.byteStride||0}};
   const acc=i=>{const a=J.accessors[i],v=view(a.bufferView),n={SCALAR:1,VEC2:2,VEC3:3,VEC4:4}[a.type],sz={5126:4,5125:4,5123:2,5121:1}[a.componentType],st=v.stride||n*sz,out=new Float32Array(a.count*n),o=v.o+(a.byteOffset||0);
@@ -2599,7 +2617,7 @@ let scene="border",busy=false,talking=false,choosing=true,flying=false,testOpen=
    The first seconds in a new place (while a town is built or a building loads) do not count. */
 const QMAX=Math.min(window.devicePixelRatio||1,1.25),QSET={key:"",until:0,cap:Math.min(window.devicePixelRatio||1,1.25),capAt:0};      /* cap: just below the last level that proved too much; raised again after 45 s, to try higher */
 const SAMPLE={no:"DC-ASB-0001",name:"Sample Citizen",dob:"01 September 1996",gender:"Female",state:"Asaba",date:"10 October 2026"};
-const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);roadJoins();highway(st);workshop(st,t);station(st,t);marketsClear(st);carParks(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
+const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);t.homePlots=HOME_PLOTS[st]||[];roadJoins();highway(st);workshop(st,t);station(st,t);marketsClear(st);carParks(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400);hudNote(t)}
 function fadeTo(text,change){if(busy)return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
 const stand=(s,o)=>{scene=s;me.inside=s==="imm";Object.assign(me,{y:0,pitch:.03},o||{});SNAPCAM=true};
@@ -2819,7 +2837,7 @@ let HV=null,HFLOOR_N=0;
 const toHosp=(n,fromLift)=>fadeTo(STATES[me.town].hosp+": "+HFLOORS.find(f=>f.n===n).name,()=>{HV=hospOf(n,STATES[me.town].hosp);HFLOOR_N=n;const L=HV.F.lift;stand("hosp",fromLift?{x:L.x,z:L.z+1.4,yaw:Math.PI}:{x:0,z:7.4,yaw:0})});
 const toGov=(kind,spot)=>fadeTo(GOV_SPEC[kind](me.town).title,()=>{GV=govOf(kind,me.town);govSpot=spot;stand("gov",{x:0,z:G_LD-1.6,yaw:0})});
 // arrive in a town, standing outside one of its doors and facing away from it
-const toTown=(st,spot,text,dist,pos)=>fadeTo(text||st,()=>{me.town=st;driving=false;const T=townOf(st),d=T.spots[spot]||T.spots.imm;TGY=0;scene="town";me.inside=false;me.entered=true;Object.assign(cam,pos?{x:pos.x,y:1.7,z:pos.z,yaw:pos.yaw||0,pitch:0}:{x:d.x+d.fx*(dist||5),y:1.7,z:d.z+d.fz*(dist||5),yaw:Math.atan2(-d.fx,-d.fz),pitch:0});SNAPCAM=true;if(!T.car&&!garOn())parkCar(T);garResume()});
+const toTown=(st,spot,text,dist,pos)=>fadeTo(text||st,()=>{me.town=st;driving=false;const T=townOf(st),d=T.spots[spot]||T.spots.imm;TGY=0;scene="town";me.inside=false;me.entered=true;Object.assign(cam,pos?{x:pos.x,y:1.7,z:pos.z,yaw:pos.yaw||0,pitch:0}:{x:d.x+d.fx*(dist||5),y:1.7,z:d.z+d.fz*(dist||5),yaw:Math.atan2(-d.fx,-d.fz),pitch:0});SNAPCAM=true;if(!T.car&&!garOn())parkCar(T);garResume();homeSync()});
 // one car, parked at the kerb of the road nearest to where you arrive
 function parkCar(T){let best=null;for(const r of T.map.roads){if(r.bridge)continue;const vx=r.x1-r.x0,vz=r.z1-r.z0,L=Math.hypot(vx,vz),t=clamp(((cam.x-r.x0)*vx+(cam.z-r.z0)*vz)/(L*L),.08,.92),x=r.x0+vx*t,z=r.z0+vz*t,d=Math.hypot(cam.x-x,cam.z-z);if(!best||d<best.d)best={d,x,z,ux:vx/L,uz:vz/L,w:r.w}}
   if(!best)return;const side=((cam.x-best.x)*-best.uz+(cam.z-best.z)*best.ux)>=0?1:-1,off=best.w/2-1.4;T.car={x:best.x-best.uz*side*off,z:best.z+best.ux*side*off,yaw:Math.atan2(-best.ux*side,-best.uz*side),v:0};if(T.savedCar){const s=T.savedCar;T.savedCar=null;if(s.pos&&(s.job||s.shop)){T.car.x=s.pos[0];T.car.z=s.pos[1];T.car.yaw=s.pos[2]}delete s.pos;T.car.dmg=s}}       // a car left at the workshop is still there
@@ -4354,8 +4372,9 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
       if(flying){cam.yaw=VIEW.yaw;cam.pitch=VIEW.pitch;const sp=(runHeld()?16:6)*dt;cam.x+=dx0*sp;cam.z+=dz0*sp;cam.y=clamp(cam.y+((keys.e?1:0)-(keys.q?1:0))*sp*(1+cam.y/20),1.2,420)}
       else{cam.y=1.7;const hitC=(x,z)=>{if(!C||driving)return false;const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),dx=x-C.x,dz=z-C.z;return Math.abs(dx*fx+dz*fz)<2.7&&Math.abs(-dx*fz+dz*fx)<1.35},blk=(x,z)=>hitT(x,z,.4)||hitC(x,z);       /* the parked car is solid too */
         if(!blk(cam.x+sx,cam.z))cam.x+=sx;else VEL.x=0;if(!blk(cam.x,cam.z+sz))cam.z+=sz;else VEL.z=0;TGY+=(townGroundAt(T,cam.x,cam.z)-TGY)*Math.min(1,dt*14)}
-      if(cam.y<3.8&&t>doorCool)for(const k in T.spots){const d=T.spots[k],ax=(cam.x-d.x)*d.fx+(cam.z-d.z)*d.fz,lat=Math.abs((cam.x-d.x)*d.fz-(cam.z-d.z)*d.fx);                  // through a blue doorway
-        if(lat<1.7&&ax>-.7&&ax<1.5){doorCool=t+1.5;DOORWAYS[k]();break}}
+      if(cam.y<3.8&&t>doorCool){const hp=homePlot(T),hd=homeDoor(hp);if(hd&&Math.hypot(cam.x-hd.x,cam.z-hd.z)<1.65){doorCool=t+2;homeEnter()}
+        else for(const k in T.spots){const d=T.spots[k],ax=(cam.x-d.x)*d.fx+(cam.z-d.z)*d.fz,lat=Math.abs((cam.x-d.x)*d.fz-(cam.z-d.z)*d.fx);                  // through a blue doorway
+          if(lat<1.7&&ax>-.7&&ax<1.5){doorCool=t+1.5;DOORWAYS[k]();break}}}
       if(route)followRoute(t)}
     if(route)aimArrow();
     if(driving||flying){
@@ -4368,7 +4387,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   else{
     if(sx||sz){if(!blocked(me.x+sx,me.z))me.x+=sx;else VEL.x=0;if(!blocked(me.x,me.z+sz))me.z+=sz;else VEL.z=0;me.y=floorAt(me.x,me.z,me.y);
       if(scene==="imm"){if(Math.abs(me.x)<1.5&&me.z>10.55)toBorder(false);else if(me.x<-15.3&&immCan("city"))toTown(me.entered?"Asaba":(me.cert&&STATES[me.cert.state]?me.cert.state:"Asaba"),"imm",me.entered?"Asaba":"Welcome to "+(me.cert?me.cert.state:"Asaba")+", your home state",9)}
-      else if(scene==="gov"){if(Math.abs(me.x)<1.5&&me.z>G_LD-.45)toTown(me.town,govSpot)}
+      else if(scene==="gov"){if(Math.abs(me.x)<1.5&&me.z>G_LD-.45){if(govSpot==="home"){const d=homeDoor(homePlot(townOf(me.town)));if(d)toTown(me.town,"home","Outside your home",3,{x:d.x+d.fx*2,z:d.z+d.fz*2,yaw:Math.atan2(-d.fx,-d.fz)});else toTown(me.town,"home")}else toTown(me.town,govSpot)}}
       else if(scene==="trs"){if(Math.abs(me.x)<1.4&&me.z>10.75)toTown(me.town,"treasury")}
       else if(scene==="hosp"){if(HV.F.n===0&&((Math.abs(me.x)<1.8&&me.z>8.75)||(me.x>15.75&&Math.abs(me.z-4)<1.4)))toTown(me.town,"hosp")}
       else if(me.y<.5&&Math.abs(me.x)<1.5&&me.z>9.55)toTown(me.town,"bank")}
@@ -4529,6 +4548,7 @@ function drawBig(){const T=townOf(me.town),A=aerial(T),stage=document.getElement
   if(route)h+=`<svg viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="${route.pts.map(p=>A.proj(p[0],p[1],.5).map(v=>v.toFixed(2)).join(",")).join(" ")}"/></svg>`;
   T.map.places.forEach((p,i)=>{if(mapGroup!=="All"&&p.group!==mapGroup)return;if(mapGroup==="All"&&p.road)return;const q=A.proj(p.x,p.z,p.road?0:6),on=route&&route.place===p;
     h+=`<button class="pin${on?" on":""}${p.road?" road":""}${/Car Park/.test(p.name)?" park":""}${mapGroup==="All"&&mapZoom<2&&!on?" small":""}" data-i="${i}" title="${esc2(p.name)}" aria-label="${esc2(p.name)}" style="left:${q[0].toFixed(2)}%;top:${q[1].toFixed(2)}%"><i>${p.icon}</i><span>${esc2(p.name)}</span></button>`});
+  const hp=homePlot(T),hd=homeDoor(hp);if(hd){const q=A.proj(hd.x,hd.z,3);h+=`<div class="pin on" title="My home" style="left:${q[0].toFixed(2)}%;top:${q[1].toFixed(2)}%"><i>🏠</i><span>My home</span></div>`}
   const m=A.proj(cam.x,cam.z,1),f=A.proj(cam.x-Math.sin(cam.yaw)*12,cam.z-Math.cos(cam.yaw)*12,1),ang=Math.atan2(f[0]-m[0],-(f[1]-m[1])/A.ratio)*57.3;
   h+=`<div id="vanPins"></div>`;h+=`<div class="mepin" style="left:${m[0].toFixed(2)}%;top:${m[1].toFixed(2)}%;transform:translate(-50%,-50%) rotate(${ang.toFixed(0)}deg)" title="You are here">▲</div>`;stage.innerHTML=h;
   document.querySelectorAll("#mapMenu button").forEach(bt=>bt.classList.toggle("on",bt.dataset.g===mapGroup));return m}
@@ -4772,8 +4792,24 @@ function hudTick(){hudInit();if(NOW-HUD.tick<.5)return;HUD.tick=NOW;document.bod
   const tip=document.getElementById("tip");if(tip.textContent!==HUD.tipText){HUD.tipText=tip.textContent;HUD.tipAt=NOW}tip.classList.toggle("gone",!HUD.fold.help);
   if(HUD.histOpen)hudNotesDraw();if(HUD.open==="inv")hudSheet();hudPlace()}
 
+const HOME_CHOICES=[{id:"selfcon",name:"Self-contained room",rent:250000,buy:15000000},{id:"flat2",name:"2-bedroom flat",rent:500000,buy:30000000},{id:"duplex",name:"Duplex",rent:1200000,buy:75000000},{id:"mansion",name:"Mansion",rent:3000000,buy:200000000}];let HOME_INFO=null,HOME_SYNC=0;
+const HOME_KINDS={selfcon:["selfcon"],flat2:["semi"],duplex:["villa"],mansion:["luxury"]};
+function homePlot(T,h=HOME_INFO){if(!T||!h||h.state!==me.town)return null;const kinds=HOME_KINDS[h.home_type]||[];return(T.homePlots||[]).find(p=>kinds.includes(p.kind))||null}
+function homeDoor(p){if(!p)return null;const fx=Math.sin(p.turn),fz=Math.cos(p.turn);return{x:p.x+fx*p.front,z:p.z+fz*p.front,fx,fz}}
+function homeSpec(){return{title:"Your private home",sign:"HOME",home:true,silver:true,pal:{wall:"#f2eee5",feat:"#233550",trim:"#b99150",carpet:"#e9e1d2",wood:"#78543c",floor:"#d8d1c4"},west:[],east:[],head:null}}
+async function homeCall(fn,body){await freshToken();return supa("/rest/v1/rpc/"+fn,{method:"POST",auth:true,body:body||{}})}
+async function homeSync(){if(typeof AUTH==="undefined"||!AUTH.user||Date.now()-HOME_SYNC<60000)return;HOME_SYNC=Date.now();try{const d=await homeCall("home_status");HOME_INFO=d&&d.home||null}catch(e){}}
+async function homeEnter(){if(GENTER)return;GENTER=true;try{const d=await homeCall("home_status"),h=d&&d.home;if(!h||h.state!==me.town){toast("This home is not yours. Get an invitation from its resident.");return}if(h.locked){toast("Your home is locked because rent is overdue. Pay at the Rental Desk.");return}HOME_INFO=h;GOV_SPEC.home_instance=homeSpec;await ipropsLoad(["homeSofa","homeTable","homeTvStand","homeTv","homeKitchen","homeFridge",h.home_type==="selfcon"?"homeSingleBed":"homeDoubleBed","homeWardrobe","homeToilet"]);if(scene==="town")toGov("home_instance","home")}catch(e){toast("Could not check home access: "+e.message)}finally{GENTER=false}}
+async function homePanel(){const el=document.getElementById("choose");choosing=true;el.hidden=false;el.innerHTML='<div class="card cbcard"><h1>Rental Desk</h1><p>Checking homes in '+esc(me.town)+'...</p></div>';try{const d=await homeCall("home_status"),h=d&&d.home;HOME_INFO=h||null;let body="";
+  if(h){const q=HOME_CHOICES.find(x=>x.id===h.home_type)||HOME_CHOICES[0],dueDate=h.rent_due_at?new Date(h.rent_due_at):null,due=dueDate?dueDate.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}):"No rent due",remind=dueDate&&!h.locked&&dueDate.getTime()-Date.now()<=2*86400000;body=`<p><b>${esc(q.name)}</b> · ${esc(h.tenure==="buy"?"Owned":"Rented")} in ${esc(h.state)}</p>${h.tenure==="rent"?`<p>${h.locked?"Locked while rent is overdue. Pay now to unlock.":"Rent due: "+esc(due)}</p>${remind?'<p class="amsg">Reminder: rent is due within 2 days.</p>':''}<button class="go" id="homeRenew">Pay 2 weeks' rent · ${kfmt(q.rent)}</button>`:`<p>This is your home.</p>`}`;
+  }else{const canBuy=!!(me.cert&&me.cert.no);body=d&&d.stored?'<p>Your old home’s furniture is in storage.</p>':'';body+='<p>Choose a home. Rent lasts 2 weeks. Visitors can rent; citizens can rent or buy.</p>'+HOME_CHOICES.map(q=>`<section class="homeoffer"><b>${esc(q.name)}</b><div class="homeprices"><button class="go" data-home="${q.id}" data-action="rent">Rent · ${kfmt(q.rent)} / 2 weeks</button><button class="go ghost" data-home="${q.id}" data-action="buy" ${canBuy?'':'disabled'}>${canBuy?'Buy · '+kfmt(q.buy):'Buy · citizens only'}</button></div></section>`).join("")}
+  el.innerHTML=`<div class="card cbcard"><h1>Rental Desk · ${esc(me.town)}</h1>${body}<p class="amsg" id="homeMsg" role="status"></p><button class="go ghost" id="homeClose">Close</button></div>`;
+  const close=()=>{el.hidden=true;choosing=false};el.querySelector("#homeClose").onclick=close;
+  const act=async(action,type)=>{const msg=el.querySelector("#homeMsg"),buttons=el.querySelectorAll("button");buttons.forEach(b=>b.disabled=true);msg.textContent=action==="rent"&&h?"Paying rent...":"Processing...";try{const r=await homeCall("home_contract",{p_state:me.town,p_home_type:type||h.home_type,p_action:action});if(r&&r.cash!=null){me.cash=+r.cash;showCash()}toast(action==="rent"?"Home rent paid.":"Home bought.");await homePanel()}catch(e){msg.textContent=e.message;buttons.forEach(b=>b.disabled=false)}};
+  const renew=el.querySelector("#homeRenew");if(renew)renew.onclick=()=>act("rent");el.querySelectorAll("[data-home]").forEach(b=>b.onclick=()=>act(b.dataset.action,b.dataset.home));
+ }catch(e){el.innerHTML=`<div class="card cbcard"><h1>Rental Desk · ${esc(me.town)}</h1><p class="amsg err">${esc(e.message)}. The owner may need to run supabase_homes.sql in Supabase first.</p><button class="go ghost" id="homeClose">Close</button></div>`;el.querySelector("#homeClose").onclick=()=>{el.hidden=true;choosing=false}}}
 function ui(){guide();const el=document.getElementById("picks");el.innerHTML="";const add=(label,fn,on)=>{const bt=document.createElement("button");bt.textContent=label;bt.addEventListener("click",fn);if(on)bt.setAttribute("aria-pressed","true");el.appendChild(bt);return bt};
-  if(scene!=="town"&&route)clearRoute();if(scene!=="town")closeMap();
+  if(scene!=="town"&&route)clearRoute();if(scene!=="town")closeMap();if(scene==="gov"&&govSpot==="house")add("Rental Desk",homePanel);
   hudInit();{const h=document.createElement("h4");h.textContent="SETTINGS";el.appendChild(h)}
   add(view3?"View: behind me":"View: my eyes",()=>{view3=!view3;ui()});add(HUD.fold.help?"Controls help: on":"Controls help: off",()=>{HUD.fold.help=!HUD.fold.help;HUD.tipAt=NOW;hudSave();ui()},!!HUD.fold.help);
   add(HUD.fold.stats?"Performance: on":"Performance: off",()=>{HUD.fold.stats=!HUD.fold.stats;hudSave();document.body.classList.toggle("stats",HUD.fold.stats);ui()},!!HUD.fold.stats);document.body.classList.toggle("stats",!!HUD.fold.stats);
