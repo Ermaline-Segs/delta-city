@@ -11,6 +11,7 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 | `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus, red and white with BRT lettering, sliding passenger doors, seats and poles | 24,102 | 1.0 MB | none (plain materials) |
 | `starlite.glb` | Starlite: vintage coupé (1950s) | 30,432 | 1.4 MB | up to 1024 px (JPEG) |
 | `mula_van.glb` | Mula Van: budget minivan | 27,410 | 1.8 MB | up to 1024 px (JPEG) |
+| `starlite.glb` | Starlite | left | `[-0.36, 1.05, -0.75]` | `[-0.36, 0.80, -0.50]` |  |
 | `harmattan_gt.glb` | Harmattan GT: vintage muscle coupé | 32,347 | 3.8 MB | up to 1024 px (JPEG) |
 | `mula_van.glb` | Mula Van | left | `[-0.33, 1.10, -1.25]` | `[-0.33, 0.95, -0.81]` |  |
 | `strada_rs.glb` | Strada RS: premium sports coupé | 36,386 | 2.6 MB | up to 1024 px (JPEG) |
