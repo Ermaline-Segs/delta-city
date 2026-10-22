@@ -1422,10 +1422,30 @@ const NATIONAL_OFFICES=[{key:"trade",name:"MINISTRY OF TRADE & COMMERCE",short:"
   {key:"culture",name:"NATIONAL CULTURE & HERITAGE BUREAU",short:"National Culture & Heritage Bureau",x:-125.6,z:58.6,f:[-.957,.291],accent:"#8a3d1f"},
   {key:"stats",name:"NATIONAL BUREAU OF STATISTICS",short:"National Bureau of Statistics",x:-113.3,z:98.7,f:[-.957,.291],accent:"#334155"}];
 function nationalOffices(){for(const o of NATIONAL_OFFICES)place({kind:"modern",name:o.name,short:o.short,w:22,d:12,floors:3,yardW:32,yardD:26,accent:o.accent,key:o.key,strips:Math.abs(o.f[0])>.01&&Math.abs(o.f[1])>.01},o.x,o.z,Math.atan2(o.f[0],o.f[1]))}
-// the Lifestyle centre (the guide's clubhouse and chapel), on a plot checked to be clear of roads, buildings and car parks
+// the markets and roadside shops of Warri, Ozoro and Agbor (Asaba's are in its street life), on plots checked to be clear of roads,
+// buildings and car parks. A market: the stalls and two shops on its edge; then a few shops by the roads near the middle of town.
+const MARKETS={Warri:{name:"Warri Main Market",m:[-49,-28.7,0],shops:[[-35,106.2,Math.PI,"Okere Provisions"],[-41,14.7,Math.PI,"Effurun Mini Mart"],[69,77.8,0,"Ekpan Supermarket"]]},
+  Ozoro:{name:"Ozoro Central Market",m:[73,105.7,0],shops:[[15,-104.7,Math.PI,"Isoko Provisions"],[109,-104.7,Math.PI,"Oleh Road Stores"],[-72.4,-14.7,0,"Ozoro Mini Mart"]]},
+  Agbor:{name:"Agbor Obi Market",m:[73,105.7,0],shops:[[15,-104.7,Math.PI,"Ika Provisions"],[109,-104.7,Math.PI,"Boji-Boji Mini Mart"],[-72.4,-14.7,0,"Alihame Stores"]]}};
+const SHOPNAME={};               // town/door -> the shop's name (its inside's title)
+function marketsPlace(st,SP){const M=MARKETS[st];if(!M||typeof PROPS_ON==="undefined"||!PROPS_ON)return;const has=id=>!!document.getElementById(id);
+  const put=(id,x,z,turn,w,d)=>{if(!has(id))return null;at(x,z,turn,()=>{placeModel(id);solidBox(0,0,w,d)});return[x,z]};
+  let n=0;const shop=(id,x,z,turn,w,d,name)=>{const p=put(id,x,z,turn,w,d);if(!p)return;const k="shop"+(++n);SP[k]=doorAt(p[0],p[1],turn,d/2+.3);SHOPNAME[st+"/"+k]=name};
+  const[mx,mz,mt]=M.m,c=Math.cos(mt),s=Math.sin(mt),W=(lx,lz)=>[mx+c*lx+s*lz,mz-s*lx+c*lz];
+  at(mx,mz,mt,()=>{box(0,.06,0,40,.06,36,"#d9dcdd",K.tile);yardBox(0,0,40,36);mark(M.name,0,20,"#b45309")});
+  for(let r=0;r<3;r++)for(let k=0;k<5;k++){const[x,z]=W(-12+k*6,-9+r*8);put("p_market_stall",x,z,mt+Math.PI,2.4,2.9)}
+  {const[x,z]=W(-16,-13);shop("p_shop_row",x,z,mt+Math.PI/2,6,6,M.name+": Groceries")}{const[x,z]=W(16,-13);shop("p_shop_row",x,z,mt-Math.PI/2,6,6,M.name+": Fabrics & Household")}
+  for(const[x,z,turn,name]of M.shops){shop("p_small_shop",x,z,turn,6.1,6.1,name);mark(name,x,z,"#b45309")}}
+// no tree or street object stands in a market or in front of its shops (as at the filling stations)
+function plotClear(cx,cz,turn,hw,hd){const c=Math.cos(turn),s=Math.sin(turn),inP=(x,z)=>{const dx=x-cx,dz=z-cz;return Math.abs(c*dx-s*dz)<hw&&Math.abs(s*dx+c*dz)<hd},gone=new Set();
+  MAPD.dyn=MAPD.dyn.filter(o=>{if(!inP(o.x,o.z))return true;gone.add(o.b);return false});
+  for(let i=TREES.inst.length-1;i>=0;i--){const q=TREES.inst[i];if(inP(q[1],q[2])){TREES.inst.splice(i,1);for(const b of BLOCKS){const g=BTAG.get(b);if(g&&g.t===q)gone.add(b)}}}
+  for(let i=BLOCKS.length-1;i>=0;i--)if(gone.has(BLOCKS[i]))BLOCKS.splice(i,1)}
+function marketsClear(st){const M=MARKETS[st];if(!M||typeof PROPS_ON==="undefined"||!PROPS_ON)return;plotClear(M.m[0],M.m[1],M.m[2],21,19);for(const[x,z,turn]of M.shops)plotClear(x,z,turn,5,6.5)}
+// the Lifestyle centre (the guide's clubhouse), on a plot checked to be clear of roads, buildings and car parks
 const LIFESITE={Asaba:[-122.4,-20.7,0],Warri:[-37,71.8,0],Ozoro:[-115,-98.7,Math.PI],Agbor:[-115,-98.7,Math.PI]};
 function lifestylePlace(st){const L=LIFESITE[st];if(!L||!guideBuilding("lifestyle",st))return;place({kind:"modern",key:"lifestyle",name:st.toUpperCase()+" LIFESTYLE",short:"Lifestyle Centre",w:22,d:12,floors:2,yardW:30,yardD:24,accent:"#1f3a2c"},L[0],L[1],L[2])}
-function buildTown(st){const C=STATES[st],SP={};PLACED_DOORS=[];const doors=()=>{for(const[k,d]of PLACED_DOORS)if(!SP[k]&&guideBuilding(k,st))SP[k]=d};BUILDINGS.length=0;MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);if(st==="Asaba")nationalOffices();lifestylePlace(st);doors();return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
+function buildTown(st){const C=STATES[st],SP={};PLACED_DOORS=[];const doors=()=>{for(const[k,d]of PLACED_DOORS)if(!SP[k]&&guideBuilding(k,st))SP[k]=d};BUILDINGS.length=0;MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);if(st==="Asaba")nationalOffices();lifestylePlace(st);marketsPlace(st,SP);doors();return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
   const R0=9,R1=17,W=9,LEN=110,start=R1-.6;roundabout(R0,R1);
   for(let k=0;k<4;k++)road(Math.sin(k*Math.PI/2)*(start+LEN/2),-Math.cos(k*Math.PI/2)*(start+LEN/2),W,LEN,-k*Math.PI/2);
   const off=d=>W/2+4.2+d/2;                                    // how far a plot's centre sits from the middle of its road
@@ -1459,7 +1479,7 @@ function buildTown(st){const C=STATES[st],SP={};PLACED_DOORS=[];const doors=()=>
   [["onebed",-50],["onebed",-33],["onebed",-16],["selfcon",3],["selfcon",21],["selfcon",39]].forEach(([k,x])=>home(k,x,qz+side(k),Math.PI));
   [["singleroom",-40],["singleroom",-23],["singleroom",23]].forEach(([k,x])=>home(k,x,qz-side(k),0));
   view(C.areas[2],-5,15,qz-34,Math.PI,-.25);mark(C.areas[0],0,gz,"#8a3d6a");mark(C.areas[1],tx,4,"#0d7a70");mark(C.areas[2],-5,qz,"#a67a05");
-  lifestylePlace(st);doors();return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}
+  lifestylePlace(st);marketsPlace(st,SP);doors();return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}
 const SCENE="asaba";if(SCENE==="homes")homesSample();else if(SCENE==="modern")modernSample();
 
 /* ================================== drawing ================================== */
@@ -2579,7 +2599,7 @@ let scene="border",busy=false,talking=false,choosing=true,flying=false,testOpen=
    The first seconds in a new place (while a town is built or a building loads) do not count. */
 const QMAX=Math.min(window.devicePixelRatio||1,1.25),QSET={key:"",until:0,cap:Math.min(window.devicePixelRatio||1,1.25),capAt:0};      /* cap: just below the last level that proved too much; raised again after 45 s, to try higher */
 const SAMPLE={no:"DC-ASB-0001",name:"Sample Citizen",dob:"01 September 1996",gender:"Female",state:"Asaba",date:"10 October 2026"};
-const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);roadJoins();highway(st);workshop(st,t);station(st,t);carParks(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
+const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);roadJoins();highway(st);workshop(st,t);station(st,t);marketsClear(st);carParks(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400);hudNote(t)}
 function fadeTo(text,change){if(busy)return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
 const stand=(s,o)=>{scene=s;me.inside=s==="imm";Object.assign(me,{y:0,pitch:.03},o||{});SNAPCAM=true};
@@ -4296,7 +4316,7 @@ let TV=null;
 const toTrs=()=>fadeTo("National Treasury",()=>{TV=trsOf();stand("trs",{x:0,z:9.4,yaw:0})});
 const DOORWAYS={treasury:()=>{if(!allowed(TRS_ALL)){toast("The National Treasury is open only to its officials: the Bank Governor, the Minister of Finance, the President, the Vice President, the Chief of Staff, and state Governors, SSGs and Banking Directors.");return}toTrs()},hosp:()=>toHosp(0,false),bank:()=>toBank(),imm:()=>STATES[me.town].capital?toImm(true):guideEnter("immstate"),       // outside the capital, the state's own immigration office (registration is still in Asaba)
   gov:()=>toGov("state","gov"),air:()=>p2Enter("air","air"),hotel:()=>p2Enter("h_hotel","hotel"),guest:()=>p2Enter("h_guest","guest"),church:()=>p2Enter("church","church"),fshop:()=>p2Enter("fshop","fshop"),woffice:()=>p2Enter("woffice","woffice"),
-  ...Object.fromEntries(Array.from({length:12},(_,i)=>["shop"+(i+1),()=>p2Enter("shop","shop"+(i+1))])),
+  ...Object.fromEntries(Array.from({length:12},(_,i)=>["shop"+(i+1),()=>{const k="shop"+(i+1),nm=SHOPNAME[me.town+"/"+k];if(nm&&!GOV_SPEC["shop:"+nm])GOV_SPEC["shop:"+nm]=shopSpec(nm);p2Enter(nm?"shop:"+nm:"shop",k)}])),
   fed:()=>allowed(ALL_FED)?toGov("federal","fed"):toast(GOV_SPEC.federal().noEntry),villa:()=>allowed(VILLA3)?toGov("villa","villa"):toast(GOV_SPEC.villa().noEntry),
   villa1:()=>allowed(VILLA3)?toGov("villa","villa1"):toast(GOV_SPEC.villa().noEntry),villa2:()=>allowed(VILLA3)?toGov("villa","villa2"):toast(GOV_SPEC.villa().noEntry),
   ...Object.fromEntries(GUIDE_DOORS.map(t=>[t,()=>guideEnter(t)]))};       // the buildings built from the Discord guide
