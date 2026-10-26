@@ -38,7 +38,9 @@ from the state's account or the National Reserve, unpaid days stay owed); the Na
 public place, hotel, Lifestyle centre (clubhouse, **no chapel**), Asaba Church, shops, airports, filling stations and
 workshop offices; room-level clocking in; indoor maps; driving with gears, lights, damage, fire, leaks, mechanic,
 workshops and a paid tow truck; vehicle ownership, keys, 9-11 car parks per town, garage spawning; street lamps,
-traffic lights, hydrants and breakable street objects; the cream-and-green HUD; the Sovereign GT (the Audi is gone).
+traffic lights, hydrants and breakable street objects; the cream-and-green HUD; the Sovereign GT (the Audi is gone), with doors that open on their hinges, wheels that
+roll and steer, a turning steering wheel, see-through windows and the driver seated inside (`source/models/pack_vehicle.py`
+packs any car in `assets/vehicles/` with its moving parts, hinges and seats).
 
 ## 4. The work queue, in order
 

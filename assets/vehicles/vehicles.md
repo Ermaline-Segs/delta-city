@@ -565,5 +565,5 @@ For each car: `<car>_driver_open.png` (front-left corner, driver's door open 60 
 
 ## Not done yet
 
-- **Audi R8:** removed from the game. The Sovereign GT replaced it everywhere (the practice car, the Chief Admin's car, every garage car; `supabase_sovereign.sql` turns cars saved as Audis into Sovereign GTs). The game draws it from `source/models/sovereign.json`, packed from `sovereign_gt.glb` by `source/models/pack_sovereign.py`, with its doors, wheels and steering wheel joined to the body for now.
+- **Audi R8:** removed from the game. The Sovereign GT replaced it everywhere (the practice car, the Chief Admin's car, every garage car; `supabase_sovereign.sql` turns cars saved as Audis into Sovereign GTs). The game draws it from `source/models/sovereign.json`, packed from `sovereign_gt.glb` by `source/models/pack_vehicle.py`, which keeps its doors, wheels and steering wheel as separate parts with their hinges, centres and seats, so they move in the game. The same packer works for every vehicle here.
 - **Car sounds:** not started yet.
