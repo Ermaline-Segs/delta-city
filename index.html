@@ -2607,7 +2607,7 @@ function clearDoorways(T){const inC=(x,z,r)=>{for(const k in T.spots){const d=T.
   if(TREES.inst)for(let i=TREES.inst.length-1;i>=0;i--){const t=TREES.inst[i];if(inC(t[1],t[2],.6)){TREES.inst.splice(i,1);for(const w of T.blocks)if(w[2]-w[0]<1.2&&w[3]-w[1]<1.2&&Math.abs((w[0]+w[2])/2-t[1])<.4&&Math.abs((w[1]+w[3])/2-t[2])<.4)w.splice(0,4,1e9,1e9,1e9,1e9)}}}
 // every shop has its own tag on the map, with its name
 function tagShops(T,st){for(const k in T.spots){if(!/^shop\d+$/.test(k))continue;const d=T.spots[k];if(T.map.places.some(p=>!p.road&&Math.hypot(p.x-d.x,p.z-d.z)<6))continue;
-  T.map.places.push({name:(typeof SHOPNAME!=="undefined"&&SHOPNAME[st+"/"+k])||"Shop",x:d.x-d.fx*2,z:d.z-d.fz*2,color:"#b45309",cat:"Services"})}}
+  T.map.places.push({name:(typeof SHOPNAME!=="undefined"&&SHOPNAME[st+"/"+k])||"Shop",x:d.x-d.fx*2,z:d.z-d.fz*2,color:"#b45309",group:"Services",icon:"🛍"})}}
 function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);clearDoorways(t);tagShops(t,st);roadJoins();highway(st);workshop(st,t);station(st,t);marketsClear(st);carParks(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400);hudNote(t)}
 function fadeTo(text,change){if(busy||(scene!=="town"&&NOW<exitCool))return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
