@@ -1,30 +1,39 @@
 # Delta City home furniture
 
-Every item is a `.glb` measured in metres. Models face local -Z after export and use Y-up. Sizes and triangle counts were checked from the exported files; every item is under 5,000 triangles. “Floor” and “Wall” name the in-game placement surface. See each room folder for its rendered preview sheet.
+Every item is a `.glb` in metres, Y-up. Sizes and triangle counts are measured from the files, and every item is under 5,000 triangles.
 
-| File | Room | Item and style | Place on | Size (W × D × H, m) | Triangles | Source and licence |
+## Orientation and origin (checked from the files)
+
+- **Facing:** the front of every item faces **+Z** in the glTF file. This is three.js's default "forward", the side `object.lookAt()` turns toward a target. To face an item into a room, point its +Z at the room. An earlier version of this note said −Z, which was wrong.
+- **Floor items:** the origin is on the floor (lowest point at y = 0), centred under the item. Place them at floor height.
+- **Wall items:** the origin is at the centre of the back face, and the back is flush with the origin plane. The item sticks out toward +Z. Place the origin on the wall surface at the listed centre height, with +Z pointing into the room.
+- **Ceiling items** (ceiling fans): the origin is at the top centre, the mount point. Place it on the ceiling; the fan hangs down.
+
+Size is width (x) × depth (z) × height (y).
+
+| File | Room | Item and style | Placement | Size (W × D × H, m) | Triangles | Source and licence |
 |---|---|---|---|---:|---:|---|
-| `bathroom/bathroom_mirror_oak.glb` | Bathroom | Framed bathroom mirror (oak) | Wall | 0.72 × 0.08 × 1.15 | 540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `bathroom/bathroom_mirror_silver.glb` | Bathroom | Framed bathroom mirror (silver) | Wall | 0.72 × 0.08 × 1.15 | 540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `bathroom/bathroom_mirror_oak.glb` | Bathroom | Framed bathroom mirror (oak) | Wall, centre 1.45 m up | 0.72 × 0.08 × 1.15 | 540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `bathroom/bathroom_mirror_silver.glb` | Bathroom | Framed bathroom mirror (silver) | Wall, centre 1.45 m up | 0.72 × 0.08 × 1.15 | 540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bathroom/bathtub_white.glb` | Bathroom | Enamel bathtub with rim, waste and overflow fittings (white) | Floor | 1.72 × 0.78 × 0.65 | 660 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bathroom/bucket_bowl_blue.glb` | Bathroom | Water bucket and wash bowl (blue) | Floor | 0.83 × 0.49 × 0.44 | 740 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bathroom/bucket_bowl_green.glb` | Bathroom | Water bucket and wash bowl (green) | Floor | 0.83 × 0.49 × 0.44 | 740 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bathroom/bucket_bowl_red.glb` | Bathroom | Water bucket and wash bowl (red) | Floor | 0.83 × 0.49 × 0.44 | 740 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bathroom/shower_starter.glb` | Bathroom | Corner shower (starter) | Floor | 0.92 × 0.92 × 2.06 | 372 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bathroom/toilet_starter.glb` | Bathroom | Close-coupled toilet (starter) | Floor | 0.42 × 0.68 × 0.84 | 590 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `bathroom/towel_rail_gold.glb` | Bathroom | Wall towel rail with hanging towel (gold) | Wall | 0.96 × 0.11 × 0.56 | 672 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `bathroom/towel_rail_silver.glb` | Bathroom | Wall towel rail with hanging towel (silver) | Wall | 0.96 × 0.11 × 0.56 | 672 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `bathroom/towel_rail_gold.glb` | Bathroom | Wall towel rail with hanging towel (gold) | Wall, centre 1.10 m up | 0.96 × 0.11 × 0.57 | 672 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `bathroom/towel_rail_silver.glb` | Bathroom | Wall towel rail with hanging towel (silver) | Wall, centre 1.10 m up | 0.96 × 0.11 × 0.57 | 672 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bathroom/washbasin_starter.glb` | Bathroom | Pedestal washbasin (starter) | Floor | 0.55 × 0.45 × 1.04 | 508 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `bedroom/bed_double_blue.glb` | Bedroom | Double bed with timber frame, mattress, duvet and pillows (blue) | Floor | 1.57 × 2.06 × 1.23 | 1,728 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `bedroom/bed_double_green.glb` | Bedroom | Double bed with timber frame, mattress, duvet and pillows (green) | Floor | 1.57 × 2.06 × 1.23 | 1,728 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `bedroom/bed_double_blue.glb` | Bedroom | Double bed with timber frame, mattress, duvet and pillows (blue) | Floor | 1.57 × 2.07 × 1.23 | 1,728 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `bedroom/bed_double_green.glb` | Bedroom | Double bed with timber frame, mattress, duvet and pillows (green) | Floor | 1.57 × 2.07 × 1.23 | 1,728 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bedroom/bed_double_starter.glb` | Bedroom | Double bed, original starter model (starter) | Floor | 1.62 × 2.01 × 1.15 | 312 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bedroom/bed_king_blue.glb` | Bedroom | King bed with timber frame, mattress, duvet and pillows (blue) | Floor | 1.87 × 2.15 × 1.23 | 1,728 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bedroom/bed_king_green.glb` | Bedroom | King bed with timber frame, mattress, duvet and pillows (green) | Floor | 1.87 × 2.15 × 1.23 | 1,728 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bedroom/bed_single_blue.glb` | Bedroom | Single bed with timber frame, mattress, duvet and pillows (blue) | Floor | 0.95 × 2.04 × 1.23 | 1,728 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bedroom/bed_single_green.glb` | Bedroom | Single bed with timber frame, mattress, duvet and pillows (green) | Floor | 0.95 × 2.04 × 1.23 | 1,728 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bedroom/bed_single_starter.glb` | Bedroom | Single bed, original starter model (starter) | Floor | 1.02 × 2.01 × 1.15 | 268 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `bedroom/bedside_lamp_blue.glb` | Bedroom | Bedside lamp with weighted base and fabric shade (blue) | Floor | 0.36 × 0.36 × 0.80 | 228 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `bedroom/bedside_lamp_cream.glb` | Bedroom | Bedside lamp with weighted base and fabric shade (cream) | Floor | 0.36 × 0.36 × 0.80 | 228 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `bedroom/bedside_lamp_blue.glb` | Bedroom | Bedside lamp with weighted base and fabric shade (blue) | Floor | 0.36 × 0.36 × 0.79 | 228 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `bedroom/bedside_lamp_cream.glb` | Bedroom | Bedside lamp with weighted base and fabric shade (cream) | Floor | 0.36 × 0.36 × 0.79 | 228 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bedroom/dressing_table_oak.glb` | Bedroom | Dressing table with drawers and framed mirror (oak) | Floor | 1.12 × 0.48 × 1.63 | 1,756 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bedroom/dressing_table_white.glb` | Bedroom | Dressing table with drawers and framed mirror (white) | Floor | 1.12 × 0.48 × 1.63 | 1,756 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bedroom/mattress_floor_blue.glb` | Bedroom | Quilted mattress with folded duvet and pillow for floor use (blue) | Floor | 1.35 × 1.95 × 0.39 | 756 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
@@ -34,19 +43,19 @@ Every item is a `.glb` measured in metres. Models face local -Z after export and
 | `bedroom/wardrobe_oak.glb` | Bedroom | Three-door wardrobe with metal pulls (oak) | Floor | 0.98 × 0.63 × 1.95 | 716 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bedroom/wardrobe_starter.glb` | Bedroom | Wardrobe, original starter model (starter) | Floor | 1.60 × 0.66 × 2.00 | 368 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `bedroom/wardrobe_white.glb` | Bedroom | Three-door wardrobe with metal pulls (white) | Floor | 0.98 × 0.63 × 1.95 | 716 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `cooling-power/ceiling_fan_black.glb` | Cooling and power | Three-blade ceiling fan, light and downrod; black finish (black) | Wall | 1.27 × 1.45 × 0.67 | 356 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `cooling-power/ceiling_fan_walnut.glb` | Cooling and power | Three-blade ceiling fan, light and downrod; walnut finish (walnut) | Wall | 1.27 × 1.45 × 0.67 | 356 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `cooling-power/ceiling_fan_white.glb` | Cooling and power | Three-blade ceiling fan, light and downrod; white finish (white) | Wall | 1.27 × 1.45 × 0.67 | 356 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `cooling-power/ceiling_fan_black.glb` | Cooling and power | Three-blade ceiling fan, light and downrod; black finish (black) | Ceiling | 1.27 × 1.45 × 0.67 | 356 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `cooling-power/ceiling_fan_walnut.glb` | Cooling and power | Three-blade ceiling fan, light and downrod; walnut finish (walnut) | Ceiling | 1.27 × 1.45 × 0.67 | 356 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `cooling-power/ceiling_fan_white.glb` | Cooling and power | Three-blade ceiling fan, light and downrod; white finish (white) | Ceiling | 1.27 × 1.45 × 0.67 | 356 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `cooling-power/generator_large_cream.glb` | Cooling and power | Large Nigerian home backup generator; cream (cream) | Floor | 0.72 × 0.48 × 0.55 | 2,360 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `cooling-power/generator_large_green.glb` | Cooling and power | Large Nigerian home backup generator; green (green) | Floor | 0.72 × 0.48 × 0.55 | 2,360 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `cooling-power/generator_small_blue.glb` | Cooling and power | Small Nigerian home backup generator; blue (blue) | Floor | 0.46 × 0.32 × 0.44 | 1,452 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `cooling-power/generator_small_red.glb` | Cooling and power | Small Nigerian home backup generator; red (red) | Floor | 0.46 × 0.32 × 0.44 | 1,452 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `cooling-power/inverter_two_batteries.glb` | Cooling and power | Wall inverter with two deep-cycle batteries, vents and cables (white and black) | Floor | 1.00 × 0.40 × 1.41 | 1,128 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `cooling-power/standing_fan_black.glb` | Cooling and power | Height-adjustable pedestal fan with safety cage; black (black) | Floor | 0.78 × 0.54 × 1.86 | 2,416 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `cooling-power/standing_fan_blue.glb` | Cooling and power | Height-adjustable pedestal fan with safety cage; blue (blue) | Floor | 0.78 × 0.54 × 1.86 | 2,416 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `cooling-power/standing_fan_white.glb` | Cooling and power | Height-adjustable pedestal fan with safety cage; white (white) | Floor | 0.78 × 0.54 × 1.86 | 2,416 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `cooling-power/wall_ac_cream.glb` | Cooling and power | Split wall air-conditioner with adjustable air outlet; cream (cream) | Wall | 0.92 × 0.27 × 0.30 | 1,404 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `cooling-power/wall_ac_white.glb` | Cooling and power | Split wall air-conditioner with adjustable air outlet; white (white) | Wall | 0.92 × 0.27 × 0.30 | 1,404 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `cooling-power/standing_fan_black.glb` | Cooling and power | Height-adjustable pedestal fan with safety cage; black (black) | Floor | 0.56 × 0.39 × 1.35 | 2,416 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `cooling-power/standing_fan_blue.glb` | Cooling and power | Height-adjustable pedestal fan with safety cage; blue (blue) | Floor | 0.56 × 0.39 × 1.35 | 2,416 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `cooling-power/standing_fan_white.glb` | Cooling and power | Height-adjustable pedestal fan with safety cage; white (white) | Floor | 0.56 × 0.39 × 1.35 | 2,416 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `cooling-power/wall_ac_cream.glb` | Cooling and power | Split wall air-conditioner with adjustable air outlet; cream (cream) | Wall, centre 2.15 m up | 0.92 × 0.27 × 0.30 | 1,404 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `cooling-power/wall_ac_white.glb` | Cooling and power | Split wall air-conditioner with adjustable air outlet; white (white) | Wall, centre 2.15 m up | 0.92 × 0.27 × 0.30 | 1,404 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `dining-other/dining_chair_starter.glb` | Dining and other | Painted wooden dining chair, Poly Haven model (starter) | Floor | 0.43 × 0.54 × 0.96 | 724 | [Poly Haven: Painted Wooden Chair 01](https://polyhaven.com/a/painted_wooden_chair_01), CC0 |
 | `dining-other/dining_set_4_light_oak.glb` | Dining and other | 4-seater table and matching chairs, light_oak timber (light_oak) | Floor | 1.50 × 1.61 × 1.00 | 1,852 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `dining-other/dining_set_4_oak.glb` | Dining and other | 4-seater table and matching chairs, oak timber (oak) | Floor | 1.50 × 1.61 × 1.00 | 1,852 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
@@ -61,20 +70,20 @@ Every item is a `.glb` measured in metres. Models face local -Z after export and
 | `dining-other/standing_mirror_oak.glb` | Dining and other | Full-length freestanding mirror with rear supports (oak) | Floor | 0.62 × 0.54 × 1.87 | 736 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `dining-other/washing_machine_silver.glb` | Dining and other | Front-load washer with porthole, dial and controls (silver) | Floor | 0.62 × 0.72 × 0.92 | 764 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `dining-other/washing_machine_white.glb` | Dining and other | Front-load washer with porthole, dial and controls (white) | Floor | 0.62 × 0.72 × 0.92 | 764 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `kitchen/blender_black.glb` | Kitchen | Kitchen blender with glass jug, lid and speed control (black) | Floor | 0.34 × 0.32 × 0.76 | 684 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `kitchen/blender_red.glb` | Kitchen | Kitchen blender with glass jug, lid and speed control (red) | Floor | 0.34 × 0.32 × 0.76 | 684 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `kitchen/chest_freezer_silver.glb` | Kitchen | Chest freezer with raised lid and cooling vents, silver (silver) | Floor | 0.94 × 0.70 × 0.93 | 540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `kitchen/chest_freezer_white.glb` | Kitchen | Chest freezer with raised lid and cooling vents, white (white) | Floor | 0.94 × 0.70 × 0.93 | 540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `kitchen/blender_black.glb` | Kitchen | Kitchen blender with glass jug, lid and speed control (black) | Floor | 0.19 × 0.18 × 0.42 | 684 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `kitchen/blender_red.glb` | Kitchen | Kitchen blender with glass jug, lid and speed control (red) | Floor | 0.19 × 0.18 × 0.42 | 684 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `kitchen/chest_freezer_silver.glb` | Kitchen | Chest freezer with raised lid and cooling vents, silver (silver) | Floor | 0.94 × 0.70 × 0.92 | 540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `kitchen/chest_freezer_white.glb` | Kitchen | Chest freezer with raised lid and cooling vents, white (white) | Floor | 0.94 × 0.70 × 0.92 | 540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `kitchen/cooker_electric_starter.glb` | Kitchen | Electric cooker, Poly Haven starter model (starter) | Floor | 0.50 × 0.65 × 0.86 | 4,950 | [Poly Haven: Electric Stove](https://polyhaven.com/a/electric_stove), CC0 |
 | `kitchen/cooker_gas_starter.glb` | Kitchen | Gas cooker, original starter model (starter) | Floor | 0.60 × 0.66 × 0.90 | 708 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `kitchen/electric_kettle_red.glb` | Kitchen | Electric kettle with base, spout and heatproof handle (red) | Floor | 0.40 × 0.45 × 0.43 | 768 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `kitchen/electric_kettle_silver.glb` | Kitchen | Electric kettle with base, spout and heatproof handle (silver) | Floor | 0.40 × 0.45 × 0.43 | 768 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `kitchen/fridge_black.glb` | Kitchen | Two-door fridge-freezer, black (black) | Floor | 0.68 × 0.73 × 1.82 | 756 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `kitchen/fridge_silver.glb` | Kitchen | Two-door fridge-freezer, silver (silver) | Floor | 0.68 × 0.73 × 1.82 | 756 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `kitchen/fridge_white_starter.glb` | Kitchen | White fridge, original starter model (starter) | Floor | 0.60 × 0.69 × 1.80 | 232 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `kitchen/gas_cooker_with_cylinder.glb` | Kitchen | Four-burner gas cooker, LPG cylinder and flexible hose (white and blue) | Floor | 1.00 × 0.65 × 0.89 | 2,540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `kitchen/electric_kettle_red.glb` | Kitchen | Electric kettle with base, spout and heatproof handle (red) | Floor | 0.23 × 0.26 × 0.25 | 768 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `kitchen/electric_kettle_silver.glb` | Kitchen | Electric kettle with base, spout and heatproof handle (silver) | Floor | 0.23 × 0.26 × 0.25 | 768 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `kitchen/fridge_black.glb` | Kitchen | Two-door fridge-freezer, black (black) | Floor | 0.68 × 0.74 × 1.82 | 756 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `kitchen/fridge_silver.glb` | Kitchen | Two-door fridge-freezer, silver (silver) | Floor | 0.68 × 0.74 × 1.82 | 756 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `kitchen/fridge_white_starter.glb` | Kitchen | White fridge, original starter model (starter) | Floor | 0.60 × 0.70 × 1.80 | 232 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `kitchen/gas_cooker_with_cylinder.glb` | Kitchen | Four-burner gas cooker, LPG cylinder and flexible hose (white and blue) | Floor | 1.01 × 0.64 × 0.89 | 2,540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `kitchen/kitchen_base_units.glb` | Kitchen | Kitchen base cabinets with counter and sink (starter) | Floor | 2.42 × 0.64 × 1.20 | 452 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `kitchen/kitchen_wall_units.glb` | Kitchen | Wall-mounted kitchen cabinets (starter) | Wall | 2.40 × 0.39 × 0.70 | 268 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `kitchen/kitchen_wall_units.glb` | Kitchen | Wall-mounted kitchen cabinets (starter) | Wall, centre 1.80 m up | 2.40 × 0.39 × 0.70 | 268 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `kitchen/microwave_black.glb` | Kitchen | Countertop microwave oven, black (black) | Floor | 0.52 × 0.44 × 0.31 | 972 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `kitchen/microwave_silver.glb` | Kitchen | Countertop microwave oven, silver (silver) | Floor | 0.52 × 0.44 × 0.31 | 972 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `kitchen/open_kitchen_shelf_light_oak.glb` | Kitchen | Open kitchen shelves with storage tins (light_oak) | Floor | 0.90 × 0.36 × 1.70 | 972 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
@@ -87,14 +96,14 @@ Every item is a `.glb` measured in metres. Models face local -Z after export and
 | `living-room/bookshelf_oak.glb` | Living room | Five-shelf bookcase with books (oak) | Floor | 1.01 × 0.30 × 1.82 | 2,484 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `living-room/centre_table_black.glb` | Living room | Centre table, black finish (black) | Floor | 1.05 × 0.60 × 0.40 | 392 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `living-room/centre_table_oak.glb` | Living room | Centre table, oak finish (oak) | Floor | 1.05 × 0.60 × 0.40 | 392 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `living-room/curtains_blue.glb` | Living room | Pair of full-length pleated curtains with pole and eyelets (blue) | Wall | 1.86 × 0.08 × 1.96 | 3,884 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `living-room/curtains_cream.glb` | Living room | Pair of full-length pleated curtains with pole and eyelets (cream) | Wall | 1.86 × 0.08 × 1.96 | 3,884 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `living-room/curtains_green.glb` | Living room | Pair of full-length pleated curtains with pole and eyelets (green) | Wall | 1.86 × 0.08 × 1.96 | 3,884 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `living-room/floor_lamp_black.glb` | Living room | Standing floor lamp with weighted base and shade (black) | Floor | 0.48 × 0.48 × 1.97 | 228 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `living-room/floor_lamp_cream.glb` | Living room | Standing floor lamp with weighted base and shade (cream) | Floor | 0.48 × 0.48 × 1.97 | 228 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `living-room/framed_picture_black.glb` | Living room | Framed Delta river landscape picture (black) | Wall | 0.66 × 0.07 × 0.50 | 1,524 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `living-room/framed_picture_gold.glb` | Living room | Framed Delta river landscape picture (gold) | Wall | 0.66 × 0.07 × 0.50 | 1,524 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `living-room/framed_picture_oak.glb` | Living room | Framed Delta river landscape picture (oak) | Wall | 0.66 × 0.07 × 0.50 | 1,524 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `living-room/curtains_blue.glb` | Living room | Pair of full-length pleated curtains with pole and eyelets (blue) | Wall, centre 1.37 m up | 1.86 × 0.08 × 1.96 | 3,884 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `living-room/curtains_cream.glb` | Living room | Pair of full-length pleated curtains with pole and eyelets (cream) | Wall, centre 1.37 m up | 1.86 × 0.08 × 1.96 | 3,884 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `living-room/curtains_green.glb` | Living room | Pair of full-length pleated curtains with pole and eyelets (green) | Wall, centre 1.37 m up | 1.86 × 0.08 × 1.96 | 3,884 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `living-room/floor_lamp_black.glb` | Living room | Standing floor lamp with weighted base and shade (black) | Floor | 0.48 × 0.48 × 1.96 | 228 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `living-room/floor_lamp_cream.glb` | Living room | Standing floor lamp with weighted base and shade (cream) | Floor | 0.48 × 0.48 × 1.96 | 228 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `living-room/framed_picture_black.glb` | Living room | Framed Delta river landscape picture (black) | Wall, centre 1.55 m up | 0.66 × 0.07 × 0.50 | 1,524 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `living-room/framed_picture_gold.glb` | Living room | Framed Delta river landscape picture (gold) | Wall, centre 1.55 m up | 0.66 × 0.07 × 0.50 | 1,524 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `living-room/framed_picture_oak.glb` | Living room | Framed Delta river landscape picture (oak) | Wall, centre 1.55 m up | 0.66 × 0.07 × 0.50 | 1,524 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `living-room/plastic_chair_plastic_blue.glb` | Living room | Stackable moulded plastic chair (plastic_blue) | Floor | 0.44 × 0.47 × 0.88 | 804 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `living-room/plastic_chair_plastic_red.glb` | Living room | Stackable moulded plastic chair (plastic_red) | Floor | 0.44 × 0.47 × 0.88 | 804 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `living-room/plastic_chair_white.glb` | Living room | Stackable moulded plastic chair (white) | Floor | 0.44 × 0.47 × 0.88 | 804 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
@@ -124,7 +133,9 @@ Every item is a `.glb` measured in metres. Models face local -Z after export and
 | `living-room/tv_65in_black.glb` | Living room | 65-inch flat-screen television with feet (black) | Floor | 1.45 × 0.18 × 0.88 | 304 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `living-room/tv_stand_black.glb` | Living room | Low TV cabinet with open shelves and cupboards (black) | Floor | 1.65 × 0.44 × 0.58 | 936 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
 | `living-room/tv_stand_oak.glb` | Living room | Low TV cabinet with open shelves and cupboards (oak) | Floor | 1.65 × 0.44 × 0.58 | 936 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `living-room/wall_clock_black.glb` | Living room | Round wall clock with hands and hour marks (black) | Wall | 0.48 × 0.12 × 0.48 | 2,352 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `living-room/wall_clock_oak.glb` | Living room | Round wall clock with hands and hour marks (oak) | Wall | 0.48 × 0.12 × 0.48 | 2,352 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `living-room/wall_mirror_black.glb` | Living room | Large rectangular framed wall mirror (black) | Wall | 0.72 × 0.08 × 1.15 | 540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
-| `living-room/wall_mirror_oak.glb` | Living room | Large rectangular framed wall mirror (oak) | Wall | 0.72 × 0.08 × 1.15 | 540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `living-room/wall_clock_black.glb` | Living room | Round wall clock with hands and hour marks (black) | Wall, centre 1.90 m up | 0.48 × 0.12 × 0.48 | 2,352 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `living-room/wall_clock_oak.glb` | Living room | Round wall clock with hands and hour marks (oak) | Wall, centre 1.90 m up | 0.48 × 0.12 × 0.48 | 2,352 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `living-room/wall_mirror_black.glb` | Living room | Large rectangular framed wall mirror (black) | Wall, centre 1.45 m up | 0.72 × 0.08 × 1.15 | 540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+| `living-room/wall_mirror_oak.glb` | Living room | Large rectangular framed wall mirror (oak) | Wall, centre 1.45 m up | 0.72 × 0.08 × 1.15 | 540 | Delta City original model; Poly Haven CC0 photo textures (see CREDITS.md) |
+
+Each room folder has a labelled `preview.png`.
