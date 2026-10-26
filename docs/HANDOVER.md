@@ -38,9 +38,7 @@ from the state's account or the National Reserve, unpaid days stay owed); the Na
 public place, hotel, Lifestyle centre (clubhouse, **no chapel**), Asaba Church, shops, airports, filling stations and
 workshop offices; room-level clocking in; indoor maps; driving with gears, lights, damage, fire, leaks, mechanic,
 workshops and a paid tow truck; vehicle ownership, keys, 9-11 car parks per town, garage spawning; street lamps,
-traffic lights, hydrants and breakable street objects; the cream-and-green HUD; the Sovereign GT (the Audi is gone), with doors that open on their hinges, wheels that
-roll and steer, a turning steering wheel, see-through windows and the driver seated inside (`source/models/pack_vehicle.py`
-packs any car in `assets/vehicles/` with its moving parts, hinges and seats).
+traffic lights, hydrants and breakable street objects; the cream-and-green HUD; the Sovereign GT (the Audi is gone).
 
 ## 4. The work queue, in order
 
@@ -124,3 +122,53 @@ insurance, selling cars between players. The owner may download more premium and
 `assets/vehicles/` (Sovereign GT, taxi, BRT bus, UAZ van, Corrado, dealership cars, `vehicles.md`),
 `assets/sounds/` (17 CC0 sounds), `assets/interiors/` (court, police, office, university, hotel, church, mosque,
 market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/characters/` (Rocketbox staff).
+
+## 11. Updates since the first handover (newest first)
+
+**Ways of working**
+- All Claude sessions (this chat, local Claude Code, cloud Claude Code) share **one weekly allowance**. Run one at a time
+  where possible. Codex does not use it (good for simple, well-defined asset jobs; it struggled with `index.html`).
+- **Only the cloud session edits `index.html`.** The local session does Blender and asset work in `delta-city`.
+- Keep this file up to date with every new decision.
+
+**Done since the first handover**
+- Markets and shops in Warri, Ozoro and Agbor. Right-hand traffic (vans and tow truck keep right, anticlockwise round
+  roundabouts, kerb-side parking). The Audi is gone; the **Sovereign GT** replaced it everywhere (`supabase_sovereign.sql`).
+- **Car doors and the seated driver:** the left front door swings open, the driver sits visibly with hands on the wheel,
+  wheels spin and steer. `source/models/pack_vehicle.py` prepares any car in `assets/vehicles/` with moving parts.
+- **11 converted cars** (all left-hand drive, badges removed, makers credited): Sovereign GT (Chief Admin), Kite, Comet,
+  Mula Van, Harmony, Meridian, Savanna, Strada RS, Vela V12, Harmattan GT, Starlite. Dropped as game rips: the
+  600LT-style car and the SRT Viper. The Ural police and fire trucks are not converted yet.
+- Map names shrink instead of vanishing (minimum 9 px, always shown); every shop has a tag (group "Services").
+  Entering: a 1.5 s grace period after arriving inside (`exitCool`), arrival at `G_LD - 2.2`. `clearDoorways` removes loose
+  street objects and trees within 7 m in front of every door.
+- **20 animations** in `assets/animations/` (CC0, Quaternius): lying down and getting up, sleeping, eating, cooking,
+  showering, toilet, typing, phone, carrying a box, car seat. They use Quaternius' 65-bone rig, so they must be
+  **retargeted** to the Rocketbox and MPFB skeletons before use.
+- Furniture finding: the models may face **+Z**, not -Z as some `items.md` notes say. Check each model's real front.
+  Codex's `assets/home/` set is complete but had faults (pieces floating, kettle and blender too big, fan mount); the
+  local session is fixing them.
+
+**The cloud session's current list, in order (before Phase 3)**
+1. Finish the entering fix: check the hospital, Treasury, bank and Immigration arrival points; retest with a phone joystick.
+2. Blocked entrances: place Asaba's shop 7 clear of the Township garden wall; every door walkable in all four towns.
+3. **Compounds:** every workplace and public place gets its own compound, a gate facing a road at least 7 m wide (two
+   cars side by side) and its own car park of at least 3 bays with a garage terminal, replacing the separate car parks.
+   Move stored cars to the nearest new car park (SQL safe to run twice). The market gets one compound; roadside shops
+   share a lay-by. No compound inside or behind another (the Asaba Lifestyle centre was behind a 55 m wall).
+   Homes: each home building gets one shared compound car park in Phase 3.
+4. **Tap anywhere on the big map** to plot a route along the roads, with arrows on the map and on the ground.
+5. Every building has a map tag, including GRA in each town.
+6. **Furniture facing the right way** in every inside (the lecture-hall desks faced backwards), placed by each model's
+   real front.
+7. **All furniture solid and fixed** in every inside, with aisles, doors and counters still reachable.
+8. **Feet on the ground, stairs climbed step by step:** no sinking into soil or floating up stairs; foot placement on
+   steps, kerbs and slopes.
+Then **Phase 3, homes** (section 6).
+
+**The local session's list, in order**
+1. Fix the home furniture (floating pieces, sizes, fan mount, facing) and check `assets/interiors/` facing the same way.
+2. Retarget the 20 animations to the Rocketbox and MPFB skeletons.
+3. Nigerian clothing and hair for the character creator (agbada, kaftan, senator wear, beards, ankara gown, iro and
+   buba, gele, locs, twists, slippers, sandals), fitted to the MPFB bodies with hide lists.
+4. Convert the Ural police and fire trucks.
