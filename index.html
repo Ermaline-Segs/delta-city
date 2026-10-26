@@ -1294,7 +1294,7 @@ PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2
     for(const[x,z]of[[mx-9,mz+15],[mx+3,mz+15],[mx+13,mz+11]])put("p_signboard",x,z,0);
     for(const[x,z]of[[mx-18,mz+16],[mx+18,mz+16],[mx,mz-16]])put("p_waste_bin",x,z,0,.7,.4);
     // shops facing DLA Road and Summit Road, near the homes
-    shop("p_shop_row",72,97-14,0,6,6);shop("p_small_shop",64,97-14,0,6.1,6.1);shop("p_small_shop",-14,128,Math.PI/2,6.1,6.1);shop("p_shop_row",-14,138,Math.PI/2,6,6);
+    shop("p_shop_row",72,97-14,0,6,6);shop("p_small_shop",55,97-14,0,6.1,6.1);       /* clear of the garden wall at Township, so its door is reachable */shop("p_small_shop",-14,128,Math.PI/2,6.1,6.1);shop("p_shop_row",-14,138,Math.PI/2,6,6);
     // a church on Ibusa Road, between Utilities and Transport, facing the road
     door("church",put("p_church",-78,22,Math.PI,6,10),Math.PI,10);yardBox(-78,22,16,22);mark("Asaba Church",-78,12,"#7c3aed");for(const s of[-1,1])put("p_bench",-78+s*5,13,Math.PI);
     // bus stops on the main roads, each with a bin beside it
@@ -2600,10 +2600,19 @@ let scene="border",busy=false,talking=false,choosing=true,flying=false,testOpen=
    The first seconds in a new place (while a town is built or a building loads) do not count. */
 const QMAX=Math.min(window.devicePixelRatio||1,1.25),QSET={key:"",until:0,cap:Math.min(window.devicePixelRatio||1,1.25),capAt:0};      /* cap: just below the last level that proved too much; raised again after 45 s, to try higher */
 const SAMPLE={no:"DC-ASB-0001",name:"Sample Citizen",dob:"01 September 1996",gender:"Female",state:"Asaba",date:"10 October 2026"};
-const TOWNS={},CELLS=60;function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);roadJoins();highway(st);workshop(st,t);station(st,t);marketsClear(st);carParks(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
+const TOWNS={},CELLS=60;/* Nothing may stand in a doorway's path: street furniture (benches, bins, lamps, hydrants, traffic lights, signs, bus
+   stops) and trees within 7 m in front of a door, 1.8 m either side of it, are taken away when the town is built. */
+function clearDoorways(T){const inC=(x,z,r)=>{for(const k in T.spots){const d=T.spots[k],ax=(x-d.x)*d.fx+(z-d.z)*d.fz,lat=Math.abs((x-d.x)*d.fz-(z-d.z)*d.fx);if(ax>-r&&ax<7+r&&lat<1.8+r)return true}return false};
+  const L=T.map.dyn||[],keep=[];for(const o of L){const B=o.box0||[o.x,o.z,o.x,o.z],r=Math.max(B[2]-B[0],B[3]-B[1])/2;if(inC(o.x,o.z,r)){if(o.b)o.b.splice(0,4,1e9,1e9,1e9,1e9);if(o.type==="lamp"&&T.map.lamps)T.map.lamps=T.map.lamps.filter(p=>Math.hypot(p[0]-o.hx,p[2]-o.hz)>.5)}else keep.push(o)}T.map.dyn=keep;
+  if(TREES.inst)for(let i=TREES.inst.length-1;i>=0;i--){const t=TREES.inst[i];if(inC(t[1],t[2],.6)){TREES.inst.splice(i,1);for(const w of T.blocks)if(w[2]-w[0]<1.2&&w[3]-w[1]<1.2&&Math.abs((w[0]+w[2])/2-t[1])<.4&&Math.abs((w[1]+w[3])/2-t[2])<.4)w.splice(0,4,1e9,1e9,1e9,1e9)}}}
+// every shop has its own tag on the map, with its name
+function tagShops(T,st){for(const k in T.spots){if(!/^shop\d+$/.test(k))continue;const d=T.spots[k];if(T.map.places.some(p=>!p.road&&Math.hypot(p.x-d.x,p.z-d.z)<6))continue;
+  T.map.places.push({name:(typeof SHOPNAME!=="undefined"&&SHOPNAME[st+"/"+k])||"Shop",x:d.x-d.fx*2,z:d.z-d.fz*2,color:"#b45309",cat:"Services"})}}
+function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);clearDoorways(t);tagShops(t,st);roadJoins();highway(st);workshop(st,t);station(st,t);marketsClear(st);carParks(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400);hudNote(t)}
-function fadeTo(text,change){if(busy)return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
-const stand=(s,o)=>{scene=s;me.inside=s==="imm";Object.assign(me,{y:0,pitch:.03},o||{});SNAPCAM=true};
+function fadeTo(text,change){if(busy||(scene!=="town"&&NOW<exitCool))return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
+let exitCool=0;       /* for a moment after arriving inside, the way out cannot trigger, so a player still walking in is never bounced straight back out */
+const stand=(s,o)=>{scene=s;me.inside=s==="imm";Object.assign(me,{y:0,pitch:.03},o||{});SNAPCAM=true;exitCool=NOW+1.5};
 const allowed=who=>!who||me.role==="admin"||who.includes(me.role)||(me.roles||[]).some(r=>who.includes(r))||who.some(n=>/[A-Z@]/.test(n)&&guideOk(n));       // a guide rule line ("Sergeant", "Citizen of Warri") as well as a role key       // the Chief Admin may enter and use everything
 const toBorder=fresh=>fadeTo("The border gate",()=>{if(fresh){me.role="newcomer";me.cert=null;me.entered=false;form.name=form.dob=form.gender=form.state="";closeTalk();stand("border",{x:0,z:50,yaw:0});chooser()}else stand("border",{x:0,z:14.4,yaw:Math.PI})});
 const toImm=fromCity=>fadeTo("Delta City Immigration Authority",()=>stand("imm",fromCity?{x:-13.4,z:4.2,yaw:-Math.PI/2}:{x:0,z:9.6,yaw:0}));
@@ -2818,7 +2827,7 @@ function p2Lobby(S,sign2){const P=S.pal,L=S.lobby,TO_DOOR=face(0,1),wall=(t)=>si
 let HV=null,HFLOOR_N=0;
 // into the hospital: from the street to the ground floor, or by lift to another floor
 const toHosp=(n,fromLift)=>fadeTo(STATES[me.town].hosp+": "+HFLOORS.find(f=>f.n===n).name,()=>{HV=hospOf(n,STATES[me.town].hosp);HFLOOR_N=n;const L=HV.F.lift;stand("hosp",fromLift?{x:L.x,z:L.z+1.4,yaw:Math.PI}:{x:0,z:7.4,yaw:0})});
-const toGov=(kind,spot)=>fadeTo(GOV_SPEC[kind](me.town).title,()=>{GV=govOf(kind,me.town);govSpot=spot;stand("gov",{x:0,z:G_LD-1.6,yaw:0})});
+const toGov=(kind,spot)=>fadeTo(GOV_SPEC[kind](me.town).title,()=>{GV=govOf(kind,me.town);govSpot=spot;stand("gov",{x:0,z:G_LD-2.2,yaw:0})});
 // arrive in a town, standing outside one of its doors and facing away from it
 const toTown=(st,spot,text,dist,pos)=>fadeTo(text||st,()=>{me.town=st;driving=false;const T=townOf(st),d=T.spots[spot]||T.spots.imm;TGY=0;scene="town";me.inside=false;me.entered=true;Object.assign(cam,pos?{x:pos.x,y:1.7,z:pos.z,yaw:pos.yaw||0,pitch:0}:{x:d.x+d.fx*(dist||5),y:1.7,z:d.z+d.fz*(dist||5),yaw:Math.atan2(-d.fx,-d.fz),pitch:0});SNAPCAM=true;if(!T.car&&!garOn())parkCar(T);garResume()});
 // one car, parked at the kerb of the road nearest to where you arrive
@@ -4558,8 +4567,11 @@ function paintMap(g,T,cx,cz,k,w,h,big,noMe){const o=noMe?-w/6:0,X=x=>o+w/2+(x-cx
   g.fillStyle="#6aa857";for(const r of T.map.rounds){g.beginPath();g.arc(X(r.x),Y(r.z),Math.max(2,r.r*k*.45),0,6.2832);g.fill()}
   if(route){g.strokeStyle="#1d9bf0";g.lineWidth=big?5:4;g.lineJoin="round";g.beginPath();route.pts.forEach((p,i)=>g[i?"lineTo":"moveTo"](X(p[0]),Y(p[1])));g.stroke()}
   const boxes=big?T.map.places.map(p=>[X(p.x)-8,Y(p.z)-8,16,16]):[];for(const p of T.map.places){if(p.road)continue;const x=X(p.x),y=Y(p.z),on=route&&route.place===p;g.fillStyle=on?"#1d9bf0":p.color;g.strokeStyle="#ffffff";g.lineWidth=2;g.beginPath();g.arc(x,y,big?7:4,0,6.2832);g.fill();g.stroke();
-    if(big){g.font="600 12px Segoe UI,system-ui,sans-serif";const tw=g.measureText(p.name).width+8;let put=null;for(const[ox,oy]of[[11,-8],[-tw-11,-8],[-tw/2,-28],[-tw/2,11],[11,-26],[11,10],[-tw-11,-26],[-tw-11,10]]){const r=[x+ox,y+oy,tw,17];if(r[0]>2&&r[0]+tw<w-2&&r[1]>2&&r[1]+17<h-2&&!boxes.some(q=>r[0]<q[0]+q[2]&&r[0]+r[2]>q[0]&&r[1]<q[1]+q[3]&&r[1]+r[3]>q[1])){put=r;break}}
-      if(put){boxes.push(put);g.fillStyle="rgba(255,255,255,.88)";g.fillRect(put[0],put[1],put[2],put[3]);g.fillStyle="#111827";g.textBaseline="top";g.fillText(p.name,put[0]+4,put[1]+2)}p.px=x;p.py=y}}
+    if(big){let put=null,fs=12;       /* every place keeps its name: when crowded the name gets smaller (down to 9 px, still readable); if it still cannot fit clear, it is shown anyway */
+      for(const size of[12,10.5,9]){g.font="600 "+size+"px Segoe UI,system-ui,sans-serif";const tw=g.measureText(p.name).width+(size>10?8:6),th=size+5;
+        for(const[ox,oy]of[[size-1,-th/2],[-tw-size+1,-th/2],[-tw/2,-th-11],[-tw/2,10],[size-1,-th-9],[size-1,9],[-tw-size+1,-th-9],[-tw-size+1,9]]){const r=[x+ox,y+oy,tw,th];if(r[0]>2&&r[0]+tw<w-2&&r[1]>2&&r[1]+th<h-2&&!boxes.some(q=>r[0]<q[0]+q[2]&&r[0]+r[2]>q[0]&&r[1]<q[1]+q[3]&&r[1]+r[3]>q[1])){put=r;fs=size;break}}if(put)break}
+      if(!put){fs=9;g.font="600 9px Segoe UI,system-ui,sans-serif";const tw=g.measureText(p.name).width+6;put=[clamp(x+8,2,w-tw-2),clamp(y-7,2,h-16),tw,14]}
+      boxes.push(put);g.fillStyle="rgba(255,255,255,.88)";g.fillRect(put[0],put[1],put[2],put[3]);g.fillStyle="#111827";g.textBaseline="top";g.fillText(p.name,put[0]+(fs>10?4:3),put[1]+2);p.px=x;p.py=y}}
   if(noMe)return;
   // you: an arrow pointing the way you face
   const px=X(cam.x),py=Y(cam.z),a=Math.atan2(-Math.sin(cam.yaw),Math.cos(cam.yaw));g.save();g.translate(px,py);g.rotate(a);g.fillStyle="#e11d48";g.strokeStyle="#ffffff";g.lineWidth=2;g.beginPath();g.moveTo(0,-(big?13:10));g.lineTo(big?9:7,big?10:8);g.lineTo(0,big?5:4);g.lineTo(big?-9:-7,big?10:8);g.closePath();g.fill();g.stroke();g.restore()}
