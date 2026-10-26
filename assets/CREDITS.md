@@ -215,3 +215,7 @@ Each folder has an `items.md` that lists every file with its source and licence,
 ## Sounds (`sounds/`)
 
 All **CC0**. They were cut, made mono and looped from recordings by Joseph Sardin at [BigSoundBank](https://bigsoundbank.com), plus two from OpenGameArt: "Crash Collision" by qubodup and "Elevator ding" by fvcalderan. Every file and its source is listed in `sounds/sounds.md`.
+
+## Animations (`animations/`)
+
+All **CC0** by Quaternius ([Universal Animation Library 1 and 2](https://quaternius.com/packs/universalanimationlibrary.html), Standard version; licence text in `animations/LICENSE_Quaternius_UAL.txt`). Several clips were combined and adjusted in Blender. See `animations/animations.md`.
