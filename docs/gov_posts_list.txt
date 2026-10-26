@@ -1,0 +1,91 @@
+Here is the full gov_posts list (title | scope), 89 posts, including Swat and Student once the SQL has run:
+
+Attorney-General | national
+Bank Governor | national
+Border Protection Officer (Federal) | national
+Business Officer | national
+Chief Judge | national
+Chief of Staff | national
+Citizenship Registrar (Federal) | national
+Comptroller-General | national
+Consular Officer | national
+Deputy Comptroller-General | national
+Diplomat | national
+Foreign Affairs Officer | national
+Immigration Services Agent (Federal) | national
+Inspector-General of Police & Security | national
+Minister of Agriculture & Natural Resources | national
+Minister of Culture & Heritage | national
+Minister of Education | national
+Minister of Finance | national
+Minister of Foreign Affairs | national
+Minister of Health | national
+Minister of Housing & Infrastructure | national
+Minister of National Statistics | national
+Minister of Trade & Commerce | national
+Minister of Transport | national
+President | national
+Trade & Commerce Officer | national
+Vice President | national
+Account Officer | state
+Agricultural Inspector | state
+Agriculture & Resources Officer | state
+Audit Officer | state
+Bank Manager | state
+Border Protection Officer | state
+Chief Registrar | state
+Citizenship Registrar | state
+Court Clerk | state
+Cultural Officer | state
+Customer Service Officer | state
+Data Officer | state
+Dean of Students' Affairs | state
+Dentist | state
+Detective | state
+Director of Agriculture & Natural Resources | state
+Director of Culture & Heritage | state
+Director of Housing & Urban Development | state
+Director of Infrastructure | state
+Director of Transport | state
+Doctor | state
+Drillers | state
+Drilling Inspector | state
+Driver | state
+Electrical Officer | state
+Electrician | state
+Farmers | state
+Governor | state
+Heritage Officer | state
+High Court Judge | state
+Housing Administrator | state
+Immigration Services Agent | state
+Infrastructure Officer | state
+Laboratory Scientist | state
+Land & Property Officer | state
+Lecturer | state
+Medical Director | state
+Nurse | state
+Patient Services Staff | state
+Pharmacist | state
+Plumber | state
+Police Officer | state
+Police Rookie | state
+Professor | state
+Secretary to the State Government | state
+Security Analyst | state
+Sergeant | state
+State Banking Director | state
+State Comptroller | state
+State Police & Security Commissioner | state
+State Statistics Director | state
+Statistician | state
+Student | state
+Superintendent | state
+Surgeon | state
+Survey Officer | state
+Swat | state
+Transport & Safety Inspector | state
+Urban Development Officer | state
+Utility Officer | state
+Vehicle Licensing Officer | state
+Vice Chancellor | state
