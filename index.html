@@ -1294,7 +1294,7 @@ PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2
     for(const[x,z]of[[mx-9,mz+15],[mx+3,mz+15],[mx+13,mz+11]])put("p_signboard",x,z,0);
     for(const[x,z]of[[mx-18,mz+16],[mx+18,mz+16],[mx,mz-16]])put("p_waste_bin",x,z,0,.7,.4);
     // shops facing DLA Road and Summit Road, near the homes
-    shop("p_shop_row",72,97-14,0,6,6);shop("p_small_shop",55,97-14,0,6.1,6.1);       /* clear of the garden wall at Township, so its door is reachable */shop("p_small_shop",-14,128,Math.PI/2,6.1,6.1);shop("p_shop_row",-14,138,Math.PI/2,6,6);
+    shop("p_shop_row",72,97-14,0,6,6);shop("p_small_shop",116.5,86,0,6.1,6.1);       /* on a clear plot facing DLA Road, clear of every other door: nothing between its door and the road */shop("p_small_shop",-14,128,Math.PI/2,6.1,6.1);shop("p_shop_row",-14,138,Math.PI/2,6,6);
     // a church on Ibusa Road, between Utilities and Transport, facing the road
     door("church",put("p_church",-78,22,Math.PI,6,10),Math.PI,10);yardBox(-78,22,16,22);mark("Asaba Church",-78,12,"#7c3aed");for(const s of[-1,1])put("p_bench",-78+s*5,13,Math.PI);
     // bus stops on the main roads, each with a bin beside it
@@ -2615,8 +2615,8 @@ let exitCool=0;       /* for a moment after arriving inside, the way out cannot 
 const stand=(s,o)=>{scene=s;me.inside=s==="imm";Object.assign(me,{y:0,pitch:.03},o||{});SNAPCAM=true;exitCool=NOW+1.5};
 const allowed=who=>!who||me.role==="admin"||who.includes(me.role)||(me.roles||[]).some(r=>who.includes(r))||who.some(n=>/[A-Z@]/.test(n)&&guideOk(n));       // a guide rule line ("Sergeant", "Citizen of Warri") as well as a role key       // the Chief Admin may enter and use everything
 const toBorder=fresh=>fadeTo("The border gate",()=>{if(fresh){me.role="newcomer";me.cert=null;me.entered=false;form.name=form.dob=form.gender=form.state="";closeTalk();stand("border",{x:0,z:50,yaw:0});chooser()}else stand("border",{x:0,z:14.4,yaw:Math.PI})});
-const toImm=fromCity=>fadeTo("Delta City Immigration Authority",()=>stand("imm",fromCity?{x:-13.4,z:4.2,yaw:-Math.PI/2}:{x:0,z:9.6,yaw:0}));
-const toBank=()=>fadeTo(STATES[me.town].bank+": banking hall",()=>{bankOf(me.town);stand("bank",{x:0,z:8.4,yaw:0})});
+const toImm=fromCity=>fadeTo("Delta City Immigration Authority",()=>stand("imm",fromCity?{x:-12.7,z:4.2,yaw:-Math.PI/2}:{x:0,z:7.9,yaw:0}));
+const toBank=()=>fadeTo(STATES[me.town].bank+": banking hall",()=>{bankOf(me.town);stand("bank",{x:0,z:6.9,yaw:0})});
 /* ================= floor plans: the rooms of the building you are in =================
    One plan per building (and floor), made from its real rooms, walls and doors. It decides which room you are in (for
    clocking in at your own room) and is drawn on the round map while you are inside. Rooms are [x0,z0,x1,z1]. */
@@ -2826,8 +2826,8 @@ function p2Lobby(S,sign2){const P=S.pal,L=S.lobby,TO_DOOR=face(0,1),wall=(t)=>si
     gDesk(7.5,2.2,face(0,1),P,true);gChair(7.5,1.4,face(0,1));gCabinet(10.9,1,face(-1,0));gCabinet(10.9,1.6,face(-1,0));gWall("notice",-G_LW/2+.14,4.4,face(1,0),1.2);gPlant(11,9);return}}
 let HV=null,HFLOOR_N=0;
 // into the hospital: from the street to the ground floor, or by lift to another floor
-const toHosp=(n,fromLift)=>fadeTo(STATES[me.town].hosp+": "+HFLOORS.find(f=>f.n===n).name,()=>{HV=hospOf(n,STATES[me.town].hosp);HFLOOR_N=n;const L=HV.F.lift;stand("hosp",fromLift?{x:L.x,z:L.z+1.4,yaw:Math.PI}:{x:0,z:7.4,yaw:0})});
-const toGov=(kind,spot)=>fadeTo(GOV_SPEC[kind](me.town).title,()=>{GV=govOf(kind,me.town);govSpot=spot;stand("gov",{x:0,z:G_LD-2.2,yaw:0})});
+const toHosp=(n,fromLift)=>fadeTo(STATES[me.town].hosp+": "+HFLOORS.find(f=>f.n===n).name,()=>{HV=hospOf(n,STATES[me.town].hosp);HFLOOR_N=n;const L=HV.F.lift;stand("hosp",fromLift?{x:L.x,z:L.z+1.4,yaw:Math.PI}:{x:0,z:6.1,yaw:0})});
+const toGov=(kind,spot)=>fadeTo(GOV_SPEC[kind](me.town).title,()=>{GV=govOf(kind,me.town);govSpot=spot;stand("gov",{x:0,z:G_LD-3.05,yaw:0})});
 // arrive in a town, standing outside one of its doors and facing away from it
 const toTown=(st,spot,text,dist,pos)=>fadeTo(text||st,()=>{me.town=st;driving=false;const T=townOf(st),d=T.spots[spot]||T.spots.imm;TGY=0;scene="town";me.inside=false;me.entered=true;Object.assign(cam,pos?{x:pos.x,y:1.7,z:pos.z,yaw:pos.yaw||0,pitch:0}:{x:d.x+d.fx*(dist||5),y:1.7,z:d.z+d.fz*(dist||5),yaw:Math.atan2(-d.fx,-d.fz),pitch:0});SNAPCAM=true;if(!T.car&&!garOn())parkCar(T);garResume()});
 // one car, parked at the kerb of the road nearest to where you arrive
@@ -4374,7 +4374,7 @@ setInterval(async()=>{if(typeof AUTH==="undefined"||!AUTH.char||!AUTH.user)retur
   if(r&&r!==me.role){me.role=r;AUTH.char.role=r;ui();toast("Your role is now: "+((ROLES.find(x=>x[0]===r)||[0,r])[1])+".")}}catch(e){}},60000);
 
 let TV=null;
-const toTrs=()=>fadeTo("National Treasury",()=>{TV=trsOf();stand("trs",{x:0,z:9.4,yaw:0})});
+const toTrs=()=>fadeTo("National Treasury",()=>{TV=trsOf();stand("trs",{x:0,z:8.1,yaw:0})});
 const DOORWAYS={treasury:()=>{if(!allowed(TRS_ALL)){toast("The National Treasury is open only to its officials: the Bank Governor, the Minister of Finance, the President, the Vice President, the Chief of Staff, and state Governors, SSGs and Banking Directors.");return}toTrs()},hosp:()=>toHosp(0,false),bank:()=>toBank(),imm:()=>STATES[me.town].capital?toImm(true):guideEnter("immstate"),       // outside the capital, the state's own immigration office (registration is still in Asaba)
   gov:()=>toGov("state","gov"),air:()=>p2Enter("air","air"),hotel:()=>p2Enter("h_hotel","hotel"),guest:()=>p2Enter("h_guest","guest"),church:()=>p2Enter("church","church"),fshop:()=>p2Enter("fshop","fshop"),woffice:()=>p2Enter("woffice","woffice"),
   ...Object.fromEntries(Array.from({length:12},(_,i)=>["shop"+(i+1),()=>{const k="shop"+(i+1),nm=SHOPNAME[me.town+"/"+k];if(nm&&!GOV_SPEC["shop:"+nm])GOV_SPEC["shop:"+nm]=shopSpec(nm);p2Enter(nm?"shop:"+nm:"shop",k)}])),
