@@ -76,7 +76,7 @@ traffic lights, hydrants and breakable street objects; the cream-and-green HUD; 
 
 - Renting and buying happen at each state's **Housing Development**, at the **Rental Desk** (`#rental-desk`):
   a computer-run clerk shows available homes. Housing staff (Housing Administrator, Land & Property Officer, Urban
-  Development Officer, Director) can serve players and manage listings; only the Director (and the Chief Admin)
+  Development Officer, Director) can serve players and manage listings; only the Minister of Housing & Infrastructure (and the Chief Admin)
   changes prices. Listings board (`#land-property-listing`), deeds and receipts (`#deed-receipt`), reminders board
   (`#reminders`). **Visitors may rent; only citizens may buy.**
 - A few home buildings per town. Home types (rent every 2 weeks / buy): self-contained room K250,000 / K15M;
