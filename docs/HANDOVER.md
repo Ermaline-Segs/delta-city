@@ -213,6 +213,13 @@ stairs: all done and pushed, plus the reverse camera.
    `CLOUDFLARE_API_TOKEN`, `CF_ANALYTICS_TOKEN`. Supabase stays for logins, money and saving.
 2. **Phase 3, homes** (section 6), only after multiplayer works and is pushed.
 
+**Notes for later integration (owner; not now, after multiplayer allows)**
+- `assets/animations/` now holds retargeted sets for `rocketbox/{male,female}` and `mpfb/{female,male}`. See
+  `animations.md` for walk speeds (0.9-1.0 m/s; the clips play in place) and seat heights (0.53-0.60 m).
+- Check that the game's renderer can skin the MPFB 53-bone skeleton (the skinning uniform holds 84 bones today).
+- The Ural trucks have six wheels (`wheel_F*`, `wheel_M*`, `wheel_R*`): the driving code must spin and place the
+  middle pair too.
+
 **The local session's list, in order**
 1. Fix the home furniture (floating pieces, sizes, fan mount, facing) and check `assets/interiors/` facing the same way.
 2. Retarget the 20 animations to the Rocketbox and MPFB skeletons.
