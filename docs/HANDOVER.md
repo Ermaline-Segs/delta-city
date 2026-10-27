@@ -47,8 +47,8 @@ traffic lights, hydrants and breakable street objects; the cream-and-green HUD; 
    it swings open on its hinge, the character sits visibly with hands on the wheel, the door shuts; reverse to get out.
    Wheels spin, front wheels and steering wheel turn, passengers sit visibly. Door sounds from `assets/sounds/`.
    Works for every car with separate parts in `assets/vehicles/`.
-3. **Phase 3, homes**: see section 6.
-4. **Live multiplayer** on Cloudflare (Durable Objects), not Supabase Realtime: see section 7.
+3. **Live multiplayer** on Cloudflare (Durable Objects), not Supabase Realtime: see section 7. (Moved before homes by the owner.)
+4. **Phase 3, homes**: see section 6.
 5. **Solid usable furniture everywhere**: nothing walk-through indoors; sit on chairs and sofas, lie on beds, cook,
    use toilets, showers, computers and counters. Needs motion recordings (lying, cooking, eating, showering, typing).
 6. **Highways joining the four states**, with the cash vans driving them.
@@ -95,9 +95,9 @@ traffic lights, hydrants and breakable street objects; the cream-and-green HUD; 
 ## 7. Live multiplayer
 
 **Decided by the owner: Cloudflare, not Supabase Realtime.** Supabase stays for logins, money, ownership, roles and
-saving. Comes straight after Phase 3 (homes). Code and the owner's setup steps: `server/README.md`.
+saving. Comes **before** Phase 3 (homes), by the owner's decision. Code and the owner's setup steps: `server/README.md`.
 **Cloudflare is set up** (owner): workers.dev subdomain `deltacity`, server address
-`https://delta-city-live.deltacity.workers.dev`, secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in GitHub.
+`https://delta-city-live.deltacity.workers.dev`, secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` and `CF_ANALYTICS_TOKEN` in GitHub.
 
 - Cloudflare Workers free plan with **one Durable Object (SQLite-backed) for the whole game**; every town and every
   building inside is a **room** inside it (one object keeps running time under the free 13,000 GB-s a day).
@@ -189,27 +189,29 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
   maternity beds were too close together; the Chief Admin could not open some bank and Immigration doors. Checked with
   a flood fill of every inside (every room, door and counter reachable) and by walking into a piece in each kind of
   room on a phone and a desktop screen (18 of 18).
+- **Feet on the ground (cloud, item 8):** while a town is built every low surface (road, pavement, kerb, compound
+  paving, each entrance step, the Treasury steps and podium) is kept as a standing height (`groundTop`); the body
+  follows it step by step, and each foot is placed on the height under it (two-bone IK at hip and knee, `placeFeet`).
+  The bank's stairs are 18 real steps. Tested walking up and down the Treasury steps, onto a pavement over a kerb, at
+  the hospital entrance and on the bank stairs, on phone and desktop sizes: no foot below the ground at any moment.
+- **Reverse camera (owner's request):** in R the chase camera glides to the front corner on the driver's side and
+  looks back past the car; it glides back behind the car out of reverse.
+- **Home rules decided by the owner (for Phase 3):** a renter who buys gets **no credit** for rent already paid; a
+  renter who moves to another home gets **no credit**; ending a rental keeps the home **until the paid 14 days run
+  out, no refund**, then it is freed and the furniture goes to storage. An owner may **rent their home out** to
+  another player, or **sell it** to another player or to the state (sale price to the state: still to be decided).
 - Furniture finding: the models may face **+Z**, not -Z as some `items.md` notes say. Check each model's real front.
   Codex's `assets/home/` set is complete but had faults (pieces floating, kettle and blender too big, fan mount); the
   local session is fixing them.
 
-**The cloud session's current list, in order (before Phase 3)**
-1. Finish the entering fix: check the hospital, Treasury, bank and Immigration arrival points; retest with a phone joystick.
-2. Blocked entrances: place Asaba's shop 7 clear of the Township garden wall; every door walkable in all four towns.
-3. **Compounds:** every workplace and public place gets its own compound, a gate facing a road at least 7 m wide (two
-   cars side by side) and its own car park of at least 3 bays with a garage terminal, replacing the separate car parks.
-   Move stored cars to the nearest new car park (SQL safe to run twice). The market gets one compound; roadside shops
-   share a lay-by. No compound inside or behind another (the Asaba Lifestyle centre was behind a 55 m wall).
-   Homes: each home building gets one shared compound car park in Phase 3.
-4. **Tap anywhere on the big map** to plot a route along the roads, with arrows on the map and on the ground.
-5. Every building has a map tag, including GRA in each town.
-6. **Furniture facing the right way** in every inside (the lecture-hall desks faced backwards), placed by each model's
-   real front.
-7. **All furniture solid and fixed** in every inside, with aisles, doors and counters still reachable.
-8. **Feet on the ground, stairs climbed step by step:** no sinking into soil or floating up stairs; foot placement on
-   steps, kerbs and slopes.
-Then **Phase 3, homes** (section 6), then **live multiplayer on Cloudflare** (section 7; owner: follow the setup
-steps in `server/README.md`).
+**The cloud session's list (items 1-8 all done)**
+Entering fix, blocked doors, compounds, tap-anywhere route, map tags, furniture facing, solid furniture, feet and
+stairs: all done and pushed, plus the reverse camera.
+
+**The order from here (owner, newest)**
+1. **Live multiplayer on Cloudflare** (section 7). The three GitHub secrets are in place: `CLOUDFLARE_ACCOUNT_ID`,
+   `CLOUDFLARE_API_TOKEN`, `CF_ANALYTICS_TOKEN`. Supabase stays for logins, money and saving.
+2. **Phase 3, homes** (section 6), only after multiplayer works and is pushed.
 
 **The local session's list, in order**
 1. Fix the home furniture (floating pieces, sizes, fan mount, facing) and check `assets/interiors/` facing the same way.
