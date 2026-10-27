@@ -219,7 +219,8 @@ def hand_targets(D):
 
 # hand poses the source does not give: palm down on a keyboard / table, fingers curled round a phone
 HAND_POSE = {'Sit_Type_Loop': {'l': 'type', 'r': 'type'}, 'Sit_Eat_Loop': {'l': 'type'}, 'Phone_Talk_Loop': {'r': 'phone'}}
-CURL = {'type': (25, 25, 15), 'phone': (65, 55, 40)}      # degrees per finger joint (index to pinky; thumb untouched)
+CURL = {'type': (25, 25, 15), 'phone': (65, 55, 40), 'hold': (45, 40, 30)}
+TO_MOUTH = {'Eat_Standing'}      # the source hand stops in front of the chest: lift the eating hand to the mouth      # degrees per finger joint (index to pinky; thumb untouched)
 SUB = {t: [c for c in order if c == t or tb[t] in tb[c].parent_recursive] for t in order}
 left_a = (TW3i @ left).normalized(); up_a = (TW3i @ V((0, 0, 1))).normalized()
 
@@ -277,6 +278,16 @@ for act in sorted(src_actions, key=lambda a: (a.name != 'Idle_Loop', a.name)):
     f0, f1 = act.frame_range; n = int(round(f1 - f0))
     new = bpy.data.actions.new(act.name + '__rt'); new.use_fake_user = True; use(tgt, new)
     hand_err = 0.0; is_hands = act.name in HAND_IK
+    eat = None
+    if act.name in TO_MOUTH:      # the eating hand is the one whose wrist rises most; its height drives the blend to the mouth
+        hz = {s_: [] for s_ in 'lr'}
+        for f in range(n + 1):
+            use(src, act); sc.frame_set(int(f0 + f))
+            for s_ in 'lr':
+                hz[s_].append((src.matrix_world @ src.pose.bones['hand_' + s_].head).z)
+        s_e = max('lr', key=lambda k: max(hz[k]) - min(hz[k]))
+        eat = (s_e, hz[s_e], min(hz[s_e]), max(hz[s_e])); HAND_POSE[act.name] = {s_e: 'hold'}
+        print('EAT hand', s_e, 'source wrist rises', round(eat[3] - eat[2], 3), 'm', flush=True)
     for f in range(n + 1):
         D, feet = fk(act, f0 + f)
         for s_ in 'lr':
@@ -284,6 +295,12 @@ for act in sorted(src_actions, key=lambda a: (a.name != 'Idle_Loop', a.name)):
         relink(D)
         if is_hands:
             ht = hand_targets(D)
+            if eat:
+                s_e, hzs, lo, hi = eat
+                x = min(max(((hzs[f] - lo) / max(hi - lo, 1e-6) - 0.35) / 0.55, 0.0), 1.0); w = x * x * (3 - 2 * x)
+                head = TW @ D[HEAD_T].to_translation()
+                mouth = head + fwd * (0.12 * K) + V((0, 0, -0.065 * K)) + left * (0.02 if s_e == "l" else -0.02)   # wrist under the chin: fingers at the mouth
+                ht[s_e] = ht[s_e].lerp(mouth, w)
             for s_ in 'lr':
                 if os.environ.get('RT_DEBUG') and f == 0:
                     A_ = TW @ D[ARM[s_][0]].to_translation(); B_ = TW @ D[ARM[s_][1]].to_translation(); C_ = TW @ D[ARM[s_][2]].to_translation()

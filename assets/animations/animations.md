@@ -135,6 +135,7 @@ The walk clips play in place. Move the character forward at about the speed in t
   - `Sit_Type_Loop`, both hands: palms down, fingers forward and tipped 20 degrees down, a light curl.
   - `Sit_Eat_Loop`, the left hand: the same pose, resting on the table.
   - `Phone_Talk_Loop`, the right hand: fingers curled round a phone.
+  - `Eat_Standing`, the left hand: fingers closed as if holding food; as the source hand rises, the wrist is led to a point just under the chin, so the hand reaches the mouth at the top of the lift.
 - **Where the hands land** (character facing +Z, origin on the floor under the hips):
   - **Typing:** wrists 0.79 to 0.86 m high, 0.55 m in front of the pelvis, which suits a 0.74 m desk.
   - **Cooking:** left wrist at 1.0 m on the pot handle; right wrist stirring at 1.1 m, 0.4 m in front.
@@ -161,7 +162,7 @@ The table below gives the visual verdict.
 | `Carry_Idle_Loop` | pass | pass | pass | pass |  |
 | `Carry_Walk_Loop` | pass | pass | pass | pass | Plays in place, like `Walk_Loop`. |
 | `Cook_Stir_Loop` | pass | pass | pass | pass |  |
-| `Eat_Standing` | partial | partial | partial | partial | Partial: the hand comes up in front of the chest, not to the mouth. The source clip (UAL `Consume`) moves that way. |
+| `Eat_Standing` | pass | pass | pass | pass | The closed left hand comes up to the mouth (wrist within 2 cm of its target under the chin, 0.13 to 0.14 m from the head bone, at mid-clip). The source clip stops in front of the chest, so the retarget adds a mouth target for this clip. |
 | `Get_Up` | pass | pass | pass | pass | Per-frame contact, as `Lie_Down`. |
 | `Interact` | pass | pass | pass | pass |  |
 | `Lie_Down` | pass | pass | pass | pass | Per-frame contact. The feet slide while the body rolls down, as in the source. |
