@@ -69,6 +69,13 @@ traffic lights, hydrants and breakable street objects; the cream-and-green HUD; 
   2 minutes + 2 minutes per K1,000,000. Journeys: Asaba = the van's real drive (about 40 s); Warri 30 min; Ozoro 78;
   Agbor 150 (the Discord flight times x6). Credit only when unloading finishes, exactly once.
 - Repairs and the tow truck are paid to the **state's account** (a mechanic business later).
+- **Fuel: K950 a litre**, one server setting (`game_settings` `fuel_price_k`, from `supabase_fuel.sql`), the same in all
+  four states; never in `index.html`. Shown on every pump as "K950 / litre". Changed only by the **Chief Admin** and the
+  **Minister of Agriculture & Natural Resources** (`fuel_set_price`, role checked on the server through `gov_me()`); the
+  cooking-gas price will follow the same rule. There is **no** Minister of Petroleum. A fill is charged at the
+  end: litres actually put in x the price, rounded to the nearest K, paid to the **state's account**. A typed amount buys
+  amount / price litres (K10,000 = 10.53 L, exactly K10,000), stopping early if the tank fills.
+- **Cooking gas:** sold at the depot beside each filling station; prices to be decided.
 - BRT bus livery: **red and white**, "BRT" on the sides and front.
 - No mosque. Asaba's Lifestyle centre "#Chapel" is part of the club.
 
@@ -209,6 +216,27 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 - **Reverse camera (owner's request):** in R the chase camera glides to the front corner on the driver's side and
   looks back past the car; it glides back behind the car out of reverse.
 - **Home rules decided by the owner:** see section 6 (selling back, furniture, no refunds).
+- **Refuelling (cloud, owner's report "paid, tank not filling"):** the old pump took the money first, then filled by
+  counting game frames with each frame capped at 0.05 s, so on a phone below 20 frames a second it filled at a
+  fraction of the speed, and stopped where it was if the car moved. Rebuilt: the server sets the price and the most it
+  will sell (`fuel_start`), the fill is timed by the clock (2.5 litres a second), and the charge comes at the end for
+  what went in (`fuel_finish`, through `pay_service`; no more than a pump could deliver in the time). "Fill tank" or
+  "Buy amount" (a K amount); engine off to start; driving off or starting the engine stops it and charges for what
+  went in. **Run `supabase_fuel.sql`.**
+- **Filling stations: two in each state** (the first, and a "West" one on the other side of town), each driven through
+  one way (IN at the upstream end, OUT at the other, keeping right, a planter between, arrows on the forecourt), with
+  its own compound, car park (`<state>-fshop2`), map tag and route-to. Two attendants each (one man, one woman: Rocketbox
+  staff in their own clothes) walk to the car's fuel cap, fill with a stand-in hose, and walk back; the pump display
+  counts litres and K. Uses the game's walk, idle and talk recordings until the local session delivers a nozzle, a
+  "holding the nozzle" pose and uniforms. Clock-in points for a future Filling Station Attendant job are in
+  `docs/workplaces.md`.
+- **Gas depots:** one in the back corner of every filling station's compound (8), reached through the same entrance:
+  the building (shutter down), its signs and a map tag ("... Gas Depot", group Services). No buttons yet. The space in
+  front is kept free for a sales counter and a cylinder cage; the game keeps each depot's door, counter and cage spots
+  (`town.gas`) for Phase 3's gas refills.
+- **Fuel caps needed (for the local session, `assets/vehicles/vehicles.md`):** only the Sovereign GT is drivable now,
+  and its cap is a guess (rear left quarter, car space `[0.93, 0.95, -1.35]`). Each car that becomes drivable needs
+  its fuel-cap side and position, and gets its own refuel test.
 - Furniture finding: the models may face **+Z**, not -Z as some `items.md` notes say. Check each model's real front.
   Codex's `assets/home/` set is complete but had faults (pieces floating, kettle and blender too big, fan mount); the
   local session is fixing them.

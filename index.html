@@ -381,6 +381,7 @@ body.choosing #nav,body.choosing #picks.sheet,body.choosing #hudSheet,body.choos
 /* the world tags: dark green labels with cream writing, a small arrow down to what they name */
 .wtag{background:rgba(26,40,32,.88);border-color:rgba(246,240,226,.18);color:var(--h-on);border-radius:12px}.wtag::after{border-top-color:rgba(26,40,32,.88)}
 .wtag .ti{background:rgba(246,240,226,.13)}.wtag .tp u{background:var(--h-gold)}.wtag .tpc{color:#f0cf5a}
+.pumptags{position:fixed;inset:0;pointer-events:none;z-index:3;overflow:hidden}.pumptag{position:absolute;transform:translate(-50%,-100%);background:#0f172a;color:#7dd3fc;font:700 11.5px/1.2 ui-monospace,Consolas,monospace;padding:3px 7px;border-radius:6px;border:1px solid #334155;white-space:nowrap}.pumptag.on{color:#fde047;font-size:13px}.pumptag[hidden]{display:none}
 </style>
 <canvas id="mini" class="mini" width="280" height="280" role="button" tabindex="0" aria-label="Open the map" hidden></canvas>
 <div id="route" class="routebar" hidden><i id="routeArrow" aria-hidden="true">▲</i><span id="routeText"></span><button id="routeX" aria-label="Cancel directions">Cancel</button></div>
@@ -389,6 +390,7 @@ body.choosing #nav,body.choosing #picks.sheet,body.choosing #hudSheet,body.choos
 <div class="tip" id="tip"></div>
 <div id="fade"><span id="where"></span></div>
 <div class="toast" id="toast" hidden></div>
+<div id="pumptags" class="pumptags"></div>
     <div id="guide" class="guide" hidden></div>
 <div id="choose" class="choose" hidden></div>
     <button id="act" class="act" hidden>Talk to Violet</button>
@@ -786,7 +788,7 @@ function modern(o){const w=o.w,d=o.d,fl=o.floors||3,fh=3.6,h=fl*fh,base=.6;
 /* ================================ what to show ================================ */
 const BUILDINGS=[];let MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]},BLOCKS=[];
 let TOPS=null,FEET=null,FEETLOG=null,MEY=0;const TOPCELL=4;       // while a town is built: the surfaces you can stand on (see groundTop)
-const KINDS=[[/Car Park/,"Transport","P"],[/Trade & Commerce|Foreign Affairs|Culture & Heritage|Bureau of Statistics/,"Government","\u{1F3DB}\uFE0F"],[/^Highway/,"Transport","\u{1F6E3}\uFE0F"],[/Workshop/,"Transport","🔧"],[/Filling Station/,"Transport","⛽"],[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Border/,"Transport","🚧"],[/Port\b/,"Transport","⚓"],[/Transport/,"Transport","🚌"],
+const KINDS=[[/Gas Depot/,"Services","\u{1F525}"],[/Car Park/,"Transport","P"],[/Trade & Commerce|Foreign Affairs|Culture & Heritage|Bureau of Statistics/,"Government","\u{1F3DB}\uFE0F"],[/^Highway/,"Transport","\u{1F6E3}\uFE0F"],[/Workshop/,"Transport","🔧"],[/Filling Station/,"Transport","⛽"],[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Border/,"Transport","🚧"],[/Port\b/,"Transport","⚓"],[/Transport/,"Transport","🚌"],
   [/Federal/,"Government","🏛"],[/Villa\b/,"Government","🏰"],[/State Government/,"Government","🏛"],[/Court/,"Government","⚖"],[/Police/,"Government","🛡"],[/Immigration/,"Government","🛂"],[/Agricultur|Resources|Food/,"Government","🌿"],
   [/Bank/,"Services","🏦"],[/Hospital/,"Services","✚"],[/University/,"Services","🎓"],[/Utilities/,"Services","⚡"],[/Housing/,"Services","🏠"],[/Hotel|Guest|Suites|Hyatti/,"Services","🛏"]];
 const mark=(name,x,z,color)=>{const w=wpt(x,z),k=KINDS.find(q=>q[0].test(name))||[0,"Districts","📍"];MAPD.places.push({name,x:w[0],z:w[1],color:color||"#14263D",group:k[1],icon:k[2]})};
@@ -2827,7 +2829,7 @@ const airSpec=st=>({title:STATES[st].air||(st+" Airport"),sign:(STATES[st].air||
   west:[],east:[],head:{ch:"",name:"DEPARTURE LOUNGE",plate:"DEPARTURES",kind:"gate",w:G_CD,who:["@everyone"]}});
 // the workshop's office: the front desk, waiting chairs, the manager's desk
 const wofficeSpec=st=>({title:(WORKSHOPS[st]||{}).name?WORKSHOPS[st].name+" Office":"Workshop Office",sign:"WORKSHOP OFFICE",silver:true,pal:P2PAL.woffice,guide:{rooms:[]},type:"woffice",lobby:"woffice",enter:null,noEntry:"",notice:false,west:[],east:[],head:null});
-Object.assign(GOV_SPEC,{h_hotel:st=>hotelSpec(st,"hotel"),h_guest:st=>hotelSpec(st,"guest"),church:churchSpec,shop:shopSpec("Market Shop"),fshop:st=>shopSpec(STATIONS[st]?STATIONS[st].name+" Shop":"Station Shop")(),air:airSpec,woffice:wofficeSpec});
+Object.assign(GOV_SPEC,{h_hotel:st=>hotelSpec(st,"hotel"),h_guest:st=>hotelSpec(st,"guest"),church:churchSpec,shop:shopSpec("Market Shop"),fshop:st=>shopSpec(STATIONS[st]?STATIONS[st][0].name+" Shop":"Station Shop")(),air:airSpec,woffice:wofficeSpec});
 // going in: the furniture first (the first time), then the door
 async function p2Enter(kind,spot){const S=GOV_SPEC[kind](me.town);if(!S){toast("This building has no inside yet.");return}if(GENTER)return;GENTER=true;
   try{await ipropsLoad(ipropsFor(S))}finally{GENTER=false}if(scene==="town")toGov(kind,spot)}
@@ -3714,7 +3716,7 @@ function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,
     if(!driving){if(Math.hypot(hp[0]-cam.x,hp[2]-cam.z)<=2.5){const el=CARUI.door,s=el.querySelector("span"),lb=D&&D.job?"In repair "+mmss(D.job.until-Date.now()):"Get In";el.hidden=false;if(s.textContent!==lb)s.textContent=lb;door=true;CARUI.near=true}
       }}
   const W=T.workshop;if(W&&!driving&&Math.hypot(W.x-cam.x,W.z-cam.z)<7.5){carUIPlace(CARUI.bay,[W.x-W.fx*1.2,2.3,W.z-W.fz*1.2],VP,w,h,null,{prio:6,max:12});bay=true}
-  let fuel=false;const pump=C&&stationPump(T,C);if(pump&&Math.abs(C.v)<.3&&(driving||Math.hypot(C.x-cam.x,C.z-cam.z)<5)){carUIPlace(CARUI.fuel,[pump.p[0],2.1,pump.p[1]],VP,w,h,C.dmg&&C.dmg.refuel?"Refuelling...":"Refuel",{prio:6,max:12});fuel=true}
+  let fuel=false;const pump=C&&stationPump(T,C);if(pump&&Math.abs(C.v)<.3&&(driving||Math.hypot(C.x-cam.x,C.z-cam.z)<5)){carUIPlace(CARUI.fuel,[pump.p[0],2.1,pump.p[1]],VP,w,h,FUEL.s&&FUEL.s.C===C?"Filling...":"Refuel",{prio:6,max:12});fuel=true}
   const PK=garNear(T);if(PK){const el=CARUI.park,s=el.querySelector("span"),lb=touch?"Tap to Open Garage":driving?"Open Garage":"Press E: Open Garage";el.hidden=false;if(s.textContent!==lb)s.textContent=lb}else CARUI.park.hidden=true;       // a fixed button, like the car door
   mechTag(T,VP,w,h);vehTag(T,VP,w,h);if(!door)CARUI.door.hidden=true;if(!cond)CARUI.cond.hidden=true;if(!bay)CARUI.bay.hidden=true;if(!fuel)CARUI.fuel.hidden=true;tagLayout()}
 
@@ -3776,7 +3778,7 @@ function workshop(st,t){const S=WORKSHOPS[st];if(!S)return;const turn=Math.atan2
    kept in, and put it back in any car park bay. A car left outside a car park is taken back to its car park 15 minutes
    after it was left (timed by the server), or as soon as you walk more than 250 m away from it; a car in a bay stays.
    Damage goes with the car. Guests (no account) get a practice car that is not saved on the server. */
-const PARKLIST=[["asaba-gov", "Asaba", "State Government House Car Park"],["asaba-court", "Asaba", "Supreme Court Car Park"],["asaba-police", "Asaba", "Police HQ Car Park"],["asaba-bank", "Asaba", "Crestfield Bank Car Park"],["asaba-hosp", "Asaba", "National Specialist Hospital Car Park"],["asaba-uni", "Asaba", "Cambridge University Car Park"],["asaba-util", "Asaba", "National Public Utilities Car Park"],["asaba-trans", "Asaba", "National Transport Authority Car Park"],["asaba-house", "Asaba", "Asaba Housing Development Car Park"],["asaba-agri", "Asaba", "Ministry of Agriculture & Resources Car Park"],["asaba-fed", "Asaba", "Federal Government Car Park"],["asaba-air", "Asaba", "Delta International Airport Car Park"],["asaba-hotel", "Asaba", "Best GRA Hotel Car Park"],["asaba-guest", "Asaba", "Asaba Guest House Car Park"],["asaba-market", "Asaba", "Asaba Market Car Park"],["asaba-church", "Asaba", "Asaba Church Car Park"],["asaba-treasury", "Asaba", "National Treasury Car Park"],["asaba-imm", "Asaba", "Immigration Car Park"],["asaba-trade", "Asaba", "Ministry of Trade & Commerce Car Park"],["asaba-foreign", "Asaba", "Ministry of Foreign Affairs Car Park"],["asaba-culture", "Asaba", "National Culture & Heritage Bureau Car Park"],["asaba-stats", "Asaba", "National Bureau of Statistics Car Park"],["asaba-lifestyle", "Asaba", "Lifestyle Centre Car Park"],["asaba-woffice", "Asaba", "Asaba Auto Workshop Car Park"],["asaba-fshop", "Asaba", "Asaba Filling Station Car Park"],["asaba-shop6", "Asaba", "Shop 6 Lay-by"],["asaba-shop7", "Asaba", "Shop 7 Lay-by"],["asaba-shop8", "Asaba", "Shop 8 Lay-by"],["warri-agri", "Warri", "Natural Resources Office Car Park"],["warri-hosp", "Warri", "Warri State Hospital Car Park"],["warri-uni", "Warri", "Warri State University Car Park"],["warri-house", "Warri", "Warri Housing Development Car Park"],["warri-police", "Warri", "Police Command Car Park"],["warri-gov", "Warri", "State Government House Car Park"],["warri-bank", "Warri", "Eastway Bank Car Park"],["warri-util", "Warri", "Warri Public Utilities Car Park"],["warri-court", "Warri", "State High Court Car Park"],["warri-trans", "Warri", "State Ministry of Transport Car Park"],["warri-imm", "Warri", "Immigration Car Park"],["warri-air", "Warri", "Warri Airport Car Park"],["warri-hotel", "Warri", "Bon Hotel Hyatti Car Park"],["warri-guest", "Warri", "Legacy Suites Car Park"],["warri-lifestyle", "Warri", "Lifestyle Centre Car Park"],["warri-market", "Warri", "Warri Main Market Car Park"],["warri-woffice", "Warri", "Warri Port Auto Workshop Car Park"],["warri-fshop", "Warri", "Warri Filling Station Car Park"],["warri-shop3", "Warri", "Okere Provisions Car Park"],["warri-shop4", "Warri", "Effurun Mini Mart Car Park"],["warri-shop5", "Warri", "Ekpan Supermarket Car Park"],["ozoro-gov", "Ozoro", "State Government House Car Park"],["ozoro-court", "Ozoro", "State High Court Car Park"],["ozoro-police", "Ozoro", "Police Command Car Park"],["ozoro-bank", "Ozoro", "Trustmark Bank Car Park"],["ozoro-uni", "Ozoro", "University Car Park"],["ozoro-hosp", "Ozoro", "Hospital Car Park"],["ozoro-imm", "Ozoro", "Immigration Car Park"],["ozoro-trans", "Ozoro", "Transport Car Park"],["ozoro-house", "Ozoro", "Housing Office Car Park"],["ozoro-util", "Ozoro", "Utilities Car Park"],["ozoro-agri", "Ozoro", "Agriculture Car Park"],["ozoro-air", "Ozoro", "Ozoro Airport Car Park"],["ozoro-hotel", "Ozoro", "Ozoro Presidential Hotel Car Park"],["ozoro-guest", "Ozoro", "Okay Hotels Car Park"],["ozoro-lifestyle", "Ozoro", "Lifestyle Centre Car Park"],["ozoro-market", "Ozoro", "Ozoro Central Market Car Park"],["ozoro-woffice", "Ozoro", "Ozoro Auto Workshop Car Park"],["ozoro-fshop", "Ozoro", "Ozoro Filling Station Car Park"],["ozoro-shop3", "Ozoro", "Isoko Provisions Car Park"],["ozoro-shop4", "Ozoro", "Oleh Road Stores Car Park"],["ozoro-shop5", "Ozoro", "Ozoro Mini Mart Car Park"],["agbor-gov", "Agbor", "State Government House Car Park"],["agbor-court", "Agbor", "State High Court Car Park"],["agbor-police", "Agbor", "Police Command Car Park"],["agbor-bank", "Agbor", "Grandview Bank Car Park"],["agbor-uni", "Agbor", "University Car Park"],["agbor-hosp", "Agbor", "Hospital Car Park"],["agbor-imm", "Agbor", "Immigration Car Park"],["agbor-trans", "Agbor", "Transport Car Park"],["agbor-house", "Agbor", "Housing Office Car Park"],["agbor-util", "Agbor", "Utilities Car Park"],["agbor-agri", "Agbor", "Agriculture Car Park"],["agbor-air", "Agbor", "Agbor Airport Car Park"],["agbor-hotel", "Agbor", "Agbor Palace Hotel Car Park"],["agbor-guest", "Agbor", "Royal Suites Car Park"],["agbor-lifestyle", "Agbor", "Lifestyle Centre Car Park"],["agbor-market", "Agbor", "Agbor Obi Market Car Park"],["agbor-woffice", "Agbor", "Agbor Auto Workshop Car Park"],["agbor-fshop", "Agbor", "Agbor Filling Station Car Park"],["agbor-shop3", "Agbor", "Ika Provisions Car Park"],["agbor-shop4", "Agbor", "Boji-Boji Mini Mart Car Park"],["agbor-shop5", "Agbor", "Alihame Stores Car Park"]];       // every car park (its id, state, name): the same as car_parks in supabase_vehicles.sql
+const PARKLIST=[["asaba-gov", "Asaba", "State Government House Car Park"],["asaba-court", "Asaba", "Supreme Court Car Park"],["asaba-police", "Asaba", "Police HQ Car Park"],["asaba-bank", "Asaba", "Crestfield Bank Car Park"],["asaba-hosp", "Asaba", "National Specialist Hospital Car Park"],["asaba-uni", "Asaba", "Cambridge University Car Park"],["asaba-util", "Asaba", "National Public Utilities Car Park"],["asaba-trans", "Asaba", "National Transport Authority Car Park"],["asaba-house", "Asaba", "Asaba Housing Development Car Park"],["asaba-agri", "Asaba", "Ministry of Agriculture & Resources Car Park"],["asaba-fed", "Asaba", "Federal Government Car Park"],["asaba-air", "Asaba", "Delta International Airport Car Park"],["asaba-hotel", "Asaba", "Best GRA Hotel Car Park"],["asaba-guest", "Asaba", "Asaba Guest House Car Park"],["asaba-market", "Asaba", "Asaba Market Car Park"],["asaba-church", "Asaba", "Asaba Church Car Park"],["asaba-treasury", "Asaba", "National Treasury Car Park"],["asaba-imm", "Asaba", "Immigration Car Park"],["asaba-trade", "Asaba", "Ministry of Trade & Commerce Car Park"],["asaba-foreign", "Asaba", "Ministry of Foreign Affairs Car Park"],["asaba-culture", "Asaba", "National Culture & Heritage Bureau Car Park"],["asaba-stats", "Asaba", "National Bureau of Statistics Car Park"],["asaba-lifestyle", "Asaba", "Lifestyle Centre Car Park"],["asaba-woffice", "Asaba", "Asaba Auto Workshop Car Park"],["asaba-fshop", "Asaba", "Asaba Filling Station Car Park"],["asaba-shop6", "Asaba", "Shop 6 Lay-by"],["asaba-shop7", "Asaba", "Shop 7 Lay-by"],["asaba-shop8", "Asaba", "Shop 8 Lay-by"],["asaba-fshop2", "Asaba", "Asaba West Filling Station Car Park"],["warri-agri", "Warri", "Natural Resources Office Car Park"],["warri-hosp", "Warri", "Warri State Hospital Car Park"],["warri-uni", "Warri", "Warri State University Car Park"],["warri-house", "Warri", "Warri Housing Development Car Park"],["warri-police", "Warri", "Police Command Car Park"],["warri-gov", "Warri", "State Government House Car Park"],["warri-bank", "Warri", "Eastway Bank Car Park"],["warri-util", "Warri", "Warri Public Utilities Car Park"],["warri-court", "Warri", "State High Court Car Park"],["warri-trans", "Warri", "State Ministry of Transport Car Park"],["warri-imm", "Warri", "Immigration Car Park"],["warri-air", "Warri", "Warri Airport Car Park"],["warri-hotel", "Warri", "Bon Hotel Hyatti Car Park"],["warri-guest", "Warri", "Legacy Suites Car Park"],["warri-lifestyle", "Warri", "Lifestyle Centre Car Park"],["warri-market", "Warri", "Warri Main Market Car Park"],["warri-woffice", "Warri", "Warri Port Auto Workshop Car Park"],["warri-fshop", "Warri", "Warri Filling Station Car Park"],["warri-shop3", "Warri", "Okere Provisions Car Park"],["warri-shop4", "Warri", "Effurun Mini Mart Car Park"],["warri-shop5", "Warri", "Ekpan Supermarket Car Park"],["warri-fshop2", "Warri", "Warri West Filling Station Car Park"],["ozoro-gov", "Ozoro", "State Government House Car Park"],["ozoro-court", "Ozoro", "State High Court Car Park"],["ozoro-police", "Ozoro", "Police Command Car Park"],["ozoro-bank", "Ozoro", "Trustmark Bank Car Park"],["ozoro-uni", "Ozoro", "University Car Park"],["ozoro-hosp", "Ozoro", "Hospital Car Park"],["ozoro-imm", "Ozoro", "Immigration Car Park"],["ozoro-trans", "Ozoro", "Transport Car Park"],["ozoro-house", "Ozoro", "Housing Office Car Park"],["ozoro-util", "Ozoro", "Utilities Car Park"],["ozoro-agri", "Ozoro", "Agriculture Car Park"],["ozoro-air", "Ozoro", "Ozoro Airport Car Park"],["ozoro-hotel", "Ozoro", "Ozoro Presidential Hotel Car Park"],["ozoro-guest", "Ozoro", "Okay Hotels Car Park"],["ozoro-lifestyle", "Ozoro", "Lifestyle Centre Car Park"],["ozoro-market", "Ozoro", "Ozoro Central Market Car Park"],["ozoro-woffice", "Ozoro", "Ozoro Auto Workshop Car Park"],["ozoro-fshop", "Ozoro", "Ozoro Filling Station Car Park"],["ozoro-shop3", "Ozoro", "Isoko Provisions Car Park"],["ozoro-shop4", "Ozoro", "Oleh Road Stores Car Park"],["ozoro-shop5", "Ozoro", "Ozoro Mini Mart Car Park"],["ozoro-fshop2", "Ozoro", "Ozoro West Filling Station Car Park"],["agbor-gov", "Agbor", "State Government House Car Park"],["agbor-court", "Agbor", "State High Court Car Park"],["agbor-police", "Agbor", "Police Command Car Park"],["agbor-bank", "Agbor", "Grandview Bank Car Park"],["agbor-uni", "Agbor", "University Car Park"],["agbor-hosp", "Agbor", "Hospital Car Park"],["agbor-imm", "Agbor", "Immigration Car Park"],["agbor-trans", "Agbor", "Transport Car Park"],["agbor-house", "Agbor", "Housing Office Car Park"],["agbor-util", "Agbor", "Utilities Car Park"],["agbor-agri", "Agbor", "Agriculture Car Park"],["agbor-air", "Agbor", "Agbor Airport Car Park"],["agbor-hotel", "Agbor", "Agbor Palace Hotel Car Park"],["agbor-guest", "Agbor", "Royal Suites Car Park"],["agbor-lifestyle", "Agbor", "Lifestyle Centre Car Park"],["agbor-market", "Agbor", "Agbor Obi Market Car Park"],["agbor-woffice", "Agbor", "Agbor Auto Workshop Car Park"],["agbor-fshop", "Agbor", "Agbor Filling Station Car Park"],["agbor-shop3", "Agbor", "Ika Provisions Car Park"],["agbor-shop4", "Agbor", "Boji-Boji Mini Mart Car Park"],["agbor-shop5", "Agbor", "Alihame Stores Car Park"],["agbor-fshop2", "Agbor", "Agbor West Filling Station Car Park"]];       // every car park (its id, state, name): the same as car_parks in supabase_vehicles.sql
 /* ---- compounds: every public building stands in its own fenced compound, with a gate at least 7 m wide facing its
    road and its own car park inside (numbered bays and the garage terminal), so a car can drive in and out. While a
    town is built each building says where it stands (cmpReg, in its own metres: +z towards its road); once the whole
@@ -4024,7 +4026,7 @@ function repairChosen(){const T=townOf(me.town),D=carD(T.car),L=repairItems(D),b
 function repairTotal(){const box_=document.getElementById("choose"),full=box_.querySelector('[data-rpi="full"]');if(!full)return;for(const i of box_.querySelectorAll('[data-rpi]'))if(i!==full){i.disabled=full.checked;if(full.checked)i.checked=true}
   const R=repairChosen();document.getElementById("rpTot").textContent=kfmt(R.price);document.getElementById("rpTime").textContent=R.mins+" min";document.getElementById("rpPay").disabled=!R.items.length}
 async function repairAct(what){const T=townOf(me.town),C=T.car,W=T.workshop,msg=document.getElementById("rpMsg");
-  if(what==="towask")return towPanel();if(what==="tow")return towGo();if(what.startsWith("fuel"))return fuelGo(+what.slice(4));
+  if(what==="ffill")return fuelBegin(null);if(what==="famount")return fuelBegin(Math.floor(+((document.getElementById("fuelK")||{}).value||0)));if(what==="fstop")return fuelStop("stopped");if(what==="towask")return towPanel();if(what==="tow")return towGo();if(what.startsWith("fuel"))return fuelGo(+what.slice(4));
   if(what!=="pay"||!C||!W)return;const D=carD(C);if(D.job)return;const R=repairChosen();if(!R.items.length)return;const btn=document.getElementById("rpPay");btn.disabled=true;msg.classList.remove("err");msg.textContent="Paying "+kfmt(R.price)+"...";
   try{await payService(R.price,W.st,"Car repair at "+W.name+": "+R.names,C.vid?{id:C.vid,fields:R.items}:null)}catch(e){msg.textContent=e.message;msg.classList.add("err");btn.disabled=false;return}
   // paid: the job is written down at once, so a reload cannot lose it
@@ -4229,7 +4231,7 @@ let TOWSEAT=.62;
    and stops when the tank is empty. Each tyre wears with distance and with skids, can be cut or burst in a crash, and
    worn or burst tyres grip less (a burst one pulls the car to its side and limits its speed). Tyres are replaced at
    the workshop; fuel is bought at a filling station. ---- */
-const TANK=50,FUELPRICE=950,TYRENAME=["front left","front right","rear left","rear right"];
+const TANK=50,TYRENAME=["front left","front right","rear left","rear right"];
 const carBody=D=>Math.min(1,(D.bumperF+D.bumperR+D.bonnet+D.grille+D.trunk+D.sideL+D.sideR+.5*((D.ws||0)+(D.rw||0)+(D.winL||0)+(D.winR||0)))/9+(D.burnt?.6:0));
 const carCooling=D=>clamp(1-Math.max(D.radiator,1-D.coolant,(D.temp-100)/45),0,1);
 const carTyres=D=>Math.min(1,D.tyre.reduce((s,v)=>s+v,0)/4+.25*D.flat.reduce((s,v)=>s+v,0)+.15*(D.rim||[0]).reduce((s,v)=>s+v,0));
@@ -4242,10 +4244,6 @@ function carUse(C,dt){const D=carD(C),v=Math.abs(C.v);
 // the driver, after a crash: the seatbelt makes the difference (the game has no injuries yet; this is reported only)
 function driverHurt(dv){if(dv<1.2)return"";if(VEH.belt)return dv<6?"":dv<11?"shaken":dv<16?"bruised by the seatbelt":"injured";return dv<3?"shaken":dv<6?"bruised (no seatbelt)":dv<10?"hurt, thrown against the wheel (no seatbelt)":"badly hurt (no seatbelt)"}
 
-/* ---- the filling station: one in each state. A forecourt under a canopy with two pump islands, a shop and a price
-   board. Stop beside a pump and the Refuel icon appears; fuel is paid to the state's account. ---- */
-const STATIONS={Asaba:{x:202.4,z:16.9,f:[0,-1],name:"Asaba Filling Station"},Warri:{x:121,z:16.9,f:[0,-1],name:"Warri Filling Station"},
-  Ozoro:{x:97.4,z:16.9,f:[0,-1],name:"Ozoro Filling Station"},Agbor:{x:97.4,z:16.9,f:[0,-1],name:"Agbor Filling Station"}};
 /* roads that stop short: a road whose end points at another road close by is carried on to meet it, and two roads that stop
    short of a corner are both carried on to it; each new meeting gets a patch of tarmac over the kerbs. Roads that simply
    leave the town keep their ends. */
@@ -4281,35 +4279,145 @@ function streetTidy(){if(!MAPD||!MAPD.dyn)return;for(const o of MAPD.dyn){const 
   for(const b of[o.b,o.box0]){b[0]+=dx;b[2]+=dx;b[1]+=dz;b[3]+=dz}
   if(o.type==="lamp"&&MAPD.lamps){const L=MAPD.lamps.find(q=>Math.abs(q[0]-o.hx)<.01&&Math.abs(q[2]-o.hz)<.01);if(L){L[0]+=dx;L[2]+=dz}o.hx+=dx;o.hz+=dz}
   o.x=x;o.z=z}}
-function station(st,t){const S=STATIONS[st];if(!S)return;const turn=Math.atan2(S.f[0],S.f[1]),c=Math.cos(turn),s=Math.sin(turn);
+/* ---- the filling stations: two in each state. Each is a forecourt under a canopy with two pump islands, driven
+   through one way (in at one end, out at the other, keeping right), a shop or kiosk, a price board, two attendants,
+   and a cooking-gas depot in the back corner of the same compound (for now the building, its sign and its map tag;
+   its counter and cylinder cage are kept free for later). The price per litre comes from the server (fuel_price),
+   and so does every charge: the game only shows them. ---- */
+const STATIONS={
+  Asaba:[{key:"fshop",x:202.4,z:16.9,f:[0,-1],name:"Asaba Filling Station",shop:true},{key:"fshop2",x:-112.35,z:177.2,f:[.108,-.994],name:"Asaba West Filling Station"}],
+  Warri:[{key:"fshop",x:121,z:16.9,f:[0,-1],name:"Warri Filling Station",shop:true},{key:"fshop2",x:-212.4,z:-73,f:[0,-1],name:"Warri West Filling Station"}],
+  Ozoro:[{key:"fshop",x:97.4,z:16.9,f:[0,-1],name:"Ozoro Filling Station",shop:true},{key:"fshop2",x:-123,z:-137.4,f:[0,1],name:"Ozoro West Filling Station"}],
+  Agbor:[{key:"fshop",x:97.4,z:16.9,f:[0,-1],name:"Agbor Filling Station",shop:true},{key:"fshop2",x:-123,z:-137.4,f:[0,1],name:"Agbor West Filling Station"}]};
+const FUEL={price:0,rate:2.5,s:null};        // price: K a litre, from the server; rate: litres a second at the pump; s: the fill under way
+// where each car's fuel cap is, in the car's own space (+X its left, +Z its front). The Sovereign GT's is a guess
+// (rear left quarter) until the local session adds the real one to assets/vehicles/vehicles.md.
+const FUELCAP={sovereign:{side:"left",at:[.93,.95,-1.35]}};
+// a server without the fuel functions yet (supabase_fuel.sql not run) answers 404: the pump says so plainly
+const fuelMissing=e=>!!e&&(e.status===404||/Could not find the function|fuel_(price|start|finish)/i.test(e.message||""));
+async function fuelPriceGet(){try{const r=await supa("/rest/v1/rpc/fuel_price",{method:"POST",body:{}});if(r&&+r.price>0){FUEL.price=+r.price;FUEL.missing=false}}catch(e){if(fuelMissing(e))FUEL.missing=true}}
+const FUEL_SETUP="Fuel sales are not set up on the server yet: the Chief Admin needs to run supabase_fuel.sql in Supabase. No money has been taken.";
+function station(st,t){t.stations=[];t.gas=[];(STATIONS[st]||[]).forEach((S,i)=>stationOne(st,t,S,i));t.station=t.stations[0]||null}
+function stationOne(st,t,S,idx){const turn=Math.atan2(S.f[0],S.f[1]),c=Math.cos(turn),s=Math.sin(turn);
   const loc=(x,z)=>{const dx=x-S.x,dz=z-S.z;return[c*dx-s*dz,s*dx+c*dz]},inPlot=(x,z)=>{const[a,b]=loc(x,z);return Math.abs(a)<10.6&&b>-8.6&&b<14};
   const gone=new Set();MAPD.dyn=MAPD.dyn.filter(o=>{if(!inPlot(o.x,o.z))return true;gone.add(o.b);return false});
   for(let i=TREES.inst.length-1;i>=0;i--){const q=TREES.inst[i];if(inPlot(q[1],q[2])){TREES.inst.splice(i,1);for(const b of BLOCKS){const g=BTAG.get(b);if(g&&g.t===q)gone.add(b)}}}
   for(let i=BLOCKS.length-1;i>=0;i--)if(gone.has(BLOCKS[i]))BLOCKS.splice(i,1);
-  const RED="#c81e1e",WHITE="#f4f3ef",pumps=[];
-  at(S.x,S.z,turn,()=>{cmpReg("fshop",S.name,[-10.6,-8.6,10.6,14],[-7,-8.2,7,8.3],{gateAll:true,modes:["side"]});
+  // which way the traffic on the near side goes (keep right): in at the upstream end, out at the downstream end
+  const h=[-S.f[1],S.f[0]],flow=Math.sign(h[0]*c+h[1]*-s)||1;
+  const RED="#c81e1e",WHITE="#f4f3ef",pumps=[],homes=[],price=FUEL.price?"PETROL K"+FUEL.price.toLocaleString("en-GB")+" / L":"PETROL";
+  at(S.x,S.z,turn,()=>{cmpReg(S.key,S.name,[-10.6,-8.6,10.6,14],[-7,-8.2,7,8.3],{gateAll:true,modes:["side"]});
     box(0,0,0,20,.03,16,"#a3a097",K.tile);box(0,0,9.4,18,.025,2.8,"#8f8b84",K.tile);
-    for(const x of[-3.4,3.4]){box(x,0,.5,1,.18,5.4,"#d9d4c7");for(const z of[-.8,1.8]){box(x,.18,z,.55,1.55,.42,WHITE);box(x,1.73,z,.62,.24,.48,RED);for(const sd of[-1,1]){box(x+sd*.28,.95,z,.02,.42,.34,"#0f172a",K.glow);cyl(x+sd*.3,.5,z+.12,.03,.5,"#1c1f24",6)}pumps.push(wpt(x,z))}
+    for(const x of[-3.4,3.4]){box(x,0,.5,1,.18,5.4,"#d9d4c7");for(const z of[-.8,1.8]){box(x,.18,z,.55,1.55,.42,WHITE);box(x,1.73,z,.62,.24,.48,RED);for(const sd of[-1,1]){box(x+sd*.28,.95,z,.02,.42,.34,"#0f172a",K.glow);cyl(x+sd*.3,.5,z+.12,.03,.5,"#1c1f24",6)}
+        pumps.push({p:wpt(x,z),l:[x,z],st:S.key})}
       for(const z of[-2.35,3.35])box(x,.18,z,.32,4.62,.32,WHITE)}
     box(0,4.8,.5,15,.5,9,WHITE);box(0,4.78,.5,13.6,.02,7.6,"#fffbe6",K.glow);for(const z of[.5-4.52,.5+4.52])box(0,4.8,z,15.04,.5,.06,RED);for(const x of[-7.52,7.52])box(x,4.8,.5,.06,.5,9.04,RED);
     sign(0,4.84,5.06,7,.42,"DELTA FUELS","#c81e1e","#ffffff");
-    box(0,0,-6.4,9,3.2,3.2,"#efe9dc");box(0,.35,-4.77,6,2.1,.06,"#7fb3d5",K.glass);box(0,3.2,-6.4,9.4,.2,3.6,"#c81e1e");sign(0,3.25,-4.74,5,.5,"SHOP  •  ATM  •  DRINKS","#14263D","#ffffff");
-    box(8.6,0,6.6,.24,4.4,.24,"#3a4048");box(8.6,2.9,6.6,2.3,1.7,.22,RED);sign(8.6,3.05,6.72,2.1,.6,"DELTA FUELS","#c81e1e","#ffffff");sign(8.6,3.75,6.72,2.1,.6,"PETROL K"+FUELPRICE+"/L","#ffffff","#14263D");
-    for(const x of[-3.4,3.4])solidBox(x,.5,1,5.4);solidBox(0,-6.4,9,3.2);solidBox(8.6,6.6,.4,.4);
-    mark(S.name,0,2);t.station={st,name:S.name,pumps};entrance(0,0,-4.72,1.8,2.3,0)});t.spots.fshop=doorAt(S.x,S.z,turn,-4.45)}       // the shop's door, at the middle of its glass front
-const stationPump=(T,C)=>{const S=T.station;if(!S||!C)return null;let best=null;for(const p of S.pumps){const d=Math.hypot(C.x-p[0],C.z-p[1]);if(d<3&&(!best||d<best.d))best={p,d}}return best};
-function refuelPanel(){const T=townOf(me.town),S=T.station,C=T.car;if(!S||!C)return;const D=carD(C);choosing=true;const el=document.getElementById("choose");el.hidden=false;
-  const inTank=Math.round(D.fuel*TANK),room=Math.max(0,Math.floor(TANK*(1-D.fuel))),opt=(L,label)=>L>0?`<button class="go" data-rp="fuel${L}">${label}: ${L} litres for ${kfmt(L*FUELPRICE)}</button>`:"";
-  const near=stationPump(T,C)&&Math.abs(C.v)<.3;
-  el.innerHTML=`<div class="card rpcard"><h1>${esc(S.name)}</h1><p class="cdsub">Petrol ${kfmt(FUELPRICE)} a litre &middot; paid to the ${esc(S.st)} State account</p>
-    ${D.refuel?`<p>Refuelling... ${Math.round(D.fuel*TANK)} of ${TANK} litres.</p>`:!near?`<p>Stop your car beside a pump to refuel.</p>`:`<div class="cdrow"><span>In the tank</span><i class="cdbar"><em style="width:${Math.round(D.fuel*100)}%;background:${D.fuel<.15?"#dc2626":"#0284c7"}"></em></i><b>${inTank} L</b></div>
-    ${room<1?`<p>The tank is full.</p>`:opt(Math.min(10,room),"Add")+opt(room>10?Math.min(20,room):0,"Add")+opt(room>20?room:0,"Fill up")}<p class="amsg" id="rpMsg"></p>`}<button class="go ghost" data-stay="1">Close</button></div>`}
-async function fuelGo(L){const T=townOf(me.town),S=T.station,C=T.car,msg=document.getElementById("rpMsg");if(!S||!C||!L)return;const D=carD(C);if(D.refuel)return;for(const b of document.querySelectorAll('#choose [data-rp^="fuel"]'))b.disabled=true;
-  msg.classList.remove("err");msg.textContent="Paying "+kfmt(L*FUELPRICE)+"...";
-  try{await payService(L*FUELPRICE,S.st,"Fuel: "+L+" litres at "+S.name,C.vid?{id:C.vid,fields:["fuel"]}:null)}catch(e){msg.textContent=e.message;msg.classList.add("err");for(const b of document.querySelectorAll('#choose [data-rp^="fuel"]'))b.disabled=false;return}
-  D.refuel={to:Math.min(1,D.fuel+L/TANK)};crashSave(true);choosing=false;document.getElementById("choose").hidden=true;toast("Paid "+kfmt(L*FUELPRICE)+". Refuelling "+L+" litres...")}
-// each frame: a car being refuelled fills at 3 litres a second; the engine will not start meanwhile
-function fuelTick(dt){for(const T of Object.values(TOWNS)){const D=T.car&&T.car.dmg;if(!D||!D.refuel)continue;D.fuel=Math.min(D.refuel.to,D.fuel+3*dt/TANK);if(D.fuel>=D.refuel.to-1e-6){D.fuel=D.refuel.to;D.refuel=null;crashSave(true);if(T===townOf(me.town))toast("Refuelled: "+Math.round(D.fuel*TANK)+" litres in the tank.")}}}
+    // the shop (the first station) or a kiosk (the second): same building, the kiosk has no way in
+    box(0,0,-6.4,9,3.2,3.2,"#efe9dc");box(0,.35,-4.77,6,2.1,.06,"#7fb3d5",K.glass);box(0,3.2,-6.4,9.4,.2,3.6,"#c81e1e");sign(0,3.25,-4.74,5,.5,S.shop?"SHOP  •  ATM  •  DRINKS":"KIOSK  •  DRINKS","#14263D","#ffffff");
+    box(8.6,0,6.6,.24,4.4,.24,"#3a4048");box(8.6,2.9,6.6,2.3,1.7,.22,RED);sign(8.6,3.05,6.72,2.1,.6,"DELTA FUELS","#c81e1e","#ffffff");sign(8.6,3.75,6.72,2.1,.6,price,"#ffffff","#14263D");
+    // solid outlines are boxes along the map's axes, so on a station set at an angle each long piece is cut into short
+    // lengths (otherwise a turned island's outline would block the lane beside it)
+    const solidRun=(x,z,w,d)=>{const along=w>=d,L=along?w:d,n=Math.max(1,Math.ceil(L/Math.max(.8,Math.min(w,d))));for(let k=0;k<n;k++){const u=-L/2+L*(k+.5)/n;along?solidBox(x+u,z,L/n,d):solidBox(x,z+u,w,L/n)}};
+    for(const x of[-3.4,3.4])solidRun(x,.5,1,5.4);solidRun(0,-6.4,9,3.2);solidBox(8.6,6.6,.4,.4);
+    // one way through: a planter between the way in and the way out, their signs, and arrows on the forecourt
+    box(0,0,13.25,6.2,.42,.9,"#b9b3a4");box(0,.42,13.25,5.9,.12,.6,"#3f7d3a",K.leaf);solidRun(0,13.25,6.2,.9);
+    for(const[sx,txt]of[[-flow,"IN"],[flow,"OUT"]]){const x=sx*7.6;box(x+sx*2.6,0,13.3,.12,1.6,.12,"#3a4048");sign(x+sx*2.6,1.6,13.36,1.3,.5,txt,txt==="IN"?"#0b6b3a":"#c81e1e","#ffffff")}
+    for(const x of[-6.6,0,6.6])at(x,10.6,flow>0?-Math.PI/2:Math.PI/2,()=>{box(0,.04,.35,.28,.012,1.6,"#ffffff");at(0,-.65,Math.PI/4,()=>box(0,.04,0,.24,.012,.8,"#ffffff"));at(0,-.65,-Math.PI/4,()=>box(0,.04,0,.24,.012,.8,"#ffffff"))});
+    sign(0,1.25,13.72,2.2,.32,"ONE WAY","#14263D","#ffffff");
+    // the cooking-gas depot, in the back corner: the building (shutter down), its signs; in front of it the space kept
+    // for a sales counter (left) and a cylinder cage (right)
+    const gx=7.75,gz=-6.9,O="#e8711a";box(gx,0,gz,4.3,2.8,2.9,"#ece6d8");box(gx,2.8,gz,4.6,.18,3.2,O);box(gx,.05,gz+1.46,2.6,2.2,.04,"#8a8f96",K.metal);
+    for(let k=0;k<8;k++)box(gx,.2+k*.26,gz+1.49,2.5,.02,.02,"#6b7078");sign(gx,2.25,gz+1.5,3.6,.42,"GAS DEPOT",O,"#ffffff");sign(gx,1.9,gz+1.5,3.0,.26,"COOKING GAS (LPG)","#14263D","#ffffff");solidRun(gx,gz,4.3,2.9);
+    t.gas.push({st,key:S.key,name:S.name.replace("Filling Station","Gas Depot"),door:wpt(gx,gz+1.5),counter:wpt(gx-.9,gz+2.1),cage:wpt(gx+1.7,gz+2.3),yaw:turn});
+    mark(S.name.replace("Filling Station","Gas Depot"),gx,gz,"#e8711a");
+    // the attendants wait at the back of the islands, facing the forecourt
+    for(const x of[-3.4,3.4])homes.push({p:wpt(x,-3.3),yaw:turn+Math.PI});
+    mark(S.name,0,2);t.stations.push({st,key:S.key,name:S.name,idx,pumps,homes,yaw:turn,c:[S.x,S.z],att:null});if(S.shop)entrance(0,0,-4.72,1.8,2.3,0)});
+  if(S.shop)t.spots.fshop=doorAt(S.x,S.z,turn,-4.45)}       // the shop's door, at the middle of its glass front
+// the pump a stopped car is beside (any station in town)
+const stationPump=(T,C)=>{if(!C)return null;let best=null;for(const S of T.stations||[])for(const p of S.pumps){const d=Math.hypot(C.x-p.p[0],C.z-p.p[1]);if(d<3&&(!best||d<best.d))best={p:p.p,pump:p,S,d}}return best};
+const kL=v=>(+v).toFixed(2).replace(/\.?0+$/,"")||"0";
+/* ---- the pump: "Fill tank", or "Buy amount" (a K amount typed in). The server works out the most it will sell
+   (the tank's space, the amount, and what you can afford), the attendant fills, the pump counts up, and you are
+   charged at the end for the litres that actually went in. ---- */
+function refuelPanel(){const T=townOf(me.town),C=T.car;if(!C)return;const hit=stationPump(T,C),S=hit?hit.S:(T.stations||[])[0];if(!S)return;const D=carD(C);choosing=true;const el=document.getElementById("choose");el.hidden=false;
+  const inTank=D.fuel*TANK,room=Math.max(0,TANK-inTank),signed=typeof AUTH!=="undefined"&&AUTH.user&&!AUTH.offline&&AUTH.char,pr=FUEL.price,still=Math.abs(C.v)<.3;
+  const head=`<h1>${esc(S.name)}</h1><p class="cdsub">${pr?"K"+pr.toLocaleString("en-GB")+" / litre":"Price not available"} &middot; paid to the ${esc(S.st)} State account</p>
+    <div class="cdrow"><span>In the tank</span><i class="cdbar"><em style="width:${Math.round(D.fuel*100)}%;background:${D.fuel<.15?"#dc2626":"#0284c7"}"></em></i><b>${kL(inTank)} of ${TANK} L</b></div>`;
+  let body;
+  if(FUEL.s)body=`<p>${FUEL.s.phase==="walk"?"The attendant is coming to your car.":FUEL.s.phase==="pay"?"Paying...":"Filling: <b>"+kL(FUEL.s.litres)+" L</b> &middot; K"+Math.round(FUEL.s.litres*FUEL.s.price).toLocaleString("en-GB")+" so far."}</p>${FUEL.s.phase==="fill"||FUEL.s.phase==="walk"?`<button class="go" data-rp="fstop">Stop</button>`:""}`;
+  else if(!hit||!still)body=`<p>Stop your car beside a pump to buy fuel.</p>`;
+  else if(!signed)body=`<p>Sign in to your account to buy fuel. Guests cannot pay for fuel.</p>`;
+  else if(FUEL.missing)body=`<p>${FUEL_SETUP}</p>`;
+  else if(!pr)body=`<p>The pump can't reach the fuel company's server just now. Try again in a moment.</p>`;
+  else if(room<.05)body=`<p>The tank is full.</p>`;
+  else body=`${VEH.engine?`<p class="amsg err">Switch the engine off to start filling.</p>`:""}
+    <button class="go" data-rp="ffill"${VEH.engine?" disabled":""}>Fill tank: up to ${kL(room)} litres, about K${Math.round(room*pr).toLocaleString("en-GB")}</button>
+    <div class="cbrow"><input id="fuelK" type="number" inputmode="numeric" min="${pr}" step="50" placeholder="Amount in K"${VEH.engine?" disabled":""}><button class="btn2s" data-rp="famount"${VEH.engine?" disabled":""}>Buy amount</button></div>
+    <p class="cdsub" id="fuelHint">Type an amount: it buys amount &divide; ${pr.toLocaleString("en-GB")} litres, and stops early if the tank fills.</p>`;
+  el.innerHTML=`<div class="card rpcard">${head}${body}<p class="amsg" id="rpMsg"></p><button class="go ghost" data-stay="1">Close</button></div>`;
+  const inp=document.getElementById("fuelK");if(inp)inp.addEventListener("input",()=>{const k=Math.floor(+inp.value||0),hint=document.getElementById("fuelHint");if(!hint)return;
+    hint.textContent=k>=pr?`K${k.toLocaleString("en-GB")} buys ${kL(k/pr)} litres`+(k/pr>room?` (the tank takes ${kL(room)}, so it stops when full: about K${Math.round(room*pr).toLocaleString("en-GB")})`:""):`The smallest amount is K${pr.toLocaleString("en-GB")} (one litre).`})}
+async function fuelBegin(amount){const T=townOf(me.town),C=T.car,msg=document.getElementById("rpMsg"),say=(t,err)=>{if(msg){msg.textContent=t;msg.classList.toggle("err",!!err)}};
+  if(!C||FUEL.s)return;const hit=stationPump(T,C);if(!hit||Math.abs(C.v)>.3)return say("Stop your car beside a pump first.",true);if(VEH.engine)return say("Switch the engine off to start filling.",true);
+  if(amount!==null&&!(amount>=FUEL.price))return say(`Type an amount of at least K${FUEL.price.toLocaleString("en-GB")}.`,true);
+  const D=carD(C),room=Math.max(0,TANK*(1-D.fuel));for(const b of document.querySelectorAll('#choose [data-rp^="f"],#fuelK'))b.disabled=true;say("Setting the pump...");
+  let r;try{await freshToken();r=await supa("/rest/v1/rpc/fuel_start",{method:"POST",auth:true,body:{p_vehicle:C.vid||null,p_state:me.town,p_station:hit.S.name,p_room:+room.toFixed(2),p_amount:amount===null?null:Math.floor(amount)}})}
+  catch(e){if(fuelMissing(e))FUEL.missing=true;say(fuelMissing(e)?FUEL_SETUP:e.offline?"The pump can't reach the server. Try again.":e.message,true);for(const b of document.querySelectorAll('#choose [data-rp^="f"],#fuelK'))b.disabled=false;return}
+  FUEL.price=+r.price||FUEL.price;
+  FUEL.s={id:r.id,price:+r.price,max:+r.max_litres,litres:0,start:D.fuel,T,C,pump:hit.pump,S:hit.S,at:[C.x,C.z],phase:"walk",att:null,t0:performance.now()/1000};fuelSend(FUEL.s);
+  choosing=false;document.getElementById("choose").hidden=true;
+  toast(r.limit==="cash"?`You can afford ${kL(r.max_litres)} litres: the pump stops there.`:r.limit==="tank"?`Filling the tank: up to ${kL(r.max_litres)} litres.`:`Buying ${kL(r.max_litres)} litres.`)}
+// send the nearest free attendant to the car's fuel cap (with no attendant to hand, the pump starts at once)
+function fuelSend(F){const S=F.S,i=fuelFreeAtt(S,F);F.att=i;if(i<0){F.phase="fill";F.t0=performance.now()/1000;return}const A=attOf(S,i);A.job=F;A.path=attPath(S,A,F)}
+function fuelCap(C){const k=FUELCAP[(C&&C.model)||"sovereign"]||FUELCAP.sovereign;return{cap:carPt(C,k.at),stand:carPt(C,[k.at[0]+(k.side==="left"?.55:-.55),0,k.at[2]])}}
+// each frame: the attendant walks over, the pump counts up by the clock (whatever the frame rate), and the fill
+// stops at its limit, when the tank is full, or if the car is driven off or its engine started
+function fuelTick(dt){for(const T of Object.values(TOWNS)){const D=T.car&&T.car.dmg;if(D&&D.refuel)D.refuel=null}       // fills from before this version: let go
+  for(const T of Object.values(TOWNS))for(const S of T.stations||[])for(let i=0;i<2;i++)attStep(S,i,dt);
+  const F=FUEL.s;if(!F||F.phase==="pay")return;const C=F.C,now=performance.now()/1000;
+  if(!C||F.T.car!==C||Math.hypot(C.x-F.at[0],C.z-F.at[1])>.6||(driving&&VEH.engine&&F.T===townOf(me.town))){fuelStop(VEH.engine?"engine":"moved");return}
+  if(F.phase==="fill"){const D=carD(C),room=TANK*(1-F.start);F.litres=Math.min(F.max,room,(now-F.t0)*FUEL.rate);D.fuel=Math.min(1,F.start+F.litres/TANK);if(F.litres>=Math.min(F.max,room)-1e-6)fuelStop("done")}}
+async function fuelStop(why){const F=FUEL.s;if(!F||F.phase==="pay")return;F.phase="pay";const C=F.C,D=C&&carD(C);
+  try{await freshToken();const r=await supa("/rest/v1/rpc/fuel_finish",{method:"POST",auth:true,body:{p_session:F.id,p_litres:+F.litres.toFixed(4)}});
+    if(D)D.fuel=Math.min(1,F.start+(+r.litres||0)/TANK);if(r.cash!=null){me.cash=+r.cash;showCash()}crashSave(true);
+    toast((why==="moved"?"You drove off: ":why==="engine"?"Engine started: the pump stopped. ":"")+`${kL(r.litres)} litres, K${(+r.amount).toLocaleString("en-GB")} paid to the ${F.S.st} State account.`)}
+  catch(e){if(D)D.fuel=F.start;crashSave(true);toast(fuelMissing(e)?FUEL_SETUP:e.offline?"The pump could not reach the server: no fuel was sold.":"No fuel was sold: "+e.message)}
+  const A=F.att>=0?attOf(F.S,F.att):null;if(A){A.job=null;A.path=[A.home.p.slice()];A.hose=0}FUEL.s=null;if(!document.getElementById("choose").hidden&&/Filling|attendant/.test(document.getElementById("choose").textContent))refuelPanel()}
+/* ---- the attendants: one man and one woman at every station (Rocketbox staff in their own clothes, with the
+   game's walk, idle and talk recordings until a nozzle and a "holding the nozzle" pose arrive). Each waits at the
+   back of an island, walks to the car's fuel-cap side, fills, and walks back. ---- */
+NPC_ROLES.attendant=[["Male_Adult_18","Business_Female_01"],["Male_Adult_04","Construction_Female_01"]];
+function attOf(S,i){S.att=S.att||[0,1].map(k=>({i:k,home:S.homes[k],x:S.homes[k].p[0],z:S.homes[k].p[1],yaw:S.homes[k].yaw,path:[],job:null,walk:0,hose:0}));return S.att[i]}
+function fuelFreeAtt(S,F){let best=-1,bd=1e9;for(let i=0;i<2;i++){const A=attOf(S,i);if(A.job||!NPCMODEL(NPC_ROLES.attendant[S.idx%2][i]))continue;const d=Math.hypot(A.x-F.C.x,A.z-F.C.z);if(d<bd){bd=d;best=i}}return best}
+// a route that keeps to the lanes: from the back of the islands across to the car's side, then up beside it to the cap
+function attPath(S,A,F){const P=fuelCap(F.C).stand,c=Math.cos(S.yaw),s=Math.sin(S.yaw),[cx,cz]=S.c;
+  const toL=(x,z)=>[c*(x-cx)-s*(z-cz),s*(x-cx)+c*(z-cz)],fromL=(a,b)=>[cx+c*a+s*b,cz-s*a+c*b];
+  const home=toL(A.x,A.z),stand=toL(P[0],P[2]);return[fromL(stand[0],home[1]),[P[0],P[2]]]}
+function attStep(S,i,dt){const A=S.att&&S.att[i];if(!A)return;dt=Math.min(dt,.1);
+  if(A.path.length){const q=A.path[0],dx=q[0]-A.x,dz=q[1]-A.z,d=Math.hypot(dx,dz),sp=1.35;
+    if(d<.05){A.path.shift();if(!A.path.length){if(A.job&&A.job.phase==="walk"){A.job.phase="fill";A.job.t0=performance.now()/1000;A.hose=1}else if(!A.job)A.yaw=A.home.yaw}}
+    else{const k=Math.min(1,sp*dt/d);A.x+=dx*k;A.z+=dz*k;A.yaw=Math.atan2(-dx,-dz);A.walk+=sp*dt}}
+  else if(A.job&&A.job.phase==="fill"){const cp=fuelCap(A.job.C).cap;A.yaw=Math.atan2(-(cp[0]-A.x),-(cp[2]-A.z))}}
+// drawing the attendants (and the hose while they fill) at the stations near you
+let HOSE=null;
+function attDraw(T,VP,eye,t){if(scene!=="town")return;for(const S of T.stations||[]){const h=S.homes[0].p;if(Math.hypot(h[0]-eye[0],h[1]-eye[2])>80)continue;
+    for(let i=0;i<2;i++){const A=attOf(S,i),M=NPCMODEL(NPC_ROLES.attendant[S.idx%2][i]);if(!M)continue;const walking=A.path.length>0,cyc=WALKER.cycle(M,0),sp=(M.speed&&M.speed.walk)||1.35;
+      const talk=M.clips.idle==="f_idle"?"f_talk":"m_talk",st=walking?{p:A.walk/sp/cyc,run:0,amt:1,wf:1}:{p:0,run:0,amt:0,idle:A.job&&A.job.phase==="fill"?talk:M.clips.idle};
+      FEET=(x,z,from)=>groundTop(T,x,z,from);WALKER.draw(M,VP,A.x,0,A.z,A.yaw,st,t,null,"");FEET=null;
+      if(A.job&&A.job.phase==="fill"){const p=A.job.pump.p,cp=fuelCap(A.job.C).cap,a=[p[0],1.0,p[1]],b=[cp[0],cp[1],cp[2]];
+        if(!HOSE){BAKE=null;CLEAR_GLASS=false;CELL=0;reset();box(0,-.025,0,.05,.05,1,"#15171a");HOSE=upload()}
+        const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],L=Math.hypot(dx,dy,dz)||1,yaw=Math.atan2(dx,dz),pitch=-Math.asin(dy/L);
+        HOSE.model=mul(mul(trans(a[0],a[1],a[2]),mul(rotY(yaw),mrotX(pitch))),mul(new Float32Array([1,0,0,0,0,1,0,0,0,0,L,0,0,0,0,1]),trans(0,0,.5)));HOSE.fogFar=150;drawScene(HOSE,VP,eye,false)}}}}
+// the pump displays: "K950 / litre" on every pump near you, counting litres and K on the one in use
+function pumpTags(T,VP,w,h){const box=document.getElementById("pumptags");if(!box)return;let n=0;
+  if(scene==="town"&&!flying)for(const S of T.stations||[])for(const P of S.pumps){const d=Math.hypot(P.p[0]-cam.x,P.p[1]-cam.z);if(d>22)continue;
+    const x=P.p[0],y=2.25,z=P.p[1],q=VP[3]*x+VP[7]*y+VP[11]*z+VP[15];if(q<=.1)continue;const sx=((VP[0]*x+VP[4]*y+VP[8]*z+VP[12])/q*.5+.5)*w,sy=(1-((VP[1]*x+VP[5]*y+VP[9]*z+VP[13])/q*.5+.5))*h;if(sx<-60||sx>w+60||sy<-40||sy>h+40)continue;
+    let el=box.children[n++];if(!el){el=document.createElement("div");el.className="pumptag";box.appendChild(el)}el.hidden=false;
+    const F=FUEL.s&&FUEL.s.pump===P?FUEL.s:null,txt=F?`${kL(F.litres)} L · K${Math.round(F.litres*F.price).toLocaleString("en-GB")}`:FUEL.price?`K${FUEL.price.toLocaleString("en-GB")} / litre`:"—";
+    if(el.textContent!==txt)el.textContent=txt;el.classList.toggle("on",!!F);el.style.left=sx.toFixed(1)+"px";el.style.top=sy.toFixed(1)+"px"}
+  for(let i=n;i<box.children.length;i++)box.children[i].hidden=true}
 
 const GPU=(()=>{try{const e=gl.getExtension("WEBGL_debug_renderer_info");return e?String(gl.getParameter(e.UNMASKED_RENDERER_WEBGL)).replace(/ANGLE \(|\)$/g,"").slice(0,34):"graphics unknown"}catch(x){return"graphics unknown"}})();
 // what each door in a town leads to
@@ -4597,7 +4705,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE){for(const P of CARSCENE.parts)lists.push([P.bufs,P.model])}dynShadows(T,lists,cam.x,cam.z);
     shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing&&!TOW&&!FOLLOW){gl.colorMask(true,true,true,true);FEET=jump.y>0?null:feetFn();WALKER.draw(PMs,lvp,cam.x,TGY+jump.y,cam.z,cam.yaw,gait,t,null,"");FEET=null;gl.colorMask(false,false,false,false)}})}
   if(scene==="town"){[eye,to]=carCamBlend(eye,to);LASTCAM=[eye.slice(),to.slice()]}if(TOW&&scene==="town"){towStep(dt);[eye,to]=towCam(dt)}if(FOLLOW&&scene==="town"){const c=vanCam(dt);if(c)[eye,to]=c}else{CAMBL=null;LASTCAM=null}
-  gl.viewport(0,0,cv.width,cv.height);const VP=mul(persp(fovNow,w/h,fly?.25:.08,800),look(eye,to,[0,1,0]));if(scene==="town")carUI(T,VP,w,h);else if(CARUI.door)carUI(T,VP,w,h);
+  gl.viewport(0,0,cv.width,cv.height);const VP=mul(persp(fovNow,w/h,fly?.25:.08,800),look(eye,to,[0,1,0]));if(scene==="town")carUI(T,VP,w,h);else if(CARUI.door)carUI(T,VP,w,h);if(T)pumpTags(T,VP,w,h);else pumpTags({},VP,w,h);
   gl.clearColor(LIGHT.fog[0],LIGHT.fog[1],LIGHT.fog[2],1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);if(!indoor)drawSky(eye,to,fovNow,w/h);
   if(T)GROUND.zones=T.map.lawnZones||[];
   const parts=scene==="town"?townParts(T):scene==="border"?[BORDER]:scene==="bank"?[bankOf(me.town)].concat(BANK_DOORS.map(d=>bankCan(d.key)?d.open:d.shut)):scene==="hosp"?[HV.scene].concat(doorParts(HV.doors)):scene==="trs"?[TV.scene].concat(doorParts(TV.doors)):scene==="gov"?[GV.scene].concat(doorParts(GV.doors)):[IMM_IN].concat(IMM_DOORS.map(d=>immCan(d.key)?d.open:d.shut));
@@ -4609,7 +4717,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     carDraw(VP,eye,false,own);if(!own){const bm=carModel(T.car);for(const L of carLamps(driving)){L.model=bm;L.fogFar=flying?1500:150;drawScene(L,VP,eye,false)}}
     if(driving&&!own)carDriver(T.car,VP,t)}
     if(scene==="town")dynDraw(T,VP,eye);
-    if(scene==="town"){mechDraw(T,VP,eye,t);vansDraw(VP,eye,t,false)}
+    if(scene==="town"){mechDraw(T,VP,eye,t);vansDraw(VP,eye,t,false);attDraw(T,VP,eye,t)}
     if(TOW&&TOW.truckM&&scene==="town"){TOWTRUCK.model=TOW.truckM;TOWTRUCK.fogFar=150;drawScene(TOWTRUCK,VP,eye,false);towPeople(VP,t)}
   {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing&&!TOW&&!FOLLOW;      // your own character, seen from behind
     if(show&&scene==="town"&&CARSEQ&&CARSEQ.sit>.5){const C=CARSEQ.C,h=carRig().seats.driver||[0,.6,0];WALKER.draw(PM,VP,cam.x,h[1]+CARSIT.y,cam.z,C.yaw,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"")}       // half in: seated
@@ -5048,6 +5156,7 @@ const AUTH={user:null,token:null,refresh:null,expires:0,offline:false,char:null,
 const STORE_KEY="dc_session";
 function store(v){try{if(v)localStorage.setItem(STORE_KEY,JSON.stringify(v));else localStorage.removeItem(STORE_KEY)}catch(e){}}
 function stored(){try{return JSON.parse(localStorage.getItem(STORE_KEY)||"null")}catch(e){return null}}
+setTimeout(fuelPriceGet,0);
 async function supa(path,opt){const o=opt||{},h=Object.assign({apikey:SUPA.key,"Content-Type":"application/json"},o.headers||{});if(o.auth&&AUTH.token)h.Authorization="Bearer "+AUTH.token;
   let r;try{r=await fetch(SUPA.url+path,{method:o.method||"GET",headers:h,body:o.body?JSON.stringify(o.body):undefined,keepalive:!!o.keepalive})}catch(e){const err=new Error("offline");err.offline=true;throw err}
   const text=await r.text();let data=null;try{data=text?JSON.parse(text):null}catch(e){data=text}
@@ -5066,7 +5175,7 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 const fmtDate=d=>{try{return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"})}catch(e){return d}};
 // a citizen from the server becomes the player in the game
 function becomeCitizen(c){AUTH.char=c;me.gender=c.gender;me.outfit=c.look||(ROSTER[c.gender][0]||{}).key;const r=ROSTER[c.gender].find(q=>q.key===me.outfit)||ROSTER[c.gender][0];if(r){PLAYERS[c.gender]=r.m;me.outfit=r.key}
-  me.role=c.role||"citizen";me.cash=+c.cash||0;me.cert={no:c.cert_no,name:c.name,dob:c.dob,gender:c.gender,state:c.home_state,date:fmtDate(c.cert_date)};me.entered=true;showCash();govRefresh()}
+  me.role=c.role||"citizen";me.cash=+c.cash||0;me.cert={no:c.cert_no,name:c.name,dob:c.dob,gender:c.gender,state:c.home_state,date:fmtDate(c.cert_date)};me.entered=true;showCash();govRefresh();fuelPriceGet()}
 /* ---- the money in your hand, top right ---- */
 const cashEl=document.createElement("div");cashEl.className="cashpill";cashEl.hidden=true;document.body.appendChild(cashEl);
 function showCash(){if(AUTH.char){const t="K"+Number(me.cash||0).toLocaleString("en-GB");if(cashEl.textContent!==t)cashEl.innerHTML=hico("wallet",18)+"<span>"+t+"</span>";cashEl.hidden=false}else cashEl.hidden=true}

@@ -206,3 +206,21 @@ The same post under two names: "Agriculture & Resources Officer" is "Agriculture
 | Vice Chancellor | Agbor State University | Vice Chancellors Office |
 
 National posts (the President, ministers, the Federal Council, and the Trade, Culture, Statistics and Foreign Affairs staff) are listed under Asaba.
+
+## Filling stations
+
+Every filling station has two attendants. Until players hold the attendant job (a post still to be created), computer
+attendants serve the pumps. A player attendant will clock in at the attendants' spot at the back of the pump islands
+(under the canopy, facing the forecourt); while clocked in, they serve cars at that station, and the computer
+attendant there stands down. Two stations in each state; every one pays fuel to its state's account.
+
+| Post | Station | Clock-in point |
+|---|---|---|
+| Filling Station Attendant | Asaba Filling Station (Asaba) | Attendants' spot, back of the pump islands |
+| Filling Station Attendant | Asaba West Filling Station (Asaba) | Attendants' spot, back of the pump islands |
+| Filling Station Attendant | Warri Filling Station (Warri) | Attendants' spot, back of the pump islands |
+| Filling Station Attendant | Warri West Filling Station (Warri) | Attendants' spot, back of the pump islands |
+| Filling Station Attendant | Ozoro Filling Station (Ozoro) | Attendants' spot, back of the pump islands |
+| Filling Station Attendant | Ozoro West Filling Station (Ozoro) | Attendants' spot, back of the pump islands |
+| Filling Station Attendant | Agbor Filling Station (Agbor) | Attendants' spot, back of the pump islands |
+| Filling Station Attendant | Agbor West Filling Station (Agbor) | Attendants' spot, back of the pump islands |
