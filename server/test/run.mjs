@@ -155,8 +155,8 @@ try {
   PORT = 8788; srv = await startServer({ STOP_AT: "8" });
   const L1 = await join("a", "town:Asaba"); for (let i = 0; i < 200; i++) L1.send({ t: "p", x: i, z: 0 }); await sleep(800);
   ok("at the daily limit, players are told and disconnected", L1.closed === 4029 || L1.got.some(m => m.code === "over-limit"), { closed: L1.closed });
-  const L2 = player("late"); let refused = false; try { await L2.open } catch (e) { refused = true }
-  ok("and new connections are refused until 00:00 UTC", refused);
+  const L2 = player("late"); try { await L2.open } catch (e) { } await sleep(600); const refused = L2.closed === 4029 && L2.got.some(m => m.code === "over-limit" && m.until > Date.now())
+  ok("and new connections are told why and closed, until 00:00 UTC", refused, L2.got);
 } catch (e) { console.log("ERROR", e.stack || e); results.push(["no crash", false]) }
 finally { if (srv) await stop(srv); supa.close() }
 const bad = results.filter(r => !r[1]);

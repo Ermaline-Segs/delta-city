@@ -124,9 +124,12 @@ export class Live extends DurableObject {
     const url = new URL(req.url);
     if (url.pathname === "/usage") return this.usage(req);
     if (req.headers.get("Upgrade") !== "websocket") return json({ error: "expected a WebSocket" }, 426);
-    if (this.over()) return json({ error: "over-limit", until: nextMidnight() }, 429);
-    this.tick("conns");
     const [client, server] = Object.values(new WebSocketPair());
+    if (this.over()) {                                    // over the day's allowance: say so (a browser can't read why a connection was refused), then close
+      server.accept(); server.send(JSON.stringify({ t: "err", code: "over-limit", until: nextMidnight() })); server.close(4029, "daily limit reached");
+      return new Response(null, { status: 101, webSocket: client });
+    }
+    this.tick("conns");
     this.ctx.acceptWebSocket(server);
     server.serializeAttachment({ id: crypto.randomUUID().slice(0, 8), auth: false, t0: Date.now() });
     return new Response(null, { status: 101, webSocket: client });
