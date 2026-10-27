@@ -3090,8 +3090,14 @@ function vehicleCam(C,wallAt,dt){if(VEH.lastVY===null)VEH.lastVY=VIEW.yaw;const 
   const yaw=C.yaw+VEH.orbit,fx=-Math.sin(yaw),fz=-Math.cos(yaw),cfx=-Math.sin(C.yaw),cfz=-Math.cos(C.yaw);
   if(VEH.cam===2){const h=carRig().seats.driver||[.36,.6,-.25],q=carPt(C,[h[0],0,h[2]+CARSIT.z-.08]),e=[q[0],h[1]+.5,q[2]];/* the driver's eyes, above the seat */VEH.camPos=null;return[e,[e[0]+fx,1.1+Math.sin(VIEW.pitch)*.6,e[2]+fz]]}
   const dist=VEH.cam===1?4.6:7.4,up=VEH.cam===1?1.85:2.6;let k=1;for(let q=.15;q<=1;q+=.15)if(wallAt(C.x-fx*dist*q,C.z-fz*dist*q)){k=Math.max(.2,q-.15);break}
-  const want=[C.x-fx*dist*k,up*(.6+.4*k),C.z-fz*dist*k];if(!VEH.camPos)VEH.camPos=want.slice();const s=1-Math.exp(-dt*7);for(let i=0;i<3;i++)VEH.camPos[i]+=(want[i]-VEH.camPos[i])*s;
-  return[VEH.camPos.slice(),[C.x+cfx*3,1.15,C.z+cfz*3]]}
+  const want=[C.x-fx*dist*k,up*(.6+.4*k),C.z-fz*dist*k],to=[C.x+cfx*3,1.15,C.z+cfz*3];
+  /* in reverse the camera glides round to the front corner on the driver's side and looks back past the rear of the
+     car, so you can see where you are backing into; it glides back behind the car out of reverse */
+  VEH.rev=(VEH.rev||0)+((VEH.gear==="R"?1:0)-(VEH.rev||0))*(1-Math.exp(-dt*3.5));
+  if(VEH.rev>.002){const n=VEH.cam===1?.8:1,r=VEH.rev,e=carPt(C,[2.7*n,0,3.3*n]),t=carPt(C,[0,0,-7]);let kk=1;for(let q=.2;q<=1;q+=.2)if(wallAt(C.x+(e[0]-C.x)*q,C.z+(e[2]-C.z)*q)){kk=Math.max(.35,q-.2);break}
+    const re=[C.x+(e[0]-C.x)*kk,up+.5,C.z+(e[2]-C.z)*kk];for(let i=0;i<3;i++){want[i]+=(re[i]-want[i])*r}to[0]+=(t[0]-to[0])*r;to[1]+=(.75-to[1])*r;to[2]+=(t[2]-to[2])*r}
+  if(!VEH.camPos)VEH.camPos=want.slice();const s=1-Math.exp(-dt*7);for(let i=0;i<3;i++)VEH.camPos[i]+=(want[i]-VEH.camPos[i])*s;
+  return[VEH.camPos.slice(),to]}
 /* ================================ collisions: the car and whatever it hits ================================
    Every collision works out two separate outcomes, one for the car and one for the thing it hit, from the car's mass,
    its closing speed (the part of its velocity heading into the object, so the angle of impact counts), the place of
