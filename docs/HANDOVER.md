@@ -48,7 +48,7 @@ traffic lights, hydrants and breakable street objects; the cream-and-green HUD; 
    Wheels spin, front wheels and steering wheel turn, passengers sit visibly. Door sounds from `assets/sounds/`.
    Works for every car with separate parts in `assets/vehicles/`.
 3. **Phase 3, homes**: see section 6.
-4. **Live multiplayer**: see section 7.
+4. **Live multiplayer** on Cloudflare (Durable Objects), not Supabase Realtime: see section 7.
 5. **Solid usable furniture everywhere**: nothing walk-through indoors; sit on chairs and sofas, lie on beds, cook,
    use toilets, showers, computers and counters. Needs motion recordings (lying, cooking, eating, showering, typing).
 6. **Highways joining the four states**, with the cash vans driving them.
@@ -94,11 +94,27 @@ traffic lights, hydrants and breakable street objects; the cream-and-green HUD; 
 
 ## 7. Live multiplayer
 
-Supabase Realtime (broadcast and presence, one channel per town or building). Show every signed-in player in the same
-place, walking, running, driving, sitting, with their own character, smooth movement and name tags. Share cars,
-knocked-over street objects, burst hydrants, doors and repairs. The free plan allows 2 million messages a month: send
-only when something changes, about 2 updates a second when moving, fewer for distant players, nothing when still.
-Show players online. Test with two browser windows as different players. Chat comes with this.
+**Decided by the owner: Cloudflare, not Supabase Realtime.** Supabase stays for logins, money, ownership, roles and
+saving. Comes straight after Phase 3 (homes). Code and the owner's setup steps: `server/README.md`.
+
+- Cloudflare Workers free plan with **one Durable Object (SQLite-backed) for the whole game**; every town and every
+  building inside is a **room** inside it (one object keeps running time under the free 13,000 GB-s a day).
+  **WebSocket Hibernation.** Each player is sent only the players near them.
+- Players connect by WebSocket after signing in and send their Supabase login token; the Worker checks it against
+  Supabase's **public signing keys (JWKS)**. Any secret ever needed is a **Worker secret**, never in `index.html` or
+  the repository.
+- Free limits: **100,000 requests a day**, incoming WebSocket messages counted **20 to 1**, outgoing messages free;
+  reset at 00:00 UTC. When a limit is hit, multiplayer stops until 00:00 UTC.
+- About **2 updates a second while moving, none when still**, fewer for players over 60 m away.
+- If the server can't be reached or is over its limit, the game falls back to **single-player with a small "Offline
+  mode" notice**. It must never break.
+- The Chief Admin's Admin screen shows the **measured daily request count** against the limit and a **projection for
+  2, 5 and 10 players**.
+- Show other players with their own character, smooth movement and name tags; share cars, street objects, hydrants,
+  doors and repairs; a simple chat.
+- Code in `server/` with a README; published by GitHub Actions with `wrangler deploy`, using the owner's API token from
+  a GitHub secret (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`).
+- Test with two signed-in browser windows.
 
 ## 8. Public transport
 
@@ -190,7 +206,8 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 7. **All furniture solid and fixed** in every inside, with aisles, doors and counters still reachable.
 8. **Feet on the ground, stairs climbed step by step:** no sinking into soil or floating up stairs; foot placement on
    steps, kerbs and slopes.
-Then **Phase 3, homes** (section 6).
+Then **Phase 3, homes** (section 6), then **live multiplayer on Cloudflare** (section 7; owner: follow the setup
+steps in `server/README.md`).
 
 **The local session's list, in order**
 1. Fix the home furniture (floating pieces, sizes, fan mount, facing) and check `assets/interiors/` facing the same way.
