@@ -3840,7 +3840,10 @@ function parkWhere(T,C){for(const P of T.parks||[]){if(!P.inside(C.x,C.z,.8))con
 
 const GAR={list:[],parks:[],cfg:{despawn_distance_m:250,abandon_s:900},skew:0,syncT:-1e9,beatT:-1e9,beating:false,out:null,keysFor:null,found:[],panel:null,ruleT:0};
 const garOn=()=>typeof AUTH!=="undefined"&&!!AUTH.user&&!AUTH.offline&&!!AUTH.char;
-async function garCall(fn,body){await freshToken();return supa("/rest/v1/rpc/"+fn,{method:"POST",auth:true,body:body||{}})}
+// "That is not a car park" from the server means its list of car parks is older than the game's: say what to do
+const GARPARKMSG="This car park isn't set up on the server yet. The Chief Admin needs to run supabase_compound_car_parks.sql in Supabase.";
+async function garCall(fn,body){await freshToken();const fix=t=>/not a car park/i.test(t||"")?GARPARKMSG:t;
+  try{const d=await supa("/rest/v1/rpc/"+fn,{method:"POST",auth:true,body:body||{}});if(d&&typeof d.error==="string")d.error=fix(d.error);return d}catch(e){if(e&&e.message)e.message=fix(e.message);throw e}}
 const garNow=()=>Date.now()+GAR.skew;          // the server's clock
 function garTake(d){if(d&&d.now)GAR.skew=new Date(d.now).getTime()-Date.now()}
 function garMine(){for(const[st,T]of Object.entries(TOWNS))if(T.car&&T.car.vid)return{st,T,C:T.car};return null}
