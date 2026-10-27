@@ -498,6 +498,48 @@ Face presets differ from the base only in face shape (nose, lips, chin, cheeks, 
 
 Pieces: 339 files, 244 MB. Colour-variant pictures: 86 files, 56 MB. Hair textures are kept at 1024 px (seen close up in the creator); all other piece textures are capped at 512 px. Pieces that were over 10,000 triangles were reduced to under 10,000 (Blender collapse decimation; eyebrows and eyelashes made of separate strands were thinned evenly instead).
 
+## Nigerian clothing and hair (made for Delta City)
+
+Modelled by script in Blender for Delta City, directly on `base_female.glb` / `base_male.glb`: same 53-bone `game_engine` skeleton, same rest pose, skin weights taken from the body underneath. **CC0** (made here; no credit needed). Print and fabric textures are generated, not copied.
+
+- **Hide lists:** the outfits and the gown have entries in `hide_lists.json` (`hide_base_nodes` hides the base underwear under them). The ankara gown and iro and buba hide only the body above the knee, so the shins stay visible if the legs leave the skirt when seated.
+- **Gele:** `hides_hair: 1` in `catalog.json`, so the creator should take off the hairstyle while the gele is worn.
+- **Materials:** all opaque except the beards (alpha cut-out, `alphaMode` MASK). Double-sided, so open hems and sleeves show their inside.
+- **Colour variants:** one texture per variant, shared by the female and male fits. `<item>__<variant>.jpg` replaces the base colour of every material of the piece. The men's outfits have two materials: the fabric takes `<item>__<variant>.jpg` and the material ending in `_embroidery` takes `<item>__<variant>__embroidery.jpg` (third value of the `var` entry).
+  - Men's outfits: white, sky blue, wine, navy, cream, emerald, charcoal, gold (embroidery thread matched to each).
+  - Ankara gown, iro and buba, gele: six ankara prints (sunset rings, emerald petals, indigo waves, royal diamonds, coral swirls, gold fans); the gele also has six aso-oke colours (gold, burgundy, teal, coral, silver, royal blue).
+  - Locs, twists and beards: black, dark brown, auburn, honey blonde. Slippers and sandals: tan, black, brown, wine, navy.
+- **Footwear** sits like the other shoes: the sole reaches about 1.2 cm below the floor line of the body.
+- **Known limits:** robes and skirts are skinned, not simulated: when seated, the wide agbada sleeves and long hems fold through each other and the legs, and a long hem keeps its bell shape around the knees.
+
+Previews (rest pose from four sides, then walking, seated and driving, played with `../animations/mpfb/`):
+
+- `previews/nigerian_male.jpg`: agbada with full beard and slippers; senator wear with short beard, twists and sandals; kaftan with locs and sandals.
+- `previews/nigerian_female.jpg`: ankara gown with locs and sandals; iro and buba with gele and slippers; twists with slippers.
+
+![](previews/nigerian_male.jpg)
+
+![](previews/nigerian_female.jpg)
+
+| File | What it is | Triangles | Size | Fits | Licence | Colour variants |
+|---|---|---|---|---|---|---|
+| `outfits/dc_agbada_male.glb` | Agbada: wide outer robe with an embroidered chest panel, over an inner robe (buba) and trousers (sokoto) | 9,800 | 453 KB | male | CC0 | 7 |
+| `outfits/dc_kaftan_male.glb` | Kaftan: ankle-length robe with long sleeves and an embroidered neckline and placket, trousers beneath | 6,999 | 380 KB | male | CC0 | 7 |
+| `outfits/dc_senator_male.glb` | Senator wear: knee-length tunic with embroidered neckline and placket, matching trousers | 7,000 | 308 KB | male | CC0 | 7 |
+| `outfits/dc_iro_buba_female.glb` | Iro and buba: loose blouse (buba) with bell sleeves over an ankle-length wrapper skirt (iro), ankara print | 5,764 | 308 KB | female | CC0 | 5 |
+| `dresses/dc_ankara_gown_female.glb` | Ankara gown: fitted bodice, scoop neck, short sleeves, A-line skirt to the ankle | 4,095 | 217 KB | female | CC0 | 5 |
+| `accessories/dc_gele_female.glb` | Gele: wrapped headtie with a pleated fan at the back; aso-oke colours and ankara prints | 1,256 | 122 KB | female | CC0 | 11 |
+| `facial_hair/dc_beard_short_male.glb` | Short beard: close stubble beard and moustache (alpha cut-out) | 830 | 423 KB | male | CC0 | 3 |
+| `facial_hair/dc_beard_full_male.glb` | Full beard: thick beard and moustache, fuller at the chin (alpha cut-out) | 700 | 76 KB | male | CC0 | 3 |
+| `hair/dc_locs_female.glb` | Locs: shoulder-length locs on a scalp cap, face kept clear | 8,073 | 308 KB | female | CC0 | 3 |
+| `hair/dc_locs_male.glb` | Locs: shoulder-length locs on a scalp cap, face kept clear | 8,265 | 314 KB | male | CC0 | 3 |
+| `hair/dc_twists_female.glb` | Twists: short two-strand twists on a scalp cap | 6,183 | 255 KB | female | CC0 | 3 |
+| `hair/dc_twists_male.glb` | Twists: short two-strand twists on a scalp cap | 6,275 | 259 KB | male | CC0 | 3 |
+| `shoes/dc_slippers_female.glb` | Slippers: flat rubber sole with one wide strap over the forefoot | 364 | 58 KB | female | CC0 | 5 |
+| `shoes/dc_slippers_male.glb` | Slippers: flat rubber sole with one wide strap over the forefoot | 364 | 58 KB | male | CC0 | 5 |
+| `shoes/dc_sandals_female.glb` | Sandals: flat sole with toe, instep and heel straps | 452 | 72 KB | female | CC0 | 5 |
+| `shoes/dc_sandals_male.glb` | Sandals: flat sole with toe, instep and heel straps | 452 | 72 KB | male | CC0 | 5 |
+
 ## Left out
 
 - The whole costumes group (superhero suits, sci-fi armour, monk robes, Viking, cyborg) and other non-everyday items: `aethelraed_flapper_dress`, `cortu_shaggy_green_hair`, `cortu_strawberry_cloud_hair`, `culturalibre_doc_ock_glasses`, `culturalibre_hero_boots_1`, `culturalibre_hero_boots_2`, `culturalibre_hero_boots_3`, `culturalibre_hero_boots_4`, `culturalibre_hero_boots_5`, `culturalibre_hero_gem`, `culturalibre_hero_suit_1`, `culturalibre_hero_suit_2`, `culturalibre_hero_suit_3`, `culturalibre_heroine_boots_1`, `culturalibre_heroine_boots_2`, `culturalibre_heroine_boots_3`, `culturalibre_heroine_boots_4`, `culturalibre_heroine_lightning_earrings`, `culturalibre_heroine_suit_1`, `culturalibre_heroine_suit_2`, `culturalibre_heroine_suit_3`, `culturalibre_heroine_suit_4`, `culturalibre_skull_helmet`, `culturalibre_warrior_helmet`, `donitz_monk_robe`, `donitz_monk_robe_hood`, `donitz_monk_robe_hood_down`, `donitz_monk_robe_hood_off`, `elvs_short_side_do`, `ews_3d_glasses`, `green_tomato_rei_ayanami`, `green_tomato_yoko_tsuno`, `grinsegold_corinthian_helmet`, `grinsegold_female_pirate_boots`, `javherre_casco_caballero_templario_templar_knight_helmet`, `joachip_cyborg_suit`, `joepal_xmas_cap`, `learning_anime_hair`, `marco_105_armsleeve02`, `marco_105_stocking01`, `marco_105_stocking02`, `matcreator_mc-bodysuit-2021`, `matcreator_mc-scifi-armor_guardian`, `matcreator_mc-scifi-armor_helios`, `matcreator_mc-scifi-armor_jupiter7`, `matcreator_mc-skinsuit_2022`, `mrgreaterthan_m1_helmet`, `rehmanpolanski_viking_boots`, `rehmanpolanski_viking_pants`, `rehmanpolanski_viking_tunic`, `scailman_gogo_platform_boots`, `scailman_semitransparent_water_boots`, `slayer227_spider-gwen`, `sonntag78_junglebook_hair`, `thegreatengineer_galactic_warrior_uniform`, `v0rt3x_armsleeves_black_fishnet_large`, `v0rt3x_armsleeves_black_fishnet_medium`, `v0rt3x_armsleeves_black_fishnet_small`, `v0rt3x_armsleeves_white_fishnet_large`, `v0rt3x_armsleeves_white_fishnet_medium`, `v0rt3x_armsleeves_white_fishnet_small`, `v0rt3x_stockings_black_fishnet_large`, `v0rt3x_stockings_black_fishnet_medium`, `v0rt3x_stockings_black_fishnet_small`, `v0rt3x_stockings_white_fishnet_large`, `v0rt3x_stockings_white_fishnet_medium`, `v0rt3x_stockings_white_fishnet_small`, `wdg_mycenaean_tunic`.
@@ -506,11 +548,11 @@ Pieces: 339 files, 244 MB. Colour-variant pictures: 86 files, 56 MB. Hair textur
 
 ## What a creator would still want (not in the free libraries)
 
-- **Facial hair**: there are no beards or moustaches in any MakeHuman pack.
+- **Facial hair**: only the two Delta City beards above (short, full); no moustache-only styles.
 - **Plain men's underwear**: no CC0 or CC-BY pack has any; the male base wears `cortu_jeans_shorts` instead.
-- **African hairstyles**: only `afro01`, `elvs_micky_afro` (afro puffs) and `elvs_braided_rows` (cornrows with beads). Missing: locs/dreadlocks, twists, Bantu knots, box braids, fades and low cuts, relaxed styles, headwraps (gele, turban).
-- **Nigerian and West African clothing**: agbada, kaftan, buba and sokoto, ankara prints, wrapper skirts, kufi and fila caps, hijab.
-- **Everyday footwear**: slippers, sandals and flip-flops.
+- **African hairstyles**: `afro01`, `elvs_micky_afro` (afro puffs), `elvs_braided_rows` (cornrows with beads) and the Delta City locs, twists and gele above. Still missing: Bantu knots, box braids, fades and low cuts, relaxed styles, turbans.
+- **Nigerian and West African clothing**: agbada, kaftan, senator wear, ankara gown, iro and buba are above. Still missing: kufi and fila caps, hijab, ipele (shoulder shawl).
+- **Everyday footwear**: slippers and sandals are above; flip-flops still missing.
 - **Jewellery and accessories**: there is one pearl necklace, one lace choker, two earring sets (hoops, pearls), ear and septum piercings, four rings, eight pairs of glasses and a few hats (two fedoras, a cloche, a newsboy cap, one other hat, a motorcycle helmet). Missing: watches, bracelets, bags, belts, baseball caps, sunglasses.
 - **Uniforms**: police, nurse, school, security and military uniforms.
 - **Children and elderly bodies** (MakeHuman can make them; not exported here).
