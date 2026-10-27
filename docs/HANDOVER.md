@@ -208,6 +208,11 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 Entering fix, blocked doors, compounds, tap-anywhere route, map tags, furniture facing, solid furniture, feet and
 stairs: all done and pushed, plus the reverse camera.
 
+**Known fault (open):** the driving test's Asaba bank case fails often: reversing straight back from the road into
+bay 1, the car dents something at about (32, 5.5) and stops short. It fails just as often on the version from before
+items 8 and the reverse camera, so it is not caused by them. Being checked: what the car hits (a cash van unloading at
+the bank, or a fixed object at the compound's gate).
+
 **The order from here (owner, newest)**
 1. **Live multiplayer on Cloudflare** (section 7). The three GitHub secrets are in place: `CLOUDFLARE_ACCOUNT_ID`,
    `CLOUDFLARE_API_TOKEN`, `CF_ANALYTICS_TOKEN`. Supabase stays for logins, money and saving.
