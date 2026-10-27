@@ -9,6 +9,8 @@ Parts were cut and pivoted in Blender 5.2; the door pictures in `previews/` are 
 | `vw_corrado.glb` | VW Corrado coupé, low poly | 6,524 | 647 KB | 1467 x 360 px (PNG) |
 | `taxi_corolla.glb` | Corolla E180 saloon as a yellow taxi, 4 doors, full interior | 19,159 | 2.9 MB | up to 1024 px (JPEG) |
 | `brt_bus.glb` | Mercedes-Benz Citaro 12 m city bus, red and white with BRT lettering, sliding passenger doors, seats and poles | 24,102 | 1.0 MB | none (plain materials) |
+| `ural_police.glb` | Ural Police Truck: police crew truck, 6x6 (Ural-4320 with a personnel body); kept for the police | 38,597 | 2.6 MB | up to 1024 px (JPEG) |
+| `ural_fire.glb` | Ural Fire Tender: fire engine, 6x6 (Ural-43202 AC-40 tanker); kept for the fire service | 41,557 | 2.8 MB | up to 1024 px (JPEG) |
 | `starlite.glb` | Starlite: vintage coupé (1950s) | 30,432 | 1.4 MB | up to 1024 px (JPEG) |
 | `mula_van.glb` | Mula Van: budget minivan | 27,410 | 1.8 MB | up to 1024 px (JPEG) |
 | `starlite.glb` | Starlite | left | `[-0.36, 1.05, -0.75]` | `[-0.36, 0.80, -0.50]` |  |
@@ -35,6 +37,8 @@ The Harmattan GT was built from an Australian right-hand-drive car, so its inter
 | `vw_corrado.glb` | VW Corrado | left | `[-0.38, 0.82, -0.30]` | `[-0.38, 0.47, 0.12]` |  |
 | `taxi_corolla.glb` | Taxi | left | `[-0.36, 0.84, -0.55]` | `[-0.36, 0.60, 0.12]` |  |
 | `brt_bus.glb` | BRT bus | left | `[-0.75, 1.41, -5.40]` | `[-0.75, 1.01, -4.95]` |  |
+| `ural_police.glb` | Ural Police Truck: police crew truck, 6x6 (Ural-4320 with a personnel body); kept for the police | 38,597 | 2.6 MB | up to 1024 px (JPEG) |
+| `ural_fire.glb` | Ural Fire Tender: fire engine, 6x6 (Ural-43202 AC-40 tanker); kept for the fire service | 41,557 | 2.8 MB | up to 1024 px (JPEG) |
 | `starlite.glb` | Starlite: vintage coupé (1950s) | 30,432 | 1.4 MB | up to 1024 px (JPEG) |
 | `mula_van.glb` | Mula Van: budget minivan | 27,410 | 1.8 MB | up to 1024 px (JPEG) |
 | `harmony.glb` | Harmony | left | `[-0.36, 0.84, -0.55]` | `[-0.36, 0.60, 0.12]` |  |
@@ -548,6 +552,77 @@ Previews: `previews/mula_van_doors_open.png`, `previews/mula_van_closed.png`, `p
 | front right | `[0.36, 0.80, -0.50]` |
 
 Previews: `previews/starlite_doors_open.png`, `previews/starlite_closed.png`, `previews/starlite_top_open.png`.
+
+## Ural Fire Tender (`ural_fire.glb`)
+
+- **Type:** fire engine, 6x6 (Ural-43202 AC-40 tanker); kept for the fire service.
+- **Source:** "Ural AC40 PM102b (43202) / interior" by Basic Hsu, **CC-BY 4.0**, credited in `../CREDITS.md`.
+- **Changes:** Russian fire-service lettering, emergency-ministry emblems and the number plate painted out of the textures; the 'Ural' bonnet letters removed; scaled to real length (7.6 m); six wheels on three axles, named wheel_F*, wheel_M* (middle) and wheel_R*; four crew-cab doors separate and hinged; the steering wheel cut out to turn; left-hand drive as built.
+- **Size:** 7.66 m long, 2.77 m wide (including mirrors), 3.15 m high.
+- **File:** 41,557 triangles, 2.8 MB.
+- **Driver:** sits on the **left**.
+
+| Part | Pivot `[x, y, z]` (m) | Notes |
+|---|---|---|
+| `door_FL` | `[-0.98, 1.87, -1.90]` | hinged on its front edge; 0.80 m long, 1.39 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_RL` | `[-1.02, 1.87, -0.82]` | hinged on its front edge; 0.80 m long, 1.39 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_FR` | `[0.99, 1.87, -1.90]` | hinged on its front edge; 0.80 m long, 1.39 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `door_RR` | `[1.04, 1.87, -0.82]` | hinged on its front edge; 0.80 m long, 1.39 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `wheel_FL` | `[-0.99, 0.63, -2.57]` | radius 0.63 m |
+| `wheel_FR` | `[0.99, 0.63, -2.57]` | radius 0.63 m |
+| `wheel_ML` | `[-0.99, 0.63, 0.90]` | radius 0.63 m |
+| `wheel_MR` | `[0.99, 0.63, 0.90]` | radius 0.63 m |
+| `wheel_RL` | `[-0.99, 0.63, 2.28]` | radius 0.63 m |
+| `wheel_RR` | `[0.99, 0.63, 2.28]` | radius 0.63 m |
+| `steering_wheel` | `[-0.41, 2.03, -1.81]` | tilted 21 deg from vertical; spins about its own local Z axis, with positive meaning turning left (same as the taxi) |
+
+**Seats** are given as hip points `[x, y, z]`:
+
+| Seat | Hip point |
+|---|---|
+| driver | `[-0.50, 1.73, -1.30]` |
+| front right | `[0.45, 1.72, -1.30]` |
+| rear left | `[-0.45, 1.72, -0.30]` |
+| rear right | `[0.45, 1.72, -0.30]` |
+
+Previews: `previews/ural_fire_doors_open.png`, `previews/ural_fire_closed.png`, `previews/ural_fire_top_open.png`.
+
+## Ural Police Truck (`ural_police.glb`)
+
+- **Type:** police crew truck, 6x6 (Ural-4320 with a personnel body); kept for the police.
+- **Source:** "Ural VM4320 / interior" by Basic Hsu, **CC-BY 4.0**, credited in `../CREDITS.md`.
+- **Changes:** Russian militia lettering, the Moscow riot-police name, the Moscow coat of arms and the number plates painted out of the textures (the blue bands stay, plain); the front plate holder and the 'Ural' bonnet letters removed; scaled to real length (7.9 m); six wheels on three axles, named wheel_F*, wheel_M* (middle) and wheel_R*; both cab doors separate and hinged; nine crew seats in the body; left-hand drive as built.
+- **Size:** 7.95 m long, 2.78 m wide (including mirrors), 3.50 m high.
+- **File:** 38,597 triangles, 2.6 MB.
+- **Driver:** sits on the **left**.
+
+| Part | Pivot `[x, y, z]` (m) | Notes |
+|---|---|---|
+| `door_FL` | `[-0.97, 1.87, -2.00]` | hinged on its front edge; 0.80 m long, 1.39 m high; open with `rotation.y` negative (up to about 70 deg) |
+| `door_FR` | `[0.99, 1.87, -2.00]` | hinged on its front edge; 0.80 m long, 1.39 m high; open with `rotation.y` positive (up to about 70 deg) |
+| `wheel_FL` | `[-1.00, 0.63, -2.68]` | radius 0.63 m |
+| `wheel_FR` | `[1.00, 0.63, -2.68]` | radius 0.63 m |
+| `wheel_ML` | `[-1.00, 0.63, 0.80]` | radius 0.63 m |
+| `wheel_MR` | `[1.00, 0.63, 0.80]` | radius 0.63 m |
+| `wheel_RL` | `[-1.00, 0.63, 2.18]` | radius 0.63 m |
+| `wheel_RR` | `[1.00, 0.63, 2.18]` | radius 0.63 m |
+| `steering_wheel` | `[-0.48, 1.76, -2.11]` | tilted -6 deg from vertical; spins about its own local Z axis, with positive meaning turning left (same as the taxi) |
+
+**Seats** are given as hip points `[x, y, z]`:
+
+| Seat | Hip point |
+|---|---|
+| driver | `[-0.45, 1.73, -1.50]` |
+| front right | `[0.45, 1.72, -1.50]` |
+| crew left 1 | `[-0.73, 1.79, 0.20]` |
+| crew left 2 | `[-0.73, 1.79, 1.08]` |
+| crew left 3 | `[-0.73, 1.79, 2.10]` |
+| crew right 1 | `[0.80, 1.79, 0.20]` |
+| crew right 2 | `[0.80, 1.79, 1.08]` |
+| crew right 3 | `[0.80, 1.79, 2.10]` |
+| crew back | `[0.00, 1.79, 3.20]` |
+
+Previews: `previews/ural_police_doors_open.png`, `previews/ural_police_closed.png`, `previews/ural_police_top_open.png`.
 
 ## Door check (`previews/`)
 
