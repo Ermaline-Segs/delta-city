@@ -24,7 +24,7 @@ If anything here conflicts with an older instruction, this document wins. When t
   what didn't. Never claim success from pictures alone, and never show fake numbers or buttons that do nothing.
 - Assets: realistic (photo textures, not cartoon), CC0 or CC-BY only (credit CC-BY in `CREDITS.md` under
   "Credits required"). Never use models ripped from games, or with NonCommercial, NoDerivatives, ShareAlike or
-  Sketchfab "Standard/Free Standard" licences. `.glb`, real size in metres, Y-up, front facing -Z.
+  Sketchfab "Standard/Free Standard" licences. `.glb`, real size in metres, Y-up, cars face -Z; furniture and interiors face +Z. Check each model's real front.
 - **The Nigerian way:** money is **K** (e.g. K250,000), not ₦. Traffic drives on the **right**; every car is
   **left-hand drive**; anticlockwise round roundabouts. Players are mostly Nigerian.
 
