@@ -1,0 +1,397 @@
+{
+ "target": "base_male.glb",
+ "rig": "mpfb",
+ "hip_scale_K": 1.041,
+ "facing_turn_deg": 0.0,
+ "bone_map": {
+  "pelvis": "pelvis",
+  "spine_01": "spine_01",
+  "spine_02": "spine_02",
+  "spine_03": "spine_03",
+  "neck_01": "neck_01",
+  "Head": "head",
+  "clavicle_l": "clavicle_l",
+  "upperarm_l": "upperarm_l",
+  "lowerarm_l": "lowerarm_l",
+  "hand_l": "hand_l",
+  "clavicle_r": "clavicle_r",
+  "upperarm_r": "upperarm_r",
+  "lowerarm_r": "lowerarm_r",
+  "hand_r": "hand_r",
+  "thigh_l": "thigh_l",
+  "calf_l": "calf_l",
+  "foot_l": "foot_l",
+  "ball_l": "ball_l",
+  "thigh_r": "thigh_r",
+  "calf_r": "calf_r",
+  "foot_r": "foot_r",
+  "ball_r": "ball_r",
+  "thumb_01_l": "thumb_01_l",
+  "thumb_02_l": "thumb_02_l",
+  "thumb_03_l": "thumb_03_l",
+  "index_01_l": "index_01_l",
+  "index_02_l": "index_02_l",
+  "index_03_l": "index_03_l",
+  "middle_01_l": "middle_01_l",
+  "middle_02_l": "middle_02_l",
+  "middle_03_l": "middle_03_l",
+  "ring_01_l": "ring_01_l",
+  "ring_02_l": "ring_02_l",
+  "ring_03_l": "ring_03_l",
+  "pinky_01_l": "pinky_01_l",
+  "pinky_02_l": "pinky_02_l",
+  "pinky_03_l": "pinky_03_l",
+  "thumb_01_r": "thumb_01_r",
+  "thumb_02_r": "thumb_02_r",
+  "thumb_03_r": "thumb_03_r",
+  "index_01_r": "index_01_r",
+  "index_02_r": "index_02_r",
+  "index_03_r": "index_03_r",
+  "middle_01_r": "middle_01_r",
+  "middle_02_r": "middle_02_r",
+  "middle_03_r": "middle_03_r",
+  "ring_01_r": "ring_01_r",
+  "ring_02_r": "ring_02_r",
+  "ring_03_r": "ring_03_r",
+  "pinky_01_r": "pinky_01_r",
+  "pinky_02_r": "pinky_02_r",
+  "pinky_03_r": "pinky_03_r"
+ },
+ "clips": [
+  {
+   "name": "Idle_Loop",
+   "frames": 61,
+   "seconds": 2.5,
+   "ground": "fixed",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.938,
+    0.947
+   ],
+   "planted_foot_slide_per_frame": 0.0
+  },
+  {
+   "name": "Car_Drive_Loop",
+   "frames": 41,
+   "seconds": 1.67,
+   "ground": "seated (Idle offset)",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    -0.0,
+    -0.0
+   ],
+   "pelvis_height": [
+    0.595,
+    0.595
+   ],
+   "planted_foot_slide_per_frame": 0.0
+  },
+  {
+   "name": "Carry_Idle_Loop",
+   "frames": 61,
+   "seconds": 2.5,
+   "ground": "fixed",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.938,
+    0.947
+   ],
+   "planted_foot_slide_per_frame": 0.0
+  },
+  {
+   "name": "Carry_Walk_Loop",
+   "frames": 49,
+   "seconds": 2.0,
+   "ground": "fixed",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    0.0,
+    0.013
+   ],
+   "pelvis_height": [
+    0.844,
+    0.951
+   ],
+   "planted_foot_slide_per_frame": 0.028
+  },
+  {
+   "name": "Cook_Stir_Loop",
+   "frames": 61,
+   "seconds": 2.5,
+   "ground": "fixed",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.938,
+    0.947
+   ],
+   "planted_foot_slide_per_frame": 0.0,
+   "hand_target_error_m": 0.0
+  },
+  {
+   "name": "Eat_Standing",
+   "frames": 33,
+   "seconds": 1.33,
+   "ground": "fixed",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.947,
+    0.947
+   ],
+   "planted_foot_slide_per_frame": 0.0,
+   "hand_target_error_m": 0.0
+  },
+  {
+   "name": "Get_Up",
+   "frames": 37,
+   "seconds": 1.5,
+   "ground": "per-frame, smoothed",
+   "offset_m": [
+    0.014,
+    0.108
+   ],
+   "lowest_skin_after": [
+    -0.001,
+    0.023
+   ],
+   "pelvis_height": [
+    0.107,
+    0.945
+   ],
+   "planted_foot_slide_per_frame": 0.088
+  },
+  {
+   "name": "Interact",
+   "frames": 49,
+   "seconds": 2.0,
+   "ground": "fixed",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.938,
+    0.947
+   ],
+   "planted_foot_slide_per_frame": 0.0
+  },
+  {
+   "name": "Lie_Down",
+   "frames": 38,
+   "seconds": 1.54,
+   "ground": "per-frame, smoothed",
+   "offset_m": [
+    0.014,
+    0.108
+   ],
+   "lowest_skin_after": [
+    -0.001,
+    0.022
+   ],
+   "pelvis_height": [
+    0.107,
+    0.948
+   ],
+   "planted_foot_slide_per_frame": 0.089
+  },
+  {
+   "name": "Phone_Talk_Loop",
+   "frames": 71,
+   "seconds": 2.92,
+   "ground": "fixed",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    -0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.94,
+    0.945
+   ],
+   "planted_foot_slide_per_frame": 0.0,
+   "hand_target_error_m": 0.0
+  },
+  {
+   "name": "Pick_Up",
+   "frames": 21,
+   "seconds": 0.83,
+   "ground": "fixed",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    -0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.947,
+    0.957
+   ],
+   "planted_foot_slide_per_frame": 0.001
+  },
+  {
+   "name": "Shower_Loop",
+   "frames": 65,
+   "seconds": 2.67,
+   "ground": "fixed",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    -0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.938,
+    0.947
+   ],
+   "planted_foot_slide_per_frame": 0.0,
+   "hand_target_error_m": 0.0
+  },
+  {
+   "name": "Sit_Down",
+   "frames": 32,
+   "seconds": 1.29,
+   "ground": "seated (Idle offset)",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    -0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.597,
+    0.947
+   ],
+   "planted_foot_slide_per_frame": 0.039
+  },
+  {
+   "name": "Sit_Eat_Loop",
+   "frames": 65,
+   "seconds": 2.67,
+   "ground": "seated (Idle offset)",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    -0.0,
+    -0.0
+   ],
+   "pelvis_height": [
+    0.598,
+    0.598
+   ],
+   "planted_foot_slide_per_frame": 0.0,
+   "hand_target_error_m": 0.0
+  },
+  {
+   "name": "Sit_Idle_Loop",
+   "frames": 41,
+   "seconds": 1.67,
+   "ground": "seated (Idle offset)",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    -0.0,
+    -0.0
+   ],
+   "pelvis_height": [
+    0.598,
+    0.598
+   ],
+   "planted_foot_slide_per_frame": 0.0
+  },
+  {
+   "name": "Sit_Talk_Loop",
+   "frames": 71,
+   "seconds": 2.92,
+   "ground": "seated (Idle offset)",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    -0.0,
+    -0.0
+   ],
+   "pelvis_height": [
+    0.598,
+    0.598
+   ],
+   "planted_foot_slide_per_frame": 0.0
+  },
+  {
+   "name": "Sit_Type_Loop",
+   "frames": 49,
+   "seconds": 2.0,
+   "ground": "seated (Idle offset)",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    -0.0,
+    -0.0
+   ],
+   "pelvis_height": [
+    0.598,
+    0.598
+   ],
+   "planted_foot_slide_per_frame": 0.0,
+   "hand_target_error_m": 0.0
+  },
+  {
+   "name": "Sleep_Loop",
+   "frames": 97,
+   "seconds": 4.0,
+   "ground": "per-frame, smoothed",
+   "offset_m": [
+    0.102,
+    0.102
+   ],
+   "lowest_skin_after": [
+    0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.169,
+    0.169
+   ],
+   "planted_foot_slide_per_frame": 0.0
+  },
+  {
+   "name": "Stand_Up",
+   "frames": 25,
+   "seconds": 1.0,
+   "ground": "seated (Idle offset)",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    -0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.598,
+    0.947
+   ],
+   "planted_foot_slide_per_frame": 0.022
+  },
+  {
+   "name": "Walk_Loop",
+   "frames": 33,
+   "seconds": 1.33,
+   "ground": "fixed",
+   "offset_m": 0.014,
+   "lowest_skin_after": [
+    0.0,
+    0.016
+   ],
+   "pelvis_height": [
+    0.937,
+    0.99
+   ],
+   "planted_foot_slide_per_frame": 0.043
+  }
+ ]
+}
