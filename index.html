@@ -526,7 +526,7 @@ function placeModel(id,kindOf,part){const m=modelData(id),P=m.P,C=m.C,I=m.I,pt=i
   for(let t=R?R[0]*3:0,end=R?R[1]*3:I.length;t<end;t+=3){const a=I[t],b=I[t+1],c=I[t+2],ca=cl(a);triC(pt(a),pt(b),pt(c),ca,cl(b),cl(c),kindOf?kindOf(ca):0)}}
 function tri(a,b,c,col,kind){const n=nrm(cross(sub(b,a),sub(c,a)));{const w=wpt((a[0]+b[0]+c[0])/3,(a[2]+b[2]+c[2])/3);target(kind,3,w[0],w[1],CELL?Math.max(Math.abs(a[0]-c[0]),Math.abs(a[2]-c[2]),Math.abs(a[0]-b[0]),Math.abs(a[2]-b[2])):0)}const i=vert(a[0],a[1],a[2],n[0],n[1],n[2],col,kind);vert(b[0],b[1],b[2],n[0],n[1],n[2],col,kind);vert(c[0],c[1],c[2],n[0],n[1],n[2],col,kind);cur.i.push(i,i+1,i+2)}
 // a box by its centre on the ground plan (x,z), the height of its underside (y), and its size
-function box(x,y,z,w,h,d,color,kind){const c=typeof color==="string"?hex(color):color,x0=x-w/2,x1=x+w/2,y0=y,y1=y+h,z0=z-d/2,z1=z+d/2;
+function box(x,y,z,w,h,d,color,kind){if(TOPS&&h<=.36&&Math.abs(M[13]+y)<.01)addTop(x,z,w,d,y+h);const c=typeof color==="string"?hex(color):color,x0=x-w/2,x1=x+w/2,y0=y,y1=y+h,z0=z-d/2,z1=z+d/2;
   quad([x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1],c,kind);quad([x1,y0,z0],[x0,y0,z0],[x0,y1,z0],[x1,y1,z0],c,kind);
   quad([x1,y0,z1],[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],c,kind);quad([x0,y0,z0],[x0,y0,z1],[x0,y1,z1],[x0,y1,z0],c,kind);
   quad([x0,y1,z1],[x1,y1,z1],[x1,y1,z0],[x0,y1,z0],c,kind);quad([x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1],c,kind)}
@@ -739,7 +739,7 @@ function offRoad(x,z,m){for(let pass=0;pass<4;pass++){let moved=false;
     if(!moved)break}return[x,z]}
 function lamp(x,z,turn){at(x,z,turn,()=>{if(dynHere("lamp",.32,.32))return;solidBox(0,0,.32,.32);if(MAPD&&MAPD.lamps&&CELL){const w=wpt(1.35,0);MAPD.lamps.push([w[0],5.6,w[1]])}cyl(0,0,0,.09,6,"#3a4048",6,.06);box(.7,5.95,0,1.5,.08,.1,"#3a4048");box(1.35,5.82,0,.5,.12,.22,"#f3efd8")})}
 function flag(x,z,h){if(NOFENCE)return;solidBox(x,z,.3,.3);cyl(x,0,z,.07,h,"#d9dde2",6,.05);box(x+.75,h-1.05,z,1.5,.33,.03,"#00a86b");box(x+.75,h-1.38,z,1.5,.33,.03,"#ffffff");box(x+.75,h-.72,z,1.5,.33,.03,"#f5c542")}
-function steps(w,n,z0,color){for(let k=0;k<n;k++)box(0,0,z0+(n-k)*.34-.17,w+ (n-k)*.5,(k+1)*.17,.34,color||"#cfcabd")}
+function steps(w,n,z0,color){for(let k=0;k<n;k++){box(0,0,z0+(n-k)*.34-.17,w+ (n-k)*.5,(k+1)*.17,.34,color||"#cfcabd");addTop(0,z0+(n-k)*.34-.17,w+(n-k)*.5,.34,(k+1)*.17)}}
 
 /* An everyday building: painted block walls with a darker band at the bottom, framed windows,
    a zinc roof, a canopy over the door, a name board, a fenced compound with a gate and a water tank. */
@@ -785,6 +785,7 @@ function modern(o){const w=o.w,d=o.d,fl=o.floors||3,fh=3.6,h=fl*fh,base=.6;
 
 /* ================================ what to show ================================ */
 const BUILDINGS=[];let MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]},BLOCKS=[];
+let TOPS=null,FEET=null,FEETLOG=null,MEY=0;const TOPCELL=4;       // while a town is built: the surfaces you can stand on (see groundTop)
 const KINDS=[[/Car Park/,"Transport","P"],[/Trade & Commerce|Foreign Affairs|Culture & Heritage|Bureau of Statistics/,"Government","\u{1F3DB}\uFE0F"],[/^Highway/,"Transport","\u{1F6E3}\uFE0F"],[/Workshop/,"Transport","🔧"],[/Filling Station/,"Transport","⛽"],[/Airport/,"Transport","✈"],[/Bridge/,"Transport","🌉"],[/Border/,"Transport","🚧"],[/Port\b/,"Transport","⚓"],[/Transport/,"Transport","🚌"],
   [/Federal/,"Government","🏛"],[/Villa\b/,"Government","🏰"],[/State Government/,"Government","🏛"],[/Court/,"Government","⚖"],[/Police/,"Government","🛡"],[/Immigration/,"Government","🛂"],[/Agricultur|Resources|Food/,"Government","🌿"],
   [/Bank/,"Services","🏦"],[/Hospital/,"Services","✚"],[/University/,"Services","🎓"],[/Utilities/,"Services","⚡"],[/Housing/,"Services","🏠"],[/Hotel|Guest|Suites|Hyatti/,"Services","🛏"]];
@@ -1503,7 +1504,7 @@ function capture(fn){BAKE=null;CLEAR_GLASS=false;reset();fn();return upload()}
    darkened where furniture stands on the floor. The room is built twice: first to learn where
    the furniture is, then for real. */
 let ROOMLIGHT=true;
-function captureLit(fn,lights,split,ceilH){BAKE=null;CLEAR_GLASS=true;reset();WALLS=[];SHADOWS=[];const nb=BLOCKS.length;fn();
+function captureLit(fn,lights,split,ceilH){const tops=TOPS;TOPS=null;BAKE=null;CLEAR_GLASS=true;reset();WALLS=[];SHADOWS=[];const nb=BLOCKS.length;fn();
   for(const b of BLOCKS.splice(nb))WALLS.push(b);        // pieces that mark themselves solid the street's way (solidBox) belong to this inside, not to the town
   const sh=SHADOWS.slice(),wl=WALLS.filter(w=>w[4]!==-1);
   const sm=v=>{v=Math.max(0,Math.min(1,v));return v*v*(3-2*v)};
@@ -1521,7 +1522,7 @@ function captureLit(fn,lights,split,ceilH){BAKE=null;CLEAR_GLASS=true;reset();WA
     return Math.min(1.06,L*shadeOf(x,y,z,nx,ny,nz))};
   /* surfaces keep only the shading and a base light of .5; the lamps are added for every point on screen as the room is drawn */
   BAKE=ROOMLIGHT?(x,y,z,nx,ny,nz)=>.5*shadeOf(x,y,z,nx,ny,nz):fullLight;
-  reset();WALLS=[];SHADOWS=[];PROPI=[];const nb2=BLOCKS.length;fn();for(const b of BLOCKS.splice(nb2))WALLS.push(b);const pi=PROPI;PROPI=null;BAKE=null;const out=upload();if(pi.length)out.props=uploadProps(pi,fullLight);if(ROOMLIGHT){out.lights=lights;out.split=!!split}CLEAR_GLASS=false;return out}
+  reset();WALLS=[];SHADOWS=[];PROPI=[];const nb2=BLOCKS.length;fn();for(const b of BLOCKS.splice(nb2))WALLS.push(b);const pi=PROPI;PROPI=null;BAKE=null;const out=upload();if(pi.length)out.props=uploadProps(pi,fullLight);if(ROOMLIGHT){out.lights=lights;out.split=!!split}CLEAR_GLASS=false;TOPS=tops;return out}
 
 /* ---------------------------------- shared pieces ---------------------------------- */
 function floorGrid(x0,z0,x1,z1,y,color,kind,step){const c=hex(color),s=step||1;for(let x=x0;x<x1-1e-6;x+=s)for(let z=z0;z<z1-1e-6;z+=s){const xa=Math.min(x+s,x1),za=Math.min(z+s,z1);quad([x,y,za],[xa,y,za],[xa,y,z],[x,y,z],c,kind)}}
@@ -2427,11 +2428,40 @@ function mixClips(list){QB.fill(0);HB[0]=HB[1]=HB[2]=0;const nb=ANIM.bones.lengt
 const DQ=[];
 // move this character's bones to the mixed pose; returns how far to lift the body so the lower foot rests on the ground
 // place every bone from its turn in DQ. On foot the hips only rise and fall: the game itself moves the body forward.
-function solve(m,grounded,sway){const B=m.bones;for(let i=0;i<B.length;i++){const par=B[i].parent,r=m.rest[i],w=W[i];if(m.amap[i]<0)DQ[i]=par>=0?DQ[par]:[0,0,0,1];const d=DQ[i];
+function solve(m,grounded,sway,only){const B=m.bones;for(let i=0;i<B.length;i++){if(only&&!only.has(i))continue;const par=B[i].parent,r=m.rest[i],w=W[i];if(m.amap[i]<0&&!only)DQ[i]=par>=0?DQ[par]:[0,0,0,1];const d=DQ[i];
     for(let c=0;c<12;c+=4){const v=qrot(d,[r[c],r[c+1],r[c+2]]);w[c]=v[0];w[c+1]=v[1];w[c+2]=v[2];w[c+3]=0}
     if(par<0){const side=grounded?0:1;w[12]=r[12]+HB[0]*m.hipH*side+(sway||0);w[13]=r[13]+HB[1]*m.hipH;w[14]=r[14]+HB[2]*m.hipH*side}
     else{const pr=m.rest[par],v=qrot(DQ[par],[r[12]-pr[12],r[13]-pr[13],r[14]-pr[14]]),pw=W[par];w[12]=pw[12]+v[0];w[13]=pw[13]+v[1];w[14]=pw[14]+v[2]}
     w[15]=1;const iv=B[i].inv,o=i*12;for(let rr=0;rr<3;rr++){BONES[o+rr*4]=w[rr]*iv[0]+w[4+rr]*iv[1]+w[8+rr]*iv[2]+w[12+rr]*iv[3];BONES[o+rr*4+1]=w[rr]*iv[4]+w[4+rr]*iv[5]+w[8+rr]*iv[6]+w[12+rr]*iv[7];BONES[o+rr*4+2]=w[rr]*iv[8]+w[4+rr]*iv[9]+w[8+rr]*iv[10]+w[12+rr]*iv[11];BONES[o+rr*4+3]=w[rr]*iv[12]+w[4+rr]*iv[13]+w[8+rr]*iv[14]+w[12+rr]*iv[15]}}}
+/* Feet on the ground. FEET, when set, gives the height of the ground at a point (and what can be stepped up to from a
+   height). After the pose is made, each foot is looked at where it is: the body drops so the lower foot reaches its
+   ground, and the other leg bends at hip and knee (two-bone IK) so that foot lands on its own step, kerb or slope;
+   the foot keeps its own angle from the recording. Returns how much the body was lowered. */
+function legOf(m,side){if(!m.legs)m.legs={};if(!m.legs[side]){const I=m.index,up=I[side+"UpLeg"],B=m.bones,under=(i,a)=>{for(let j=i;j>=0;j=B[j].parent)if(j===a)return true;return false};
+    const all=[];for(let i=0;i<B.length;i++)if(under(i,up))all.push(i);m.legs[side]={up,leg:I[side+"Leg"],foot:I[side+"Foot"],toe:I[side+"ToeBase"],all,set:new Set(all),
+      shin:all.filter(i=>under(i,I[side+"Leg"])),keep:all.filter(i=>under(i,I[side+"Foot"]))}}return m.legs[side]}
+const qarc=(a,b)=>{a=nrm(a);b=nrm(b);const d=dot(a,b);if(d>.99999)return[0,0,0,1];if(d<-.99999)return[1,0,0,0];const c=cross(a,b),w=1+d,l=Math.hypot(c[0],c[1],c[2],w);return[c[0]/l,c[1]/l,c[2]/l,w/l]};
+const qaxis=(n,a)=>{const s=Math.sin(a/2);return[n[0]*s,n[1]*s,n[2]*s,Math.cos(a/2)]};
+const wpos=i=>[W[i][12],W[i][13],W[i][14]];
+function legReachTo(m,L,dh){                       // raise this leg's ankle by dh (model space, metres)
+  const H=wpos(L.up),K=wpos(L.leg),A=wpos(L.foot),T=[A[0],A[1]+dh,A[2]],a=Math.hypot(...sub(K,H)),b=Math.hypot(...sub(A,K));
+  const c=clamp(Math.hypot(...sub(T,H)),Math.abs(a-b)+1e-3,a+b-1e-3),keep=L.keep.map(i=>DQ[i].slice());
+  const q1=qarc(sub(A,H),sub(T,H)),K1=H.map((v,k)=>v+qrot(q1,sub(K,H))[k]),A1=H.map((v,k)=>v+qrot(q1,sub(A,H))[k]);
+  let n=cross(sub(K1,H),sub(A1,K1));if(Math.hypot(...n)<1e-5)n=qrot(DQ[L.up],[1,0,0]);n=nrm(n);
+  const cur=Math.acos(clamp((a*a+b*b-Math.hypot(...sub(A1,H))**2)/(2*a*b),-1,1)),want=Math.acos(clamp((a*a+b*b-c*c)/(2*a*b),-1,1));
+  let best=null;for(const sg of[1,-1]){const q2=qaxis(n,sg*(cur-want)),A2=K1.map((v,k)=>v+qrot(q2,sub(A1,K1))[k]),e=Math.abs(Math.hypot(...sub(A2,H))-c);if(!best||e<best.e)best={q2,A2,e}}
+  const q3=qarc(sub(best.A2,H),sub(T,H)),qu=qmul(q3,q1),ql=qmul(q3,qmul(best.q2,q1));
+  for(const i of L.all)DQ[i]=qmul(L.shin.includes(i)?ql:qu,DQ[i]);L.keep.forEach((i,k)=>DQ[i]=keep[k])}
+function placeFeet(m,x,y,z,yaw){const c=Math.cos(yaw+Math.PI),s=Math.sin(yaw+Math.PI),at=i=>[x+c*W[i][12]+s*W[i][14],z-s*W[i][12]+c*W[i][14]];
+  const g={};for(const side of["Left","Right"]){const L=legOf(m,side),f=at(L.foot),t=at(L.toe),from=y+W[L.foot][13];g[side]=Math.max(FEET(f[0],f[1],from),FEET(t[0],t[1],from))-y}
+  let drop=Math.min(0,g.Left,g.Right);const only=new Set();
+  for(const side of["Left","Right"]){const dh=g[side]-drop;if(dh>.004){const L=legOf(m,side);legReachTo(m,L,dh);L.all.forEach(i=>only.add(i))}}
+  if(only.size)solve(m,true,0,only);
+  let low=0;for(const side of["Left","Right"]){const L=legOf(m,side),f=at(L.foot),t=at(L.toe),yb=y+drop,h=Math.max(FEET(f[0],f[1],yb+W[L.foot][13]),FEET(t[0],t[1],yb+W[L.foot][13]));      // a foot that moved on to a higher step as the leg bent:
+    low=Math.min(low,Math.min(yb+W[L.foot][13]-m.footY,yb+W[L.toe][13]-m.toeY)-h)}drop-=low;                                                                   // lift the body so no sole is below the ground
+  if(FEETLOG){const r={y:y+drop};for(const side of["Left","Right"]){const L=legOf(m,side),f=at(L.foot),t=at(L.toe),yb=y+drop;      // for tests: each sole against the ground under it
+    r[side]={sole:Math.min(yb+W[L.foot][13]-m.footY,yb+W[L.toe][13]-m.toeY),g:Math.max(FEET(f[0],f[1],yb+W[L.foot][13]),FEET(t[0],t[1],yb+W[L.foot][13]))}}FEETLOG(r)}
+  return drop}
 /* A more feminine walk, laid over the recorded one. Read from the pose itself which foot is ahead
    and which is off the ground, then: let the hip drop on the side of the lifted foot and turn
    with the leading leg; sway the body over the standing foot; bring the legs in so each foot lands
@@ -2571,7 +2601,7 @@ function paintFor(m,part,look,key){if(part.paints[key]!==undefined)return part.p
 function draw(m,VP,x,y,z,yaw,state,t,look,lookKey){use(m);let lift;if(ANIM&&m.rest){const a=state.amt,r=state.run;const idle=state.idle||m.clips.idle;
     if(state.sit){const c=state.sitClip&&ANIM.clips[state.sitClip]?state.sitClip:"drive";lift=poseClips(m,[[c,t/ANIM.clips[c].dur,1]],false,0)}
     else if(state.jump>=0&&m.clips.jump&&ANIM.clips[m.clips.jump])lift=poseClips(m,[[m.clips.jump,state.jump,1]],false,0,0,t);       // in the air: the jump recording; the height itself comes from the jump
-    else lift=poseClips(m,[[idle,t/ANIM.clips[idle].dur,1-a]].concat(blend(m,state).list.map(([n,w])=>[n,state.p,w*a])),true,0,0,t)}
+    else{lift=poseClips(m,[[idle,t/ANIM.clips[idle].dur,1-a]].concat(blend(m,state).list.map(([n,w])=>[n,state.p,w*a])),true,0,0,t);if(FEET&&m.index.LeftUpLeg!==undefined)lift+=placeFeet(m,x,y+lift,z,yaw)}}
   else{const g=gaitPose(state.p,state.run,state.amt,t);poseBones(g.turns);lift=g.rise}const model=mul(trans(x,y+lift,z),rotY(yaw+Math.PI)),P=SKINP;
   gl.enable(gl.CULL_FACE);gl.useProgram(P.p);gl.uniformMatrix4fv(P.u.vp,false,VP);gl.uniformMatrix4fv(P.u.model,false,model);setLight(P,!(scene==="town"||scene==="border"));gl.uniform4fv(BLOC,BONES);gl.uniform3fv(P.u.lo,m.lo);gl.uniform1f(P.u.span,m.span);
   const A=(loc,buf,size,type,norm,stride)=>{gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,type,norm,stride||0,0)};
@@ -2597,6 +2627,16 @@ const ROLES=[["newcomer","a new arrival (no certificate)"],["citizen","a citizen
   ["outpatient","a citizen: Outpatient"],["inpatient","a citizen: Hospitalized"],["dentalpt","a citizen: Dental patient"],["insurgery","a citizen: In surgery"]];
 const cam={x:0,y:9,z:46,yaw:0,pitch:-.08},me={x:0,y:0,z:50,yaw:0,pitch:.03,role:"newcomer",cert:null,inside:false,entered:false,gender:"",outfit:"",town:"Asaba"},input={x:0,y:0,run:false},keys={};
 let TGY=0;
+/* What you stand on in town. While a town is built every low slab drawn on the ground (road, pavement, kerb, compound
+   paving, each entrance step) is kept as a top: its outline, turned with it, and its height, filed by 4 m square.
+   groundTop gives the highest top under a point that a foot can step up to from `from` (a step of up to .45 m);
+   anything higher is a wall or a seat, not the ground. */
+const feetFn=()=>scene==="town"?((T=>(x,z,from)=>groundTop(T,x,z,from))(townOf(me.town))):scene==="bank"?((x,z)=>floorAt(x,z,me.y)):null;
+function addTop(x,z,w,d,h){if(!TOPS||w<.2||d<.2)return;const cx=M[0]*x+M[8]*z+M[12],cz=M[2]*x+M[10]*z+M[14],t={cx,cz,ax:M[0],az:M[2],bx:M[8],bz:M[10],hw:w/2,hd:d/2,h:M[13]+h},r=Math.hypot(w,d)/2;
+  for(let i=Math.floor((cx-r)/TOPCELL);i<=Math.floor((cx+r)/TOPCELL);i++)for(let j=Math.floor((cz-r)/TOPCELL);j<=Math.floor((cz+r)/TOPCELL);j++){const k=i*4096+j;let L=TOPS.get(k);if(!L)TOPS.set(k,L=[]);L.push(t)}}
+function groundTop(T,x,z,from){let g=0;const L=T.tops&&T.tops.get(Math.floor(x/TOPCELL)*4096+Math.floor(z/TOPCELL));
+  if(L)for(const t of L){if(t.h<=g||t.h>from+.45)continue;const dx=x-t.cx,dz=z-t.cz;if(Math.abs(dx*t.ax+dz*t.az)<=t.hw&&Math.abs(dx*t.bx+dz*t.bz)<=t.hd)g=t.h}
+  for(const r of(T.map.raised||[]))if(x>r.x0&&x<r.x1&&z>r.rz1&&z<r.z1&&r.h<=from+.45)g=Math.max(g,r.h);return g}
 // the height of the ground in town: raised platforms and their steps
 function townGroundAt(T,x,z){for(const r of(T.map.raised||[]))if(x>r.x0&&x<r.x1&&z>r.z0&&z<r.z1){if(z<r.rz1)return r.h*Math.max(0,Math.min(1,(z-r.rz0)/(r.rz1-r.rz0)));return r.h}return 0}
 let view3=true,driving=false,CARSCENE=null,lowFor=0,treeLow=0,TREEVIS=null,dtNow=.016,SNAPCAM=true;
@@ -2635,7 +2675,7 @@ function clearDoorways(T){const inC=(x,z,r)=>{for(const k in T.spots){const d=T.
 // every shop has its own tag on the map, with its name
 function tagShops(T,st){for(const k in T.spots){if(!/^shop\d+$/.test(k))continue;const d=T.spots[k];if(T.map.places.some(p=>!p.road&&Math.hypot(p.x-d.x,p.z-d.z)<6))continue;
   T.map.places.push({name:(typeof SHOPNAME!=="undefined"&&SHOPNAME[st+"/"+k])||"Shop",x:d.x-d.fx*2,z:d.z-d.fz*2,color:"#b45309",group:"Services",icon:"🛍"})}}
-function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);clearDoorways(t);tagShops(t,st);roadJoins();highway(st);workshop(st,t);station(st,t);marketsClear(st);compounds(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
+function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;TOPS=new Map();const t=buildTown(st);t.tops=TOPS;clearDoorways(t);tagShops(t,st);roadJoins();highway(st);workshop(st,t);station(st,t);marketsClear(st);compounds(st,t);streetTidy();TOPS=null;t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400);hudNote(t)}
 function fadeTo(text,change){if(busy||(scene!=="town"&&NOW<exitCool))return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
 let exitCool=0;       /* for a moment after arriving inside, the way out cannot trigger, so a player still walking in is never bounced straight back out */
@@ -2861,7 +2901,7 @@ const toTown=(st,spot,text,dist,pos)=>fadeTo(text||st,()=>{me.town=st;driving=fa
 function parkCar(T){let best=null;for(const r of T.map.roads){if(r.bridge)continue;const vx=r.x1-r.x0,vz=r.z1-r.z0,L=Math.hypot(vx,vz),t=clamp(((cam.x-r.x0)*vx+(cam.z-r.z0)*vz)/(L*L),.08,.92),x=r.x0+vx*t,z=r.z0+vz*t,d=Math.hypot(cam.x-x,cam.z-z);if(!best||d<best.d)best={d,x,z,ux:vx/L,uz:vz/L,w:r.w}}
   if(!best)return;const side=((cam.x-best.x)*-best.uz+(cam.z-best.z)*best.ux)>=0?1:-1,off=best.w/2-1.4;T.car={x:best.x-best.uz*side*off,z:best.z+best.ux*side*off,yaw:Math.atan2(-best.ux*side,-best.uz*side),v:0};if(T.savedCar){const s=T.savedCar;T.savedCar=null;if(s.pos&&(s.job||s.shop)){T.car.x=s.pos[0];T.car.z=s.pos[1];T.car.yaw=s.pos[2]}delete s.pos;T.car.dmg=s}}       // a car left at the workshop is still there
 // how high the bank's floor is where you stand: its stairs rise from the hall to the gallery
-function floorAt(x,z,y){if(scene!=="bank")return 0;if(x>14.3&&z<=4.1&&z>=-2)return clamp((4-z)/6,0,1)*HALL.mezz;if(y>1.6&&z<-1.9)return HALL.mezz;return 0}
+function floorAt(x,z,y){if(scene!=="bank")return 0;if(x>14.3&&z<=4.1&&z>=-2)return z>4?0:Math.min(18,Math.floor((4-z)*3)+1)*HALL.mezz/18;      /* the 18 steps of the stairs, each 1/3 m deep */if(y>1.6&&z<-1.9)return HALL.mezz;return 0}
 function blocked(x,z){const r=.32,hit=w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r;
   if(scene==="border"){for(const w of BORDER_WALLS)if(hit(w))return true;return false}
   if(scene==="imm"){for(const w of IMM_WALLS){if(w[4]===-1)continue;if(hit(w))return true}for(const g of IMM_GATES)if(!immCan(g.key)&&hit(g.r)){toast(g.msg);return true}return x>(z<-2.05?27:15)-r||z<-11+r}
@@ -4521,7 +4561,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     else if(!busy&&!choosing&&!mapOpen){
       if(flying){cam.yaw=VIEW.yaw;cam.pitch=VIEW.pitch;const sp=(runHeld()?16:6)*dt;cam.x+=dx0*sp;cam.z+=dz0*sp;cam.y=clamp(cam.y+((keys.e?1:0)-(keys.q?1:0))*sp*(1+cam.y/20),1.2,420)}
       else{cam.y=1.7;const hitC=(x,z)=>{if(!C||driving)return false;const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),dx=x-C.x,dz=z-C.z;return Math.abs(dx*fx+dz*fz)<2.7&&Math.abs(-dx*fz+dz*fx)<1.35},blk=(x,z)=>hitT(x,z,.4)||hitC(x,z);       /* the parked car is solid too */
-        if(!blk(cam.x+sx,cam.z))cam.x+=sx;else VEL.x=0;if(!blk(cam.x,cam.z+sz))cam.z+=sz;else VEL.z=0;TGY+=(townGroundAt(T,cam.x,cam.z)-TGY)*Math.min(1,dt*14)}
+        if(!blk(cam.x+sx,cam.z))cam.x+=sx;else VEL.x=0;if(!blk(cam.x,cam.z+sz))cam.z+=sz;else VEL.z=0;TGY+=(groundTop(T,cam.x,cam.z,TGY)-TGY)*Math.min(1,dt*14)}
       if(cam.y<3.8&&t>doorCool)for(const k in T.spots){const d=T.spots[k],ax=(cam.x-d.x)*d.fx+(cam.z-d.z)*d.fz,lat=Math.abs((cam.x-d.x)*d.fz-(cam.z-d.z)*d.fx);                  // through a blue doorway
         if(lat<1.7&&ax>-.7&&ax<1.5){doorCool=t+1.5;DOORWAYS[k]();break}}
       if(route)followRoute(t)}
@@ -4533,7 +4573,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     else{const dist=driving?7.6:3.5,up=driving?2.7:1.55,lift=clamp(.32-cam.pitch,0,1.2);let k=1;for(let q=.15;q<=1;q+=.15)if(hitT(cam.x-fx*dist*q,cam.z-fz*dist*q,.25)){k=Math.max(.15,q-.15);break}       // the camera stays this side of any wall behind you
       eye=[cam.x-fx*dist*k,up+lift*dist*.55*k,cam.z-fz*dist*k];to=[cam.x+fx*4,up-.15,cam.z+fz*4]}}
     else[eye,to]=followCam(cam.x,TGY,cam.z,(x,z)=>hitT(x,z,.25),99)}
-  else{
+  else{MEY=Math.abs(me.y-MEY)>.6?me.y:MEY+(me.y-MEY)*Math.min(1,dt*14);      // the drawn height eases from step to step
     if(sx||sz){if(!blocked(me.x+sx,me.z))me.x+=sx;else VEL.x=0;if(!blocked(me.x,me.z+sz))me.z+=sz;else VEL.z=0;me.y=floorAt(me.x,me.z,me.y);
       if(scene==="border"){if(Math.abs(me.x)<1.5&&me.z<12.4&&me.z>11)toImm(false)}
       else if(scene==="imm"){if(Math.abs(me.x)<1.5&&me.z>10.55)toBorder(false);else if(me.x<-15.3&&immCan("city"))toTown(me.entered?"Asaba":(me.cert&&STATES[me.cert.state]?me.cert.state:"Asaba"),"imm",me.entered?"Asaba":"Welcome to "+(me.cert?me.cert.state:"Asaba")+", your home state",9)}
@@ -4542,14 +4582,14 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
       else if(scene==="hosp"){if(HV.F.n===0&&((Math.abs(me.x)<1.8&&me.z>8.75)||(me.x>15.75&&Math.abs(me.z-4)<1.4)))toTown(me.town,"hosp")}
       else if(me.y<.5&&Math.abs(me.x)<1.5&&me.z>9.55)toTown(me.town,"bank")}
     if(talking){const ey=me.y+1.62,cp=Math.cos(me.pitch);eye=[me.x,ey,me.z];to=[me.x-Math.sin(me.yaw)*cp,ey+Math.sin(me.pitch),me.z-Math.cos(me.yaw)*cp]}
-    else[eye,to]=followCam(me.x,me.y,me.z,(x,z)=>outsideRoom(x,z)||((x,z)=>scene==="border"?BORDER_WALLS.some(w=>x>w[0]-.2&&x<w[2]+.2&&z>w[1]-.2&&z<w[3]+.2):(scene==="imm"?IMM_WALLS:scene==="gov"?GV.walls:scene==="hosp"?HV.walls:scene==="trs"?TV.walls:BANK_WALLS).some(w=>w[4]!==-1&&(scene!=="bank"||w[4]===undefined||w[4]===(me.y>1.6?1:0))&&x>w[0]-.2&&x<w[2]+.2&&z>w[1]-.2&&z<w[3]+.2))(x,z),scene==="bank"?(me.y>1.6?6.1:3.0):scene==="gov"?3.5:scene==="hosp"?3.35:scene==="imm"?3.9:99)}
+    else[eye,to]=followCam(me.x,MEY,me.z,(x,z)=>outsideRoom(x,z)||((x,z)=>scene==="border"?BORDER_WALLS.some(w=>x>w[0]-.2&&x<w[2]+.2&&z>w[1]-.2&&z<w[3]+.2):(scene==="imm"?IMM_WALLS:scene==="gov"?GV.walls:scene==="hosp"?HV.walls:scene==="trs"?TV.walls:BANK_WALLS).some(w=>w[4]!==-1&&(scene!=="bank"||w[4]===undefined||w[4]===(me.y>1.6?1:0))&&x>w[0]-.2&&x<w[2]+.2&&z>w[1]-.2&&z<w[3]+.2))(x,z),scene==="bank"?(me.y>1.6?6.1:3.0):scene==="gov"?3.5:scene==="hosp"?3.35:scene==="imm"?3.9:99)}
   {const a=actNow(),el=document.getElementById("act");el.hidden=!a||talking||busy||choosing||mapOpen;if(a)el.textContent=a==="term_cb"?"Use the Central Bank terminal":a==="term_res"?"Use the reserves terminal":a==="lift"?"Use the lift":a==="talk"?"Talk to Violet":a==="checkin"?"Check in for a flight":"Shut off the water";}
   const w=cv.clientWidth,h=cv.clientHeight,dpr=Math.min(window.devicePixelRatio||1,quality);if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
   const fly=scene==="town",indoor=scene==="bank"||scene==="imm"||scene==="gov"||scene==="hosp"||scene==="trs",fovNow=fly?(w>h?.85:1.05):(w>h?1.05:1.25),PMs=PLAYERS[me.gender]||PLAYERS.Female;
   // the sun's picture first: the town near you, the car, and your own character all cast shadows
   if(scene==="town"&&T.car&&CARSCENE)carPose(T.car,dt);       // the doors, wheels and steering wheel move on
   if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE){for(const P of CARSCENE.parts)lists.push([P.bufs,P.model])}dynShadows(T,lists,cam.x,cam.z);
-    shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing&&!TOW&&!FOLLOW){gl.colorMask(true,true,true,true);WALKER.draw(PMs,lvp,cam.x,TGY+jump.y,cam.z,cam.yaw,gait,t,null,"");gl.colorMask(false,false,false,false)}})}
+    shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing&&!TOW&&!FOLLOW){gl.colorMask(true,true,true,true);FEET=jump.y>0?null:feetFn();WALKER.draw(PMs,lvp,cam.x,TGY+jump.y,cam.z,cam.yaw,gait,t,null,"");FEET=null;gl.colorMask(false,false,false,false)}})}
   if(scene==="town"){[eye,to]=carCamBlend(eye,to);LASTCAM=[eye.slice(),to.slice()]}if(TOW&&scene==="town"){towStep(dt);[eye,to]=towCam(dt)}if(FOLLOW&&scene==="town"){const c=vanCam(dt);if(c)[eye,to]=c}else{CAMBL=null;LASTCAM=null}
   gl.viewport(0,0,cv.width,cv.height);const VP=mul(persp(fovNow,w/h,fly?.25:.08,800),look(eye,to,[0,1,0]));if(scene==="town")carUI(T,VP,w,h);else if(CARUI.door)carUI(T,VP,w,h);
   gl.clearColor(LIGHT.fog[0],LIGHT.fog[1],LIGHT.fog[2],1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);if(!indoor)drawSky(eye,to,fovNow,w/h);
@@ -4567,7 +4607,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     if(TOW&&TOW.truckM&&scene==="town"){TOWTRUCK.model=TOW.truckM;TOWTRUCK.fogFar=150;drawScene(TOWTRUCK,VP,eye,false);towPeople(VP,t)}
   {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing&&!TOW&&!FOLLOW;      // your own character, seen from behind
     if(show&&scene==="town"&&CARSEQ&&CARSEQ.sit>.5){const C=CARSEQ.C,h=carRig().seats.driver||[0,.6,0];WALKER.draw(PM,VP,cam.x,h[1]+CARSIT.y,cam.z,C.yaw,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"")}       // half in: seated
-    else if(show){const town=scene==="town";WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:me.y)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"")}}
+    else if(show){const town=scene==="town";FEET=jump.y>0?null:feetFn();WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:MEY)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"");FEET=null}}
   for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE)carDraw(VP,eye,true,driving&&VEH.cam===2);if(TOW&&TOW.truckM&&scene==="town")drawSceneClear(TOWTRUCK,VP,eye,t);if(scene==="town")vansDraw(VP,eye,t,true);if(scene==="town")fxDraw(VP,eye,to);
   const fpOn=scene!=="town"&&!!fpPlan();if(frames%3===0){if(scene==="town")drawMini(T);else if(fpOn)drawPlanMini()}document.getElementById("mini").hidden=!(scene==="town"||fpOn)||choosing;
   frames++;acc+=real;if(acc>=.5){const fps=frames/acc;document.getElementById("fps").textContent=Math.round(fps);frames=0;acc=0;let tris2=0;const tris=scene==="town"?0:parts.reduce((s,S)=>s+S.tris,0)+(scene==="imm"?15450:0);
