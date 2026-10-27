@@ -718,7 +718,7 @@ function windowX(x,y,z,w,h,face,frame){const s=face>0?1:-1;box(x+s*.03,y-.06,z,.
 // windows spread along a wall
 function windowsRow(w,d,y,count,sides,ww,wh,skipMiddle){for(let k=0;k<count;k++){const x=-w/2+(k+.5)*w/count;if(skipMiddle&&Math.abs(x)<1.6)continue;windowZ(x,y,d/2,ww,wh,1);windowZ(x,y,-d/2,ww,wh,-1)}
   const n=Math.max(1,Math.round(count*d/w));if(sides)for(let k=0;k<n;k++){const z=-d/2+(k+.5)*d/n;windowX(w/2,y,z,ww,wh,1);windowX(-w/2,y,z,ww,wh,-1)}}
-function fence(w,d,color,gateW,height,solidGate){const c=color,h=height||1.5,t=.22,pill=(x,z)=>{box(x,0,z,.45,h+.35,.45,c);box(x,h+.35,z,.6,.12,.6,"#e9e4d6")};
+function fence(w,d,color,gateW,height,solidGate){if(NOFENCE)return;const c=color,h=height||1.5,t=.22,pill=(x,z)=>{box(x,0,z,.45,h+.35,.45,c);box(x,h+.35,z,.6,.12,.6,"#e9e4d6")};
   box(0,0,-d/2,w,h,t,c);box(-w/2,0,0,t,h,d,c);box(w/2,0,0,t,h,d,c);const side=(w-gateW)/2;box(-w/2+side/2,0,d/2,side,h,t,c);box(w/2-side/2,0,d/2,side,h,t,c);
   SOLIDTAG="cwall";solidBox(0,-d/2,w,.5);solidBox(-w/2,0,.5,d);solidBox(w/2,0,.5,d);solidBox(-w/2+side/2,d/2,side,.5);solidBox(w/2-side/2,d/2,side,.5);SOLIDTAG=null;
   for(const x of[-w/2,w/2])for(const z of[-d/2,d/2])pill(x,z);pill(-gateW/2,d/2);pill(gateW/2,d/2);
@@ -737,7 +737,7 @@ function offRoad(x,z,m){for(let pass=0;pass<4;pass++){let moved=false;
     for(const c of MAPD.rounds||[]){const dx=x-c.x,dz=z-c.z,dd=Math.hypot(dx,dz)||1;if(dd<c.r+m+.5&&dd>c.r*.6){x=c.x+dx/dd*(c.r+m+.5);z=c.z+dz/dd*(c.r+m+.5);moved=true}}
     if(!moved)break}return[x,z]}
 function lamp(x,z,turn){at(x,z,turn,()=>{if(dynHere("lamp",.32,.32))return;solidBox(0,0,.32,.32);if(MAPD&&MAPD.lamps&&CELL){const w=wpt(1.35,0);MAPD.lamps.push([w[0],5.6,w[1]])}cyl(0,0,0,.09,6,"#3a4048",6,.06);box(.7,5.95,0,1.5,.08,.1,"#3a4048");box(1.35,5.82,0,.5,.12,.22,"#f3efd8")})}
-function flag(x,z,h){solidBox(x,z,.3,.3);cyl(x,0,z,.07,h,"#d9dde2",6,.05);box(x+.75,h-1.05,z,1.5,.33,.03,"#00a86b");box(x+.75,h-1.38,z,1.5,.33,.03,"#ffffff");box(x+.75,h-.72,z,1.5,.33,.03,"#f5c542")}
+function flag(x,z,h){if(NOFENCE)return;solidBox(x,z,.3,.3);cyl(x,0,z,.07,h,"#d9dde2",6,.05);box(x+.75,h-1.05,z,1.5,.33,.03,"#00a86b");box(x+.75,h-1.38,z,1.5,.33,.03,"#ffffff");box(x+.75,h-.72,z,1.5,.33,.03,"#f5c542")}
 function steps(w,n,z0,color){for(let k=0;k<n;k++)box(0,0,z0+(n-k)*.34-.17,w+ (n-k)*.5,(k+1)*.17,.34,color||"#cfcabd")}
 
 /* An everyday building: painted block walls with a darker band at the bottom, framed windows,
@@ -774,7 +774,7 @@ function modern(o){const w=o.w,d=o.d,fl=o.floors||3,fh=3.6,h=fl*fh,base=.6;
   // crest above the entrance
   cyl(0,0,0,0,0,"#000000",3);at(0,0,0,()=>{box(0,base+h*.84,d/2+.2,1.9,1.9,.12,o.accent);box(0,base+h*.84+.25,d/2+.27,1.4,1.4,.08,"#00a86b")});
   // boundary: low wall with railings, pillars, a guard post and three flags
-  const W=o.yardW,D=o.yardD,rail=(x,z,len,along)=>{solidBox(x,z,along?len:.5,along?.5:len);box(x,0,z,along?len:.3,.6,along?.3:len,"#e6e8ea");for(let k=0;k<=len/1.4;k++){const q=-len/2+k*1.4;box(along?x+q:x,.6,along?z:z+q,.07,1.2,.07,"#1f2f4d")}box(x,1.8,z,along?len:.08,.07,along?.08:len,"#1f2f4d")};
+  const W=o.yardW,D=o.yardD,rail=(x,z,len,along)=>{if(NOFENCE)return;solidBox(x,z,along?len:.5,along?.5:len);box(x,0,z,along?len:.3,.6,along?.3:len,"#e6e8ea");for(let k=0;k<=len/1.4;k++){const q=-len/2+k*1.4;box(along?x+q:x,.6,along?z:z+q,.07,1.2,.07,"#1f2f4d")}box(x,1.8,z,along?len:.08,.07,along?.08:len,"#1f2f4d")};
   rail(0,-D/2,W,true);rail(-W/2,0,D,false);rail(W/2,0,D,false);rail(-W/4-2,D/2,W/2-4,true);rail(W/4+2,D/2,W/2-4,true);
   for(const s of[-1,1]){box(s*4,0,D/2,.9,2.6,.9,"#f2f4f6");box(s*4,2.6,D/2,1.1,.18,1.1,o.accent)}
   at(6.6,D/2-2.2,0,()=>{box(0,0,0,2.2,2.4,2.2,"#f2f4f6");box(0,1.1,1.12,1.3,.9,.06,GLASS,1/255);box(0,2.4,0,2.8,.16,2.8,o.accent)});
@@ -789,6 +789,8 @@ const KINDS=[[/Car Park/,"Transport","P"],[/Trade & Commerce|Foreign Affairs|Cul
   [/Bank/,"Services","🏦"],[/Hospital/,"Services","✚"],[/University/,"Services","🎓"],[/Utilities/,"Services","⚡"],[/Housing/,"Services","🏠"],[/Hotel|Guest|Suites|Hyatti/,"Services","🛏"]];
 const mark=(name,x,z,color)=>{const w=wpt(x,z),k=KINDS.find(q=>q[0].test(name))||[0,"Districts","📍"];MAPD.places.push({name,x:w[0],z:w[1],color:color||"#14263D",group:k[1],icon:k[2]})};
 const nameRoad=(name,x,z)=>MAPD.places.push({name,x,z,color:"#4b5563",group:"Roads",icon:"🛣",road:true});
+let CMPS=[],NOFENCE=false;       // the public buildings' compounds as the town is built (see compounds()); NOFENCE: a building's own yard fence is left out
+const cmpReg=(key,name,yard,body,o)=>{CMPS.push(Object.assign({key,name,M:M.slice(),yard,body},o||{}))};
 let YARDS=[],MODERN=false,PROPS_ON=true;const yardBox=(x,z,w,d)=>{let x0=1e9,z0=1e9,x1=-1e9,z1=-1e9;for(const[a,b]of[[-w/2,-d/2],[w/2,-d/2],[w/2,d/2],[-w/2,d/2]]){const q=wpt(x+a,z+b);x0=Math.min(x0,q[0]);x1=Math.max(x1,q[0]);z0=Math.min(z0,q[1]);z1=Math.max(z1,q[1])}YARDS.push([x0,z0,x1,z1])};
 const BTAG=new WeakMap(),DYNOF=new WeakMap();let SOLIDTAG=null;      // what a solid outline belongs to: a tag for fixed geometry (see CRASH), the object for street objects
 const solidBox=(x,z,w,d)=>{let x0=1e9,z0=1e9,x1=-1e9,z1=-1e9;for(const[a,b]of[[-w/2,-d/2],[w/2,-d/2],[w/2,d/2],[-w/2,d/2]]){const q=wpt(x+a,z+b);x0=Math.min(x0,q[0]);x1=Math.max(x1,q[0]);z0=Math.min(z0,q[1]);z1=Math.max(z1,q[1])}const b=[x0,z0,x1,z1];BLOCKS.push(b);if(SOLIDTAG)BTAG.set(b,SOLIDTAG)};
@@ -880,7 +882,7 @@ function grandHotel(o){yardBox(0,0,o.yardW,o.yardD);solidBox(0,-3,24,14);mark(o.
   box(0,y0+fh*fl+.64,-1,13,1.9,.25,"#1f2f4d");sign(0,y0+fh*fl+.72,-.86,12.6,1.7,o.name.toUpperCase(),"#1f2f4d","#f5c542");                                  // name on the roof
   box(0,3.5,6,9,.35,6,"#f4f4f2");box(0,3.85,6,9.4,.12,6.4,"#c9a33a");for(const[x,z]of[[-4,8.6],[4,8.6],[-4,3.6],[4,3.6]])cyl(x,0,z,.22,3.5,"#f4f4f2",10);  // entrance canopy
   sign(0,2.75,9.02,6,.7,o.name,"#f4f4f2","#1f2f4d");box(0,.4,2.62,3,2.6,.08,"#17384f",1/255);entrance(0,.4,2.8,3,2.6,0,true);
-  for(let k=0;k<6;k++)box(-W/2+3+k*2.6,.07,Dp/2-4.5,.12,.01,4.6,"#ffffff");                                                                                 // parking bays
+  if(!NOFENCE)for(let k=0;k<6;k++)box(-W/2+3+k*2.6,.07,Dp/2-4.5,.12,.01,4.6,"#ffffff");                                                                                 // parking bays
   fence(W,Dp,"#eceae4",6,1.3);for(const s of[-1,1]){palm(s*(W/2-2.5),Dp/2-2.5,6.2);palm(s*(W/2-2.5),-Dp/2+2.5,6.2)}flag(8,Dp/2-2,8);flag(9.6,Dp/2-2,8)}
 function home(kind,x,z,turn,label){at(x,z,turn||0,()=>{yardBox(0,0,HOMES[kind].yardW,HOMES[kind].yardD);if(MODERN){modernHouse(Object.assign({yardW:HOMES[kind].yardW,yardD:HOMES[kind].yardD},MODERN_HOMES[kind]));return}HOMES[kind].draw();{const b=HOME_BODY[kind];if(b)solidBox(b[2],b[3],b[0],b[1])}if(label)plotSign(HOMES[kind].name,HOMES[kind].yardW/2-1.8,HOMES[kind].yardD/2+1)})}
 function homesSample(){ground(160);const rows=[["villa","luxury","estate"],["flats","bungalow","semi"],["onebed","selfcon","singleroom"]],zs=[-38,0,34];
@@ -901,7 +903,7 @@ function royalBank(o){const W=o.w,Dp=o.d,Ht=o.h||7.2,YW=o.yardW,YD=o.yardD,f=Dp/
   const ax=Math.min(W/2-4,10);box(ax,0,f+.9,7,.5,1.8,"#b8bcbf");box(ax,3.0,f+1,7.4,.22,2.4,NAVY);box(ax,3.22,f+1,7.6,.08,2.6,GOLD,K.gold);for(const sx of[-1,1])cyl(ax+sx*3.4,.5,f+2,.1,2.5,GOLD,8);     // cash machines outside
   for(let k=0;k<3;k++)at(ax-2+k*2,f+.5,0,()=>{box(0,.5,0,.9,2.0,.75,NAVY);box(0,1.7,.38,.56,.42,.03,"#9fd8ff",K.glow);box(0,1.36,.44,.56,.2,.16,"#d9dde2");box(0,2.24,.385,.8,.2,.02,GOLD,K.gold)});
   sign(ax,2.55,f+2.22,2.2,.4,"ATM  •  24 HOURS",NAVY,"#f1d27a");
-  const rail=(x,z,len,along)=>{solidBox(x,z,along?len:.5,along?.5:len);box(x,0,z,along?len:.3,.6,along?.3:len,"#e6e8ea");for(let k=0;k<=len/1.4;k++){const q=-len/2+k*1.4;box(along?x+q:x,.6,along?z:z+q,.07,1.2,.07,NAVY)}box(x,1.8,z,along?len:.08,.07,along?.08:len,NAVY)};
+  const rail=(x,z,len,along)=>{if(NOFENCE)return;solidBox(x,z,along?len:.5,along?.5:len);box(x,0,z,along?len:.3,.6,along?.3:len,"#e6e8ea");for(let k=0;k<=len/1.4;k++){const q=-len/2+k*1.4;box(along?x+q:x,.6,along?z:z+q,.07,1.2,.07,NAVY)}box(x,1.8,z,along?len:.08,.07,along?.08:len,NAVY)};
   const z0=yc-YD/2,z1=yc+YD/2;rail(0,z0,YW,true);rail(-YW/2,yc,YD,false);rail(YW/2,yc,YD,false);rail(-YW/4-2,z1,YW/2-4,true);rail(YW/4+2,z1,YW/2-4,true);
   for(const s of[-1,1]){box(s*4,0,z1,.9,2.6,.9,IVORY);box(s*4,2.6,z1,1.1,.18,1.1,GOLD,K.gold);palm(s*(YW/2-3),z1-3,6.2);flag(s*6.5,z1-3,8.5)}}
 /* ------------------------------ government buildings ------------------------------
@@ -911,7 +913,7 @@ const F_NAVY="#14263D",F_IVORY="#E9E5DC",F_GOLD="#B99A5D",F_CHAR="#3a3f45",S_TEA
 function discF(x,y,z,r,color,kind,n){const c=hex(color),N=n||24;for(let k=0;k<N;k++){const a=k/N*6.2832,b=(k+1)/N*6.2832;tri([x,y,z],[x+Math.cos(a)*r,y+Math.sin(a)*r,z],[x+Math.cos(b)*r,y+Math.sin(b)*r,z],c,kind)}}
 function conifer(x,z,h){cyl(x,0,z,.12,.5,"#5b4634",6);cyl(x,.4,z,h*.24,h*.5,"#2f7a4a",9,h*.12);cyl(x,.4+h*.38,z,h*.17,h*.62,"#37885a",9,0)}
 function shrub(x,z,r){if(TREES.data&&CELL)return addTree("shrub",x,z,r*1.35);cyl(x,0,z,r,r*.7,"#3f8f4d",8,r*.75);cyl(x,r*.7,z,r*.75,r*.45,"#4a9c58",8,r*.2)}
-function fenceRun(x,z,len,along,post,cap){SOLIDTAG="kerb";solidBox(x,z,along?len:.5,along?.5:len);SOLIDTAG=null;box(x,0,z,along?len:.34,.6,along?.34:len,"#e3e5e6");for(let k=0;k<=len/1.5;k++){const q=-len/2+k*1.5;box(along?x+q:x,.6,along?z:z+q,.07,1.3,.07,post)}box(x,1.9,z,along?len:.08,.07,along?.08:len,post);box(x,1.25,z,along?len:.06,.05,along?.06:len,post);
+function fenceRun(x,z,len,along,post,cap){if(NOFENCE)return;SOLIDTAG="kerb";solidBox(x,z,along?len:.5,along?.5:len);SOLIDTAG=null;box(x,0,z,along?len:.34,.6,along?.34:len,"#e3e5e6");for(let k=0;k<=len/1.5;k++){const q=-len/2+k*1.5;box(along?x+q:x,.6,along?z:z+q,.07,1.3,.07,post)}box(x,1.9,z,along?len:.08,.07,along?.08:len,post);box(x,1.25,z,along?len:.06,.05,along?.06:len,post);
   for(let q=-len/2;q<=len/2+.01;q+=Math.max(6,len/Math.max(1,Math.round(len/8)))){box(along?x+q:x,0,along?z:z+q,.7,2.3,.7,"#eceae4");box(along?x+q:x,2.3,along?z:z+q,.86,.16,.86,cap)}}
 
 /* A State Government House: two storeys of warm ivory stone, tall teal-tinted windows between
@@ -983,7 +985,7 @@ function presidentialVilla(){const W=28,D=12,fh=3.8;box(0,0,0,W+1.4,.6,D+1.4,"#c
       box(0,3.1,5.2,4,.16,2.4,F_IVORY);for(const x of[-1.8,1.8])cyl(x,0,6.2,.12,3.1,"#ffffff",8);sign(0,2.72,6.42,3.4,.3,"VISITOR VILLA "+(s<0?1:2),F_NAVY,"#d7bd82")});palm(s*19,10,5.4);palm(s*34,-4,5.8)}
   box(0,.03,17,12,.12,5.4,"#f2f2ee");box(0,.07,17,11,.1,4.4,"#36a9d8",K.glass);for(const s of[-1,1]){box(s*10,0,17,5,.4,5,"#6fa35f");conifer(s*10,17,3.2)}}
 /* The federal compound: the Government building in front, the Villa behind, one boundary round both. */
-function federalCompound(o){const YW=124,z0=-76,z1=64;yardBox(0,-6,YW,140);for(const s of[-1,1]){solidBox(s*9.5,0,9,14);solidBox(s*31,-1,30,16);solidBox(s*39,11,14,9);solidBox(s*15,-1,2,13);solidBox(s*27,-43,10,8)}solidBox(0,-6.4,10,1.6);solidBox(0,-46,28,12);mark("Federal Government Building",0,30,F_NAVY);mark("Presidential Villa",0,-34,F_NAVY);box(0,0,(z0+z1)/2,YW,.06,z1-z0,"#d9dcdd",K.tile);
+function federalCompound(o){const YW=124,z0=-76,z1=64;yardBox(0,-6,YW,140);cmpReg("fed","Federal Government",[-YW/2,z0,YW/2,z1],[-50,-60,50,20],{bays:5,fixed:{s:1,a:14,F:z1-4.4},gateAt:[-6.2,6.2]});for(const s of[-1,1]){solidBox(s*9.5,0,9,14);solidBox(s*31,-1,30,16);solidBox(s*39,11,14,9);solidBox(s*15,-1,2,13);solidBox(s*27,-43,10,8)}solidBox(0,-6.4,10,1.6);solidBox(0,-46,28,12);mark("Federal Government Building",0,30,F_NAVY);mark("Presidential Villa",0,-34,F_NAVY);box(0,0,(z0+z1)/2,YW,.06,z1-z0,"#d9dcdd",K.tile);
   federalHouse(o);at(0,-46,0,presidentialVilla);box(-52,.02,-10,7,.02,108,"#b3b8bb",K.tile);box(0,.02,-24,104,.02,7,"#b3b8bb",K.tile);                    // the drive round to the Villa
   fenceRun(0,z0,YW,true,F_NAVY,F_GOLD);fenceRun(-YW/2,(z0+z1)/2,z1-z0,false,F_NAVY,F_GOLD);fenceRun(YW/2,(z0+z1)/2,z1-z0,false,F_NAVY,F_GOLD);fenceRun(-YW/4-3.5,z1,YW/2-7,true,F_NAVY,F_GOLD);fenceRun(YW/4+3.5,z1,YW/2-7,true,F_NAVY,F_GOLD);
   for(const s of[-1,1]){box(s*7,0,z1,1.6,4.2,1.6,F_IVORY);box(s*7,4.2,z1,2,.3,2,F_GOLD,K.gold);at(s*10.6,z1-2.6,0,()=>{box(0,0,0,2.6,2.7,2.6,F_IVORY);box(0,1.2,1.32,1.6,1,.06,F_NAVY,K.glass);box(0,2.7,0,3.2,.2,3.2,F_NAVY)})}
@@ -1011,12 +1013,14 @@ function roundabout(r0,r1){{const q=wpt(0,0);MAPD.rounds.push({x:q[0],z:q[1],r:r
   cyl(0,10.55,0,.9,1.0,"#f5c542",14,0);for(let k=0;k<8;k++)at(0,0,k/8*6.2832,()=>box(1.25,10.4,0,1.1,.12,.16,"#f5c542"));
   for(let k=0;k<4;k++)at(0,0,k/4*6.2832+.785,()=>flag(5.4,0,7));
   for(let k=0;k<8;k++)at(0,0,k/8*6.2832+.39,()=>box(4.2,.25,0,1.4,.55,1.4,"#3f8f4d"))}
-function place(spec,x,z,turn){if(spec.key&&GUIDE_DOORS.includes(spec.key)){const P=spec.kind==="tower"&&spec.podium;PLACED_DOORS.push([spec.key,doorAt(x,z,turn,(P?P.d:spec.d)/2+.3)]);at(x,z,turn,()=>entrance(0,0,(P?P.d:spec.d)/2+.06,2.4,2.5,0))}at(x,z,turn,()=>{(spec.kind==="tower"?modernTower:spec.kind==="modern"?modern:spec.kind==="royal"?royalBank:spec.kind==="state"?stateHouse:everyday)(spec);if(spec.kind==="tower"){const P=spec.podium;solidBox(0,0,P?P.w:spec.w,P?P.d:spec.d)}else if(spec.strips)for(let x=-spec.w/2+1;x<spec.w/2;x+=2)solidBox(x,0,2,spec.d);else solidBox(0,0,spec.w,spec.d);       // strips: a turned building blocks only its own shape, not the square around ityardBox(0,spec.kind==="royal"?(spec.yardD-spec.d)/2-3:0,spec.yardW,spec.yardD);
+function place(spec,x,z,turn){if(spec.key&&GUIDE_DOORS.includes(spec.key)){const P=spec.kind==="tower"&&spec.podium;PLACED_DOORS.push([spec.key,doorAt(x,z,turn,(P?P.d:spec.d)/2+.3)]);at(x,z,turn,()=>entrance(0,0,(P?P.d:spec.d)/2+.06,2.4,2.5,0))}at(x,z,turn,()=>{const pub=!!spec.key;NOFENCE=pub;(spec.kind==="tower"?modernTower:spec.kind==="modern"?modern:spec.kind==="royal"?royalBank:spec.kind==="state"?stateHouse:everyday)(spec);NOFENCE=false;if(spec.kind==="tower"){const P=spec.podium;solidBox(0,0,P?P.w:spec.w,P?P.d:spec.d)}else if(spec.strips)for(let x=-spec.w/2+1;x<spec.w/2;x+=2)solidBox(x,0,2,spec.d);else solidBox(0,0,spec.w,spec.d);       /* strips: a turned building blocks only its own shape, not the square around it */
+    {const yc=spec.kind==="royal"?(spec.yardD-spec.d)/2-3:0,P=spec.kind==="tower"&&spec.podium,bw=Math.max(spec.w,P?P.w:0)/2,bd=Math.max(spec.d,P?P.d:0)/2;yardBox(0,yc,spec.yardW,spec.yardD);
+      if(pub)cmpReg(spec.key,spec.short||spec.name,[-spec.yardW/2,yc-spec.yardD/2,spec.yardW/2,yc+spec.yardD/2],[-bw,-bd,bw,bd])}
     mark(spec.kind==="tower"?(spec.short||spec.name):spec.short&&!/House|Court|Command|HQ|Immigration/.test(spec.short)?spec.name:(spec.short||spec.name),0,spec.kind==="royal"?spec.d/2+6:spec.d/2+5,spec.kind==="state"?S_TEAL:spec.kind==="royal"?NAVY:spec.band||spec.accent||"#14263D")});
   const d=spec.yardD/2+8.7;BUILDINGS.push({name:spec.short||spec.name,x:x+Math.sin(turn)*d,z:z+Math.cos(turn)*d,y:spec.kind==="modern"?5:3.6,yaw:turn+Math.PI})}        // view from the middle of the road outside
 /* An airport: a glass-fronted terminal under a wide roof, a control tower, an apron with a
    parked aircraft, and a runway. Asaba's is Delta International Airport. */
-function airport(o){yardBox(-50,o.model?-60:-28,270,o.model?190:120);if(!o.model){solidBox(0,0,46,14);solidBox(31,-3,5,5)}mark(o.name,0,14,"#4b5563");const w=46,d=14,h=8.5,f=d/2,WH="#f4f6f8",NV="#14263D",TL="#167C80";
+function airport(o){yardBox(-50,o.model?-60:-28,270,o.model?190:120);cmpReg("air",o.name,[-30,-6,30,21],o.model?[-30,-56,30,8]:[-23,-7,33.5,7],{bays:5,backOpen:true});if(!o.model){solidBox(0,0,46,14);solidBox(31,-3,5,5)}mark(o.name,0,14,"#4b5563");const w=46,d=14,h=8.5,f=d/2,WH="#f4f6f8",NV="#14263D",TL="#167C80";
   box(0,0,10,70,.06,36,"#d9dcdd",K.tile);
   if(o.model){                     // the supplied terminal: its public side faces the forecourt, its boarding bridges face the apron
     at(0,7-31,Math.PI/2,()=>placeModel(o.model));solidBox(0,-24,60,64);entrance(0,.1,7.4,3.4,3,0,true);at(0,24,0,()=>{for(const s of[-1,1])box(s*8,0,0,.5,4.6,.5,"#c9d0d6");box(0,3.2,0,16.6,1.5,.4,NV);sign(0,3.4,.22,15.6,1.1,o.name.toUpperCase(),NV,"#ffffff")})}
@@ -1260,7 +1264,7 @@ PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2
   place(S.court,48,-off(S.court.yardD),0);place(S.police,108,-off(S.police.yardD),0);
   const bz=(W/2+4.2)+((S.bank.yardD-S.bank.d)/2-3+S.bank.yardD/2);place(S.bank,46,bz,Math.PI);SP.bank=doorAt(46,bz,Math.PI,S.bank.d/2);place(S.hosp,112,off(S.hosp.yardD),Math.PI);SP.hosp=doorAt(112,off(S.hosp.yardD),Math.PI,9.22);
   // DBS Road: Immigration and the University on its south side
-  const iz=-105+offS(S.imm.yardD);place(S.imm,42,iz,Math.PI);SP.imm=doorAt(42,iz,Math.PI,S.imm.d/2);place(S.uni,116,-105+offS(S.uni.yardD),Math.PI);
+  const iz=-105+offS(S.imm.yardD);place(S.imm,42,iz,Math.PI);SP.imm=doorAt(42,iz,Math.PI,S.imm.d/2);place(S.uni,128,-105+offS(S.uni.yardD),Math.PI);
   // Ibusa Road and Summit Road
   place(S.util,-44,off(S.util.yardD),Math.PI);place(S.trans,-112,off(S.trans.yardD),Math.PI);place(S.house,-off(S.house.yardD),54,H);place(S.agri,-off(S.agri.yardD),88,H);
   // the Federal compound, north of Ibusa Road, its gate on the road
@@ -1270,13 +1274,13 @@ PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2
   at(-262,-70,H,()=>airport({name:C.air,model:"m_terminal"}));SP.air=doorAt(-262,-70,H,7.4);BUILDINGS.push({name:C.air,x:-222,y:9,z:-70,yaw:H,pitch:.02});
   const view=(name,x,y,z,yaw,pitch)=>BUILDINGS.push({name,x,y,z,yaw:yaw+Math.PI,pitch}),sd=k=>SW/2+4.2+HOMES[k].yardD/2;
   // GRA: along DBS Road and the north of Dennis Osadebay Way
-  at(49,-105-SW/2-4.2-23,0,()=>landmarkTower({name:C.hotel.toUpperCase(),short:C.hotel,r:5.6,floors:13,yardW:50,yardD:46,signW:8}));SP.hotel=doorAt(49,-105-SW/2-4.2-23,0,14.4);
+  at(49,-105-SW/2-4.2-23,0,()=>{NOFENCE=true;landmarkTower({name:C.hotel.toUpperCase(),short:C.hotel,r:5.6,floors:13,yardW:50,yardD:46,signW:8});NOFENCE=false;cmpReg("hotel",C.hotel,[-25,-23,25,23],[-15,-15,15,15],{bays:4})});SP.hotel=doorAt(49,-105-SW/2-4.2-23,0,14.4);
   home("villa",89,-105-sd("villa"),0);home("luxury",116,-105-sd("luxury"),0);home("luxury",142,-105-sd("luxury"),0);home("villa",164-sd("villa"),-38,H);
   home("villa",164+sd("villa"),-25,-H);home("luxury",164+sd("luxury"),-51,-H);home("estate",164+sd("estate"),-74,-H);home("estate",164+sd("estate"),-94.5,-H);home("estate",W/2+4.2+10,-54,-H);
   view("GRA",90,24,-66,0,-.3);view(C.hotel,54,13,-96,0,-.08);
   // Township: either side of DLA Road
   [22,46,70].forEach(x=>home("flats",x,97+sd("flats"),Math.PI));[92,110,128].forEach(x=>home("bungalow",x,97+sd("bungalow"),Math.PI));[20,40,60].forEach(x=>home("semi",x,97-sd("semi"),0));
-  SP.guest=doorAt(93,97-SW/2-4.2-12,0,5.45);at(93,97-SW/2-4.2-12,0,()=>{modernTower({name:C.guest.toUpperCase(),w:17,d:10,floors:3,style:"bands",accent:"#7a1f2b",glass:"#4b8fb5",yardW:28,yardD:24,signW:9});solidBox(0,0,17,10);yardBox(0,0,28,24);mark(C.guest,0,10,"#8a3d6a")});
+  SP.guest=doorAt(93,97-SW/2-4.2-12,0,5.45);at(93,97-SW/2-4.2-12,0,()=>{NOFENCE=true;modernTower({name:C.guest.toUpperCase(),w:17,d:10,floors:3,style:"bands",accent:"#7a1f2b",glass:"#4b8fb5",yardW:28,yardD:24,signW:9});NOFENCE=false;solidBox(0,0,17,10);yardBox(0,0,28,24);cmpReg("guest",C.guest,[-14,-12,14,12],[-8.5,-5,8.5,5]);mark(C.guest,0,10,"#8a3d6a")});
   for(const[nm,x,z]of[["Nnebisi Road",120,0],["Okpanam Road",0,-70],["Ibusa Road",-95,0],["Summit Road",0,120],["Benin – Asaba Expressway",-150,85],["DBS Road",90,-105],["DLA Road",130,97],["Dennis Osadebay Way",164,-60],["Cable Point Road",215,80]])nameRoad(nm,x,z);
   mark("GRA",112,-105,"#8a3d6a");mark("Township",75,97,"#0d7a70");mark("Quarters (Cable Point)",200,80,"#a67a05");mark("Niger Bridge",RIV-10,0,"#4f6b64");mark("Border gate",-226,-92,"#0891b2");
   // Quarters: Cable Point, between Dennis Osadebay Way and the river
@@ -1286,17 +1290,18 @@ PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2
   if(typeof PROPS_ON!=="undefined"&&PROPS_ON){const has=id=>!!document.getElementById(id),onRoad=(x,z,m)=>MAPD.roads.some(r=>{const vx=r.x1-r.x0,vz=r.z1-r.z0,L2=vx*vx+vz*vz||1,s=Math.max(0,Math.min(1,((x-r.x0)*vx+(z-r.z0)*vz)/L2));return Math.hypot(x-r.x0-vx*s,z-r.z0-vz*s)<r.w/2+m})||(MAPD.rounds||[]).some(c=>Math.hypot(x-c.x,z-c.z)<c.r+m),
     SOLID={p_bench:[1.8,.7],p_waste_bin:[.7,.4],p_signboard:[.6,.55],p_billboard:[5,1.2],p_traffic_light:[.8,.6],p_bus_stop:[3.6,1.6],p_market_stall:[2.4,2.9]},
     put=(id,x,z,turn,w,d)=>{if(!has(id))return;const s=SOLID[id]||[w||.6,d||.6];w=w||s[0];d=d||s[1];[x,z]=offRoad(x,z,Math.max(w,d)/2+.35);at(x,z,turn,()=>{if(DYNPROP[id]&&dynHere(DYNPROP[id],w,d))return;placeModel(id);solidBox(0,0,w,d)});return[x,z]},
-    door=(k,p,turn,d)=>{if(p)SP[k]=doorAt(p[0],p[1],turn,d/2+.3)};let shopN=0;const shop=(id,x,z,turn,w,d)=>door("shop"+(++shopN),put(id,x,z,turn,w,d),turn,d);       // every shop has a door to its inside
+    door=(k,p,turn,d)=>{if(p)SP[k]=doorAt(p[0],p[1],turn,d/2+.3)};let shopN=0;const shop=(id,x,z,turn,w,d)=>door("shop"+(++shopN),put(id,x,z,turn,w,d),turn,d),
+      rshop=(id,x,z,turn,w,d)=>{shop(id,x,z,turn,w,d);at(x,z,turn,()=>cmpReg("shop"+shopN,"Shop "+shopN,[-5,-3.6,5,6.4],[-w/2,-d/2,w/2,d/2],{layby:true,modes:["front","side"]}))};       // a roadside shop: its own small lay-by       // every shop has a door to its inside
     // the market: between the hospital and DLA Road, beside Township and Cable Point
-    const mx=137,mz=66;box(mx,.06,mz,40,.06,36,"#d9dcdd",K.tile);yardBox(mx,mz,40,36);mark("Asaba Market",mx,mz+20,"#b45309");
+    const mx=137,mz=66;box(mx,.06,mz,40,.06,36,"#d9dcdd",K.tile);yardBox(mx,mz,40,36);at(mx,mz,0,()=>cmpReg("market","Asaba Market",[-20,-18,20,18],[-19.5,-16.5,19.5,15.2],{bays:4}));mark("Asaba Market",mx,mz+20,"#b45309");
     for(let r=0;r<3;r++)for(let c=0;c<5;c++)put("p_market_stall",mx-12+c*6,mz-9+r*8,Math.PI,2.4,2.9);
     shop("p_shop_row",mx-16,mz-13,Math.PI/2,6,6);shop("p_shop_row",mx+16,mz-13,-Math.PI/2,6,6);shop("p_shop_row",mx+16,mz+3,-Math.PI/2,6,6);shop("p_small_shop",mx-16,mz+3,Math.PI/2,6.1,6.1);shop("p_small_shop",mx-16,mz+12,Math.PI/2,6.1,6.1);
     for(const[x,z]of[[mx-9,mz+15],[mx+3,mz+15],[mx+13,mz+11]])put("p_signboard",x,z,0);
     for(const[x,z]of[[mx-18,mz+16],[mx+18,mz+16],[mx,mz-16]])put("p_waste_bin",x,z,0,.7,.4);
     // shops facing DLA Road and Summit Road, near the homes
-    shop("p_shop_row",72,97-14,0,6,6);shop("p_small_shop",116.5,86,0,6.1,6.1);       /* on a clear plot facing DLA Road, clear of every other door: nothing between its door and the road */shop("p_small_shop",-14,128,Math.PI/2,6.1,6.1);shop("p_shop_row",-14,138,Math.PI/2,6,6);
+    rshop("p_shop_row",72,97-14,0,6,6);rshop("p_small_shop",-14,117,Math.PI/2,6.1,6.1);       /* with the shops on Summit Road: a clear plot, nothing between its door and the road */rshop("p_small_shop",-14,128,Math.PI/2,6.1,6.1);rshop("p_shop_row",-14,138,Math.PI/2,6,6);
     // a church on Ibusa Road, between Utilities and Transport, facing the road
-    door("church",put("p_church",-78,22,Math.PI,6,10),Math.PI,10);yardBox(-78,22,16,22);mark("Asaba Church",-78,12,"#7c3aed");for(const s of[-1,1])put("p_bench",-78+s*5,13,Math.PI);
+    door("church",put("p_church",-78,22,Math.PI,6,10),Math.PI,10);yardBox(-78,22,16,22);at(-78,22,Math.PI,()=>cmpReg("church","Asaba Church",[-8,-11,8,11],[-3.2,-5.2,3.2,5.2]));mark("Asaba Church",-78,12,"#7c3aed");for(const s of[-1,1])put("p_bench",-78+s*5,13,Math.PI);
     // bus stops on the main roads, each with a bin beside it
     for(const[x,z,turn]of[[80,-7.6,0],[70,7.6,Math.PI],[-7.6,60,Math.PI/2],[7.6,-80,-Math.PI/2],[-60,-7.6,0],[150,90.9,0]]){put("p_bus_stop",x,z,turn,3.6,1.6);put("p_waste_bin",x+Math.cos(turn)*2.6,z-Math.sin(turn)*2.6,turn,.7,.4)}
     // benches and bins along Nnebisi Road and in the Government Gardens
@@ -1310,7 +1315,7 @@ PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2
   for(const r of MAPD.roads){if(r.bridge||r.w<8||r.w>10)continue;const L=Math.hypot(r.x1-r.x0,r.z1-r.z0);if(L<60)continue;const ux=(r.x1-r.x0)/L,uz=(r.z1-r.z0)/L;
     for(let s=24,k=0;s<L-20;s+=60,k++){const sd=k%2?1:-1,o=r.w/2+.6,x=r.x0+ux*s-uz*o*sd,z=r.z0+uz*s+ux*o*sd;if(BLOCKS.some(b=>x>b[0]-.7&&x<b[2]+.7&&z>b[1]-.7&&z<b[3]+.7))continue;at(x,z,0,()=>dynHere("hydrant",.42,.42))}}
   /* ---- the National Treasury, on DBS Road between Immigration and Cambridge University, facing the road ---- */
-  {const tx=76.5,tz=-83;at(tx,tz,Math.PI,()=>treasuryBuilding());yardBox(tx,tz,32,27);SP.treasury=doorAt(tx,tz,Math.PI,5.4);for(let i=TREES.inst.length-1;i>=0;i--){const t=TREES.inst[i];if(Math.abs(t[1]-tx)<8&&t[2]<tz-12&&t[2]>tz-24)TREES.inst.splice(i,1)}for(let i=BLOCKS.length-1;i>=0;i--){const b=BLOCKS[i];if(!DYNOF.get(b)&&b[2]-b[0]<1.2&&Math.abs((b[0]+b[2])/2-tx)<8&&(b[1]+b[3])/2<tz-12&&(b[1]+b[3])/2>tz-24)BLOCKS.splice(i,1)}
+  {const tx=76.5,tz=-83;at(tx,tz,Math.PI,()=>{treasuryBuilding();cmpReg("treasury","National Treasury",[-16,-13.5,16,13.5],[-14.9,-10.5,14.9,9.6],{modes:["side"],frontSkip:[-14.7,14.7]})});yardBox(tx,tz,32,27);SP.treasury=doorAt(tx,tz,Math.PI,5.4);for(let i=TREES.inst.length-1;i>=0;i--){const t=TREES.inst[i];if(Math.abs(t[1]-tx)<8&&t[2]<tz-12&&t[2]>tz-24)TREES.inst.splice(i,1)}for(let i=BLOCKS.length-1;i>=0;i--){const b=BLOCKS[i];if(!DYNOF.get(b)&&b[2]-b[0]<1.2&&Math.abs((b[0]+b[2])/2-tx)<8&&(b[1]+b[3])/2<tz-12&&(b[1]+b[3])/2>tz-24)BLOCKS.splice(i,1)}
    mark("National Treasury",tx,tz-15,"#b45309");
    MAPD.raised.push({x0:tx-14,x1:tx+14,z0:tz-11.2,z1:tz+10.5,h:.93,rz0:tz-11.2,rz1:tz-9.5})}       // the podium is raised .93 m; its steps rise from the forecourt (world -z is the front here)
   // trees, shrubs and flower beds on all the open ground between the plots
@@ -1370,12 +1375,12 @@ PLANS.Warri=function(C,S,SP){MAPD.lawnZones=[[30,-178,236,-92],[4,8,60,62],[-32,
   // GRA: modern homes along the north side of PTI Road and up the Sapele road, with Bon Hotel Hyatti at the end
   [["villa",44],["luxury",72],["villa",99],["luxury",127],["villa",154],["luxury",181]].forEach(([k,x])=>home(k,x,-92-sd(k),0));
   home("estate",W/2+4.2+10,-122,-H);home("estate",W/2+4.2+10,-143,-H);home("estate",-(W/2+4.2+10),-143,H);
-  SP.hotel=doorAt(216,-92-W/2-4.2-15,0,6.95);at(216,-92-W/2-4.2-15,0,()=>{const o=tw(C.hotel.toUpperCase(),C.hotel,{w:17,d:13,floors:6,stepped:1,tiers:2,frame:"#eef0f2",glass:"#3a7fb5",accent:"#8a3d6a",yardW:34,yardD:30,signW:9});modernTower(o);solidBox(0,0,17,13);yardBox(0,0,34,30);mark(C.hotel,0,11,"#8a3d6a")});
+  SP.hotel=doorAt(216,-92-W/2-4.2-15,0,6.95);at(216,-92-W/2-4.2-15,0,()=>{const o=tw(C.hotel.toUpperCase(),C.hotel,{w:17,d:13,floors:6,stepped:1,tiers:2,frame:"#eef0f2",glass:"#3a7fb5",accent:"#8a3d6a",yardW:34,yardD:30,signW:9});NOFENCE=true;modernTower(o);NOFENCE=false;solidBox(0,0,17,13);yardBox(0,0,34,30);cmpReg("hotel",C.hotel,[-17,-15,17,15],[-8.5,-6.5,8.5,6.5],{bays:4});mark(C.hotel,0,11,"#8a3d6a")});
   mark("GRA",112,-92,"#8a3d6a");
   // Township and Barracks: plainer homes
   MODERN=false;
   [137,161,185].forEach(x=>home("flats",x,-92+sd("flats"),Math.PI));[128,146,164].forEach(x=>home("bungalow",x,-sd("bungalow"),0));[60,80,100].forEach(x=>home("semi",x,-sd("semi"),0));
-  SP.guest=doorAt(216,-92+W/2+4.2+12,Math.PI,4.95);at(216,-92+W/2+4.2+12,Math.PI,()=>{everyday({kind:"everyday",name:C.guest,w:17,d:9,floors:2,wall:"#e6e2d6",band:"#8a3d6a",zinc:ZINC.silver,roof:"gable",yardW:28,yardD:24});solidBox(0,0,17,9);yardBox(0,0,28,24);mark(C.guest,0,10,"#8a3d6a")});
+  SP.guest=doorAt(216,-92+W/2+4.2+12,Math.PI,4.95);at(216,-92+W/2+4.2+12,Math.PI,()=>{NOFENCE=true;everyday({kind:"everyday",name:C.guest,w:17,d:9,floors:2,wall:"#e6e2d6",band:"#8a3d6a",zinc:ZINC.silver,roof:"gable",yardW:28,yardD:24});NOFENCE=false;cmpReg("guest",C.guest,[-14,-12,14,12],[-8.5,-4.5,8.5,4.5]);solidBox(0,0,17,9);yardBox(0,0,28,24);mark(C.guest,0,10,"#8a3d6a")});
   mark("Township",150,-46,"#0d7a70");
   [-52,-69,-86].forEach(x=>home("onebed",x,-92+sd("onebed"),Math.PI));[-112,-131,-150].forEach(x=>home("selfcon",x,-92+sd("selfcon"),Math.PI));[-110,-128,-146].forEach(x=>home("singleroom",x,-sd("singleroom"),0));
   mark("Barracks",-120,-46,"#a67a05");MODERN=true;
@@ -1418,25 +1423,25 @@ function townSpecs0(st,C){const G="#3f86b3";if(C.capital)return{
 // build one state's town. Returns where its doors are, so the game knows where people go in and come out.
 let PLACED_DOORS=[];
 // Asaba: the four national offices that had no building (Trade & Commerce, Culture & Heritage, Statistics, Foreign Affairs), on free plots by the roads
-const NATIONAL_OFFICES=[{key:"trade",name:"MINISTRY OF TRADE & COMMERCE",short:"Ministry of Trade & Commerce",x:-22.7,z:-60.4,f:[1,0],accent:"#1f4e79"},
+const NATIONAL_OFFICES=[{key:"trade",name:"MINISTRY OF TRADE & COMMERCE",short:"Ministry of Trade & Commerce",x:-167.6,z:89.1,f:[.957,-.291],accent:"#1f4e79"},
   {key:"foreign",name:"MINISTRY OF FOREIGN AFFAIRS",short:"Ministry of Foreign Affairs",x:-37.8,z:139.3,f:[-.108,.994],accent:"#14532d"},
   {key:"culture",name:"NATIONAL CULTURE & HERITAGE BUREAU",short:"National Culture & Heritage Bureau",x:-125.6,z:58.6,f:[-.957,.291],accent:"#8a3d1f"},
-  {key:"stats",name:"NATIONAL BUREAU OF STATISTICS",short:"National Bureau of Statistics",x:-113.3,z:98.7,f:[-.957,.291],accent:"#334155"}];
+  {key:"stats",name:"NATIONAL BUREAU OF STATISTICS",short:"National Bureau of Statistics",x:-111.8,z:103.5,f:[-.957,.291],accent:"#334155"}];
 function nationalOffices(){for(const o of NATIONAL_OFFICES)place({kind:"modern",name:o.name,short:o.short,w:22,d:12,floors:3,yardW:32,yardD:26,accent:o.accent,key:o.key,strips:Math.abs(o.f[0])>.01&&Math.abs(o.f[1])>.01},o.x,o.z,Math.atan2(o.f[0],o.f[1]))}
 // the markets and roadside shops of Warri, Ozoro and Agbor (Asaba's are in its street life), on plots checked to be clear of roads,
 // buildings and car parks. A market: the stalls and two shops on its edge; then a few shops by the roads near the middle of town.
-const MARKETS={Warri:{name:"Warri Main Market",m:[-49,-28.7,0],shops:[[-35,106.2,Math.PI,"Okere Provisions"],[-41,14.7,Math.PI,"Effurun Mini Mart"],[69,77.8,0,"Ekpan Supermarket"]]},
-  Ozoro:{name:"Ozoro Central Market",m:[73,105.7,0],shops:[[15,-104.7,Math.PI,"Isoko Provisions"],[109,-104.7,Math.PI,"Oleh Road Stores"],[-72.4,-14.7,0,"Ozoro Mini Mart"]]},
-  Agbor:{name:"Agbor Obi Market",m:[73,105.7,0],shops:[[15,-104.7,Math.PI,"Ika Provisions"],[109,-104.7,Math.PI,"Boji-Boji Mini Mart"],[-72.4,-14.7,0,"Alihame Stores"]]}};
+const MARKETS={Warri:{name:"Warri Main Market",m:[-63.5,-28.7,0],shops:[[-35,106.2,Math.PI,"Okere Provisions"],[60,14.7,Math.PI,"Effurun Mini Mart"],[69,77.8,0,"Ekpan Supermarket"]]},
+  Ozoro:{name:"Ozoro Central Market",m:[73,105.7,0],shops:[[15,-104.7,Math.PI,"Isoko Provisions"],[109,-104.7,Math.PI,"Oleh Road Stores"],[-33.4,14.7,Math.PI,"Ozoro Mini Mart"]]},
+  Agbor:{name:"Agbor Obi Market",m:[73,105.7,0],shops:[[15,-104.7,Math.PI,"Ika Provisions"],[109,-104.7,Math.PI,"Boji-Boji Mini Mart"],[-33.4,14.7,Math.PI,"Alihame Stores"]]}};
 const SHOPNAME={};               // town/door -> the shop's name (its inside's title)
 function marketsPlace(st,SP){const M=MARKETS[st];if(!M||typeof PROPS_ON==="undefined"||!PROPS_ON)return;const has=id=>!!document.getElementById(id);
   const put=(id,x,z,turn,w,d)=>{if(!has(id))return null;at(x,z,turn,()=>{placeModel(id);solidBox(0,0,w,d)});return[x,z]};
   let n=0;const shop=(id,x,z,turn,w,d,name)=>{const p=put(id,x,z,turn,w,d);if(!p)return;const k="shop"+(++n);SP[k]=doorAt(p[0],p[1],turn,d/2+.3);SHOPNAME[st+"/"+k]=name};
   const[mx,mz,mt]=M.m,c=Math.cos(mt),s=Math.sin(mt),W=(lx,lz)=>[mx+c*lx+s*lz,mz-s*lx+c*lz];
-  at(mx,mz,mt,()=>{box(0,.06,0,40,.06,36,"#d9dcdd",K.tile);yardBox(0,0,40,36);mark(M.name,0,20,"#b45309")});
+  at(mx,mz,mt,()=>{box(0,.06,0,40,.06,36,"#d9dcdd",K.tile);yardBox(0,0,40,36);mark(M.name,0,20,"#b45309");cmpReg("market",M.name,[-20,-18,20,18],[-19.5,-16.5,19.5,10],{bays:4})});
   for(let r=0;r<3;r++)for(let k=0;k<5;k++){const[x,z]=W(-12+k*6,-9+r*8);put("p_market_stall",x,z,mt+Math.PI,2.4,2.9)}
   {const[x,z]=W(-16,-13);shop("p_shop_row",x,z,mt+Math.PI/2,6,6,M.name+": Groceries")}{const[x,z]=W(16,-13);shop("p_shop_row",x,z,mt-Math.PI/2,6,6,M.name+": Fabrics & Household")}
-  for(const[x,z,turn,name]of M.shops){shop("p_small_shop",x,z,turn,6.1,6.1,name);mark(name,x,z,"#b45309")}}
+  for(const[x,z,turn,name]of M.shops){shop("p_small_shop",x,z,turn,6.1,6.1,name);mark(name,x,z,"#b45309");at(x,z,turn,()=>cmpReg("shop"+n,name,[-5,-3.6,5,6.4],[-3.05,-3.05,3.05,3.05],{layby:true,modes:["front","side"]}))}}
 // no tree or street object stands in a market or in front of its shops (as at the filling stations)
 function plotClear(cx,cz,turn,hw,hd){const c=Math.cos(turn),s=Math.sin(turn),inP=(x,z)=>{const dx=x-cx,dz=z-cz;return Math.abs(c*dx-s*dz)<hw&&Math.abs(s*dx+c*dz)<hd},gone=new Set();
   MAPD.dyn=MAPD.dyn.filter(o=>{if(!inP(o.x,o.z))return true;gone.add(o.b);return false});
@@ -1444,9 +1449,9 @@ function plotClear(cx,cz,turn,hw,hd){const c=Math.cos(turn),s=Math.sin(turn),inP
   for(let i=BLOCKS.length-1;i>=0;i--)if(gone.has(BLOCKS[i]))BLOCKS.splice(i,1)}
 function marketsClear(st){const M=MARKETS[st];if(!M||typeof PROPS_ON==="undefined"||!PROPS_ON)return;plotClear(M.m[0],M.m[1],M.m[2],21,19);for(const[x,z,turn]of M.shops)plotClear(x,z,turn,5,6.5)}
 // the Lifestyle centre (the guide's clubhouse), on a plot checked to be clear of roads, buildings and car parks
-const LIFESITE={Asaba:[-122.4,-20.7,0],Warri:[-37,71.8,0],Ozoro:[-115,-98.7,Math.PI],Agbor:[-115,-98.7,Math.PI]};
-function lifestylePlace(st){const L=LIFESITE[st];if(!L||!guideBuilding("lifestyle",st))return;place({kind:"modern",key:"lifestyle",name:st.toUpperCase()+" LIFESTYLE",short:"Lifestyle Centre",w:22,d:12,floors:2,yardW:30,yardD:24,accent:"#1f3a2c"},L[0],L[1],L[2])}
-function buildTown(st){const C=STATES[st],SP={};PLACED_DOORS=[];const doors=()=>{for(const[k,d]of PLACED_DOORS)if(!SP[k]&&guideBuilding(k,st))SP[k]=d};BUILDINGS.length=0;MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);if(st==="Asaba")nationalOffices();lifestylePlace(st);marketsPlace(st,SP);doors();return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
+const LIFESITE={Asaba:[-180.4,47.1,Math.atan2(.957,-.291)],Warri:[-37,71.8,0],Ozoro:[-115,-98.7,Math.PI],Agbor:[-115,-98.7,Math.PI]};
+function lifestylePlace(st){const L=LIFESITE[st];if(!L||!guideBuilding("lifestyle",st))return;place({kind:"modern",key:"lifestyle",name:st.toUpperCase()+" LIFESTYLE",short:"Lifestyle Centre",w:22,d:12,floors:2,yardW:30,yardD:24,accent:"#1f3a2c",strips:Math.abs(Math.sin(L[2]))>.01&&Math.abs(Math.cos(L[2]))>.01},L[0],L[1],L[2])}
+function buildTown(st){const C=STATES[st],SP={};PLACED_DOORS=[];const doors=()=>{for(const[k,d]of PLACED_DOORS)if(!SP[k]&&guideBuilding(k,st))SP[k]=d};BUILDINGS.length=0;CMPS=[];MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);if(st==="Asaba")nationalOffices();lifestylePlace(st);marketsPlace(st,SP);doors();return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
   const R0=9,R1=17,W=9,LEN=110,start=R1-.6;roundabout(R0,R1);
   for(let k=0;k<4;k++)road(Math.sin(k*Math.PI/2)*(start+LEN/2),-Math.cos(k*Math.PI/2)*(start+LEN/2),W,LEN,-k*Math.PI/2);
   const off=d=>W/2+4.2+d/2;                                    // how far a plot's centre sits from the middle of its road
@@ -1470,11 +1475,11 @@ function buildTown(st){const C=STATES[st],SP={};PLACED_DOORS=[];const doors=()=>
   const gz=-(far-7.5);road(0,gz,SW,270,H);
   [["villa",-42],["luxury",-70],["villa",-97],["luxury",42],["villa",70],["luxury",97]].forEach(([k,x])=>home(k,x,gz-side(k),0));
   [["estate",-48],["estate",-70],["estate",48]].forEach(([k,x])=>home(k,x,gz+side(k),Math.PI));
-  at(84,gz+SW/2+4.2+15,Math.PI,()=>grandHotel({name:C.hotel,yardW:34,yardD:30}));SP.hotel=doorAt(84,gz+SW/2+4.2+15,Math.PI,4.3);view(C.areas[0],-70,16,gz+40,0,-.22);view(C.hotel,84,15,gz-9,Math.PI,-.1);
+  at(84,gz+SW/2+4.2+15,Math.PI,()=>{NOFENCE=true;grandHotel({name:C.hotel,yardW:34,yardD:30});NOFENCE=false;cmpReg("hotel",C.hotel,[-17,-15,17,15],[-12,-10,12,4],{bays:4})});SP.hotel=doorAt(84,gz+SW/2+4.2+15,Math.PI,4.3);view(C.areas[0],-70,16,gz+40,0,-.22);view(C.hotel,84,15,gz-9,Math.PI,-.1);
   const tx=far+7.5;road(tx,4,SW,170,0);
   [["flats",-58],["flats",-33],["bungalow",-11],["bungalow",9],["semi",29],["semi",49],["semi",69]].forEach(([k,z])=>home(k,tx+side(k),z,-H));
   [["flats",50],["bungalow",72]].forEach(([k,z])=>home(k,tx-side(k),z,H));
-  if(C.guest){SP.guest=doorAt(tx-(SW/2+4.2+12),-58,H,4.95)}if(C.guest)at(tx-(SW/2+4.2+12),-58,H,()=>{everyday({kind:"everyday",name:C.guest,w:17,d:9,floors:2,wall:"#f1dc94",band:"#7a1f2b",zinc:ZINC.red,roof:"gable",yardW:28,yardD:24});solidBox(0,0,17,9);mark(C.guest,0,10,"#8a3d6a")});
+  if(C.guest){SP.guest=doorAt(tx-(SW/2+4.2+12),-58,H,4.95)}if(C.guest)at(tx-(SW/2+4.2+12),-58,H,()=>{NOFENCE=true;everyday({kind:"everyday",name:C.guest,w:17,d:9,floors:2,wall:"#f1dc94",band:"#7a1f2b",zinc:ZINC.red,roof:"gable",yardW:28,yardD:24});NOFENCE=false;cmpReg("guest",C.guest,[-14,-12,14,12],[-8.5,-4.5,8.5,4.5]);solidBox(0,0,17,9);mark(C.guest,0,10,"#8a3d6a")});
   view(C.areas[1],tx-34,18,8,-H,-.25);
   const qz=far+7.5;road(-5,qz,SW,128,H);
   [["onebed",-50],["onebed",-33],["onebed",-16],["selfcon",3],["selfcon",21],["selfcon",39]].forEach(([k,x])=>home(k,x,qz+side(k),Math.PI));
@@ -2608,7 +2613,7 @@ function clearDoorways(T){const inC=(x,z,r)=>{for(const k in T.spots){const d=T.
 // every shop has its own tag on the map, with its name
 function tagShops(T,st){for(const k in T.spots){if(!/^shop\d+$/.test(k))continue;const d=T.spots[k];if(T.map.places.some(p=>!p.road&&Math.hypot(p.x-d.x,p.z-d.z)<6))continue;
   T.map.places.push({name:(typeof SHOPNAME!=="undefined"&&SHOPNAME[st+"/"+k])||"Shop",x:d.x-d.fx*2,z:d.z-d.fz*2,color:"#b45309",group:"Services",icon:"🛍"})}}
-function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);clearDoorways(t);tagShops(t,st);roadJoins();highway(st);workshop(st,t);station(st,t);marketsClear(st);carParks(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
+function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;const t=buildTown(st);clearDoorways(t);tagShops(t,st);roadJoins();highway(st);workshop(st,t);station(st,t);marketsClear(st);compounds(st,t);streetTidy();t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400);hudNote(t)}
 function fadeTo(text,change){if(busy||(scene!=="town"&&NOW<exitCool))return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
 let exitCool=0;       /* for a moment after arriving inside, the way out cannot trigger, so a player still walking in is never bounced straight back out */
@@ -2991,10 +2996,10 @@ const dpad=document.createElement("div");dpad.id="dpad";dpad.hidden=true;dpad.in
     <path d="M14 104c30-4 52-18 86-18s56 14 86 18M100 120v60" stroke="url(#wg)" stroke-width="20" fill="none"/><circle cx="100" cy="104" r="30" fill="url(#wh)" stroke="#c7cdd6" stroke-width="3"/><circle cx="100" cy="104" r="13" fill="none" stroke="#8a929e" stroke-width="2"/><path d="M100 6v14" stroke="#e5edf7" stroke-width="4"/></svg></div></div>
   <div id="pedals"><button id="pBrk" class="ped brk" aria-label="Brake"><i></i><i></i><i></i><i></i><span>BRAKE</span></button><button id="pThr" class="ped thr" aria-label="Accelerator"><i></i><i></i><i></i><i></i><i></i><span>ACCELERATOR</span></button></div>`;document.body.appendChild(dpad);
 {const wheel=document.getElementById("wheel"),wIn=document.getElementById("wheelIn");let wid=null,wx=0;
-  wheel.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();wid=e.pointerId;wx=e.clientX;wheel.setPointerCapture(e.pointerId)});
+  wheel.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();wid=e.pointerId;wx=e.clientX;grabPointer(wheel,e)});
   wheel.addEventListener("pointermove",e=>{if(e.pointerId!==wid)return;const s=clamp((e.clientX-wx)/70,-1,1);VEH.touch.steer=s;wIn.style.transform=`rotate(${s*120}deg)`});
   const wEnd=e=>{if(e.pointerId!==wid)return;wid=null;VEH.touch.steer=0;wIn.style.transform=""};for(const ev of["pointerup","pointercancel","lostpointercapture"])wheel.addEventListener(ev,wEnd);
-  for(const[id,key]of[["pThr","thr"],["pBrk","brk"],["dHorn","horn"]]){const b=document.getElementById(id);b.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();b.setPointerCapture(e.pointerId);if(key==="horn")VEH.horn=true;else VEH.touch[key]=1;b.classList.add("on")});
+  for(const[id,key]of[["pThr","thr"],["pBrk","brk"],["dHorn","horn"]]){const b=document.getElementById(id);b.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();grabPointer(b,e);if(key==="horn")VEH.horn=true;else VEH.touch[key]=1;b.classList.add("on")});
     const end=()=>{if(key==="horn")VEH.horn=false;else VEH.touch[key]=0;b.classList.remove("on")};for(const ev of["pointerup","pointercancel","lostpointercapture"])b.addEventListener(ev,end)}
   dash.addEventListener("pointerdown",e=>{if(e.target.closest("button"))e.stopPropagation()});
   dash.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;e.stopPropagation();if(b.dataset.dg){setGear(b.dataset.dg);return}const k=b.dataset.dk;if(!k)return;
@@ -3670,7 +3675,7 @@ function carPanel(){const T=townOf(me.town),C=T.car;if(!C)return;const D=carD(C)
     ${tow?`<button class="go" data-rp="towask">Call a tow truck to the ${esc(shop.name)}</button>`:""}<button class="go ghost" data-stay="1">Close</button></div>`}
 
 /* ---- the mechanic's workshop: one in each state, an open building with a repair bay, a sign and tools ---- */
-const WORKSHOPS={Asaba:{x:145.5,z:111.9,f:[0,-1],name:"Asaba Auto Workshop"},Warri:{x:49.5,z:125.1,f:[0,1],name:"Warri Port Auto Workshop"},
+const WORKSHOPS={Asaba:{x:-60,z:186.3,f:[.108,-.994],name:"Asaba Auto Workshop"},Warri:{x:70,z:110,f:[0,-1],name:"Warri Port Auto Workshop"},
   Ozoro:{x:-95.4,z:15.4,f:[0,-1],name:"Ozoro Auto Workshop"},Agbor:{x:-95.4,z:15.4,f:[0,-1],name:"Agbor Auto Workshop"}};
 // while a town is being built (after the rest of it): clear the plot and its driveway of street objects and trees, then build
 function workshop(st,t){const S=WORKSHOPS[st];if(!S)return;const turn=Math.atan2(S.f[0],S.f[1]),c=Math.cos(turn),s=Math.sin(turn),W=14,D=11,H=4.4;
@@ -3679,7 +3684,7 @@ function workshop(st,t){const S=WORKSHOPS[st];if(!S)return;const turn=Math.atan2
   for(let i=TREES.inst.length-1;i>=0;i--){const q=TREES.inst[i];if(inPlot(q[1],q[2])){TREES.inst.splice(i,1);for(const b of BLOCKS){const g=BTAG.get(b);if(g&&g.t===q)gone.add(b)}}}
   for(let i=BLOCKS.length-1;i>=0;i--)if(gone.has(BLOCKS[i]))BLOCKS.splice(i,1);
   const WALL="#e4dfd3",BAND="#2f5d7c",STEEL="#3a4048";
-  at(S.x,S.z,turn,()=>{
+  at(S.x,S.z,turn,()=>{cmpReg("woffice",S.name,[-8.6,-7,8.6,10],[-7,-5.5,7,5.5],{gateIn:5.6});
     box(0,0,0,W,.03,D,"#a19d94",K.tile);box(0,0,D/2+1.4,W-1,.025,2.8,"#8f8b84",K.tile);                                   // the concrete floor and apron
     for(const x of[-1.75,1.75])box(x,.031,.4,.12,.01,6.4,"#f2c230");box(0,.031,-2.85,3.62,.01,.12,"#f2c230");                // the bay's yellow lines and stop line
     box(0,0,-D/2,W,H,.25,WALL);for(const x of[-W/2,W/2])box(x,0,0,.25,H,D,WALL);box(0,0,-D/2+.14,W-.3,1.1,.04,BAND);for(const x of[-W/2+.14,W/2-.14])box(x,0,0,.04,1.1,D-.3,BAND);
@@ -3703,35 +3708,112 @@ function workshop(st,t){const S=WORKSHOPS[st];if(!S)return;const turn=Math.atan2
    kept in, and put it back in any car park bay. A car left outside a car park is taken back to its car park 15 minutes
    after it was left (timed by the server), or as soon as you walk more than 250 m away from it; a car in a bay stays.
    Damage goes with the car. Guests (no account) get a practice car that is not saved on the server. */
-const CARPARKS={Asaba:[{id:"asaba-1",name:"Asaba Central Car Park",x:-12.5,z:-88.4,f:[1,0]},{id:"asaba-2",name:"Asaba GRA Car Park",x:106.5,z:-117,f:[0,1]},{id:"asaba-3",name:"Asaba Car Park 3",x:12.5,z:-38.4,f:[-1,0]},{id:"asaba-4",name:"Asaba Car Park 4",x:-36.4,z:-12.5,f:[0,1]},{id:"asaba-5",name:"Asaba Car Park 5",x:152,z:-65,f:[1,0]},{id:"asaba-6",name:"Asaba Car Park 6",x:12.5,z:32.4,f:[-1,0]},{id:"asaba-7",name:"Asaba Car Park 7",x:144.4,z:12.5,f:[0,-1]},{id:"asaba-8",name:"Asaba Car Park 8",x:-92.4,z:-12.5,f:[0,1]},{id:"asaba-9",name:"Asaba Township Car Park",x:77.3,z:155.6,f:[0.043,0.999]},{id:"asaba-10",name:"Asaba Cable Point Car Park",x:182,z:68,f:[0,1]}],
-  Warri:[{id:"warri-1",name:"Warri Central Car Park",x:-12.5,z:117,f:[1,0]},{id:"warri-2",name:"Warri Market Car Park",x:45,z:80,f:[0,1]},{id:"warri-3",name:"Warri Car Park 3",x:-12.5,z:71,f:[1,0]},{id:"warri-4",name:"Warri Car Park 4",x:-63,z:104,f:[0,-1]},{id:"warri-5",name:"Warri Car Park 5",x:105,z:104,f:[0,-1]},{id:"warri-6",name:"Warri Car Park 6",x:55,z:12.5,f:[0,-1]},{id:"warri-7",name:"Warri Car Park 7",x:-113,z:80,f:[0,1]},{id:"warri-8",name:"Warri Car Park 8",x:155,z:80,f:[0,1]},{id:"warri-9",name:"Warri GRA Car Park",x:112.4,z:-79.5,f:[0,-1]},{id:"warri-10",name:"Warri Township Car Park",x:179,z:-12.5,f:[0,1]},{id:"warri-11",name:"Warri Barracks Car Park",x:-95,z:-12.5,f:[0,1]}],
-  Ozoro:[{id:"ozoro-1",name:"Ozoro Central Car Park",x:-40.4,z:12.5,f:[0,-1]},{id:"ozoro-2",name:"Ozoro South Car Park",x:12.5,z:-32.4,f:[-1,0]},{id:"ozoro-3",name:"Ozoro Car Park 3",x:-12.5,z:-32.4,f:[1,0]},{id:"ozoro-4",name:"Ozoro Car Park 4",x:12.5,z:32.4,f:[-1,0]},{id:"ozoro-5",name:"Ozoro Estate Car Park",x:-12.5,z:-96.4,f:[1,0]},{id:"ozoro-6",name:"Ozoro Car Park 6",x:-89,z:-106.9,f:[0,-1]},{id:"ozoro-7",name:"Ozoro Car Park 7",x:-46.1,z:84.5,f:[0,1]},{id:"ozoro-8",name:"Ozoro Car Park 8",x:12.5,z:90.4,f:[-1,0]},{id:"ozoro-9",name:"Ozoro Township Car Park",x:121.9,z:-17,f:[1,0]}],
-  Agbor:[{id:"agbor-1",name:"Agbor Central Car Park",x:-40.4,z:12.5,f:[0,-1]},{id:"agbor-2",name:"Agbor South Car Park",x:12.5,z:-32.4,f:[-1,0]},{id:"agbor-3",name:"Agbor Car Park 3",x:-12.5,z:-32.4,f:[1,0]},{id:"agbor-4",name:"Agbor Car Park 4",x:12.5,z:32.4,f:[-1,0]},{id:"agbor-5",name:"Agbor Estate Car Park",x:-12.5,z:-96.4,f:[1,0]},{id:"agbor-6",name:"Agbor Car Park 6",x:-89,z:-106.9,f:[0,-1]},{id:"agbor-7",name:"Agbor Car Park 7",x:-46.1,z:84.5,f:[0,1]},{id:"agbor-8",name:"Agbor Car Park 8",x:12.5,z:90.4,f:[-1,0]},{id:"agbor-9",name:"Agbor Township Car Park",x:121.9,z:-17,f:[1,0]}]};
-const PARKBAY={n:5,w:3.2,d:5.4,z:-.9};       // in the car park's own metres: x along the road, z towards it; each bay's centre is at z
-// while a town is being built: clear each car park's plot, then lay it out (tarmac, numbered bays, the P sign and the terminal)
-function carParks(st,t){t.parks=[];for(const P of CARPARKS[st]||[]){const turn=Math.atan2(P.f[0],P.f[1]),c=Math.cos(turn),s=Math.sin(turn),wp=(lx,lz)=>[P.x+c*lx+s*lz,P.z-s*lx+c*lz];
-    const loc=(x,z)=>{const dx=x-P.x,dz=z-P.z;return[c*dx-s*dz,s*dx+c*dz]},inPlot=(x,z)=>{const[a,b]=loc(x,z);return Math.abs(a)<9.8&&b>-5&&b<5.2};
-    const gone=new Set();MAPD.dyn=MAPD.dyn.filter(o=>{if(!inPlot(o.x,o.z))return true;gone.add(o.b);return false});
-    for(let i=TREES.inst.length-1;i>=0;i--){const q=TREES.inst[i];if(inPlot(q[1],q[2])){TREES.inst.splice(i,1);for(const b of BLOCKS){const g=BTAG.get(b);if(g&&g.t===q)gone.add(b)}}}
-    for(let i=BLOCKS.length-1;i>=0;i--)if(gone.has(BLOCKS[i]))BLOCKS.splice(i,1);
-    const n=PARKBAY.n,bw=PARKBAY.w,L=n*bw+1.6,WHITE="#f4f3ef",BLUE="#1d4ed8";
-    at(P.x,P.z,turn,()=>{
-      box(0,0,0,L,.035,8.6,"#4a4d52",K.tile);                                                                        // the tarmac
-      for(let i=0;i<=n;i++)box((i-n/2)*bw,.036,PARKBAY.z,.1,.01,PARKBAY.d,WHITE);box(0,.036,PARKBAY.z-PARKBAY.d/2,n*bw,.01,.1,WHITE);
-      box(0,0,-4.25,L,.45,.25,"#cfc8b8");for(const x of[-L/2,L/2])box(x,0,-.2,.25,.16,8.2,"#cfc8b8");               // the back kerb and the side kerbs
-      for(let i=0;i<n;i++)paintDigit((i-(n-1)/2)*bw,PARKBAY.z+1.4,i+1,WHITE);       // each bay's number, painted on the ground at its open end
-      cyl(-L/2+.5,0,3.7,.07,3,"#5b6470",8);sign(-L/2+.5,2.2,3.76,1,1,"P","#dc2626","#ffffff");sign(-L/2+.5,1.55,3.76,2.4,.36,P.name.toUpperCase(),"#14263d","#ffffff");
-      box(L/2-.7,0,3.5,.6,1.45,.42,"#2b3a4a");box(L/2-.7,1.0,3.72,.42,.3,.02,"#7dd3fc",K.glow);box(L/2-.7,1.45,3.5,.7,.06,.5,"#1f2a36");   // the car park terminal
-      SOLIDTAG="cwall";solidBox(0,-4.25,L,.3);SOLIDTAG=null;solidBox(L/2-.7,3.5,.7,.55);solidBox(-L/2+.5,3.7,.2,.2);
-      mark(P.name,0,0,"#dc2626")});
-    const bays=[];for(let i=0;i<n;i++){const p=wp((i-(n-1)/2)*bw,PARKBAY.z);bays.push({i,x:p[0],z:p[1],yaw:Math.atan2(-P.f[0],-P.f[1])})}       // a car in a bay faces the road
-    const tm=wp(L/2-.7,4.3);t.parks.push({id:P.id,name:P.name,st,x:P.x,z:P.z,turn,f:P.f,bays,term:tm,loc})}}
+const PARKLIST=[["asaba-gov", "Asaba", "State Government House Car Park"],["asaba-court", "Asaba", "Supreme Court Car Park"],["asaba-police", "Asaba", "Police HQ Car Park"],["asaba-bank", "Asaba", "Crestfield Bank Car Park"],["asaba-hosp", "Asaba", "National Specialist Hospital Car Park"],["asaba-uni", "Asaba", "Cambridge University Car Park"],["asaba-util", "Asaba", "National Public Utilities Car Park"],["asaba-trans", "Asaba", "National Transport Authority Car Park"],["asaba-house", "Asaba", "Asaba Housing Development Car Park"],["asaba-agri", "Asaba", "Ministry of Agriculture & Resources Car Park"],["asaba-fed", "Asaba", "Federal Government Car Park"],["asaba-air", "Asaba", "Delta International Airport Car Park"],["asaba-hotel", "Asaba", "Best GRA Hotel Car Park"],["asaba-guest", "Asaba", "Asaba Guest House Car Park"],["asaba-market", "Asaba", "Asaba Market Car Park"],["asaba-church", "Asaba", "Asaba Church Car Park"],["asaba-treasury", "Asaba", "National Treasury Car Park"],["asaba-imm", "Asaba", "Immigration Car Park"],["asaba-trade", "Asaba", "Ministry of Trade & Commerce Car Park"],["asaba-foreign", "Asaba", "Ministry of Foreign Affairs Car Park"],["asaba-culture", "Asaba", "National Culture & Heritage Bureau Car Park"],["asaba-stats", "Asaba", "National Bureau of Statistics Car Park"],["asaba-lifestyle", "Asaba", "Lifestyle Centre Car Park"],["asaba-woffice", "Asaba", "Asaba Auto Workshop Car Park"],["asaba-fshop", "Asaba", "Asaba Filling Station Car Park"],["asaba-shop6", "Asaba", "Shop 6 Lay-by"],["asaba-shop7", "Asaba", "Shop 7 Lay-by"],["asaba-shop8", "Asaba", "Shop 8 Lay-by"],["warri-agri", "Warri", "Natural Resources Office Car Park"],["warri-hosp", "Warri", "Warri State Hospital Car Park"],["warri-uni", "Warri", "Warri State University Car Park"],["warri-house", "Warri", "Warri Housing Development Car Park"],["warri-police", "Warri", "Police Command Car Park"],["warri-gov", "Warri", "State Government House Car Park"],["warri-bank", "Warri", "Eastway Bank Car Park"],["warri-util", "Warri", "Warri Public Utilities Car Park"],["warri-court", "Warri", "State High Court Car Park"],["warri-trans", "Warri", "State Ministry of Transport Car Park"],["warri-imm", "Warri", "Immigration Car Park"],["warri-air", "Warri", "Warri Airport Car Park"],["warri-hotel", "Warri", "Bon Hotel Hyatti Car Park"],["warri-guest", "Warri", "Legacy Suites Car Park"],["warri-lifestyle", "Warri", "Lifestyle Centre Car Park"],["warri-market", "Warri", "Warri Main Market Car Park"],["warri-woffice", "Warri", "Warri Port Auto Workshop Car Park"],["warri-fshop", "Warri", "Warri Filling Station Car Park"],["warri-shop3", "Warri", "Okere Provisions Car Park"],["warri-shop4", "Warri", "Effurun Mini Mart Car Park"],["warri-shop5", "Warri", "Ekpan Supermarket Car Park"],["ozoro-gov", "Ozoro", "State Government House Car Park"],["ozoro-court", "Ozoro", "State High Court Car Park"],["ozoro-police", "Ozoro", "Police Command Car Park"],["ozoro-bank", "Ozoro", "Trustmark Bank Car Park"],["ozoro-uni", "Ozoro", "University Car Park"],["ozoro-hosp", "Ozoro", "Hospital Car Park"],["ozoro-imm", "Ozoro", "Immigration Car Park"],["ozoro-trans", "Ozoro", "Transport Car Park"],["ozoro-house", "Ozoro", "Housing Office Car Park"],["ozoro-util", "Ozoro", "Utilities Car Park"],["ozoro-agri", "Ozoro", "Agriculture Car Park"],["ozoro-air", "Ozoro", "Ozoro Airport Car Park"],["ozoro-hotel", "Ozoro", "Ozoro Presidential Hotel Car Park"],["ozoro-guest", "Ozoro", "Okay Hotels Car Park"],["ozoro-lifestyle", "Ozoro", "Lifestyle Centre Car Park"],["ozoro-market", "Ozoro", "Ozoro Central Market Car Park"],["ozoro-woffice", "Ozoro", "Ozoro Auto Workshop Car Park"],["ozoro-fshop", "Ozoro", "Ozoro Filling Station Car Park"],["ozoro-shop3", "Ozoro", "Isoko Provisions Car Park"],["ozoro-shop4", "Ozoro", "Oleh Road Stores Car Park"],["ozoro-shop5", "Ozoro", "Ozoro Mini Mart Car Park"],["agbor-gov", "Agbor", "State Government House Car Park"],["agbor-court", "Agbor", "State High Court Car Park"],["agbor-police", "Agbor", "Police Command Car Park"],["agbor-bank", "Agbor", "Grandview Bank Car Park"],["agbor-uni", "Agbor", "University Car Park"],["agbor-hosp", "Agbor", "Hospital Car Park"],["agbor-imm", "Agbor", "Immigration Car Park"],["agbor-trans", "Agbor", "Transport Car Park"],["agbor-house", "Agbor", "Housing Office Car Park"],["agbor-util", "Agbor", "Utilities Car Park"],["agbor-agri", "Agbor", "Agriculture Car Park"],["agbor-air", "Agbor", "Agbor Airport Car Park"],["agbor-hotel", "Agbor", "Agbor Palace Hotel Car Park"],["agbor-guest", "Agbor", "Royal Suites Car Park"],["agbor-lifestyle", "Agbor", "Lifestyle Centre Car Park"],["agbor-market", "Agbor", "Agbor Obi Market Car Park"],["agbor-woffice", "Agbor", "Agbor Auto Workshop Car Park"],["agbor-fshop", "Agbor", "Agbor Filling Station Car Park"],["agbor-shop3", "Agbor", "Ika Provisions Car Park"],["agbor-shop4", "Agbor", "Boji-Boji Mini Mart Car Park"],["agbor-shop5", "Agbor", "Alihame Stores Car Park"]];       // every car park (its id, state, name): the same as car_parks in supabase_vehicles.sql
+/* ---- compounds: every public building stands in its own fenced compound, with a gate at least 7 m wide facing its
+   road and its own car park inside (numbered bays and the garage terminal), so a car can drive in and out. While a
+   town is built each building says where it stands (cmpReg, in its own metres: +z towards its road); once the whole
+   town is known, each compound is fitted round its building's yard. The car park goes just inside the gate, beside
+   the path to the door (or beside the building when the front is too shallow), and the fence goes round both. A
+   compound may not reach a road, another building, another building's yard or another compound. ---- */
+const CMPBAY={w:3,d:5.4};
+function compounds(st,t){t.parks=[];t.compounds=[];t.cmpFail=[];const L=CMPS.slice();CMPS=[];
+  const roadEdge=(x,z)=>{let b=1e9;for(const r of t.map.roads){const vx=r.x1-r.x0,vz=r.z1-r.z0,q=Math.max(0,Math.min(1,((x-r.x0)*vx+(z-r.z0)*vz)/(vx*vx+vz*vz||1)));b=Math.min(b,Math.hypot(x-r.x0-vx*q,z-r.z0-vz*q)-(r.w||8)/2)}
+    for(const r of t.map.rounds||[])b=Math.min(b,Math.hypot(x-r.x,z-r.z)-r.r);return b};
+  const dyn=new Set((t.map.dyn||[]).map(o=>o.b).filter(Boolean)),loose=b=>dyn.has(b)||(BTAG.get(b)||{}).k==="tree";
+  const frame=C=>{const m=C.M,wp=(u,v)=>[m[0]*u+m[8]*v+m[12],m[2]*u+m[10]*v+m[14]],det=m[0]*m[10]-m[8]*m[2],
+      loc=(x,z)=>{const dx=x-m[12],dz=z-m[14];return[(m[10]*dx-m[8]*dz)/det,(-m[2]*dx+m[0]*dz)/det]};
+    const aabb=R=>{let x0=1e9,z0=1e9,x1=-1e9,z1=-1e9;for(const[u,v]of[[R[0],R[1]],[R[2],R[1]],[R[2],R[3]],[R[0],R[3]]]){const p=wp(u,v);x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);z0=Math.min(z0,p[1]);z1=Math.max(z1,p[1])}return[x0,z0,x1,z1]};return{wp,loc,aabb}};
+  const hits=(A,B,m)=>A[0]<B[2]+m&&A[2]>B[0]-m&&A[1]<B[3]+m&&A[3]>B[1]-m;
+  const yards=L.map(C=>frame(C).aabb(C.yard)),bodies=L.map(C=>frame(C).aabb([C.body[0]-2,C.body[1]-2,C.body[2]+2,C.body[3]+2]));
+  const order=L.map((C,i)=>i).sort((i,j)=>(L[i].layby?1:0)-(L[j].layby?1:0)),placed=new Array(L.length).fill(null);
+  const fit=(ci,forceTight)=>{const C=L[ci],F_=frame(C),Y=C.yard,B=C.body,NB=C.bays||3,span=NB*CMPBAY.w;let best=null,why="";
+    const own=F_.aabb([Math.min(Y[0],B[0])-.5,Math.min(Y[1],B[1])-.5,Math.max(Y[2],B[2])+.5,Math.max(Y[3],B[3])+.5]);
+    /* the whole yard is fenced where it fits; where it does not (a plot already crowding a road or a neighbour), a
+       tighter compound goes round the building itself, 2.5 m clear of it, with room for its steps in front */
+    if(C.fixed){const{s,a,F}=C.fixed;best={s,a,F,R:Y,W:F_.aabb(Y),area:0}}
+    if(!best)for(const tight of forceTight?[true]:[false,true]){for(const s of[1,-1])for(const mode of C.modes||["front","side"]){
+      const Yb=tight?[B[0]-2.5,B[1]-2.5,B[2]+2.5,B[3]+3.5]:Y,edge=s>0?B[2]:-B[0],a=mode==="front"?5.2:Math.max(5.2,edge+1.4),infront=a<edge+.8;
+      const F=Math.max(Yb[3],infront?B[3]+.8+CMPBAY.d+.6:B[3]+1.2),E=a+span+1.8;
+      const R=[s<0?Math.min(Yb[0],-E):Yb[0],C.backOpen?Yb[1]:Math.min(Yb[1],B[1]-1.5),s>0?Math.max(Yb[2],E):Yb[2],F],W=F_.aabb(R);
+      // the fence keeps clear of every road (a metre of pavement), every other building and yard, and every compound so far
+      let bad="";for(let k=0;k<=40&&!bad;k++){const f=k/40;for(const[u,v,m]of[[R[0]+(R[2]-R[0])*f,R[3],0],[R[0]+(R[2]-R[0])*f,R[1],1],[R[0],R[1]+(R[3]-R[1])*f,f>.97||R[3]-(R[1]+(R[3]-R[1])*f)<1.5?0:1],[R[2],R[1]+(R[3]-R[1])*f,f>.97||R[3]-(R[1]+(R[3]-R[1])*f)<1.5?0:1]]){const p=F_.wp(u,v);if(roadEdge(p[0],p[1])<m){bad="road at "+p.map(v=>v.toFixed(0));break}}}
+      if(!bad)for(let j=0;j<L.length;j++)if(j!==ci&&hits(W,tight||C.layby||L[j].layby?bodies[j]:yards[j],.25)){bad=(tight?"building ":"yard of ")+L[j].name;break}
+      if(!bad)for(const D of t.compounds)if(hits(W,D.aabb,.6)){bad="compound of "+D.name;break}
+      if(!bad)for(const b of t.blocks){if(loose(b)||b[0]>1e8||!hits(W,b,0))continue;if(b[0]>=own[0]&&b[2]<=own[2]&&b[1]>=own[1]&&b[3]<=own[3])continue;
+        let inside=false;for(const[x,z]of[[b[0],b[1]],[b[2],b[1]],[b[2],b[3]],[b[0],b[3]],[(b[0]+b[2])/2,(b[1]+b[3])/2]]){const q=F_.loc(x,z);if(q[0]>R[0]-.1&&q[0]<R[2]+.1&&q[1]>R[1]-.1&&q[1]<R[3]+.1){inside=true;break}}if(inside){bad="something solid at "+b.slice(0,2).map(v=>v.toFixed(0));break}}
+      if(!bad){const u0=s>0?a:-(a+span),bx=F_.aabb([u0-.2,F-CMPBAY.d-.4,u0+span+1.6,F]);for(const b of t.blocks){if(loose(b)||b[0]>1e8||!hits(bx,b,0))continue;
+        let inside=false;for(const[x,z]of[[b[0],b[1]],[b[2],b[1]],[b[2],b[3]],[b[0],b[3]],[(b[0]+b[2])/2,(b[1]+b[3])/2]]){const q=F_.loc(x,z);if(q[0]>u0-.2&&q[0]<u0+span+1.6&&q[1]>F-CMPBAY.d-.4&&q[1]<F){inside=true;break}}if(inside){bad="the bays cover something at "+b.slice(0,2).map(v=>v.toFixed(0));break}}}
+      if(bad){why+=(why?"; ":"")+(tight?"tight ":"")+(s>0?"+":"-")+mode+" "+bad;continue}
+      const area=(R[2]-R[0])*(R[3]-R[1]);if(!best||area<best.area)best={s,a,F,R,W,area,tight}}if(best)break}
+    if(!best&&C.layby){const fr=[C.M[8],C.M[10]],fl=Math.hypot(fr[0],fr[1]);let vr=0;for(let v=B[3];v<30;v+=.25){const p=F_.wp(0,v);if(roadEdge(p[0],p[1])<.15){vr=v;break}}
+      if(vr>B[3]+3.5)for(const s of[1,-1]){const u0=s>0?1.4:-(1.4+18),R=[Math.min(u0,B[0]),B[1],Math.max(u0+18+1.8,B[2]),vr],W=F_.aabb([u0,vr-2.6,u0+18,vr]);
+        let bad=t.compounds.some(D=>hits(W,D.aabb,.3));if(!bad)for(const b of t.blocks){if(loose(b)||b[0]>1e8||!hits(W,b,0))continue;const q=F_.loc((b[0]+b[2])/2,(b[1]+b[3])/2);if(q[0]>u0&&q[0]<u0+18&&q[1]>vr-2.6&&q[1]<vr){bad=true;break}}
+        if(!bad){best={s,a:1.4,F:vr,R,W,area:0,tight:true,parallel:true};break}}if(!best)why+="; no room along the kerb either"}
+    if(!best)return why;
+    const{s,a,F,R,W}=best,K_=C.frontSkip,gi=C.gateIn||2.6,gate=C.gateAt?C.gateAt:C.gateAll?[R[0]+.4,R[2]-.4]:K_?(s>0?[K_[1]+.4,a+span+.3]:[-(a+span+.3),K_[0]-.4]):(s>0?[-gi,a+span+.3]:[-(a+span+.3),gi]);
+    const P={key:C.key,name:C.name,R,W,aabb:W,gate,s,a,span,NB,F,C,F_,ci,tight:best.tight,parallel:best.parallel};t.compounds.push(P);placed[ci]=P;return null};
+  for(const ci of order){const C=L[ci];let why=fit(ci);
+    if(why&&!C.layby){const near=t.compounds.filter(P=>!P.tight&&!P.C.fixed&&!P.C.layby&&hits(P.aabb,frame(C).aabb([C.body[0]-16,C.body[1]-4,C.body[2]+16,C.body[3]+8]),0));       // make room: a neighbour's compound goes tight
+      for(const P of near){t.compounds.splice(t.compounds.indexOf(P),1);placed[P.ci]=null;why=fit(ci);if(!why&&!fit(P.ci,true))break;if(!why){t.compounds.splice(t.compounds.indexOf(placed[ci]),1);placed[ci]=null}fit(P.ci);why=why||"no room"}}
+    if(why&&C.layby){const W0=frame(C).aabb(C.body),share=t.compounds.find(P=>(P.C.layby||P.key==="market")&&Math.hypot((P.aabb[0]+P.aabb[2])/2-(W0[0]+W0[2])/2,(P.aabb[1]+P.aabb[3])/2-(W0[1]+W0[3])/2)<32);
+      if(share){(t.cmpShared=t.cmpShared||[]).push(C.name+" shares "+share.name);continue}}
+    if(why)t.cmpFail.push(C.name+": "+why)}
+  for(const P of t.compounds)drawCompound(st,t,P)}
+// a lay-by along the kerb in front of roadside shops: three bays end to end, a car in each facing the way the traffic
+// beside it flows (keeping right), the terminal and the P sign at its end
+function drawLayby(st,t,P){const{s,F,F_,C}=P,keep=M,u0=s>0?1.4:-19.4,WHITE="#f4f3ef",inL=(x,z)=>{const q=F_.loc(x,z);return q[0]>u0-1.5&&q[0]<u0+19.5&&q[1]>F-3.4&&q[1]<F+.4};
+  t.map.dyn=(t.map.dyn||[]).filter(o=>{if(!inL(o.x,o.z))return true;if(o.b)o.b.splice(0,4,1e9,1e9,1e9,1e9);if(o.type==="lamp"&&t.map.lamps)t.map.lamps=t.map.lamps.filter(p=>Math.hypot(p[0]-o.hx,p[2]-o.hz)>.5);return false});
+  for(let i=TREES.inst.length-1;i>=0;i--){const q=TREES.inst[i];if(inL(q[1],q[2])){TREES.inst.splice(i,1);for(const b of t.blocks){const g=BTAG.get(b);if(g&&g.t===q)b.splice(0,4,1e9,1e9,1e9,1e9)}}}
+  M=C.M;box(u0+9,0,F-1.3,18,.13,2.6,"#4a4d52",K.tile);for(let i=0;i<=3;i++)box(u0+i*6,.13,F-1.3,.1,.012,2.4,WHITE);box(u0+9,.13,F-2.55,18,.012,.1,WHITE);
+  for(let i=0;i<3;i++)paintDigit(u0+3+i*6,F-1.3,i+1,WHITE,.131);
+  const ut=s>0?u0+19.1:u0-1.1,tz=F-2.2;box(ut,0,tz,.6,1.45,.42,"#2b3a4a");box(ut,1.0,tz-.22,.42,.3,.02,"#7dd3fc",K.glow);box(ut,1.45,tz,.7,.06,.5,"#1f2a36");solidBox(ut,tz,.7,.55);
+  cyl(ut,0,tz+.8,.07,3.1,"#5b6470",8);solidBox(ut,tz+.8,.2,.2);sign(ut,2.3,tz+.86,1,1,"P","#dc2626","#ffffff");sign(ut,1.65,tz+.86,2.6,.36,(C.name+" lay-by").toUpperCase(),"#14263d","#ffffff");
+  M=keep;const fx=C.M[8],fz=C.M[10],fl=Math.hypot(fx,fz),yaw=Math.atan2(fz/fl,-fx/fl);
+  const bays=[0,1,2].map(i=>{const p=F_.wp(u0+3+i*6,F-1.3);return{i,x:p[0],z:p[1],yaw}}),tm=F_.wp(ut,tz-1.4),cen=F_.wp(u0+9,F-1.3);
+  const inside=(x,z,m)=>{const q=F_.loc(x,z);return q[0]>u0-m&&q[0]<u0+18+m&&q[1]>F-2.6-m&&q[1]<F+m};
+  t.parks.push({id:st.toLowerCase()+"-"+C.key,key:C.key,name:C.name+" Lay-by",st,x:cen[0],z:cen[1],bays,term:tm,inside,cmp:P})}
+// one compound: paving, the fence and its wide gate, the car park with numbered bays, the P sign and the terminal
+function drawCompound(st,t,P){if(P.parallel)return drawLayby(st,t,P);const{R,s,a,span,NB,F,F_,C}=P,keep=M;M=C.M;
+  // nothing loose may stand inside: street furniture and trees go
+  const inR=(x,z,m)=>{const q=F_.loc(x,z);return q[0]>R[0]-m&&q[0]<R[2]+m&&q[1]>R[1]-m&&q[1]<R[3]+m};
+  const apron=(x,z,m)=>{const q=F_.loc(x,z);return q[0]>P.gate[0]-m&&q[0]<P.gate[1]+m&&q[1]>R[3]-2.5&&q[1]<R[3]+9};
+  t.map.dyn=(t.map.dyn||[]).filter(o=>{if(!inR(o.x,o.z,.6)&&!apron(o.x,o.z,.8))return true;if(o.b)o.b.splice(0,4,1e9,1e9,1e9,1e9);if(o.type==="lamp"&&t.map.lamps)t.map.lamps=t.map.lamps.filter(p=>Math.hypot(p[0]-o.hx,p[2]-o.hz)>.5);return false});
+  const Y=C.yard,u0_=s>0?a:-(a+span),inBays=(x,z,m)=>{const q=F_.loc(x,z);return q[0]>u0_-m-1.6&&q[0]<u0_+span+m+1.6&&q[1]>F-CMPBAY.d-1-m&&q[1]<F+m},
+    inY=(x,z)=>{const q=F_.loc(x,z);return q[0]>Y[0]&&q[0]<Y[2]&&q[1]>Y[1]&&q[1]<Y[3]};
+  for(let i=TREES.inst.length-1;i>=0;i--){const q=TREES.inst[i];if(inBays(q[1],q[2],.8)||apron(q[1],q[2],1)||(inR(q[1],q[2],.8)&&!inY(q[1],q[2]))){TREES.inst.splice(i,1);for(const b of t.blocks){const g=BTAG.get(b);if(g&&g.t===q)b.splice(0,4,1e9,1e9,1e9,1e9)}}}
+  const turned=Math.abs(C.M[8])>.01&&Math.abs(C.M[10])>.01,W=R[2]-R[0],D=R[3]-R[1],cx=(R[0]+R[2])/2,cz=(R[1]+R[3])/2,WALL="#e4dfd2",CAP="#c9c2b0",IRON="#20262e",WHITE="#f4f3ef",h=1.5;
+  if(!C.fixed&&!C.layby){box(cx,0,cz,W,.055,D,"#d4cdbb",K.tile);                                                                       // the paved yard
+  // the fence: the back, both sides, and the front either side of the gate
+  const g0=P.gate[0],g1=P.gate[1],run=(x0,z0,x1,z1)=>{const len=Math.hypot(x1-x0,z1-z0);if(len<.3)return;const ax=Math.abs(x1-x0)>Math.abs(z1-z0),mx=(x0+x1)/2,mz=(z0+z1)/2;
+      box(mx,0,mz,ax?len:.24,h,ax?.24:len,WALL);box(mx,h,mz,ax?len+.1:.34,.1,ax?.34:len+.1,CAP);SOLIDTAG="cwall";
+      if(turned){const n=Math.ceil(len/1.2);for(let k=0;k<n;k++){const f=(k+.5)/n;solidBox(x0+(x1-x0)*f,z0+(z1-z0)*f,ax?len/n:.4,ax?.4:len/n)}}else solidBox(mx,mz,ax?len:.5,ax?.5:len);SOLIDTAG=null;       /* a turned compound: its fence stops you in short pieces along its line, not one big square */
+      for(let k=0;k<=Math.floor(len/4);k++){const f=Math.min(1,k*4/len);box(x0+(x1-x0)*f,0,z0+(z1-z0)*f,.42,h+.3,.42,WALL)}box(x1,0,z1,.42,h+.3,.42,WALL)};
+  if(!C.backOpen)run(R[0],R[1],R[2],R[1]);run(R[0],R[1],R[0],R[3]);run(R[2],R[1],R[2],R[3]);
+  {let segs=[[R[0],R[2]]];for(const cut of[[g0,g1]].concat(C.frontSkip?[C.frontSkip]:[]))segs=segs.flatMap(([p,q])=>[[p,Math.min(q,cut[0])],[Math.max(p,cut[1]),q]]).filter(([p,q])=>q-p>.3);for(const[p,q]of segs)run(p,R[3],q,R[3])}
+  for(const g of[g0,g1]){box(g,0,R[3],.7,2.3,.7,WALL);box(g,2.3,R[3],.85,.15,.85,CAP)}                                         // gate pillars
+  for(const[g,d]of[[g0,1],[g1,-1]])at(g+d*.45,R[3]-.2,d>0?-1.35:1.35,()=>{const Lf=2.6;for(let k=0;k<Lf/.3;k++)box(d*(.2+k*.3),.15,0,.05,h,.05,IRON);box(d*Lf/2,.15,0,Lf,.07,.06,IRON);box(d*Lf/2,h+.1,0,Lf,.07,.06,IRON)})}   // the gate leaves, folded back
+  // the car park: tarmac, bay lines, numbers, a wheel stop at the back of each bay
+  const u0=s>0?a:-(a+span),bc=u0+span/2,bz=F-.25-CMPBAY.d/2;
+  box(bc,0,bz,span+.5,.07,CMPBAY.d+.5,"#4a4d52",K.tile);
+  for(let i=0;i<=NB;i++)box(u0+i*CMPBAY.w,.07,bz,.1,.012,CMPBAY.d,WHITE);
+  const order=i=>s>0?i:NB-1-i;                       // bay 1 nearest the door path
+  for(let i=0;i<NB;i++){const u=u0+(order(i)+.5)*CMPBAY.w;paintDigit(u,F-1.1,i+1,WHITE,.071);box(u,.07,bz-CMPBAY.d/2+.35,1.6,.12,.2,"#d9d3c3")}
+  // the terminal beside the bays (screen towards the yard) and the P sign on its post, facing the road
+  const ut=s>0?a+span+.95:-(a+span+.95),tz=F-1.7;
+  box(ut,0,tz,.6,1.45,.42,"#2b3a4a");box(ut,1.0,tz-.22,.42,.3,.02,"#7dd3fc",K.glow);box(ut,1.45,tz,.7,.06,.5,"#1f2a36");SOLIDTAG=null;solidBox(ut,tz,.7,.55);
+  if(!C.layby&&!C.fixed&&!/market|fshop|woffice|shop/.test(C.key)){const fx=-s*Math.max(4.2,(C.gateIn||2.6)+1.4);NOFENCE=false;flag(fx,F-2.2,8);flag(fx-s*1.6,F-2.2,8)}
+  const px=ut,pz=F-.6;cyl(px,0,pz,.07,3.1,"#5b6470",8);solidBox(px,pz,.2,.2);sign(px,2.3,pz+.06,1,1,"P","#dc2626","#ffffff");sign(px,1.65,pz+.06,2.6,.36,(C.name+" car park").toUpperCase(),"#14263d","#ffffff");
+  M=keep;
+  const bays=[];for(let i=0;i<NB;i++){const u=u0+(order(i)+.5)*CMPBAY.w,p=F_.wp(u,bz),f=[C.M[8],C.M[10]],l=Math.hypot(f[0],f[1]);bays.push({i,x:p[0],z:p[1],yaw:Math.atan2(-f[0]/l,-f[1]/l)})}       // a car in a bay faces the gate
+  const tm=F_.wp(ut,tz-1.35),cen=F_.wp(bc,bz),id=st.toLowerCase()+"-"+C.key;
+  const inside=(x,z,m)=>{const q=F_.loc(x,z);return q[0]>u0-m&&q[0]<u0+span+m&&q[1]>F-.25-CMPBAY.d-m&&q[1]<F+m};
+  t.parks.push({id,key:C.key,name:C.name+" Car Park",st,x:cen[0],z:cen[1],bays,term:tm,inside,cmp:P})}
 // a number painted on the ground in white strips, like the bay lines: read upright from the +z side (top of the digit towards -z)
 const DIGSEG={1:"bc",2:"abged",3:"abgcd",4:"fgbc",5:"afgcd",6:"afgedc",7:"abc",8:"abcdefg",9:"abcdfg",0:"abcdef"};
-function paintDigit(x,z,d,col){const h=.42,w=.48,t=.1,y=.036,seg={a:[0,-h,w,t],g:[0,0,w,t],d:[0,h,w,t],f:[-w/2,-h/2,t,h],b:[w/2,-h/2,t,h],e:[-w/2,h/2,t,h],c:[w/2,h/2,t,h]};
+function paintDigit(x,z,d,col,y0){const h=.42,w=.48,t=.1,y=y0||.036,seg={a:[0,-h,w,t],g:[0,0,w,t],d:[0,h,w,t],f:[-w/2,-h/2,t,h],b:[w/2,-h/2,t,h],e:[-w/2,h/2,t,h],c:[w/2,h/2,t,h]};
   for(const k of DIGSEG[d]||""){const[dx,dz,sx,sz]=seg[k];box(x+dx,y,z+dz,sx,.01,sz,col)}}
 // which car park (and bay) a car is standing in, or null
-function parkWhere(T,C){for(const P of T.parks||[]){const[a,b]=P.loc(C.x,C.z);if(Math.abs(a)>PARKBAY.n*PARKBAY.w/2+.8||b<-4.2||b>4.6)continue;
+function parkWhere(T,C){for(const P of T.parks||[]){if(!P.inside(C.x,C.z,.8))continue;
     let bay=null;for(const B of P.bays)if(Math.hypot(B.x-C.x,B.z-C.z)<1.5)bay=B.i;return{P,bay}}return null}
 
 const GAR={list:[],parks:[],cfg:{despawn_distance_m:250,abandon_s:900},skew:0,syncT:-1e9,beatT:-1e9,beating:false,out:null,keysFor:null,found:[],panel:null,ruleT:0};
@@ -3740,7 +3822,7 @@ async function garCall(fn,body){await freshToken();return supa("/rest/v1/rpc/"+f
 const garNow=()=>Date.now()+GAR.skew;          // the server's clock
 function garTake(d){if(d&&d.now)GAR.skew=new Date(d.now).getTime()-Date.now()}
 function garMine(){for(const[st,T]of Object.entries(TOWNS))if(T.car&&T.car.vid)return{st,T,C:T.car};return null}
-const garPark=id=>{for(const L of Object.values(CARPARKS))for(const P of L)if(P.id===id)return P;return null};
+const garPark=id=>{for(const T of Object.values(TOWNS))for(const P of T.parks||[])if(P.id===id)return P;const L=PARKLIST.find(q=>q[0]===id);return L?{id:L[0],st:L[1],name:L[2]}:null};
 const garHold=C=>TOW&&TOW.C===C?"tow":C.dmg&&C.dmg.job?"repair":C.dmg&&C.dmg.refuel?"refuel":C.dmg&&C.dmg.fire>0?"fire":null;
 // how far the driver is from the car: in another state, as far as can be; inside a building, from where they went in
 function garDist(st,C){if(st!==me.town)return 1e6;if(scene==="town")return Math.hypot(cam.x-C.x,cam.z-C.z);return GAR.out&&GAR.out[2]===st?Math.hypot(GAR.out[0]-C.x,GAR.out[1]-C.z):1e6}
@@ -3785,7 +3867,7 @@ function garLine(C){if(!C||!C.vid)return C?"Practice car (not saved to an accoun
    its damage and fuel come with it); see veh_spawn in supabase_vehicles.sql. ---- */
 function garNear(T){if(scene!=="town"||!T.parks)return null;for(const P of T.parks){if(Math.hypot(P.term[0]-cam.x,P.term[1]-cam.z)<3)return P;
     if(driving){if(T.car&&Math.abs(T.car.v)<.3){const w=parkWhere(T,T.car);if(w&&w.P===P)return P}continue}
-    const[a,b]=P.loc(cam.x,cam.z);if(Math.abs(a)<PARKBAY.n*PARKBAY.w/2+1.5&&b>-4.6&&b<6)return P}return null}       // standing anywhere in it, or on its pavement
+    if(P.inside(cam.x,cam.z,1.5))return P}return null}       // standing anywhere in it, or on its pavement
 function garPanel(P){GAR.panel=P;GAR.keysFor=null;GAR.found=[];GAR.busyId=0;choosing=true;const el=document.getElementById("choose");el.hidden=false;garDraw("Loading your vehicles...");if(garOn())garSync().then(()=>{if(GAR.panel===P&&choosing)garDraw()})}
 function garFree(P,v){const S=GAR.parks.find(q=>q.id===P.id),taken=new Set(S?S.taken:[]);if(v&&v.park===P.id&&v.in_bay!=null)taken.delete(v.in_bay);return P.bays.filter(B=>!taken.has(B.i))}
 // a side view of the car, in its colour (gold for the Chief Admin's)
@@ -4134,7 +4216,7 @@ function station(st,t){const S=STATIONS[st];if(!S)return;const turn=Math.atan2(S
   for(let i=TREES.inst.length-1;i>=0;i--){const q=TREES.inst[i];if(inPlot(q[1],q[2])){TREES.inst.splice(i,1);for(const b of BLOCKS){const g=BTAG.get(b);if(g&&g.t===q)gone.add(b)}}}
   for(let i=BLOCKS.length-1;i>=0;i--)if(gone.has(BLOCKS[i]))BLOCKS.splice(i,1);
   const RED="#c81e1e",WHITE="#f4f3ef",pumps=[];
-  at(S.x,S.z,turn,()=>{
+  at(S.x,S.z,turn,()=>{cmpReg("fshop",S.name,[-10.6,-8.6,10.6,14],[-7,-8.2,7,8.3],{gateAll:true,modes:["side"]});
     box(0,0,0,20,.03,16,"#a3a097",K.tile);box(0,0,9.4,18,.025,2.8,"#8f8b84",K.tile);
     for(const x of[-3.4,3.4]){box(x,0,.5,1,.18,5.4,"#d9d4c7");for(const z of[-.8,1.8]){box(x,.18,z,.55,1.55,.42,WHITE);box(x,1.73,z,.62,.24,.48,RED);for(const sd of[-1,1]){box(x+sd*.28,.95,z,.02,.42,.34,"#0f172a",K.glow);cyl(x+sd*.3,.5,z+.12,.03,.5,"#1c1f24",6)}pumps.push(wpt(x,z))}
       for(const z of[-2.35,3.35])box(x,.18,z,.32,4.62,.32,WHITE)}
@@ -4357,7 +4439,7 @@ async function adminPanel(msg){choosing=true;const el=document.getElementById("c
   el.innerHTML=`<div class="card cbcard"><h1>Chief Admin: roles</h1><p>Find a citizen by name or certificate number, choose their role, and click Set. They get it within a minute.</p>
     <div class="cbrow"><input id="admQ" placeholder="Name or certificate number" value="${esc(q)}"><button class="btn2s" data-adm="find">Find</button></div><p class="amsg">${esc(msg||"")}</p><div id="admList"></div>
     <h3>Give a vehicle</h3><p>Find the citizen above, then press Give car on their row, or give one to yourself. The car is put in a free bay of the car park you choose.</p>
-    <div class="cbrow"><select id="admPark">${Object.values(CARPARKS).flat().map(P=>`<option value="${P.id}">${esc(P.name)}</option>`).join("")}</select><label class="admsp"><input type="checkbox" id="admSpecial"> Chief Admin special vehicle</label><button class="btn2s" data-adm="car:${AUTH.user?AUTH.user.id:""}">Give myself a car</button></div>
+    <div class="cbrow"><select id="admPark">${PARKLIST.map(P=>`<option value="${P[0]}">${esc(P[1]+": "+P[2])}</option>`).join("")}</select><label class="admsp"><input type="checkbox" id="admSpecial"> Chief Admin special vehicle</label><button class="btn2s" data-adm="car:${AUTH.user?AUTH.user.id:""}">Give myself a car</button></div>
     <button class="go" data-stay="1">Close</button></div>`;
   const inp=document.getElementById("admQ");inp.addEventListener("keydown",e=>{if(e.key==="Enter")adminAct("find")});if(q)adminAct("find")}
 async function adminAct(what){const list=document.getElementById("admList");if(!list)return;
@@ -4659,9 +4741,10 @@ const typing=e=>e.target&&(e.target.tagName==="INPUT"||e.target.tagName==="TEXTA
 addEventListener("keydown",e=>{if(typing(e))return;const k=e.key.toLowerCase();keys[k]=true;if(driving&&!busy&&driveKey(k,true)){e.preventDefault();return}if(driving&&k==="e"){carExit();return}if(k==="e"&&!actNow()&&CARUI.near&&!talking&&!busy){carEnter();return}if(k==="e"&&!driving&&!actNow()&&!talking&&!busy&&!choosing&&scene==="town"){const P=garNear(townOf(me.town));if(P){garPanel(P);return}}if(k===" "){e.preventDefault();doJump()}if(/^[wasd]$|^arrow/.test(k))setTouchMode(false);if(k==="m"&&scene==="town"&&!choosing&&!mapOpen&&!talking)openMap();if((k==="e"||k==="enter"||k==="f")&&actNow()&&!talking&&!busy)doAct();if(k==="v"&&!talking){view3=!view3;ui()}if(k==="escape"&&talking)closeTalk()});addEventListener("keyup",e=>{const k=e.key.toLowerCase();keys[k]=false;driveKey(k,false)});
 const stick=document.getElementById("stick"),knob=document.getElementById("knob");let stickId=null,lookId=null,lx=0,ly=0;
 function stickMove(e){const r=stick.getBoundingClientRect();let dx=(e.clientX-r.left-r.width/2)/(r.width/2),dy=(e.clientY-r.top-r.height/2)/(r.height/2);const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}const L=Math.min(1,l),dz=CAMCFG.deadZone,g=L<dz?0:(L-dz)/(1-dz)/(L||1);input.x=dx*g;input.y=-dy*g;knob.style.transform=`translate(${dx*37}px,${dy*37}px)`}
-stick.addEventListener("pointerdown",e=>{stickId=e.pointerId;stick.setPointerCapture(e.pointerId);stickMove(e);e.stopPropagation()});stick.addEventListener("pointermove",e=>{if(e.pointerId===stickId)stickMove(e)});
+function grabPointer(el,e){try{el.setPointerCapture(e.pointerId)}catch(_){}}       // a pointer already lifted cannot be held: no matter
+stick.addEventListener("pointerdown",e=>{stickId=e.pointerId;grabPointer(stick,e);stickMove(e);e.stopPropagation()});stick.addEventListener("pointermove",e=>{if(e.pointerId===stickId)stickMove(e)});
 const stickEnd=e=>{if(e.pointerId===stickId){stickId=null;input.x=input.y=0;knob.style.transform=""}};stick.addEventListener("pointerup",stickEnd);stick.addEventListener("pointercancel",stickEnd);
-cv.addEventListener("pointerdown",e=>{if(lookId===null){lookId=e.pointerId;lx=e.clientX;ly=e.clientY;cv.setPointerCapture(e.pointerId)}});
+cv.addEventListener("pointerdown",e=>{if(lookId===null){lookId=e.pointerId;lx=e.clientX;ly=e.clientY;grabPointer(cv,e)}});
 cv.addEventListener("pointermove",e=>{if(e.pointerId!==lookId)return;VIEW.yaw-=(e.clientX-lx)*CAMCFG.touchSens;VIEW.pitch=clamp(VIEW.pitch-(e.clientY-ly)*CAMCFG.touchSens*.8,CAMCFG.pitchMin,CAMCFG.pitchMax);VIEW.keepPitch=VIEW.pitch;lx=e.clientX;ly=e.clientY});
 const lookEnd=e=>{if(e.pointerId===lookId)lookId=null};
 // on a computer: click the scene to steer the camera with the mouse; Esc frees the pointer again
@@ -4676,7 +4759,7 @@ cv.addEventListener("pointermove",e=>{if(!pinch.has(e.pointerId))return;pinch.se
 const pinchEnd=e=>{pinch.delete(e.pointerId);if(pinch.size<2)pinchD=0};for(const ev of["pointerup","pointercancel"])cv.addEventListener(ev,pinchEnd);
 // the Run button is held; the Jump button is tapped. Both work alongside the joystick and the camera drag.
 const runBtn=document.getElementById("runBtn"),jumpBtn=document.getElementById("jumpBtn");
-runBtn.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();runBtn.setPointerCapture(e.pointerId);input.run=true;runBtn.classList.add("on")});
+runBtn.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();grabPointer(runBtn,e);input.run=true;runBtn.classList.add("on")});
 const runEnd=()=>{input.run=false;runBtn.classList.remove("on")};for(const ev of["pointerup","pointercancel","lostpointercapture"])runBtn.addEventListener(ev,runEnd);
 jumpBtn.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();doJump()});
 // a finger shows the touch controls; a mouse or the keyboard hides them again (for touchscreen laptops)
