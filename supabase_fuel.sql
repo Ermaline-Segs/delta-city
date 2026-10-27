@@ -184,4 +184,4 @@ commit;
 
 select key, value from game_settings where key = 'fuel_price_k';
 select id, name, x, z from car_parks where id like '%-fshop2' order by id;
-select title, key from gov_posts where title = 'Minister of Petroleum';
+select * from gov_posts where title = 'Minister of Petroleum';
