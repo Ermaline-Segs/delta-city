@@ -200,7 +200,7 @@ def relink(D):
             D[t] = M.LocRotScale((D[b.parent.name] @ rel[t]).to_translation(), D[t].to_quaternion(), V((1, 1, 1)))
 
 
-HAND_IK = {'Sit_Eat_Loop', 'Sit_Type_Loop', 'Cook_Stir_Loop', 'Shower_Loop', 'Phone_Talk_Loop', 'Eat_Standing'}
+HAND_IK = {'Sit_Eat_Loop', 'Sit_Type_Loop', 'Cook_Stir_Loop', 'Shower_Loop', 'Phone_Talk_Loop', 'Eat_Standing', 'Fuel_Take', 'Fuel_Hold_Loop', 'Fuel_Hang'}
 
 
 def hand_targets(D):
@@ -218,7 +218,8 @@ def hand_targets(D):
 
 
 # hand poses the source does not give: palm down on a keyboard / table, fingers curled round a phone
-HAND_POSE = {'Sit_Type_Loop': {'l': 'type', 'r': 'type'}, 'Sit_Eat_Loop': {'l': 'type'}, 'Phone_Talk_Loop': {'r': 'phone'}}
+HAND_POSE = {'Sit_Type_Loop': {'l': 'type', 'r': 'type'}, 'Sit_Eat_Loop': {'l': 'type'}, 'Phone_Talk_Loop': {'r': 'phone'},
+             'Fuel_Take': {'r': 'hold'}, 'Fuel_Hold_Loop': {'r': 'hold'}, 'Fuel_Hang': {'r': 'hold'}}     # right hand closed round the nozzle
 CURL = {'type': (25, 25, 15), 'phone': (65, 55, 40), 'hold': (45, 40, 30)}
 TO_MOUTH = {'Eat_Standing'}      # the source hand stops in front of the chest: lift the eating hand to the mouth      # degrees per finger joint (index to pinky; thumb untouched)
 SUB = {t: [c for c in order if c == t or tb[t] in tb[c].parent_recursive] for t in order}

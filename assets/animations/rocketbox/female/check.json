@@ -53,7 +53,7 @@
    "ground": "fixed",
    "offset_m": 0.003,
    "lowest_skin_after": [
-    0.0,
+    -0.0,
     0.0
    ],
    "pelvis_height": [
@@ -101,7 +101,7 @@
    "ground": "fixed",
    "offset_m": 0.002,
    "lowest_skin_after": [
-    0.0,
+    -0.0,
     0.006
    ],
    "pelvis_height": [
@@ -117,7 +117,7 @@
    "ground": "fixed",
    "offset_m": 0.003,
    "lowest_skin_after": [
-    -0.0,
+    0.0,
     0.0
    ],
    "pelvis_height": [
@@ -134,11 +134,62 @@
    "ground": "fixed",
    "offset_m": 0.003,
    "lowest_skin_after": [
-    -0.0,
+    0.0,
     0.0
    ],
    "pelvis_height": [
     0.887,
+    0.887
+   ],
+   "planted_foot_slide_per_frame": 0.0,
+   "hand_target_error_m": 0.0
+  },
+  {
+   "name": "Fuel_Hang",
+   "frames": 49,
+   "seconds": 2.0,
+   "ground": "fixed",
+   "offset_m": 0.003,
+   "lowest_skin_after": [
+    0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.878,
+    0.887
+   ],
+   "planted_foot_slide_per_frame": 0.0,
+   "hand_target_error_m": 0.0
+  },
+  {
+   "name": "Fuel_Hold_Loop",
+   "frames": 61,
+   "seconds": 2.5,
+   "ground": "fixed",
+   "offset_m": 0.003,
+   "lowest_skin_after": [
+    0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.878,
+    0.887
+   ],
+   "planted_foot_slide_per_frame": 0.0,
+   "hand_target_error_m": 0.0
+  },
+  {
+   "name": "Fuel_Take",
+   "frames": 49,
+   "seconds": 2.0,
+   "ground": "fixed",
+   "offset_m": 0.003,
+   "lowest_skin_after": [
+    0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.878,
     0.887
    ],
    "planted_foot_slide_per_frame": 0.0,
@@ -170,7 +221,7 @@
    "ground": "fixed",
    "offset_m": 0.003,
    "lowest_skin_after": [
-    0.0,
+    -0.0,
     0.0
    ],
    "pelvis_height": [
@@ -205,7 +256,7 @@
    "ground": "fixed",
    "offset_m": 0.003,
    "lowest_skin_after": [
-    -0.0,
+    0.0,
     0.0
    ],
    "pelvis_height": [
@@ -238,7 +289,7 @@
    "ground": "fixed",
    "offset_m": 0.003,
    "lowest_skin_after": [
-    -0.0,
+    0.0,
     0.0
    ],
    "pelvis_height": [
@@ -372,7 +423,7 @@
    "ground": "fixed",
    "offset_m": 0.006,
    "lowest_skin_after": [
-    -0.0,
+    0.0,
     0.01
    ],
    "pelvis_height": [

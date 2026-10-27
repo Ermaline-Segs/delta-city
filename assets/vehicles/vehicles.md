@@ -624,6 +624,32 @@ Previews: `previews/ural_fire_doors_open.png`, `previews/ural_fire_closed.png`, 
 
 Previews: `previews/ural_police_doors_open.png`, `previews/ural_police_closed.png`, `previews/ural_police_top_open.png`.
 
+## Fuel caps
+
+Where each vehicle is filled, in the vehicle's own glTF space (metres; +Y up, front toward **-Z**, left toward **-X**, ground at y = 0). `point` is on the body surface; `outward` is the surface normal there. "Seen" means a flap or cap is visible on the model; the others have none modelled, so the side follows the real car where known, otherwise a standard place.
+
+| File | Side | Point `[x, y, z]` | Outward | How it was decided |
+|---|---|---|---|---|
+| `brt_bus.glb` | right | `[1.263, 0.600, -2.550]` | `[1.0, 0.0, -0.0]` | standard: kerb side, just behind the front wheels (none modelled) |
+| `comet.glb` | right | `[0.742, 0.850, 1.440]` | `[0.98, 0.17, -0.03]` | right as on the real Skoda Felicia (none modelled) |
+| `harmattan_gt.glb` | left | `[-0.869, 0.960, 1.534]` | `[-0.89, 0.4, 0.21]` | seen: chrome cap on the left rear quarter |
+| `harmony.glb` | left | `[-0.779, 0.940, 1.373]` | `[-0.88, 0.48, 0.05]` | seen: flap outline on the left rear quarter |
+| `kite.glb` | left | `[-0.702, 0.920, 1.369]` | `[-0.99, 0.15, 0.0]` | seen: round flap on the left rear quarter |
+| `meridian.glb` | left | `[-0.892, 0.900, 1.437]` | `[-0.95, 0.31, 0.08]` | standard: left rear quarter (a faint outline there; not certain) |
+| `mula_van.glb` | right | `[0.631, 0.780, 1.209]` | `[1.0, -0.0, 0.01]` | seen: filler mark above the right rear wheel (faint) |
+| `savanna.glb` | right | `[0.807, 1.000, 1.395]` | `[0.95, 0.32, 0.01]` | standard: right rear quarter (none modelled) |
+| `sovereign_gt.glb` | right | `[0.999, 0.850, 1.657]` | `[0.86, 0.5, 0.1]` | standard: right rear quarter (none modelled) |
+| `starlite.glb` | right | `[0.802, 0.660, 1.940]` | `[0.99, 0.04, 0.1]` | seen: small square flap low on the right rear quarter |
+| `strada_rs.glb` | right | `[0.806, 0.850, 1.385]` | `[0.98, 0.18, 0.08]` | right as on the real BMW E46 (none modelled) |
+| `taxi_corolla.glb` | left | `[-0.774, 0.950, 1.373]` | `[-0.88, 0.48, 0.05]` | seen: flap outline on the left rear quarter |
+| `uaz_452.glb` | left | `[-0.915, 0.750, 0.626]` | `[-0.99, -0.14, -0.0]` | standard: left side, ahead of the rear wheels (none modelled) |
+| `ural_fire.glb` | left | `[-1.161, 0.950, -0.837]` | `[-1.0, -0.0, -0.0]` | seen: filler cap on the fuel tank between the front and middle wheels |
+| `ural_police.glb` | left | `[-1.162, 0.950, -0.943]` | `[-1.0, -0.0, -0.0]` | seen: filler cap on the fuel tank between the front and middle wheels |
+| `vela_v12.glb` | right | `[0.953, 0.850, 1.565]` | `[0.95, 0.3, 0.12]` | right as on the real Saab (none modelled) |
+| `vw_corrado.glb` | right | `[0.806, 0.850, 1.314]` | `[0.92, 0.32, -0.24]` | right as on the real VW Corrado (none modelled) |
+
+The attendant holds the nozzle's spout tip about 0.75 m in front of their feet, 0.15 to 0.18 m to their right, at 0.98 m (see `../animations/animations.md`). Caps lower than about 0.85 m (the BRT bus, the Starlite, the UAZ, the Mula Van) sit below that, so the tip will be a little high there unless the game lowers it.
+
 ## Door check (`previews/`)
 
 For each car: `<car>_driver_open.png` (front-left corner, driver's door open 60 deg), `<car>_top_open.png` (from above, both doors open 60 deg) and `<car>_closed.png` (doors shut).

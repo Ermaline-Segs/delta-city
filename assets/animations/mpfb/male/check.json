@@ -65,7 +65,7 @@
    "ground": "fixed",
    "offset_m": 0.012,
    "lowest_skin_after": [
-    0.0,
+    -0.0,
     0.0
    ],
    "pelvis_height": [
@@ -129,7 +129,7 @@
    "ground": "fixed",
    "offset_m": 0.012,
    "lowest_skin_after": [
-    0.0,
+    -0.0,
     0.0
    ],
    "pelvis_height": [
@@ -151,6 +151,57 @@
    ],
    "pelvis_height": [
     0.947,
+    0.947
+   ],
+   "planted_foot_slide_per_frame": 0.0,
+   "hand_target_error_m": 0.0
+  },
+  {
+   "name": "Fuel_Hang",
+   "frames": 49,
+   "seconds": 2.0,
+   "ground": "fixed",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    -0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.938,
+    0.947
+   ],
+   "planted_foot_slide_per_frame": 0.0,
+   "hand_target_error_m": 0.0
+  },
+  {
+   "name": "Fuel_Hold_Loop",
+   "frames": 61,
+   "seconds": 2.5,
+   "ground": "fixed",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.938,
+    0.947
+   ],
+   "planted_foot_slide_per_frame": 0.0,
+   "hand_target_error_m": 0.0
+  },
+  {
+   "name": "Fuel_Take",
+   "frames": 49,
+   "seconds": 2.0,
+   "ground": "fixed",
+   "offset_m": 0.012,
+   "lowest_skin_after": [
+    -0.0,
+    0.0
+   ],
+   "pelvis_height": [
+    0.938,
     0.947
    ],
    "planted_foot_slide_per_frame": 0.0,
@@ -384,7 +435,7 @@
    "ground": "fixed",
    "offset_m": 0.014,
    "lowest_skin_after": [
-    0.0,
+    -0.0,
     0.016
    ],
    "pelvis_height": [

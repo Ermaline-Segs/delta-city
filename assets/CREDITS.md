@@ -107,6 +107,8 @@ From the [Microsoft Rocketbox avatar library](https://github.com/microsoft/Micro
 | `characters/Male_Adult_04.glb` | `Assets/Avatars/Adults/Male_Adult_04` | 8,684 | 1.87 m |
 | `characters/Business_Male_05.glb` | `Assets/Avatars/Professions/Business_Male_05` | 7,164 | 1.80 m |
 | `characters/Construction_Male_03.glb` | `Assets/Avatars/Professions/Construction_Male_03` | 9,376 | 1.85 m |
+| `characters/Fuel_Attendant_Male.glb` | `Assets/Avatars/Professions/Construction_Male_03`, changed for Delta City: hard hat and tool belt removed, coverall recoloured green (red and navy variants beside it), a cap added | 7,568 | 1.85 m |
+| `characters/Fuel_Attendant_Female.glb` | `Assets/Avatars/Professions/Construction_Female_01`, changed for Delta City: hard hat removed, coverall and vest recoloured green (red and navy variants), gloves darkened, skin and hair darkened, a cap added | 8,458 | 1.77 m |
 | `characters/Military_Male_01.glb` | `Assets/Avatars/Professions/Military_Male_01` | 15,387 | 1.84 m |
 | `characters/Sports_Male_03.glb` | `Assets/Avatars/Professions/Sports_Male_03` | 9,534 | 1.84 m |
 | `characters/Business_Female_01.glb` | `Assets/Avatars/Professions/Business_Female_01` | 8,966 | 1.74 m |
@@ -219,6 +221,10 @@ Each folder has an `items.md` that lists every file with its source and licence,
 ## Sounds (`sounds/`)
 
 All **CC0**. They were cut, made mono and looped from recordings by Joseph Sardin at [BigSoundBank](https://bigsoundbank.com), plus two from OpenGameArt: "Crash Collision" by qubodup and "Elevator ding" by fvcalderan. Every file and its source is listed in `sounds/sounds.md`.
+
+## Filling station and gas depot (`props/fuel/`, `props/gas/`)
+
+Modelled for Delta City by script: **CC0**, no credit needed. The LPG cylinder in `props/gas/` is the one from the Delta City home kitchen set (also CC0). No logos or brand names.
 
 ## Animations (`animations/`)
 

@@ -1,6 +1,6 @@
 # Animations (`animations/`)
 
-Everyday motions for human characters: 20 clips at 24 fps. Every file is **CC0**: they come from Quaternius' [Universal Animation Library 1 and 2](https://quaternius.com/packs/universalanimationlibrary.html), Standard (free) version. No Mixamo files are used.
+Everyday motions for human characters: 23 clips at 24 fps. Every file is **CC0**: they come from Quaternius' [Universal Animation Library 1 and 2](https://quaternius.com/packs/universalanimationlibrary.html), Standard (free) version. No Mixamo files are used.
 
 - **Skeleton:** all clips share Quaternius' universal 65-bone humanoid rig, the UE5-mannequin naming (`root`, `pelvis`, `spine_01-03`, `neck_01`, `Head`, `clavicle_l/r`, `upperarm`, `lowerarm`, `hand`, fingers, `thigh`, `calf`, `foot`, `ball`).
   - **Matches:** Quaternius' Universal Base Characters (also CC0).
@@ -37,6 +37,9 @@ Everyday motions for human characters: 20 clips at 24 fps. Every file is **CC0**
 | `Cook_Stir_Loop.glb` | standing at a stove: left hand holds the pot handle, right hand stirs | 2.50 s (61 frames) | yes | UAL1 `Idle_Loop` body + arm IK | CC0 | ![](previews/Cook_Stir_Loop.png) |
 | `Shower_Loop.glb` | standing under a shower, both hands scrubbing the head | 2.67 s (65 frames) | yes | UAL1 `Idle_Loop` body + arm IK | CC0 | ![](previews/Shower_Loop.png) |
 | `Carry_Idle_Loop.glb` | standing still while holding a box | 2.50 s (61 frames) | yes | UAL1 `Idle_Loop` body + UAL2 `Walk_Carry_Loop` arms | CC0 | ![](previews/Carry_Idle_Loop.png) |
+| `Fuel_Take.glb` | filling-station attendant: reach the pump's holster, grip, lift the nozzle out and bring it to waist height | 2.00 s (49 frames) | no | UAL1 `Idle_Loop` body + right-arm IK | CC0 | ![](previews/Fuel_Take.png) |
+| `Fuel_Hold_Loop.glb` | attendant holding the nozzle in a car's fuel cap, a small trigger squeeze, looking at the cap | 2.50 s (61 frames) | yes | UAL1 `Idle_Loop` body + right-arm IK | CC0 | ![](previews/Fuel_Hold_Loop.png) |
+| `Fuel_Hang.glb` | attendant hanging the nozzle back in the holster and letting go (Fuel_Take backwards) | 2.00 s (49 frames) | no | `Fuel_Take` played backwards | CC0 | ![](previews/Fuel_Hang.png) |
 
 ## Covering the requested actions
 - **Lying down and getting up:** `Lie_Down`, `Get_Up`.
@@ -48,7 +51,29 @@ Everyday motions for human characters: 20 clips at 24 fps. Every file is **CC0**
 - **Typing at a computer:** `Sit_Type_Loop`.
 - **Talking on a phone:** `Phone_Talk_Loop`.
 - **Carrying a box:** `Pick_Up`, then `Carry_Walk_Loop` / `Carry_Idle_Loop`.
+- **Filling a car (attendant):** `Fuel_Take` at the pump, walk (`Walk_Loop`, nozzle in hand), `Fuel_Hold_Loop` at the fuel cap, walk back, `Fuel_Hang`.
 - **Getting in and out of a car seat:** `Sit_Down`, then `Car_Drive_Loop`, then `Stand_Up`. These are generic sit and stand movements; slide the character sideways into the seat in the game.
+
+## Filling-station attendant
+
+Three clips (above) built here on the same rig, retargeted to all four sets like the others. The right hand is closed round the nozzle in all three.
+
+- **Nozzle in the hand:** parent `../props/fuel/fuel_nozzle.glb` to the right hand bone with this local transform (three.js node space of that bone; Rocketbox bones carry a 0.01 scale, so the position is in centimetres):
+
+| Rocketbox family | Bone | Position | Quaternion `[x, y, z, w]` |
+|---|---|---|---|
+| male skeleton (`rocketbox/male/`) | `Bip01_R_Hand` | `[5.2576, -0.1025, -0.0799]` | `[0.614, 0.017, 0.6223, 0.4853]` |
+| female skeleton (`rocketbox/female/`) | `Bip01_R_Hand` | `[5.1532, -0.2533, -0.2078]` | `[0.6237, 0.0102, 0.5531, 0.5522]` |
+
+- **Where to stand** (character feet at the origin, facing +Z; metres):
+
+| | Male skeleton | Female skeleton | Use |
+|---|---|---|---|
+| nozzle origin at the grip moment of `Fuel_Take` (frame 23) | `[-0.198, 1.123, 0.462]` | `[-0.17, 1.094, 0.445]` | stand so this lands on the pump's holster grip point, facing the pump face |
+| spout tip during `Fuel_Hold_Loop` | `[-0.176, 0.993, 0.754]` | `[-0.15, 0.976, 0.745]` | stand so this lands on the car's fuel-cap point, facing the car side (caps: `../vehicles/vehicles.md`) |
+
+- **Attendants:** `../characters/Fuel_Attendant_Male.glb` (male skeleton) and `Fuel_Attendant_Female.glb` (female skeleton) use these sets unchanged.
+- **Tested** in three.js on both attendants with the nozzle attached, at phone and desktop size: every track binds (204/204), the skin stays on the floor (within 1 mm), and the hand reaches the holster and the cap where listed.
 
 ## Retargeted sets (Rocketbox and MPFB)
 
@@ -163,6 +188,9 @@ The table below gives the visual verdict.
 | `Carry_Walk_Loop` | pass | pass | pass | pass | Plays in place, like `Walk_Loop`. |
 | `Cook_Stir_Loop` | pass | pass | pass | pass |  |
 | `Eat_Standing` | pass | pass | pass | pass | The closed left hand comes up to the mouth (wrist within 2 cm of its target under the chin, 0.13 to 0.14 m from the head bone, at mid-clip). The source clip stops in front of the chest, so the retarget adds a mouth target for this clip. |
+| `Fuel_Hang` | pass | pass | pass | pass | `Fuel_Take` backwards: nozzle back in the holster, hand returns to the side. |
+| `Fuel_Hold_Loop` | pass | pass | pass | pass | Nozzle held at the fuel cap: spout tip 0.75 m ahead, about 0.98 m high; small trigger squeeze. |
+| `Fuel_Take` | pass | pass | pass | pass | Right hand reaches the holster (wrist 1.09 to 1.15 m high, 0.40 m ahead) and lifts the nozzle to waist height; hand closed. |
 | `Get_Up` | pass | pass | pass | pass | Per-frame contact, as `Lie_Down`. |
 | `Interact` | pass | pass | pass | pass |  |
 | `Lie_Down` | pass | pass | pass | pass | Per-frame contact. The feet slide while the body rolls down, as in the source. |
