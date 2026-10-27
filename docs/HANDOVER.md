@@ -158,6 +158,19 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
   cleared on arrival, by tapping the marker, or with Cancel.
 - **Map tags (cloud, item 5):** every building door has a tag; every living area is tagged (Ozoro's is called "Estate",
   not "GRA": the owner to say whether to rename it).
+- **Furniture facing (cloud, item 6):** each model's real front was checked by rendering it. Most `assets/interiors/`
+  models face -Z in the file and are turned half round when placed (`IPFRONT_Z` in `index.html`); the office chair
+  and desks face +Z. Lecture seats face the lectern, pews the altar, court benches the judge, beds have their heads to
+  the wall, TVs face the room, counters show their public side to the door. Whiteboards and notice boards stand clear
+  of the wall.
+- **Solid furniture (cloud, item 7):** every model registers its own outline, measured from the model and turned with
+  it (pieces at a slant are cut into short lengths). Only boards on walls, rugs and things standing on another piece
+  are not solid. Fixed on the way: hospital furniture was not solid at all, and its outlines were leaking into the
+  town as invisible blocks near the town centre; the bank's mezzanine furniture blocked the floor below it; the counter
+  rooms had the staff side sealed off (the counter now stands 2.3 m from the back wall with a gap at one end); the
+  maternity beds were too close together; the Chief Admin could not open some bank and Immigration doors. Checked with
+  a flood fill of every inside (every room, door and counter reachable) and by walking into a piece in each kind of
+  room on a phone and a desktop screen (18 of 18).
 - Furniture finding: the models may face **+Z**, not -Z as some `items.md` notes say. Check each model's real front.
   Codex's `assets/home/` set is complete but had faults (pieces floating, kettle and blender too big, fan mount); the
   local session is fixing them.
