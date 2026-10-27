@@ -91,6 +91,18 @@ traffic lights, hydrants and breakable street objects; the cream-and-green HUD; 
   in `assets/home/` (Codex is adding a large Nigerian home set: fans, generators, gas cooker and cylinder, TVs, sofas,
   beds, mosquito nets, buckets and so on).
 - Invitations: build the rules now; seeing visitors move inside comes with live multiplayer.
+- **Owner's decisions on changing homes:**
+  - Rent already paid is **not refunded** when a renter upgrades to buying, moves to another home or ends the
+    rental. The new contract starts fresh. Ending a rental keeps the home until the paid 14 days run out, then it is
+    freed and the furniture goes to storage.
+  - An owner may **rent their home out** to another player, or **sell it** to another player or to the state.
+  - **Selling back to the state:** the state pays **70% of the price the owner actually paid**, so the price paid is
+    stored on the home record. It is paid from the state's account. If the state's account can't cover it, **ask the
+    owner** before choosing a fallback.
+  - Furniture in a sold home goes to the owner's **storage, appended** (never replacing what is already there); the
+    same for a rental that expires.
+  - Home prices are changed only by the **Minister of Housing & Infrastructure** and the **Chief Admin**, through a
+    server function that checks the role; housing staff serve players and manage listings.
 
 ## 7. Live multiplayer
 
@@ -196,10 +208,7 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
   the hospital entrance and on the bank stairs, on phone and desktop sizes: no foot below the ground at any moment.
 - **Reverse camera (owner's request):** in R the chase camera glides to the front corner on the driver's side and
   looks back past the car; it glides back behind the car out of reverse.
-- **Home rules decided by the owner (for Phase 3):** a renter who buys gets **no credit** for rent already paid; a
-  renter who moves to another home gets **no credit**; ending a rental keeps the home **until the paid 14 days run
-  out, no refund**, then it is freed and the furniture goes to storage. An owner may **rent their home out** to
-  another player, or **sell it** to another player or to the state (sale price to the state: still to be decided).
+- **Home rules decided by the owner:** see section 6 (selling back, furniture, no refunds).
 - Furniture finding: the models may face **+Z**, not -Z as some `items.md` notes say. Check each model's real front.
   Codex's `assets/home/` set is complete but had faults (pieces floating, kettle and blender too big, fan mount); the
   local session is fixing them.
@@ -207,11 +216,6 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 **The cloud session's list (items 1-8 all done)**
 Entering fix, blocked doors, compounds, tap-anywhere route, map tags, furniture facing, solid furniture, feet and
 stairs: all done and pushed, plus the reverse camera.
-
-**Known fault (open):** the driving test's Asaba bank case fails often: reversing straight back from the road into
-bay 1, the car dents something at about (32, 5.5) and stops short. It fails just as often on the version from before
-items 8 and the reverse camera, so it is not caused by them. Being checked: what the car hits (a cash van unloading at
-the bank, or a fixed object at the compound's gate).
 
 **The order from here (owner, newest)**
 1. **Live multiplayer on Cloudflare** (section 7). The three GitHub secrets are in place: `CLOUDFLARE_ACCOUNT_ID`,
