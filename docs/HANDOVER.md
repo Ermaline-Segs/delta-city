@@ -145,6 +145,19 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 - **20 animations** in `assets/animations/` (CC0, Quaternius): lying down and getting up, sleeping, eating, cooking,
   showering, toilet, typing, phone, carrying a box, car seat. They use Quaternius' 65-bone rig, so they must be
   **retargeted** to the Rocketbox and MPFB skeletons before use.
+- **Entering (cloud, items 1-2):** every arrival point inside is about 2.6 m from the way out (hospital, Treasury, bank,
+  Immigration, government-style buildings); every door in all four towns walked into with a held joystick (99 of 99).
+- **Compounds (cloud, item 3):** every workplace and public place has its own fenced compound, a gate of 7 m or more
+  facing its road (most 17 m; the Treasury's car gate 10.5 m, beside its own railings) and its own car park inside
+  (3+ numbered bays, terminal, P sign); the market one compound; roadside shops a lay-by along the kerb. 91 car parks
+  replace the 39 old ones. **Run `supabase_compound_car_parks.sql`** (after `supabase_vehicles.sql`): it moves every
+  stored car to the nearest new car park in its state, keeping owner, keys and damage. Moved to clear plots: Asaba's
+  Lifestyle centre and Ministry of Trade (now on the expressway), Asaba's university (12 m east), the Asaba and Warri
+  workshops, Warri's market, and four roadside shops.
+- **Tap anywhere on the big map (cloud, item 4):** a route along the roads to that spot, arrows on the map and the road;
+  cleared on arrival, by tapping the marker, or with Cancel.
+- **Map tags (cloud, item 5):** every building door has a tag; every living area is tagged (Ozoro's is called "Estate",
+  not "GRA": the owner to say whether to rename it).
 - Furniture finding: the models may face **+Z**, not -Z as some `items.md` notes say. Check each model's real front.
   Codex's `assets/home/` set is complete but had faults (pieces floating, kettle and blender too big, fan mount); the
   local session is fixing them.
