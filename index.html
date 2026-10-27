@@ -2078,11 +2078,17 @@ async function ipropRead(file){const buf=await(await fetch("assets/interiors/"+f
   return{tris,cols,size:[hi[0]-lo[0],hi[1]-lo[1],hi[2]-lo[2]]}}
 // a model, placed (turned, raised and scaled as asked); false when it is not loaded, so the caller draws its simple stand-in
 let IPBUDGET={};
-function iprop(name,x,z,turn,o){const P=IPROP[name];if(!P||!P.tris)return false;if(IPBUDGET[name]!=null){if(IPBUDGET[name]<=0)return false;IPBUDGET[name]--}const s=(o&&o.scale)||1,y=(o&&o.y)||0;
+/* Each model's real front, found by drawing it from both ends (not from the notes): the seats, benches, counters, desks
+   for the public, boards, cabinets, beds and the rest face +Z in their files. The rooms below were written for fronts
+   facing -Z, so these are turned half round as they are placed. The office desks (their -Z side is the panel visitors
+   see) and the office chair (its seat faces -Z) are already as the rooms expect. */
+const IPFRONT_Z=new Set(["altar","pew","pulpit","cbench","dock","jbench","jchair","witness","armchair","bed","reception","hsofa","tv","tvunit","hwardrobe",
+  "cabinet","pcabinet","notice","counter","waiting","front","lockers","lectern","lseat","whiteboard","lbookshelf","scounter","shelf","dshelf","register"]);
+function iprop(name,x,z,turn,o){const P=IPROP[name];if(!P||!P.tris)return false;turn=(turn||0)+(IPFRONT_Z.has(name)?Math.PI:0);if(IPBUDGET[name]!=null){if(IPBUDGET[name]<=0)return false;IPBUDGET[name]--}const s=(o&&o.scale)||1,y=(o&&o.y)||0;
   at(x,z,turn||0,()=>{for(let k=0;k<P.cols.length;k++){const a=P.tris[k*3],b=P.tris[k*3+1],c=P.tris[k*3+2],f=p=>[p[0]*s,p[1]*s+y,p[2]*s];tri(f(a),f(b),f(c),P.cols[k])}});return true}
 
-/* ---- the rooms' furniture, by what each room is for, from assets/interiors (each model real size, its front facing
-   -Z, standing on the floor at its middle). x runs from the corridor wall (s*G_SP, where the door is) to the outer
+/* ---- the rooms' furniture, by what each room is for, from assets/interiors (each model real size, standing on the
+   floor at its middle; a turn below points a piece's front that way, see IPFRONT_Z). x runs from the corridor wall (s*G_SP, where the door is) to the outer
    wall (s*(G_SP+G_RD)); z from r.z0 down to r.z1. Everything solid. A piece not loaded (yet) is drawn simply. ---- */
 const face=(fx,fz)=>Math.atan2(-fx,-fz);              // the turn that points a model's front this way
 function gSolid(x,z,turn,w,d){const a=Math.abs(Math.sin(turn))>.5;solid(x,z,a?d:w,a?w:d);stands(x,z,a?d:w,a?w:d)}
@@ -2095,7 +2101,7 @@ function guideRoomsStart(){IPBUDGET={ochair:8,desk:6,plant:2,lbookshelf:3,lshelv
 function guideRoom(S,r){const P=S.pal,s=r.side,X0=G_SP,X1=G_SP+G_RD,mid=s*(X0+G_RD/2),IN=face(-s,0),OUT=face(s,0),police=S.type==="police",
     zs=(n,pad)=>Array.from({length:n},(_,k)=>r.z0-pad-(k+.5)*((r.w-2*pad)/n));
   (S.silver?plate:label)(s*(X1-.14),2.55,r.zc,Math.min(r.w-1.4,5.6),.42,r.name,P.feat,"#ffffff",s<0?Math.PI/2:-Math.PI/2);
-  const k=r.kind,board=n=>gWall(n,mid,r.z0-.06,face(0,-1),1);if(p2Room(S,r))return;
+  const k=r.kind,board=n=>gWall(n,mid,r.z0-.13,face(0,-1),1);if(p2Room(S,r))return;
   if(k==="office"){const cx=s*(X1-2.4);gDesk(cx,r.zc,IN,P,true);gChair(cx+s*.8,r.zc,IN);gChair(cx-s*1.1,r.zc-.55,OUT);gChair(cx-s*1.1,r.zc+.55,OUT);
     gCabinet(s*(X1-.4),r.z1+.6,IN,police);gCabinet(s*(X1-.4),r.z1+1.15,IN,police);gPlant(s*(X0+.6),r.z0-.6);flag(s*(X1-.5),r.z0-.8,3);board(S.type==="uni"?"whiteboard":"notice");return}
   if(k==="open"){for(const z of zs(2,1.5))for(const dx of[2.8,5.3]){const x=s*(X0+dx);gDesk(x,z,IN,P);gChair(x+s*.8,z,IN)}
@@ -2139,7 +2145,7 @@ function guideHead(S,z0,end){if(p2Head(S,z0,end))return;const P=S.pal,H=S.head,c
     for(const row of[0,1])for(const x of[-6.2,-3.4,3.4,6.2]){const z=z0-.7-row*1.05;if(!iprop("cbench",x,z,TO_END))box(x,0,z,2.4,.45,.5,P.wood,K.wood);gSolid(x,z,0,2.5,.7)}
     return}
   // lecture hall: whiteboards and a lectern at the end; rows of seats with their writing desks, facing them, either side of an aisle
-  for(const x of[-2.1,2.1])if(!iprop("whiteboard",x,end+.07,TO_DOOR,{y:.9}))box(x,.9,end+.1,1.8,1.2,.05,"#f4f6f8");
+  for(const x of[-2.1,2.1])if(!iprop("whiteboard",x,end+.14,TO_DOOR,{y:.9}))box(x,.9,end+.1,1.8,1.2,.05,"#f4f6f8");
   if(!iprop("lectern",0,end+1.9,TO_DOOR))at(0,end+1.9,Math.PI,()=>box(0,0,0,.66,1.15,.52,P.wood,K.wood));gSolid(0,end+1.9,0,.7,.6);
   for(let row=0;row<4;row++)for(const x of[-6.1,-3.6,3.6,6.1]){const z=end+3.7+row*1.35;if(!iprop("lseat",x,z,TO_END))for(let q=-1.5;q<=1.5;q++)chair(x+q*.55,z+.25,TO_END,P.feat);gSolid(x,z,0,2.25,.9)}}
 
@@ -2812,8 +2818,8 @@ function p2Lobby(S,sign2){const P=S.pal,L=S.lobby,TO_DOOR=face(0,1),wall=(t)=>si
   for(const s of[-1,1]){sign2(s*6.9,2.5,.12,8.4,.62,S.sign,P.feat,"#ffffff")}
   if(L==="hotel"||L==="club"){if(L==="hotel"){if(!iprop("reception",-6.5,5.2,TO_DOOR))box(-6.5,0,5.2,2.6,1.1,.8,P.wood,K.wood);gSolid(-6.5,5.2,0,2.7,.85);chair(-6.5,4.3,0,"#2a2f38");sign2(-6.5,1.9,5.6,2.2,.3,"RECEPTION",P.feat,"#ffffff")}
     p2Lounge(P,L==="hotel"?6.5:-6,5.4,1);if(L==="club")p2Lounge(P,6,5.4,1);wall(S.head?"↑  "+S.head.plate:"↑");for(const[x,z]of[[-11,9],[11,9],[11,1],[-11,1]])gPlant(x,z);
-    if(L==="club")gWall("notice",-G_LW/2+.14,5,face(1,0),1.2);return}
-  if(L==="chapel"){wall("↑  "+S.head.plate);gWall("notice",-G_LW/2+.14,5,face(1,0),1.2);for(const[x,z]of[[-11,9],[11,9],[-11,1],[11,1]])gPlant(x,z);
+    if(L==="club")gWall("notice",-G_LW/2+.2,5,face(1,0),1.2);return}
+  if(L==="chapel"){wall("↑  "+S.head.plate);gWall("notice",-G_LW/2+.2,5,face(1,0),1.2);for(const[x,z]of[[-11,9],[11,9],[-11,1],[11,1]])gPlant(x,z);
     for(const s of[-1,1]){box(s*7,.42,7.4,3,.08,.45,P.wood,K.wood);box(s*7,.42,7.65,3,.5,.08,P.wood,K.wood);gSolid(s*7,7.4,0,3,.6)}return}
   if(L==="shop"){// the till by the door, shelves in rows, fresh produce in crates, display shelves on the walls
     if(!iprop("scounter",-7,7.4,face(1,0)))box(-7,0,7.4,.64,1,1.84,P.wood,K.wood);gSolid(-7,7.4,Math.PI/2,1.84,.64);iprop("register",-7,7.1,face(1,0),{y:1.2})||box(-7,1.2,7.1,.5,.3,.5,"#111827");chair(-8.1,7.4,Math.PI/2,"#2a2f38");
@@ -2829,7 +2835,7 @@ function p2Lobby(S,sign2){const P=S.pal,L=S.lobby,TO_DOOR=face(0,1),wall=(t)=>si
     for(const[x,z]of[[-11,9],[11,9]])gPlant(x,z);return}
   if(L==="woffice"){if(!iprop("counter",0,4.6,TO_DOOR))box(0,0,4.6,2.4,1.1,.8,P.feat);gSolid(0,4.6,0,2.5,.9);gChair(0,3.8,TO_DOOR);sign2(0,1.9,5,2.6,.3,"BOOKINGS & PAYMENTS",P.feat,"#ffffff");
     for(const x of[-9,-6.5]){if(!iprop("waiting",x,8.4,face(0,-1)))box(x,.42,8.4,2.4,.08,.5,"#475569");gSolid(x,8.4,0,2.5,.6)}
-    gDesk(7.5,2.2,face(0,1),P,true);gChair(7.5,1.4,face(0,1));gCabinet(10.9,1,face(-1,0));gCabinet(10.9,1.6,face(-1,0));gWall("notice",-G_LW/2+.14,4.4,face(1,0),1.2);gPlant(11,9);return}}
+    gDesk(7.5,2.2,face(0,1),P,true);gChair(7.5,1.4,face(0,1));gCabinet(10.9,1,face(-1,0));gCabinet(10.9,1.6,face(-1,0));gWall("notice",-G_LW/2+.2,4.4,face(1,0),1.2);gPlant(11,9);return}}
 let HV=null,HFLOOR_N=0;
 // into the hospital: from the street to the ground floor, or by lift to another floor
 const toHosp=(n,fromLift)=>fadeTo(STATES[me.town].hosp+": "+HFLOORS.find(f=>f.n===n).name,()=>{HV=hospOf(n,STATES[me.town].hosp);HFLOOR_N=n;const L=HV.F.lift;stand("hosp",fromLift?{x:L.x,z:L.z+1.4,yaw:Math.PI}:{x:0,z:6.1,yaw:0})});
