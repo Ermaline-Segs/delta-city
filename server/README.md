@@ -3,7 +3,8 @@
 Live multiplayer runs on Cloudflare's free Workers plan. Supabase stays in charge of logins, money, ownership, roles and
 saving; this server only passes along where people are and what they do, so everyone sees each other.
 
-**Status:** the setup steps below are ready now. The server code arrives here after Phase 3 (homes), as the next item
+**Status:** the owner has set up Cloudflare (workers.dev subdomain `deltacity`, so the server will be at
+`https://delta-city-live.deltacity.workers.dev`; GitHub secrets added). The server code arrives here after Phase 3 (homes), as the next item
 in the work queue; until then the game is single-player and nothing below is used.
 
 ## How it works (plain words)

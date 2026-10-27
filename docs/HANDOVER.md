@@ -96,6 +96,8 @@ traffic lights, hydrants and breakable street objects; the cream-and-green HUD; 
 
 **Decided by the owner: Cloudflare, not Supabase Realtime.** Supabase stays for logins, money, ownership, roles and
 saving. Comes straight after Phase 3 (homes). Code and the owner's setup steps: `server/README.md`.
+**Cloudflare is set up** (owner): workers.dev subdomain `deltacity`, server address
+`https://delta-city-live.deltacity.workers.dev`, secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in GitHub.
 
 - Cloudflare Workers free plan with **one Durable Object (SQLite-backed) for the whole game**; every town and every
   building inside is a **room** inside it (one object keeps running time under the free 13,000 GB-s a day).
