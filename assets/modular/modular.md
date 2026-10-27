@@ -39,6 +39,28 @@ Changed: 376 materials in 331 files.
 Fit previews (rendered with the materials exactly as stored): `previews/fit_female_front.png`, `fit_female_angle.png`, `fit_male_front.png`, `fit_male_angle.png`.
 Overlaps between two pieces (a T-shirt hem over a trouser waist, tall boots under trouser legs) still show in places; that is layering, not the material.
 
+## Clothing layers (two pieces worn together)
+
+Pieces are fitted to the body one at a time, so where two are worn together the inner one can show through the outer one: a trouser waist through a T-shirt hem, trouser legs over tall boots, hair through a hat. `hide_lists.json` now has a `layers` section that fixes this the same way as the body hide lists: by hiding triangles of the inner piece, never by moving anything.
+
+- **`layers.pieces`:** one number per piece and body (rest pose, piece space, y up, metres):
+  - `hem`: the lowest point of a top, dress or outfit's torso;
+  - `top`: the highest point of a shoe;
+  - `band`: the lowest point of a hat near the head's centre line.
+- **`layers.rules`:** for every outer piece worn, every inner piece listed hides the triangles whose three corners all lie above (or below) the outer piece's number plus the margin.
+
+| Rule | Outer piece | Inner piece | Hides in the inner piece |
+|---|---|---|---|
+| top over bottom | tops, dresses, outfits (`hem`) | bottoms | everything above the hem + 5 mm (the waistband under the top) |
+| boots over legs | shoes whose `top` is at least 0.30 m (tall boots) | bottoms, outfits, dresses | everything below the boot top - 2 cm (the trouser legs inside the boot) |
+| shoes over socks and tights | shoes (`top`) | socks, pantyhose, leg warmers | everything below the shoe top - 2 cm |
+| hat over hair | hats, caps, fedoras, helmet, gele (`band`) | hair | everything above the hat band + 2 cm (the hair inside the hat) |
+
+Short shoes and ankle boots do not cut trouser legs: the trousers fall over them, as in life. The gele also keeps `hides_hair` in `catalog.json` (it hides the whole hairstyle).
+
+- **In the game:** apply the rules after loading the worn pieces, like the body hide lists (filter the index buffer). This was tested in three.js on five common outfits, with the rules off and on: `previews/layers_female_before_after.png` and `previews/layers_male_before_after.png` (top row before, bottom row after).
+- **Still showing:** the harem pants' gathered cuffs sit wide of the ankle, so with low shoes their inside can be seen from below. Long hair below a hat's band is kept, so it can still pass through a wide brim.
+
 ## Skeleton (53 bones, `game_engine` rig)
 
 `Root`, `pelvis`, `spine_01`, `spine_02`, `spine_03`, `clavicle_l`, `upperarm_l`, `lowerarm_l`, `hand_l`, `index_01_l`, `index_02_l`, `index_03_l`, `middle_01_l`, `middle_02_l`, `middle_03_l`, `pinky_01_l`, `pinky_02_l`, `pinky_03_l`, `ring_01_l`, `ring_02_l`, `ring_03_l`, `thumb_01_l`, `thumb_02_l`, `thumb_03_l`, `clavicle_r`, `upperarm_r`, `lowerarm_r`, `hand_r`, `index_01_r`, `index_02_r`, `index_03_r`, `middle_01_r`, `middle_02_r`, `middle_03_r`, `pinky_01_r`, `pinky_02_r`, `pinky_03_r`, `ring_01_r`, `ring_02_r`, `ring_03_r`, `thumb_01_r`, `thumb_02_r`, `thumb_03_r`, `neck_01`, `head`, `thigh_l`, `calf_l`, `foot_l`, `ball_l`, `thigh_r`, `calf_r`, `foot_r`, `ball_r`
