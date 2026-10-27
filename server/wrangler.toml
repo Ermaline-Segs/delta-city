@@ -1,0 +1,26 @@
+# Delta City live server: one Worker in front of one Durable Object that holds every room of the game.
+# Published by .github/workflows/live-server.yml on every push to main that changes server/.
+name = "delta-city-live"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+[[durable_objects.bindings]]
+name = "LIVE"
+class_name = "Live"
+
+# the free plan only has SQLite-backed Durable Objects
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Live"]
+
+[vars]
+# Supabase: the project address and its publishable (public) key. Logins are checked against the project's public
+# signing keys (JWKS); no secret lives here. Secrets (CF_ANALYTICS_TOKEN, CF_ACCOUNT_ID, and SUPABASE_JWT_SECRET only
+# if the project still uses the legacy JWT secret) are set with `wrangler secret put` by the publish workflow.
+SUPABASE_URL = "https://jowcbkdesdrggkaivgbv.supabase.co"
+SUPABASE_KEY = "sb_publishable_75V2WsFBHFkBh-thw4qe3A_Pgswez9G"
+# free plan: 100,000 requests a day; the server stops taking live traffic a little before, until 00:00 UTC
+DAILY_REQUEST_LIMIT = "100000"
+STOP_AT = "95000"
+DAILY_GBS_LIMIT = "13000"

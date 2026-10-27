@@ -1,0 +1,59 @@
+# Publishes the live multiplayer server (server/) to Cloudflare whenever it changes on main, after its tests pass.
+# Uses three repository secrets set by the owner (server/README.md): CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID and
+# CF_ANALYTICS_TOKEN. The last two are also given to the server as Worker secrets so the Chief Admin's Admin screen
+# can show Cloudflare's own count of today's use.
+name: Live server
+
+on:
+  push:
+    branches: [main]
+    paths: ["server/**", ".github/workflows/live-server.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: live-server
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Test (in Cloudflare's local runtime)
+        run: npm test
+        env:
+          WRANGLER_SEND_METRICS: "false"
+      - name: Publish
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_SEND_METRICS: "false"
+      - name: Give the server its secrets
+        run: |
+          umask 077
+          node -e 'require("fs").writeFileSync("/tmp/s.json", JSON.stringify({CF_ANALYTICS_TOKEN: process.env.T || "", CF_ACCOUNT_ID: process.env.A || ""}))'
+          npx wrangler secret bulk /tmp/s.json
+          rm -f /tmp/s.json
+        env:
+          T: ${{ secrets.CF_ANALYTICS_TOKEN }}
+          A: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_SEND_METRICS: "false"
+      - name: Check it answers
+        run: |
+          for i in 1 2 3 4 5 6; do
+            if curl -fsS https://delta-city-live.deltacity.workers.dev/ | grep -q running; then echo "The live server answers."; exit 0; fi
+            sleep 10
+          done
+          echo "The live server did not answer at https://delta-city-live.deltacity.workers.dev/"; exit 1

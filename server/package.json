@@ -1,0 +1,14 @@
+{
+  "name": "delta-city-live",
+  "private": true,
+  "type": "module",
+  "description": "Delta City live multiplayer: a Cloudflare Worker with one Durable Object holding every room",
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "deploy": "wrangler deploy",
+    "test": "node test/run.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "4.151.3"
+  }
+}
