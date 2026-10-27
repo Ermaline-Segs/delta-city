@@ -12,6 +12,33 @@ Material for a Sims-style character creator, made with **MPFB 2.0.18** (the Make
 - **Colour variants**: `<item>__<variant>.jpg/.png` beside a piece is a replacement base-colour texture for that piece (same UVs).
 - **Thumbnails**: `<item>_<sex>.png` beside each piece, front view.
 
+## Materials: opaque, cut-out, blend
+
+All materials were set to alpha blending when they were exported, which made renderers sort them badly (underwear hidden behind the skin, smeared eyes). Each material now uses the cheapest mode that looks right. This was decided by sampling every texture's alpha where the mesh actually uses it (at the vertices and inside every triangle):
+
+- **Opaque** (`alphaMode` left at the default): bodies, base underwear and every piece whose texture is solid wherever the mesh samples it.
+- **Cut-out** (`alphaMode` MASK, `alphaCutoff` 0.5, i.e. alpha test): hair, eyebrows, eyelashes, the eyes (their outer cornea shell is fully clear, so it is cut away and the eyeball stays solid), and pieces that use real holes (lace, frills, rings, the helmet visor).
+- **Blend** (`alphaMode` BLEND): only the glasses (see-through lenses) and the pantyhose (sheer). These were already blend and are unchanged.
+- Only the material settings in each file changed; meshes, rigs and textures are byte-for-byte the same.
+
+Changed: 376 materials in 331 files.
+
+| Folder | Now opaque | Now cut-out |
+|---|---|---|
+| bodies (`base_*.glb`, all 10) | body and underwear materials | eyebrows, eyelashes and eyes |
+| `tops/` | `elvs_crude_t-shirt_male_male`, `joepal_crude_t-shirt_female_female`, `namuhekam_male_polo_shirt_male`, `skalldyrssuppe_tube_top_funky_colors_female`, `toigo_basic_tucked_t-shirt_female`, `toigo_basic_tucked_t-shirt_male`, `toigo_bodice-style_top_female`, `toigo_fisherman_sweater_female`, `toigo_fisherman_sweater_male`, `toigo_keyhole_tank_top_female`, `toigo_turtleneck_halter_top_female` | `toigo_camisole_top_female` |
+| `bottoms/` | `cortu_cargo_pants_female`, `cortu_cargo_pants_male`, `cortu_jeans_shorts_female`, `frankyaye_mini_skirt_01_female`, `frankyaye_mini_skirt_02_female`, `toigo_harem_pants_female`, `toigo_harem_pants_male`, `toigo_long_full_skirt_female`, `toigo_tiered_mini_skirt_female`, `toigo_tiered_skirt_female`, `toigo_wool_pants_male` | `toigo_skirt_with_lace_ruffle_female` |
+| `dresses/` | `mindfront_kimono_female`, `toigo_camisole_dress_with_full_skirt_female`, `toigo_cut_out_dress_female`, `toigo_dress_with_tiered_skirt_female`, `toigo_halter_dress_knee_length_female`, `toigo_halter_dress_midi_female`, `toigo_halter_dress_with_fluted_skirt_female`, `toigo_keyhole_neck_dress_female`, `toigo_shift_dress_female` | `toigo_bodice_dress_with_lace_ruffle_skirt_female`, `toigo_strapless_ruffle_top_dress_female` |
+| `outfits/` | `female_casualsuit01_female`, `female_casualsuit02_female`, `female_elegantsuit01_female`, `female_sportsuit01_female`, `male_casualsuit01_male`, `male_casualsuit02_male`, `male_casualsuit03_male`, `male_casualsuit04_male`, `male_casualsuit05_male`, `male_casualsuit06_male`, `male_elegantsuit01_male`, `male_worksuit01_male`, `toigo_female_double-breasted_suit_female`, `toigo_female_suit_2_female`, `toigo_female_suit_female`, `toigo_male_double-breasted_suit_male`, `toigo_male_suit_3_male`, `toigo_male_suit_tie_and_jacket_male`, `toigo_suit_with_dinner_jacket_male`, `toigo_suit_with_jacket_and_bowtie_male` |  |
+| `shoes/` | `cortu_floppy_overknee_shoes_female`, `cortu_t-bar_female`, `culturalibre_male_boots_male`, `shoes01_female`, `shoes01_male`, `shoes02_female`, `shoes02_male`, `shoes03_female`, `shoes03_male`, `shoes04_female`, `shoes04_male`, `shoes05_female`, `shoes05_male`, `shoes06_female`, `shoes06_male`, `toigo_ankle_boots_female_female`, `toigo_ankle_boots_male_male`, `toigo_ballet_flats_female`, `toigo_ballet_flats_with_bows_female`, `toigo_ballet_flats_with_flowers_female`, `toigo_flats_female`, `toigo_mj_cloth_shoes_female`, `toigo_mj_cloth_shoes_male`, `toigo_stiletto_booties_female` |  |
+| `accessories/` | `aethelraed_unraed_cloche_hat_female`, `aethelraed_unraed_cloche_hat_male`, `ews_hoop_earrings_female`, `ews_hoop_earrings_male`, `ews_industrial_piercing_left_ear__female`, `ews_industrial_piercing_left_ear__male`, `ews_industrial_piercing_right_ear__female`, `ews_industrial_piercing_right_ear__male`, `ews_septum_ring_female`, `ews_septum_ring_male`, `fedora01_female`, `fedora01_male`, `fedora_cocked_female`, `fedora_cocked_male`, `grinsegold_uncle_joshis_hat_female`, `grinsegold_uncle_joshis_hat_male`, `joachip_ring_1_female`, `joachip_ring_1_male`, `joepal_crude_high_socks_female`, `joepal_crude_high_socks_male`, `joepal_crude_low_socks_female`, `joepal_crude_low_socks_male`, `spamrakuen_tbm_glasses_frames_01_female`, `spamrakuen_tbm_glasses_frames_01_male`, `toigo_leg_warmer_socks_female`, `toigo_leg_warmer_socks_male`, `toigo_pearl_earrings_female`, `toigo_pearl_earrings_male`, `toigo_pearl_necklace_female`, `toigo_pearl_necklace_male`, `wolgade_diamond_ring_01_female`, `wolgade_diamond_ring_01_male` | `culturalibre_motorcycle_helmet_female`, `culturalibre_motorcycle_helmet_male`, `punkduck_lace-choker_female`, `punkduck_lace-choker_male`, `toigo_diamond_ring_and_wedding_band_female`, `toigo_diamond_ring_and_wedding_band_male`, `toigo_lace_frill_socks_female`, `toigo_lace_frill_socks_male`, `toigo_wedding_ring_female`, `toigo_wedding_ring_male` |
+| `hair/` | | all 130 files |
+| `eyebrows/` | | all 52 files |
+| `eyelashes/` | | all 18 files |
+
+Fit previews (rendered with the materials exactly as stored): `previews/fit_female_front.png`, `fit_female_angle.png`, `fit_male_front.png`, `fit_male_angle.png`.
+Overlaps between two pieces (a T-shirt hem over a trouser waist, tall boots under trouser legs) still show in places; that is layering, not the material.
+
 ## Skeleton (53 bones, `game_engine` rig)
 
 `Root`, `pelvis`, `spine_01`, `spine_02`, `spine_03`, `clavicle_l`, `upperarm_l`, `lowerarm_l`, `hand_l`, `index_01_l`, `index_02_l`, `index_03_l`, `middle_01_l`, `middle_02_l`, `middle_03_l`, `pinky_01_l`, `pinky_02_l`, `pinky_03_l`, `ring_01_l`, `ring_02_l`, `ring_03_l`, `thumb_01_l`, `thumb_02_l`, `thumb_03_l`, `clavicle_r`, `upperarm_r`, `lowerarm_r`, `hand_r`, `index_01_r`, `index_02_r`, `index_03_r`, `middle_01_r`, `middle_02_r`, `middle_03_r`, `pinky_01_r`, `pinky_02_r`, `pinky_03_r`, `ring_01_r`, `ring_02_r`, `ring_03_r`, `thumb_01_r`, `thumb_02_r`, `thumb_03_r`, `neck_01`, `head`, `thigh_l`, `calf_l`, `foot_l`, `ball_l`, `thigh_r`, `calf_r`, `foot_r`, `ball_r`
