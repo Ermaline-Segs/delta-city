@@ -168,7 +168,7 @@ export class Live extends DurableObject {
     }
     if (m.t === "p") {
       if (now - a.lastP < 200) return;                    // at most 5 a second are relayed, whatever a client sends
-      a.lastP = now;
+      a.lastP = now; const ox = a.x || 0, oz = a.z || 0;
       for (const k of ["x", "z", "y", "a", "sp"]) if (typeof m[k] === "number" && isFinite(m[k])) a[k] = Math.round(m[k] * 100) / 100;
       if (typeof m.m === "string") a.m = m.m.slice(0, 2);
       a.car = m.car && typeof m.car === "object" ? { x: +m.car.x || 0, z: +m.car.z || 0, a: +m.car.a || 0, v: +m.car.v || 0, st: +m.car.st || 0, dr: (m.car.dr | 0) & 255, l: (m.car.l | 0) & 3, d: m.car.d ? 1 : 0 } : null;
@@ -178,6 +178,8 @@ export class Live extends DurableObject {
         if (!s.a.auth || s.a.room !== a.room || s.a.id === a.id) continue;
         const d = town ? Math.hypot((s.a.x || 0) - a.x, (s.a.z || 0) - a.z) : 0;
         if (d <= NEAR || (d <= FAR && far)) { try { s.ws.send(out) } catch (e) { } if (d > NEAR) sentFar = true }
+        // just come within reach of someone standing still (who sends nothing): tell the mover where they are
+        if (town && d <= NEAR && Math.hypot((s.a.x || 0) - ox, (s.a.z || 0) - oz) > NEAR) this.send(ws, Object.assign({ t: "p" }, this.peer(s.a)));
       }
       if (sentFar) a.farAt = now;
       ws.serializeAttachment(a); return;
