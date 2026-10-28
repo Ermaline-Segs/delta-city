@@ -301,7 +301,7 @@ stairs: all done and pushed, plus the reverse camera.
 ## 12. State of the project (28 October 2026; read this first if you are new)
 
 This file alone is enough to carry on. The game is one file, `index.html`, served by GitHub Pages at
-https://ermaline-segs.github.io (from `main`). Supabase holds logins, money, ownership, roles and saving (the
+https://ermaline-segs.github.io/delta-city/ (from `main`). Supabase holds logins, money, ownership, roles and saving (the
 `supabase_*.sql` files set it up). The live multiplayer server is in `server/` and runs on Cloudflare at
 `https://delta-city-live.deltacity.workers.dev`. Rules for helpers are in section 2; the owner's decisions are in
 sections 5 to 9.
