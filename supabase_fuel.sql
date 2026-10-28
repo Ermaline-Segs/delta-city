@@ -1,11 +1,10 @@
 -- Delta City RP: buying fuel at the filling stations (two in each state).
 --
 -- The price per litre is ONE server setting (game_settings 'fuel_price_k', K950 to start), the same in all four states.
--- Only the Chief Admin and the Minister of Petroleum can change it (fuel_set_price checks the caller on the server).
--- The game only shows it; it never decides it.
---
--- Also adds the national post "Minister of Petroleum" to gov_posts (a copy of the Minister of Housing & Infrastructure's
--- row: same scope and pay; it clocks in at its own office in the Federal Council).
+-- Only the Chief Admin and the Minister of Agriculture & Natural Resources can change it (fuel_set_price checks the
+-- caller on the server); the cooking-gas price will follow the same rule. The game only shows it; it never decides it.
+-- (An earlier version of this file added a "Minister of Petroleum" post; there is no such post, so running this file
+-- removes it again.)
 --
 -- How a fill works:
 --   1. fuel_start: the player chooses "Fill tank" or "Buy amount" (a K amount). The server works out the most it will
@@ -59,28 +58,22 @@ returns jsonb language sql stable security definer set search_path = public as $
   select jsonb_build_object('price', (select (value #>> '{}')::bigint from game_settings where key = 'fuel_price_k'))
 $$;
 
--- the Minister of Petroleum post, copied from another national minister (left alone if it already exists)
+-- there is no Minister of Petroleum: remove the post an earlier version of this file added (only that row)
 do $$
-declare cols text := ''; sel text := ''; c record;
 begin
-  if to_regclass('public.gov_posts') is null or exists (select 1 from gov_posts where title = 'Minister of Petroleum') then return; end if;
-  if not exists (select 1 from gov_posts where title = 'Minister of Housing & Infrastructure') then
-    raise notice 'Minister of Housing & Infrastructure is not in gov_posts, so the Minister of Petroleum could not be copied from it. Add the post by hand.';
-    return;
+  if to_regclass('public.gov_posts') is not null and exists (select 1 from gov_posts where title = 'Minister of Petroleum') then
+    begin
+      delete from gov_posts where title = 'Minister of Petroleum';
+      raise notice 'Minister of Petroleum removed';
+    exception when foreign_key_violation then
+      raise notice 'Minister of Petroleum is still given to someone, so it was not removed. Dismiss them in the game, then run this file again.';
+    end;
   end if;
-  for c in select column_name from information_schema.columns
-            where table_schema = 'public' and table_name = 'gov_posts' and coalesce(column_default, '') not like 'nextval(%'
-              and is_identity = 'NO' and is_generated = 'NEVER' and column_name not in ('created_at') order by ordinal_position loop
-    cols := cols || case when cols = '' then '' else ', ' end || quote_ident(c.column_name);
-    sel  := sel  || case when sel  = '' then '' else ', ' end || case c.column_name when 'title' then quote_literal('Minister of Petroleum')
-                                                                     when 'key' then quote_literal('min_petroleum') else quote_ident(c.column_name) end;
-  end loop;
-  execute format('insert into gov_posts (%s) select %s from gov_posts where title = %L limit 1', cols, sel, 'Minister of Housing & Infrastructure');
-  raise notice 'Minister of Petroleum added';
 end $$;
 
--- may this signed-in person change the fuel price? The Chief Admin, or whoever holds the Minister of Petroleum post
--- (read with the game's own gov_me(), so it follows appointments and dismissals exactly as the game does)
+-- may this signed-in person change the fuel (and later cooking-gas) price? The Chief Admin, or whoever holds the
+-- Minister of Agriculture & Natural Resources post (read with the game's own gov_me(), so it follows appointments and
+-- dismissals exactly as the game does)
 create or replace function public.fuel_price_setter()
 returns boolean language plpgsql stable security definer set search_path = public as $$
 declare me uuid := auth.uid(); posts jsonb;
@@ -91,16 +84,16 @@ begin
     posts := coalesce(gov_me()->'posts', '[]'::jsonb);
   exception when undefined_function then return false;
   end;
-  return exists(select 1 from jsonb_array_elements(posts) p where lower(p->>'title') = 'minister of petroleum');
+  return exists(select 1 from jsonb_array_elements(posts) p where lower(p->>'title') = 'minister of agriculture & natural resources');
 end $$;
 
--- the Chief Admin or the Minister of Petroleum changes the price (K a litre)
+-- the Chief Admin or the Minister of Agriculture & Natural Resources changes the price (K a litre)
 create or replace function public.fuel_set_price(p_price bigint)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare me uuid := auth.uid();
 begin
   if not fuel_price_setter() then
-    raise exception 'Only the Chief Admin and the Minister of Petroleum can change the fuel price.';
+    raise exception 'Only the Chief Admin and the Minister of Agriculture & Natural Resources can change the fuel price.';
   end if;
   if p_price is null or p_price < 1 or p_price > 1000000 then raise exception 'The price must be between K1 and K1,000,000 a litre.'; end if;
   update game_settings set value = to_jsonb(p_price), updated_by = me, updated_at = now() where key = 'fuel_price_k';
@@ -184,4 +177,4 @@ commit;
 
 select key, value from game_settings where key = 'fuel_price_k';
 select id, name, x, z from car_parks where id like '%-fshop2' order by id;
-select * from gov_posts where title = 'Minister of Petroleum';
+select count(*) as minister_of_petroleum_rows_left from gov_posts where title = 'Minister of Petroleum';   -- should be 0
