@@ -88,7 +88,9 @@ traffic lights, hydrants and breakable street objects; the cream-and-green HUD; 
   changes prices. Listings board (`#land-property-listing`), deeds and receipts (`#deed-receipt`), reminders board
   (`#reminders`). **Visitors may rent; only citizens may buy.**
 - A few home buildings per town. Home types (rent every 2 weeks / buy): self-contained room K250,000 / K15M;
-  2-bedroom flat K500,000 / K30M; duplex K1.2M / K75M; mansion K3M / K200M. All money to the **state's account**.
+  2-bedroom flat K500,000 / K30M; 3-bedroom bungalow K800,000 / K50M; duplex K1.2M / K75M; mansion K3M / K200M.
+  These are **starting prices** in the Phase 3 price table on the server; only the Minister of Housing & Infrastructure
+  and the Chief Admin can change them (checked on the server). All money to the **state's account**.
 - No fixed units, never "full": every resident gets their **own private copy** of the inside, even in the same
   building. Nobody sees another's home unless invited. The server decides who may enter.
 - One home per player (rented or bought). "Home" marker on that player's map only. "Enter home" at the door only for
@@ -103,8 +105,8 @@ traffic lights, hydrants and breakable street objects; the cream-and-green HUD; 
   interior `.glb` per type, each with a `.json` of its door nodes. **Quarters** use the self-contained room row
   (`room_*`); **Township** the flat block (`flat_*`) and the three-bedroom bungalow (`bungalow_*`); **GRA** and
   **Estate** the duplex (`duplex_*`) and the mansion (`mansion_*`). Door, room, gate and car-park positions are in
-  `assets/buildings/homes/homes.md`. The **three-bedroom bungalow is new: its rent and buying price are still to be
-  decided by the owner** (do not invent one).
+  `assets/buildings/homes/homes.md`. The **three-bedroom bungalow** is new (owner's price: K800,000 rent every 2
+  weeks / K50M to buy, a starting price like the others).
 - **Owner's decisions on changing homes:**
   - Rent already paid is **not refunded** when a renter upgrades to buying, moves to another home or ends the
     rental. The new contract starts fresh. Ending a rental keeps the home until the paid 14 days run out, then it is
