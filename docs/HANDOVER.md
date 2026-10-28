@@ -169,6 +169,31 @@ insurance, selling cars between players. The owner may download more premium and
 `assets/sounds/` (17 CC0 sounds), `assets/interiors/` (court, police, office, university, hotel, church, mosque,
 market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/characters/` (Rocketbox staff).
 
+**From the local session (commits 8d17fac and a7552b7), and how the game uses them:**
+- **Filling station:** `assets/props/fuel/` (`fuel.md`): `fuel_pump.glb` (two-sided, faces +X side A and -X side B;
+  nodes `nozzle_A/B` and `hose_A/B` are the holster nozzles and hoses), `fuel_nozzle.glb` (hand-held), `fuel_hose.glb`.
+  In the game the pump body is built into each station; each side's holster nozzle and hose is drawn on its own and
+  hidden while that nozzle is in an attendant's hand. The "K950 / litre" text is drawn by the game (pump tags), not the
+  model. A station built before the models load keeps simple boxes.
+- **Attendants:** `assets/characters/Fuel_Attendant_Male.glb` / `Fuel_Attendant_Female.glb` (green coverall; red and
+  navy texture variants `__red.jpg` / `__navy.jpg` are not used yet). One of each at every station.
+- **Attendant movements:** `assets/animations/rocketbox/<male|female>/Fuel_Take.glb`, `Fuel_Hold_Loop.glb`,
+  `Fuel_Hang.glb` (`assets/animations/animations.md`, "Filling-station attendant": the nozzle's transform in the right
+  hand, and where to stand so the grip lands on the holster and the spout on the cap). The game reads them at run time
+  (`clipLoad` in `index.html` turns a Rocketbox glTF clip into the game's own recording format). All the other
+  retargeted clips are in `assets/animations/rocketbox/` (Rocketbox) and `assets/animations/mpfb/` (character creator
+  bodies); `clipLoad` can read the Rocketbox ones the same way.
+- **Fuel caps:** side and point for all 17 vehicles in `assets/vehicles/vehicles.md` ("Fuel caps"); copied into
+  `FUELCAP` in `index.html` (turned into the game's car space). Caps lower than about 0.85 m (BRT bus, Starlite, UAZ,
+  Mula Van) need the attendant's hand lowered from the 0.98 m hold height: **not done yet** (only the Sovereign GT
+  is drivable so far). When each new car becomes drivable, add a refuel test for its own fuel-cap side.
+- **Cooking-gas depot:** `assets/props/gas/` (`gas.md`): `gas_cage_stocked.glb`, `gas_scale.glb`, 6 kg and 12.5 kg
+  cylinders in four colours. In the game: the stocked cage, the scale and two cylinders in front of each depot. No buttons.
+- **Character layers:** `assets/modular/hide_lists.json` now has a `"layers"` section (rules for two pieces worn
+  together: a top over a bottom, shoes under trousers, a hat over hair and so on). **The character creator must apply
+  it after loading the worn pieces, the same way as the body hide lists.**
+- **Home buildings:** see section 6 (`assets/buildings/homes/`, `homes.md`).
+
 ## 11. Updates since the first handover (newest first)
 
 **Ways of working**

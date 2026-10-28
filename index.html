@@ -2057,7 +2057,7 @@ function ipropsFor(S){const k=new Set(["edesk","ochair","cabinet","plant","notic
 function ipropsLoad(names){const todo=names.filter(n=>!IPROP[n]);if(!todo.length)return Promise.resolve();
   const load=Promise.all(todo.map(n=>(IPROP[n]=IPROP[n]||ipropRead(IPROP_FILES[n]).then(p=>IPROP[n]=p).catch(e=>{console.warn("furniture "+n+": "+e.message);IPROP[n]={failed:1}}))));
   return Promise.race([load,new Promise(r=>setTimeout(r,8000))])}          // never hold the door for long: what is not here yet is drawn simply
-async function ipropRead(file){const buf=await(await fetch("assets/interiors/"+file+".glb")).arrayBuffer(),dv=new DataView(buf);if(dv.getUint32(0,true)!==0x46546C67)throw new Error("not a GLB file");
+async function ipropRead(file,opt){opt=opt||{};const buf=await(await fetch("assets/interiors/"+file+".glb")).arrayBuffer(),dv=new DataView(buf);if(dv.getUint32(0,true)!==0x46546C67)throw new Error("not a GLB file");
   const jl=dv.getUint32(12,true),J=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,20,jl))),bin=20+jl+8;
   const view=i=>{const v=J.bufferViews[i];return{o:bin+(v.byteOffset||0),len:v.byteLength,stride:v.byteStride||0}};
   const acc=i=>{const a=J.accessors[i],v=view(a.bufferView),n={SCALAR:1,VEC2:2,VEC3:3,VEC4:4}[a.type],sz={5126:4,5125:4,5123:2,5121:1}[a.componentType],st=v.stride||n*sz,out=new Float32Array(a.count*n),o=v.o+(a.byteOffset||0);
@@ -2068,7 +2068,7 @@ async function ipropRead(file){const buf=await(await fetch("assets/interiors/"+f
   const tris=[],cols=[],mul4=(a,b)=>{const o=new Array(16);for(let r=0;r<4;r++)for(let c=0;c<4;c++)o[c*4+r]=a[r]*b[c*4]+a[4+r]*b[c*4+1]+a[8+r]*b[c*4+2]+a[12+r]*b[c*4+3];return o};
   const trs=n=>{if(n.matrix)return n.matrix;const[x,y,z,w]=n.rotation||[0,0,0,1],[sx,sy,sz]=n.scale||[1,1,1],[tx,ty,tz]=n.translation||[0,0,0];
     return[(1-2*(y*y+z*z))*sx,2*(x*y+z*w)*sx,2*(x*z-y*w)*sx,0,2*(x*y-z*w)*sy,(1-2*(x*x+z*z))*sy,2*(y*z+x*w)*sy,0,2*(x*z+y*w)*sz,2*(y*z-x*w)*sz,(1-2*(x*x+y*y))*sz,0,tx,ty,tz,1]};
-  const walk=(ni,P)=>{const n=J.nodes[ni],Mx=mul4(P,trs(n));if(n.mesh!=null)for(const pr of J.meshes[n.mesh].primitives){const pos=acc(pr.attributes.POSITION),uv=pr.attributes.TEXCOORD_0!=null?acc(pr.attributes.TEXCOORD_0):null,
+  const walk=(ni,P,on)=>{const n=J.nodes[ni],Mx=mul4(P,trs(n));if(opt.skip&&opt.skip.has(n.name))return;if(opt.only&&opt.only.has(n.name))on=true;if(n.mesh!=null&&on)for(const pr of J.meshes[n.mesh].primitives){const pos=acc(pr.attributes.POSITION),uv=pr.attributes.TEXCOORD_0!=null?acc(pr.attributes.TEXCOORD_0):null,
       idx=pr.indices!=null?acc(pr.indices):Float32Array.from({length:pos.length/3},(_,k)=>k),mat=J.materials&&J.materials[pr.material]||{},pbr=mat.pbrMetallicRoughness||{},f=pbr.baseColorFactor||[1,1,1,1],
       tex=pbr.baseColorTexture?pix[J.textures[pbr.baseColorTexture.index].source]:null;
       const P3=k=>{const x=pos[k*3],y=pos[k*3+1],z=pos[k*3+2];return[Mx[0]*x+Mx[4]*y+Mx[8]*z+Mx[12],Mx[1]*x+Mx[5]*y+Mx[9]*z+Mx[13],Mx[2]*x+Mx[6]*y+Mx[10]*z+Mx[14]]};
@@ -2076,11 +2076,11 @@ async function ipropRead(file){const buf=await(await fetch("assets/interiors/"+f
       const CU=(u,v)=>{if(!tex||!uv)return[255*f[0],255*f[1],255*f[2]];u%=1;v%=1;if(u<0)u+=1;if(v<0)v+=1;const p=(Math.min(tex.h-1,v*tex.h|0)*tex.w+Math.min(tex.w-1,u*tex.w|0))*4;return[tex.d[p]*f[0],tex.d[p+1]*f[1],tex.d[p+2]*f[2]]};
       for(let t=0;t<idx.length;t+=3){const a=idx[t],b=idx[t+1],c=idx[t+2];tris.push(P3(a),P3(b),P3(c));const ca=C3(a),cb=C3(b),cc=C3(c),cm=uv?CU((uv[a*2]+uv[b*2]+uv[c*2])/3,(uv[a*2+1]+uv[b*2+1]+uv[c*2+1])/3):ca;
         cols.push([0,1,2].map(i=>Math.round((ca[i]+cb[i]+cc[i]+cm[i]*3)/6)))}}
-    for(const ch of n.children||[])walk(ch,Mx)};
-  for(const ni of(J.scenes[J.scene||0].nodes))walk(ni,[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
+    for(const ch of n.children||[])walk(ch,Mx,on)};
+  for(const ni of(J.scenes[J.scene||0].nodes))walk(ni,[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],!opt.only);
   // stand it on the floor, centred
   let lo=[1e9,1e9,1e9],hi=[-1e9,-1e9,-1e9];for(const p of tris)for(let i=0;i<3;i++){lo[i]=Math.min(lo[i],p[i]);hi[i]=Math.max(hi[i],p[i])}
-  const cx=(lo[0]+hi[0])/2,cz=(lo[2]+hi[2])/2;for(const p of tris){p[0]-=cx;p[1]-=lo[1];p[2]-=cz}
+  const cx=(lo[0]+hi[0])/2,cz=(lo[2]+hi[2])/2;if(!opt.raw)for(const p of tris){p[0]-=cx;p[1]-=lo[1];p[2]-=cz}      // raw: kept where the file has it (parts of one model)
   return{tris,cols,size:[hi[0]-lo[0],hi[1]-lo[1],hi[2]-lo[2]]}}
 // a model, placed (turned, raised and scaled as asked); false when it is not loaded, so the caller draws its simple stand-in
 let IPBUDGET={};
@@ -2613,8 +2613,8 @@ function draw(m,VP,x,y,z,yaw,state,t,look,lookKey){use(m);let lift;if(ANIM&&m.re
     gl.uniform1f(P.u.useFlat,part.tex?0:1);if(!part.tex)gl.uniform3fv(P.u.plain,part.flat||[.4,.4,.4]);gl.uniform2fv(P.u.uvlo,part.uvlo);gl.uniform2fv(P.u.uvspan,part.uvspan);gl.uniform1f(P.u.cut,part.cut);
     gl.activeTexture(gl.TEXTURE0);if(part.tex)gl.bindTexture(gl.TEXTURE_2D,part.tex);gl.uniform1i(P.u.t,0);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,part.i);gl.drawElements(gl.TRIANGLES,part.count,gl.UNSIGNED_SHORT,0)}
   for(const a of[P.a.j,P.a.w,P.a.paint,P.a.uv])gl.disableVertexAttribArray(a);
-  const h=m.index.Head;return{model,head:mul(model,mul(W[h],m.bones[h].inv))}}
-return{ARMFIT,load,adopt,draw,init,blend,dbg:(m,list,raw)=>{use(m);const keep=armFit;if(raw)armFit=()=>false;poseClips(m,list,true,0);armFit=keep;return{W:W.slice(0,m.bones.length).map(w=>Array.from(w)),Q:Array.from(QB.slice(0,ANIM.bones.length*4)),D:DQ.slice(0,m.bones.length),names:ANIM.bones}},cycle:(m,run,back)=>ANIM&&m.rest?1/((1-run)/ANIM.clips[(back&&m.clips.back)||m.clips.walk].dur+run*m.jogRate/ANIM.clips[m.clips.jog].dur):1.06+(.71-1.06)*run}})();
+  const h=m.index.Head,rh=m.index.RightHand;return{model,head:mul(model,mul(W[h],m.bones[h].inv)),hand:rh===undefined?null:mul(model,mul(W[rh],m.bones[rh].inv))}}
+return{ARMFIT,load,adopt,draw,init,blend,anim:()=>ANIM,dbg:(m,list,raw)=>{use(m);const keep=armFit;if(raw)armFit=()=>false;poseClips(m,list,true,0);armFit=keep;return{W:W.slice(0,m.bones.length).map(w=>Array.from(w)),Q:Array.from(QB.slice(0,ANIM.bones.length*4)),D:DQ.slice(0,m.bones.length),names:ANIM.bones}},cycle:(m,run,back)=>ANIM&&m.rest?1/((1-run)/ANIM.clips[(back&&m.clips.back)||m.clips.walk].dur+run*m.jogRate/ANIM.clips[m.clips.jog].dur):1.06+(.71-1.06)*run}})();
 
 /* ================================== playing ==================================
    A new player begins on foot at the border gate, and cannot reach any town until Violet has
@@ -4076,7 +4076,7 @@ async function npcLoad(name){const buf=await(await fetch("assets/characters/"+na
   const texs=images.map(im=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,im);const pot=v=>(v&(v-1))===0;
     if(pot(im.width)&&pot(im.height)){gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR)}else{gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE)}return t});
   const skinM=jn.map((k,i)=>mul(turn,mul(W(k),ibm.subarray(i*16,i*16+16)))),kIdx=new Map(keep.map((b,i)=>[b.node,i])),raw=[];let lo=[1e9,1e9,1e9],hi=[-1e9,-1e9,-1e9];
-  for(const mesh of J.meshes)for(const pr of mesh.primitives){const A=pr.attributes,P=acc(A.POSITION),N=acc(A.NORMAL),U=acc(A.TEXCOORD_0),Jt=acc(A.JOINTS_0),Wt=acc(A.WEIGHTS_0),I=acc(pr.indices),n=P.length/3;
+  for(const mesh of J.meshes)for(const pr of mesh.primitives){const A=pr.attributes,P=acc(A.POSITION),N=acc(A.NORMAL),U=A.TEXCOORD_0!=null?acc(A.TEXCOORD_0):new Float32Array(P.length/3*2),Jt=acc(A.JOINTS_0),Wt=acc(A.WEIGHTS_0),I=acc(pr.indices),n=P.length/3;
     const p=new Float32Array(n*3),nr=new Float32Array(n*3),jj=new Uint8Array(n*4),ww=new Uint8Array(n*4);
     for(let v=0;v<n;v++){let x=0,y=0,z=0,a=0,b=0,c=0;const acc4=new Map();
       for(let k=0;k<4;k++){const w=Wt[v*4+k];if(!w)continue;const M=skinM[Jt[v*4+k]],px=P[v*3],py=P[v*3+1],pz=P[v*3+2],nx=N[v*3],ny=N[v*3+1],nz=N[v*3+2];
@@ -4085,19 +4085,19 @@ async function npcLoad(name){const buf=await(await fetch("assets/characters/"+na
       const l=Math.hypot(a,b,c)||1;p.set([x,y,z],v*3);nr.set([a/l,b/l,c/l],v*3);for(let q=0;q<3;q++){lo[q]=Math.min(lo[q],p[v*3+q]);hi[q]=Math.max(hi[q],p[v*3+q])}
       const L=[...acc4].sort((u,t)=>t[1]-u[1]).slice(0,4),sum=L.reduce((s,e)=>s+e[1],0)||1;let left=255;L.forEach(([kb,w],k)=>{const q=k===L.length-1?left:Math.round(w/sum*255);jj[v*4+k]=kb;ww[v*4+k]=q;left-=q})}
     const mat=J.materials[pr.material]||{},ti=mat.pbrMetallicRoughness&&mat.pbrMetallicRoughness.baseColorTexture,tex=ti?texs[J.textures[ti.index].source]:null;
-    raw.push({name:mat.name||mesh.name,p,nr,U,jj,ww,I,n,tex,cut:mat.alphaMode&&mat.alphaMode!=="OPAQUE"?.35:0})}
+    raw.push({name:mat.name||mesh.name,p,nr,U,jj,ww,I,n,tex,flat:!tex&&mat.pbrMetallicRoughness&&mat.pbrMetallicRoughness.baseColorFactor?mat.pbrMetallicRoughness.baseColorFactor.slice(0,3).map(v=>Math.pow(v,1/2.2)):null,cut:mat.alphaMode&&mat.alphaMode!=="OPAQUE"?.35:0})}
   // the bones: names, parents (the nearest kept ancestor), rest pose; then a toe in front of each foot
   const bones=keep.map((b,i)=>{let a=par[b.node];while(a!==undefined&&!kIdx.has(a))a=par[a];const pi=a===undefined?-1:kIdx.get(a);return{name:b.name,parent:pi,world:BW[i]}});
   for(const s of["Left","Right"]){const fi=bones.findIndex(b=>b.name===s+"Foot"),F=bones[fi].world,w=new Float32Array(F);w[12]=F[12];w[13]=Math.max(.02,F[13]*.25);w[14]=F[14]+.13;bones.push({name:s+"ToeBase",parent:fi,world:w})}
-  for(const b of bones){b.local=b.parent<0?new Float32Array(b.world):mul(minv(bones[b.parent].world),b.world);b.inv=minv(b.world)}for(const b of bones)delete b.world;
+  const rhRest=(bones.find(b=>b.name==="RightHand")||{}).world;for(const b of bones){b.local=b.parent<0?new Float32Array(b.world):mul(minv(bones[b.parent].world),b.world);b.inv=minv(b.world)}for(const b of bones)delete b.world;
   const index={};bones.forEach((b,i)=>index[b.name]=i);
   // packed the way the built-in characters are: positions in a box, normals and texture places in small numbers
   lo=lo.map(v=>v-.05);const span=Math.max(hi[0]-lo[0],hi[1]-lo[1],hi[2]-lo[2])+.1,mk=(d,t)=>{const b=gl.createBuffer();gl.bindBuffer(t||gl.ARRAY_BUFFER,b);gl.bufferData(t||gl.ARRAY_BUFFER,d,gl.STATIC_DRAW);return b};
   for(const r of raw){const q=new Uint16Array(r.n*3),nn=new Int8Array(r.n*4),uv=new Uint16Array(r.n*2);let ulo=[1e9,1e9],uhi=[-1e9,-1e9];for(let v=0;v<r.n;v++)for(let c=0;c<2;c++){ulo[c]=Math.min(ulo[c],r.U[v*2+c]);uhi[c]=Math.max(uhi[c],r.U[v*2+c])}
     const us=[Math.max(1e-6,uhi[0]-ulo[0]),Math.max(1e-6,uhi[1]-ulo[1])];
     for(let v=0;v<r.n;v++){for(let c=0;c<3;c++){q[v*3+c]=Math.round(clamp((r.p[v*3+c]-lo[c])/span,0,1)*65535);nn[v*4+c]=Math.round(r.nr[v*3+c]*127)}for(let c=0;c<2;c++)uv[v*2+c]=Math.round((r.U[v*2+c]-ulo[c])/us[c]*65535)}
-    parts.push({name:r.name,verts:r.n,count:r.I.length,cut:r.cut,uvlo:ulo,uvspan:us,tex:r.tex,avg:.5,flat:null,pos:q,p:mk(q),n:mk(nn),uv:mk(uv),j:mk(r.jj),w:mk(r.ww),i:mk(new Uint16Array(r.I),gl.ELEMENT_ARRAY_BUFFER),paints:{}})}
-  return WALKER.adopt({lo,span,parts,bones,index,armDrop:0,clips:NPC_FEMALE.test(name)?Object.assign({},FCLIPS):Object.assign({},NPC_MCLIPS)})}
+    parts.push({name:r.name,verts:r.n,count:r.I.length,cut:r.cut,uvlo:ulo,uvspan:us,tex:r.tex,avg:.5,flat:r.flat,pos:q,p:mk(q),n:mk(nn),uv:mk(uv),j:mk(r.jj),w:mk(r.ww),i:mk(new Uint16Array(r.I),gl.ELEMENT_ARRAY_BUFFER),paints:{}})}
+  const m=WALKER.adopt({lo,span,parts,bones,index,armDrop:0,clips:NPC_FEMALE.test(name)?Object.assign({},FCLIPS):Object.assign({},NPC_MCLIPS)});m.rhRest=rhRest;return m}
 // who does which job: a mechanic for each workshop, a driver for each tow, and guards for the vans
 const NPC_ROLES={mechanic:{Asaba:"Construction_Male_03",Warri:"Construction_Female_01",Ozoro:"Construction_Male_06",Agbor:"Construction_Female_01"},
   driver:["Male_Adult_12"],guard:["Security_Male_01","Police_Male_01","Police_Male_04","Military_Male_06"]};
@@ -4290,9 +4290,14 @@ const STATIONS={
   Ozoro:[{key:"fshop",x:97.4,z:16.9,f:[0,-1],name:"Ozoro Filling Station",shop:true},{key:"fshop2",x:-123,z:-137.4,f:[0,1],name:"Ozoro West Filling Station"}],
   Agbor:[{key:"fshop",x:97.4,z:16.9,f:[0,-1],name:"Agbor Filling Station",shop:true},{key:"fshop2",x:-123,z:-137.4,f:[0,1],name:"Agbor West Filling Station"}]};
 const FUEL={price:0,rate:2.5,s:null};        // price: K a litre, from the server; rate: litres a second at the pump; s: the fill under way
-// where each car's fuel cap is, in the car's own space (+X its left, +Z its front). The Sovereign GT's is a guess
-// (rear left quarter) until the local session adds the real one to assets/vehicles/vehicles.md.
-const FUELCAP={sovereign:{side:"left",at:[.93,.95,-1.35]}};
+// where each car's fuel cap is, in the car's own space (+X its left, +Z its front): from assets/vehicles/vehicles.md
+// ("Fuel caps", given there in the glTF files' space, front -Z and left -X, so both are turned round here). Keyed by
+// the file's name; the Sovereign GT (sovereign_gt.glb) is the game's "sovereign".
+const FUELCAP={brt_bus:{side:"right",at:[-1.263,.6,2.55]},comet:{side:"right",at:[-.742,.85,-1.44]},harmattan_gt:{side:"left",at:[.869,.96,-1.534]},
+  harmony:{side:"left",at:[.779,.94,-1.373]},kite:{side:"left",at:[.702,.92,-1.369]},meridian:{side:"left",at:[.892,.9,-1.437]},mula_van:{side:"right",at:[-.631,.78,-1.209]},
+  savanna:{side:"right",at:[-.807,1,-1.395]},sovereign:{side:"right",at:[-.999,.85,-1.657]},starlite:{side:"right",at:[-.802,.66,-1.94]},strada_rs:{side:"right",at:[-.806,.85,-1.385]},
+  taxi_corolla:{side:"left",at:[.774,.95,-1.373]},uaz_452:{side:"left",at:[.915,.75,-.626]},ural_fire:{side:"left",at:[1.161,.95,.837]},ural_police:{side:"left",at:[1.162,.95,.943]},
+  vela_v12:{side:"right",at:[-.953,.85,-1.565]},vw_corrado:{side:"right",at:[-.806,.85,-1.314]}};
 // a server without the fuel functions yet (supabase_fuel.sql not run) answers 404: the pump says so plainly
 const fuelMissing=e=>!!e&&(e.status===404||/Could not find the function|fuel_(price|start|finish)/i.test(e.message||""));
 async function fuelPriceGet(){try{const r=await supa("/rest/v1/rpc/fuel_price",{method:"POST",body:{}});if(r&&+r.price>0){FUEL.price=+r.price;FUEL.missing=false}}catch(e){if(fuelMissing(e))FUEL.missing=true}}
@@ -4308,7 +4313,7 @@ function stationOne(st,t,S,idx){const turn=Math.atan2(S.f[0],S.f[1]),c=Math.cos(
   const RED="#c81e1e",WHITE="#f4f3ef",pumps=[],homes=[],price=FUEL.price?"PETROL K"+FUEL.price.toLocaleString("en-GB")+" / L":"PETROL";
   at(S.x,S.z,turn,()=>{cmpReg(S.key,S.name,[-10.6,-8.6,10.6,14],[-7,-8.2,7,8.3],{gateAll:true,modes:["side"]});
     box(0,0,0,20,.03,16,"#a3a097",K.tile);box(0,0,9.4,18,.025,2.8,"#8f8b84",K.tile);
-    for(const x of[-3.4,3.4]){box(x,0,.5,1,.18,5.4,"#d9d4c7");for(const z of[-.8,1.8]){box(x,.18,z,.55,1.55,.42,WHITE);box(x,1.73,z,.62,.24,.48,RED);for(const sd of[-1,1]){box(x+sd*.28,.95,z,.02,.42,.34,"#0f172a",K.glow);cyl(x+sd*.3,.5,z+.12,.03,.5,"#1c1f24",6)}
+    for(const x of[-3.4,3.4]){box(x,0,.5,1,.18,5.4,"#d9d4c7");for(const z of[-.8,1.8]){if(!(FUELM.ok&&iprop("fpump",x,z,0,{y:.18}))){box(x,.18,z,.55,1.55,.42,WHITE);box(x,1.73,z,.62,.24,.48,RED);for(const sd of[-1,1]){box(x+sd*.28,.95,z,.02,.42,.34,"#0f172a",K.glow);cyl(x+sd*.3,.5,z+.12,.03,.5,"#1c1f24",6)}}
         pumps.push({p:wpt(x,z),l:[x,z],st:S.key})}
       for(const z of[-2.35,3.35])box(x,.18,z,.32,4.62,.32,WHITE)}
     box(0,4.8,.5,15,.5,9,WHITE);box(0,4.78,.5,13.6,.02,7.6,"#fffbe6",K.glow);for(const z of[.5-4.52,.5+4.52])box(0,4.8,z,15.04,.5,.06,RED);for(const x of[-7.52,7.52])box(x,4.8,.5,.06,.5,9.04,RED);
@@ -4325,15 +4330,16 @@ function stationOne(st,t,S,idx){const turn=Math.atan2(S.f[0],S.f[1]),c=Math.cos(
     for(const[sx,txt]of[[-flow,"IN"],[flow,"OUT"]]){const x=sx*7.6;box(x+sx*2.6,0,13.3,.12,1.6,.12,"#3a4048");sign(x+sx*2.6,1.6,13.36,1.3,.5,txt,txt==="IN"?"#0b6b3a":"#c81e1e","#ffffff")}
     for(const x of[-6.6,0,6.6])at(x,10.6,flow>0?-Math.PI/2:Math.PI/2,()=>{box(0,.04,.35,.28,.012,1.6,"#ffffff");at(0,-.65,Math.PI/4,()=>box(0,.04,0,.24,.012,.8,"#ffffff"));at(0,-.65,-Math.PI/4,()=>box(0,.04,0,.24,.012,.8,"#ffffff"))});
     sign(0,1.25,13.72,2.2,.32,"ONE WAY","#14263D","#ffffff");
-    // the cooking-gas depot, in the back corner: the building (shutter down), its signs; in front of it the space kept
-    // for a sales counter (left) and a cylinder cage (right)
+    // the cooking-gas depot, in the back corner: the building (shutter down), its signs; in front of it the scale and
+    // cylinders where the sales counter will be (left), and the stocked cylinder cage (right)
     const gx=7.75,gz=-6.9,O="#e8711a";box(gx,0,gz,4.3,2.8,2.9,"#ece6d8");box(gx,2.8,gz,4.6,.18,3.2,O);box(gx,.05,gz+1.46,2.6,2.2,.04,"#8a8f96",K.metal);
     for(let k=0;k<8;k++)box(gx,.2+k*.26,gz+1.49,2.5,.02,.02,"#6b7078");sign(gx,2.25,gz+1.5,3.6,.42,"GAS DEPOT",O,"#ffffff");sign(gx,1.9,gz+1.5,3.0,.26,"COOKING GAS (LPG)","#14263D","#ffffff");solidRun(gx,gz,4.3,2.9);
+    if(FUELM.ok){iprop("gcage",gx+1.15,gz+2.05,0);iprop("gscale",gx-1.25,gz+1.95,0);iprop("gcylb",gx-.65,gz+1.85,0);iprop("gcylr",gx-.3,gz+1.9,0)}      // the stocked cylinder cage, the scale and two cylinders (nothing to press yet)
     t.gas.push({st,key:S.key,name:S.name.replace("Filling Station","Gas Depot"),door:wpt(gx,gz+1.5),counter:wpt(gx-.9,gz+2.1),cage:wpt(gx+1.7,gz+2.3),yaw:turn});
     mark(S.name.replace("Filling Station","Gas Depot"),gx,gz,"#e8711a");
     // the attendants wait at the back of the islands, facing the forecourt
     for(const x of[-3.4,3.4])homes.push({p:wpt(x,-3.3),yaw:turn+Math.PI});
-    mark(S.name,0,2);t.stations.push({st,key:S.key,name:S.name,idx,pumps,homes,yaw:turn,c:[S.x,S.z],att:null});if(S.shop)entrance(0,0,-4.72,1.8,2.3,0)});
+    mark(S.name,0,2);t.stations.push({st,key:S.key,name:S.name,idx,pumps,homes,yaw:turn,c:[S.x,S.z],att:null,model:!!FUELM.ok});if(S.shop)entrance(0,0,-4.72,1.8,2.3,0)});
   if(S.shop)t.spots.fshop=doorAt(S.x,S.z,turn,-4.45)}       // the shop's door, at the middle of its glass front
 // the pump a stopped car is beside (any station in town)
 const stationPump=(T,C)=>{if(!C)return null;let best=null;for(const S of T.stations||[])for(const p of S.pumps){const d=Math.hypot(C.x-p.p[0],C.z-p.p[1]);if(d<3&&(!best||d<best.d))best={p:p.p,pump:p,S,d}}return best};
@@ -4369,9 +4375,6 @@ async function fuelBegin(amount){const T=townOf(me.town),C=T.car,msg=document.ge
   FUEL.s={id:r.id,price:+r.price,max:+r.max_litres,litres:0,start:D.fuel,T,C,pump:hit.pump,S:hit.S,at:[C.x,C.z],phase:"walk",att:null,t0:performance.now()/1000};fuelSend(FUEL.s);
   choosing=false;document.getElementById("choose").hidden=true;
   toast(r.limit==="cash"?`You can afford ${kL(r.max_litres)} litres: the pump stops there.`:r.limit==="tank"?`Filling the tank: up to ${kL(r.max_litres)} litres.`:`Buying ${kL(r.max_litres)} litres.`)}
-// send the nearest free attendant to the car's fuel cap (with no attendant to hand, the pump starts at once)
-function fuelSend(F){const S=F.S,i=fuelFreeAtt(S,F);F.att=i;if(i<0){F.phase="fill";F.t0=performance.now()/1000;return}const A=attOf(S,i);A.job=F;A.path=attPath(S,A,F)}
-function fuelCap(C){const k=FUELCAP[(C&&C.model)||"sovereign"]||FUELCAP.sovereign;return{cap:carPt(C,k.at),stand:carPt(C,[k.at[0]+(k.side==="left"?.55:-.55),0,k.at[2]])}}
 // each frame: the attendant walks over, the pump counts up by the clock (whatever the frame rate), and the fill
 // stops at its limit, when the tank is full, or if the car is driven off or its engine started
 function fuelTick(dt){for(const T of Object.values(TOWNS)){const D=T.car&&T.car.dmg;if(D&&D.refuel)D.refuel=null}       // fills from before this version: let go
@@ -4384,29 +4387,110 @@ async function fuelStop(why){const F=FUEL.s;if(!F||F.phase==="pay")return;F.phas
     if(D)D.fuel=Math.min(1,F.start+(+r.litres||0)/TANK);if(r.cash!=null){me.cash=+r.cash;showCash()}crashSave(true);
     toast((why==="moved"?"You drove off: ":why==="engine"?"Engine started: the pump stopped. ":"")+`${kL(r.litres)} litres, K${(+r.amount).toLocaleString("en-GB")} paid to the ${F.S.st} State account.`)}
   catch(e){if(D)D.fuel=F.start;crashSave(true);toast(fuelMissing(e)?FUEL_SETUP:e.offline?"The pump could not reach the server: no fuel was sold.":"No fuel was sold: "+e.message)}
-  const A=F.att>=0?attOf(F.S,F.att):null;if(A){A.job=null;A.path=[A.home.p.slice()];A.hose=0}FUEL.s=null;if(!document.getElementById("choose").hidden&&/Filling|attendant/.test(document.getElementById("choose").textContent))refuelPanel()}
-/* ---- the attendants: one man and one woman at every station (Rocketbox staff in their own clothes, with the
-   game's walk, idle and talk recordings until a nozzle and a "holding the nozzle" pose arrive). Each waits at the
-   back of an island, walks to the car's fuel-cap side, fills, and walks back. ---- */
-NPC_ROLES.attendant=[["Male_Adult_18","Business_Female_01"],["Male_Adult_04","Construction_Female_01"]];
-function attOf(S,i){S.att=S.att||[0,1].map(k=>({i:k,home:S.homes[k],x:S.homes[k].p[0],z:S.homes[k].p[1],yaw:S.homes[k].yaw,path:[],job:null,walk:0,hose:0}));return S.att[i]}
-function fuelFreeAtt(S,F){let best=-1,bd=1e9;for(let i=0;i<2;i++){const A=attOf(S,i);if(A.job||!NPCMODEL(NPC_ROLES.attendant[S.idx%2][i]))continue;const d=Math.hypot(A.x-F.C.x,A.z-F.C.z);if(d<bd){bd=d;best=i}}return best}
-// a route that keeps to the lanes: from the back of the islands across to the car's side, then up beside it to the cap
-function attPath(S,A,F){const P=fuelCap(F.C).stand,c=Math.cos(S.yaw),s=Math.sin(S.yaw),[cx,cz]=S.c;
-  const toL=(x,z)=>[c*(x-cx)-s*(z-cz),s*(x-cx)+c*(z-cz)],fromL=(a,b)=>[cx+c*a+s*b,cz-s*a+c*b];
-  const home=toL(A.x,A.z),stand=toL(P[0],P[2]);return[fromL(stand[0],home[1]),[P[0],P[2]]]}
-function attStep(S,i,dt){const A=S.att&&S.att[i];if(!A)return;dt=Math.min(dt,.1);
-  if(A.path.length){const q=A.path[0],dx=q[0]-A.x,dz=q[1]-A.z,d=Math.hypot(dx,dz),sp=1.35;
-    if(d<.05){A.path.shift();if(!A.path.length){if(A.job&&A.job.phase==="walk"){A.job.phase="fill";A.job.t0=performance.now()/1000;A.hose=1}else if(!A.job)A.yaw=A.home.yaw}}
-    else{const k=Math.min(1,sp*dt/d);A.x+=dx*k;A.z+=dz*k;A.yaw=Math.atan2(-dx,-dz);A.walk+=sp*dt}}
-  else if(A.job&&A.job.phase==="fill"){const cp=fuelCap(A.job.C).cap;A.yaw=Math.atan2(-(cp[0]-A.x),-(cp[2]-A.z))}}
-// drawing the attendants (and the hose while they fill) at the stations near you
+  const A=F.att>=0?attOf(F.S,F.att):null;if(A)attBack(A);FUEL.s=null;if(!document.getElementById("choose").hidden&&/Filling|attendant/.test(document.getElementById("choose").textContent))refuelPanel()}
+/* ---- the attendants: one man and one woman at every station, in the plain green coverall (assets/characters/
+   Fuel_Attendant_Male/Female). For a fill one of them walks to the pump on the car's side, takes the nozzle out of its
+   holster (Fuel_Take), walks to the car's fuel cap with it, holds it there while the pump runs (Fuel_Hold_Loop), walks
+   back, hangs it up (Fuel_Hang) and goes back to their spot. The movements are read from assets/animations/rocketbox
+   (made on the attendants' own skeletons); until they are in, the game's own idle is used and the steps simply follow
+   each other. Where to stand comes from animations.md: the nozzle's grip lands on the holster, the spout on the cap. ---- */
+NPC_ROLES.attendant=[["Fuel_Attendant_Male","Fuel_Attendant_Female"],["Fuel_Attendant_Male","Fuel_Attendant_Female"]];
+const ATT_TAKE=[.198,.462],ATT_HOLD=[.176,.754],ATT_GRIP=.96;      // [to the right, ahead] of the feet: the nozzle at the holster, the spout tip at the cap; the hand closes on the nozzle 0.96 s into Fuel_Take
+// the nozzle's place in the right hand (hand-bone space, centimetres), for the male and the female skeleton
+const ATT_NOZ={m:[[5.2576,-.1025,-.0799],[.614,.017,.6223,.4853]],f:[[5.1532,-.2533,-.2078],[.6237,.0102,.5531,.5522]]};
+const attSex=i=>i?"f":"m",attClip=(i,n)=>"fuel_"+n+"_"+attSex(i);
+function attOf(S,i){S.att=S.att||[0,1].map(k=>({i:k,home:S.homes[k],x:S.homes[k].p[0],z:S.homes[k].p[1],yaw:S.homes[k].yaw,path:[],job:null,walk:0,hose:0,after:null,play:null,held:null,geo:null}));return S.att[i]}
+function fuelFreeAtt(S,F){let best=-1,bd=1e9;for(let i=0;i<2;i++){const A=attOf(S,i);if(A.job||A.held||A.play||(A.after&&A.after!=="home")||!NPCMODEL(NPC_ROLES.attendant[S.idx%2][i]))continue;const d=Math.hypot(A.x-F.C.x,A.z-F.C.z);if(d<bd){bd=d;best=i}}return best}
+// a point given as [to the left, ahead] of someone standing at p facing yaw (the game's way round: yaw 0 faces -Z)
+const yawPt=(p,yaw,l,a)=>[p[0]-Math.cos(yaw)*l-Math.sin(yaw)*a,p[1]+Math.sin(yaw)*l-Math.cos(yaw)*a],yawOf=(fx,fz)=>Math.atan2(-fx,-fz);
+// where the attendant stands and faces at the pump (the holster on the car's side) and at the car's fuel cap, and the
+// ways between them that keep to the lanes and go round the car when its cap is on the far side
+function attGeo(S,A,F){const c=Math.cos(S.yaw),s=Math.sin(S.yaw),[cx,cz]=S.c,toL=(x,z)=>[c*(x-cx)-s*(z-cz),s*(x-cx)+c*(z-cz)],fromL=(a,b)=>[cx+c*a+s*b,cz-s*a+c*b],dir=(a,b)=>[c*a+s*b,-s*a+c*b];
+  const q=F.pump.l,car=toL(F.C.x,F.C.z),sd=car[0]>=q[0]?1:-1,grip=fromL(q[0]+sd*.375,q[1]-.12),pf=dir(-sd,0),pYaw=yawOf(pf[0],pf[1]);
+  const pStand=yawPt(grip,pYaw,ATT_TAKE[0],-ATT_TAKE[1]);
+  const k=FUELCAP[(F.C&&F.C.model)||"sovereign"]||FUELCAP.sovereign,cap=carPt(F.C,k.at),out=carPt(F.C,[k.side==="left"?1:-1,0,0]),ox=out[0]-F.C.x,oz=out[2]-F.C.z,cYaw=yawOf(-ox,-oz);
+  const cStand=yawPt([cap[0],cap[2]],cYaw,ATT_HOLD[0],-ATT_HOLD[1]);
+  // the cap faces the pump: straight across; otherwise round the end of the car nearer the cap
+  const toPump=[grip[0]-F.C.x,grip[1]-F.C.z],near=ox*toPump[0]+oz*toPump[1]>0,via=[];
+  if(!near){const end=k.at[2]>=0?3:-3.1,ps=k.side==="left"?-1:1;via.push(carPt(F.C,[ps*1.7,0,end]),carPt(F.C,[-ps*1.7,0,end]));via.forEach((v,j)=>via[j]=[v[0],v[2]])}
+  const home=toL(A.home.p[0],A.home.p[1]),ps=toL(pStand[0],pStand[1]);
+  return{side:sd>0?"A":"B",pump:F.pump,pStand,pYaw,cStand,cYaw,cap:[cap[0],cap[1],cap[2]],toPump:[fromL(ps[0],home[1]),pStand],toCap:via.concat([cStand]),back:via.slice().reverse().concat([pStand]),home:[fromL(ps[0],home[1]),A.home.p.slice()]}}
+// send the nearest free attendant (with no attendant to hand, the pump starts at once)
+function fuelSend(F){const S=F.S,i=fuelFreeAtt(S,F);F.att=i;if(i<0){F.phase="fill";F.t0=performance.now()/1000;return}const A=attOf(S,i);A.job=F;A.geo=attGeo(S,A,F);A.path=A.geo.toPump.map(p=>p.slice());A.after="take"}
+function fuelCap(C){const k=FUELCAP[(C&&C.model)||"sovereign"]||FUELCAP.sovereign;return{cap:carPt(C,k.at),stand:carPt(C,[k.at[0]+(k.side==="left"?.75:-.75),0,k.at[2]])}}
+// the fill has ended: back to the pump, hang the nozzle up, back to the spot
+function attBack(A){A.job=null;A.hose=0;if(!A.geo){A.path=[A.home.p.slice()];A.after="home";return}A.play=null;A.path=A.held?A.geo.back.map(p=>p.slice()):A.geo.home.map(p=>p.slice());A.after=A.held?"hang":"home"}
+function attStep(S,i,dt){const A=S.att&&S.att[i];if(!A)return;const now=performance.now()/1000,G=A.geo;dt=Math.min(2,Math.max(0,now-(A.t||now)));A.t=now;      // by the clock (not the game's capped frame time): a slow phone does not slow the attendant down
+  if(A.play){const e=now-A.play.t0;if(A.play.c==="take"&&e>=ATT_GRIP)A.held=G.side;if(A.play.c==="hang"&&e>=A.play.dur-ATT_GRIP)A.held=null;
+    if(e>=A.play.dur){const c=A.play.c;A.play=null;if(c==="take"){A.held=G.side;if(A.job){A.path=G.toCap.map(p=>p.slice());A.after="hold"}else attBack(A)}else{A.held=null;A.path=G.home.map(p=>p.slice());A.after="home"}}return}
+  let go=1.35*dt;while(A.path.length&&!A.play){const q=A.path[0],dx=q[0]-A.x,dz=q[1]-A.z,d=Math.hypot(dx,dz);if(d>1e-4)A.yaw=Math.atan2(-dx,-dz);
+    if(d<=go){A.x=q[0];A.z=q[1];A.walk+=d;go-=d;A.path.shift();if(!A.path.length)attArrive(A)}else{A.x+=dx/d*go;A.z+=dz/d*go;A.walk+=go;break}}}
+function attArrive(A){const G=A.geo,now=performance.now()/1000,sx=attSex(A.i),dur=n=>{const c=WALKER.anim()&&WALKER.anim().clips["fuel_"+n+"_"+sx];return c?c.dur:0};
+  if(A.after==="take"){A.yaw=G.pYaw;if(!A.job){A.path=G.home.map(p=>p.slice());A.after="home";return}const d=dur("take");if(d)A.play={c:"take",t0:now,dur:d};else{A.held=G.side;A.path=G.toCap.map(p=>p.slice());A.after="hold"}}
+  else if(A.after==="hold"){A.yaw=G.cYaw;A.after=null;if(A.job&&A.job.phase==="walk"){A.job.phase="fill";A.job.t0=now;A.hose=1}else attBack(A)}
+  else if(A.after==="hang"){A.yaw=G.pYaw;const d=dur("hang");if(d)A.play={c:"hang",t0:now,dur:d};else{A.held=null;A.path=G.home.map(p=>p.slice());A.after="home"}}
+  else{A.after=null;A.geo=null;A.yaw=A.home.yaw}}
+/* the models: the pump (its body built into the station, the holster nozzle and hose of each side drawn on their own so a
+   side's can be hidden while its nozzle is in a hand), the hand-held nozzle, and the gas depot's cage, scale and cylinders.
+   They are read when the page opens; a station built before they arrive keeps its simple boxes. */
+const FUELM={};
+function fuelModels(){if(FUELM.p)return FUELM.p;const P="../props/fuel/fuel_pump",G="../props/gas/";
+  return FUELM.p=Promise.all([ipropRead(P,{raw:1,skip:new Set(["nozzle_A","hose_A","nozzle_B","hose_B"])}),ipropRead(P,{raw:1,only:new Set(["nozzle_A","hose_A"])}),ipropRead(P,{raw:1,only:new Set(["nozzle_B","hose_B"])}),
+      ipropRead("../props/fuel/fuel_nozzle",{raw:1}),ipropRead(G+"gas_cage_stocked"),ipropRead(G+"gas_scale"),ipropRead(G+"gas_cylinder_12kg_blue"),ipropRead(G+"gas_cylinder_12kg_red")])
+    .then(([body,a,b,noz,cage,scale,cb,cr])=>{Object.assign(IPROP,{fpump:body,gcage:cage,gscale:scale,gcylb:cb,gcylr:cr});Object.assign(FUELM,{A:a,B:b,noz,ok:true})}).catch(e=>console.warn("filling-station models: "+e.message))}
+fuelModels();
+// the attendants' movements, read once (they need the game's own recordings loaded first)
+let FUELCLIPS=null;
+function fuelClips(){if(FUELCLIPS||!WALKER.anim())return;FUELCLIPS=Promise.all(["male","female"].flatMap(sx=>[["Fuel_Take","take"],["Fuel_Hold_Loop","hold"],["Fuel_Hang","hang"]].map(([f,n])=>
+  clipLoad("assets/animations/rocketbox/"+sx+"/"+f+".glb","fuel_"+n+"_"+sx[0])))).catch(e=>console.warn("attendant movements: "+e.message))}
+/* a recorded movement from a glTF file made on the Rocketbox skeleton: for every frame and every main bone, its turn in
+   the world from the rest pose, kept the way the game's own recordings are (limbs lined up to the recordings' rest
+   directions, the hips' rise and fall as a share of their height) */
+async function clipLoad(url,key){const AN=WALKER.anim(),buf=await(await fetch(url)).arrayBuffer(),dv=new DataView(buf);if(dv.getUint32(0,true)!==0x46546C67)throw new Error("not a GLB file");
+  const jl=dv.getUint32(12,true),J=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,20,jl))),bin=20+jl+8;
+  const acc=i=>{const a=J.accessors[i],v=J.bufferViews[a.bufferView],n={SCALAR:1,VEC3:3,VEC4:4}[a.type],o=bin+(v.byteOffset||0)+(a.byteOffset||0),st=v.byteStride||n*4,out=new Float32Array(a.count*n);for(let k=0;k<a.count;k++)for(let c=0;c<n;c++)out[k*n+c]=dv.getFloat32(o+k*st+c*4,true);return out};
+  const an=J.animations[0],tracks={};let T=null;
+  for(const ch of an.channels){const sm=an.samplers[ch.sampler],t=acc(sm.input);if(!T||t.length>T.length)T=t;(tracks[ch.target.node]=tracks[ch.target.node]||{})[ch.target.path]={t,v:acc(sm.output),n:ch.target.path==="rotation"?4:3}}
+  const sample=(tr,time)=>{const{t,v,n}=tr;let k=0;while(k<t.length-1&&t[k+1]<=time)k++;const k1=Math.min(k+1,t.length-1),u=k1>k?clamp((time-t[k])/(t[k1]-t[k]),0,1):0,a=v.subarray(k*n,k*n+n),b=v.subarray(k1*n,k1*n+n);
+    let sg=1;if(n===4&&a[0]*b[0]+a[1]*b[1]+a[2]*b[2]+a[3]*b[3]<0)sg=-1;const o=Array.from(a,(x,j)=>x+(b[j]*sg-x)*u);if(n===4){const l=Math.hypot(...o)||1;return o.map(x=>x/l)}return o};
+  const par=[];J.nodes.forEach((n,i)=>(n.children||[]).forEach(c=>par[c]=i));
+  const worldAt=time=>{const w=[],loc=i=>{const n=J.nodes[i],tr=tracks[i]||{};if(time<0)return trsMat(n);return trsMat({translation:tr.translation?sample(tr.translation,time):n.translation,rotation:tr.rotation?sample(tr.rotation,time):n.rotation,scale:tr.scale?sample(tr.scale,time):n.scale})};
+    const W_=i=>w[i]||(w[i]=par[i]===undefined?loc(i):mul(W_(par[i]),loc(i)));return W_};
+  const qm=(a,b)=>[a[3]*b[0]+a[0]*b[3]+a[1]*b[2]-a[2]*b[1],a[3]*b[1]-a[0]*b[2]+a[1]*b[3]+a[2]*b[0],a[3]*b[2]+a[0]*b[1]-a[1]*b[0]+a[2]*b[3],a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2]],conj=q=>[-q[0],-q[1],-q[2],q[3]];
+  const qb=(a,b)=>{const d=a[0]*b[0]+a[1]*b[1]+a[2]*b[2];if(d>.99999)return[0,0,0,1];if(d<-.99999)return[1,0,0,0];const c=[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],q=[c[0],c[1],c[2],1+d],l=Math.hypot(...q);return q.map(v=>v/l)};
+  const matQ=m=>{const sx=Math.hypot(m[0],m[1],m[2]),sy=Math.hypot(m[4],m[5],m[6]),sz=Math.hypot(m[8],m[9],m[10]),a=m[0]/sx,b=m[4]/sy,c=m[8]/sz,d=m[1]/sx,e=m[5]/sy,f=m[9]/sz,g=m[2]/sx,h=m[6]/sy,k=m[10]/sz,tr=a+e+k;
+    if(tr>0){const s=Math.sqrt(tr+1)*2;return[(h-f)/s,(c-g)/s,(d-b)/s,s/4]}if(a>e&&a>k){const s=Math.sqrt(1+a-e-k)*2;return[s/4,(b+d)/s,(c+g)/s,(h-f)/s]}if(e>k){const s=Math.sqrt(1+e-a-k)*2;return[(b+d)/s,s/4,(f+h)/s,(c-g)/s]}const s=Math.sqrt(1+k-a-e)*2;return[(c+g)/s,(f+h)/s,s/4,(d-b)/s]};
+  const by={};J.nodes.forEach((n,i)=>by[n.name]=i);const RB={};for(const[k,v]of Object.entries(NPC_BONES))RB[v]=by[k];const src=b=>RB[b]!==undefined?RB[b]:RB[b.replace("ToeBase","Foot")];
+  const R=worldAt(-1),turned=R(by["Bip01 LEye"])[14]-R(by["Bip01 Head"])[14]<0,tw=q=>turned?[-q[0],q[1],-q[2],q[3]]:q,tv=v=>turned?[-v[0],v[1],-v[2]]:v;      // the figure turned to face +z, as the characters are
+  const P=b=>tv([R(src(b))[12],R(src(b))[13],R(src(b))[14]]),corr={};
+  for(const b of AN.bones){const ch=AN.child[b];if(ch&&/(Arm|ForeArm|UpLeg|Leg)$/.test(b)&&AN.restDir[b]&&src(ch)!==undefined){const a=P(b),e=P(ch),l=Math.hypot(e[0]-a[0],e[1]-a[1],e[2]-a[2])||1;corr[b]=qb(AN.restDir[b],[(e[0]-a[0])/l,(e[1]-a[1])/l,(e[2]-a[2])/l])}}
+  for(const sd of["Left","Right"]){corr[sd+"Hand"]=corr[sd+"ForeArm"];corr[sd+"Foot"]=corr[sd+"ToeBase"]=corr[sd+"Leg"]}
+  const nb=AN.bones.length,F=T.length,q=new Int16Array(F*nb*4),h=new Int16Array(F*3),qR=AN.bones.map(b=>matQ(R(src(b)))),hp=src("Hips"),h0=[R(hp)[12],R(hp)[13],R(hp)[14]],hipH=Math.abs(h0[1])||1;
+  for(let f=0;f<F;f++){const Wf=worldAt(T[f]);AN.bones.forEach((b,k)=>{let d=tw(qm(matQ(Wf(src(b))),conj(qR[k])));if(corr[b])d=qm(d,corr[b]);if(d[3]<0)d=d.map(v=>-v);for(let c=0;c<4;c++)q[(f*nb+k)*4+c]=Math.round(d[c]*32767)});
+    const p=Wf(hp),dv3=tv([p[12]-h0[0],p[13]-h0[1],p[14]-h0[2]]);for(let c=0;c<3;c++)h[f*3+c]=Math.round(clamp(dv3[c]/hipH,-1,1)*32767)}
+  AN.clips[key]={frames:F,dur:T[F-1]||1,speed:0,q,h}}
+// a small model of its own, drawn where it is needed (the holster nozzles, the hand-held one)
+const fuelScene=P=>{BAKE=null;CLEAR_GLASS=false;CELL=0;reset();for(let k=0;k<P.cols.length;k++)tri(P.tris[k*3],P.tris[k*3+1],P.tris[k*3+2],P.cols[k]);const S=upload();S.fogFar=150;return S};
+const qMat=(p,q)=>{const[x,y,z,w]=q;return new Float32Array([1-2*(y*y+z*z),2*(x*y+z*w),2*(x*z-y*w),0,2*(x*y-z*w),1-2*(x*x+z*z),2*(y*z+x*w),0,2*(x*z+y*w),2*(y*z-x*w),1-2*(x*x+y*y),0,p[0],p[1],p[2],1])};
+const mapPt=(m,p)=>[m[0]*p[0]+m[4]*p[1]+m[8]*p[2]+m[12],m[1]*p[0]+m[5]*p[1]+m[9]*p[2]+m[13],m[2]*p[0]+m[6]*p[1]+m[10]*p[2]+m[14]];
+// drawing the attendants, the holster nozzles, the nozzle in a hand and the hose, at the stations near you
 let HOSE=null;
-function attDraw(T,VP,eye,t){if(scene!=="town")return;for(const S of T.stations||[]){const h=S.homes[0].p;if(Math.hypot(h[0]-eye[0],h[1]-eye[2])>80)continue;
+function attDraw(T,VP,eye,t){if(scene!=="town")return;fuelClips();const AN=WALKER.anim(),now=performance.now()/1000;
+  if(FUELM.ok&&!FUELM.sA){FUELM.sA=fuelScene(FUELM.A);FUELM.sB=fuelScene(FUELM.B);FUELM.sN=fuelScene(FUELM.noz)}
+  for(const S of T.stations||[]){const h=S.homes[0].p;if(Math.hypot(h[0]-eye[0],h[1]-eye[2])>80)continue;
+    if(S.model&&FUELM.sA)for(const p of S.pumps){if(Math.hypot(p.p[0]-eye[0],p.p[1]-eye[2])>45)continue;const busy=(S.att||[]).filter(A=>A.held&&A.geo&&A.geo.pump===p).map(A=>A.held);
+      for(const sd of["A","B"])if(!busy.includes(sd)){const sc=FUELM["s"+sd];sc.model=mul(trans(p.p[0],.18,p.p[1]),rotY(S.yaw));drawScene(sc,VP,eye,false)}}
     for(let i=0;i<2;i++){const A=attOf(S,i),M=NPCMODEL(NPC_ROLES.attendant[S.idx%2][i]);if(!M)continue;const walking=A.path.length>0,cyc=WALKER.cycle(M,0),sp=(M.speed&&M.speed.walk)||1.35;
-      const talk=M.clips.idle==="f_idle"?"f_talk":"m_talk",st=walking?{p:A.walk/sp/cyc,run:0,amt:1,wf:1}:{p:0,run:0,amt:0,idle:A.job&&A.job.phase==="fill"?talk:M.clips.idle};
-      FEET=(x,z,from)=>groundTop(T,x,z,from);WALKER.draw(M,VP,A.x,0,A.z,A.yaw,st,t,null,"");FEET=null;
-      if(A.job&&A.job.phase==="fill"){const p=A.job.pump.p,cp=fuelCap(A.job.C).cap,a=[p[0],1.0,p[1]],b=[cp[0],cp[1],cp[2]];
+      const clip=n=>AN&&AN.clips[attClip(i,n)]?attClip(i,n):null,filling=A.job&&A.job.phase==="fill"&&!walking;let st,tt=t;
+      if(walking)st={p:A.walk/sp/cyc,run:0,amt:1,wf:1};
+      else if(A.play&&clip(A.play.c)){st={p:0,run:0,amt:0,idle:clip(A.play.c)};tt=Math.min(now-A.play.t0,A.play.dur-.02)}
+      else st={p:0,run:0,amt:0,idle:filling?(clip("hold")||(M.clips.idle==="f_idle"?"f_talk":"m_talk")):M.clips.idle};
+      FEET=(x,z,from)=>groundTop(T,x,z,from);const R=WALKER.draw(M,VP,A.x,0,A.z,A.yaw,st,tt,null,"");FEET=null;
+      // the nozzle in the hand, and the hose from the pump to it
+      let end=null;
+      if(A.held&&S.model&&FUELM.sN&&R.hand&&M.rhRest){const nz=ATT_NOZ[attSex(i)],m=mul(R.hand,mul(M.rhRest,qMat(nz[0],nz[1])));FUELM.sN.model=m;drawScene(FUELM.sN,VP,eye,false);end=mapPt(m,[0,-.004,-.13])}
+      if(A.held||(A.job&&A.job.phase==="fill")){const p=(A.geo&&A.geo.pump||A.job&&A.job.pump).p,sd=A.geo&&A.geo.side==="B"?-1:1,o=S.model?mapPt(mul(trans(p[0],.18,p[1]),rotY(S.yaw)),[sd*.295,1.52,.15]):[p[0],1.0,p[1]];
+        const cp=end||(A.job?fuelCap(A.job.C).cap:null);if(!cp)continue;const a=o,b=cp;
         if(!HOSE){BAKE=null;CLEAR_GLASS=false;CELL=0;reset();box(0,-.025,0,.05,.05,1,"#15171a");HOSE=upload()}
         const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],L=Math.hypot(dx,dy,dz)||1,yaw=Math.atan2(dx,dz),pitch=-Math.asin(dy/L);
         HOSE.model=mul(mul(trans(a[0],a[1],a[2]),mul(rotY(yaw),mrotX(pitch))),mul(new Float32Array([1,0,0,0,0,1,0,0,0,0,L,0,0,0,0,1]),trans(0,0,.5)));HOSE.fogFar=150;drawScene(HOSE,VP,eye,false)}}}}
