@@ -103,6 +103,7 @@ try {
   for (let i = 0; i < 10; i++) A.send({ t: "p", x: 20, z: 10, m: "w", sp: 1.4 });
   await sleep(400);
   ok("a flood of updates is cut to at most 5 a second", B.count(m => m.t === "p") <= 3, B.count(m => m.t === "p"));
+  await sleep(600);      // let the flood above pass the 5-a-second limit first (a slow machine may still be handling it)
   A.send({ t: "p", x: 20, z: 10, m: "d", sp: 8, car: { x: 20, z: 10, a: .5, v: 8, st: .1, dr: 1, l: 1 } });
   ok("a car comes with its driver", !!(await B.wait(m => m.t === "p" && m.car && m.car.v === 8 && m.car.dr === 1)));
 
