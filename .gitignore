@@ -9,3 +9,6 @@ __pycache__/
 
 # AI agent working notes
 .agent/
+
+# Playwright/E2E test harness for NET_EXTRAS live tests
+.nettest/
