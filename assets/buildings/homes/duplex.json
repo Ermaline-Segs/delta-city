@@ -1,0 +1,970 @@
+{
+ "interior": {
+  "file": "duplex_interior.glb",
+  "tris": 10638,
+  "bytes": 1027992,
+  "size_m": [
+   12.0,
+   13.8
+  ],
+  "storeys": 2,
+  "rooms": [
+   {
+    "name": "porch",
+    "kind": "open",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     3.6,
+     1.8
+    ],
+    "x": [
+     -1.8,
+     1.8
+    ],
+    "z": [
+     5.1,
+     6.9
+    ]
+   },
+   {
+    "name": "guest",
+    "kind": "bed",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     4.2,
+     3.6
+    ],
+    "x": [
+     -6.0,
+     -1.8
+    ],
+    "z": [
+     1.5,
+     5.1
+    ]
+   },
+   {
+    "name": "guest_bath",
+    "kind": "bath",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     2.4,
+     1.8
+    ],
+    "x": [
+     -6.0,
+     -3.6
+    ],
+    "z": [
+     -0.3,
+     1.5
+    ]
+   },
+   {
+    "name": "wc",
+    "kind": "wc",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     1.8,
+     1.8
+    ],
+    "x": [
+     -3.6,
+     -1.8
+    ],
+    "z": [
+     -0.3,
+     1.5
+    ]
+   },
+   {
+    "name": "hall",
+    "kind": "hall",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     3.6,
+     5.4
+    ],
+    "x": [
+     -1.8,
+     1.8
+    ],
+    "z": [
+     -0.3,
+     5.1
+    ]
+   },
+   {
+    "name": "living",
+    "kind": "living",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     4.2,
+     5.4
+    ],
+    "x": [
+     1.8,
+     6.0
+    ],
+    "z": [
+     -0.3,
+     5.1
+    ]
+   },
+   {
+    "name": "corridor",
+    "kind": "corridor",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     12.0,
+     1.2
+    ],
+    "x": [
+     -6.0,
+     6.0
+    ],
+    "z": [
+     -1.5,
+     -0.3
+    ]
+   },
+   {
+    "name": "kitchen",
+    "kind": "kitchen",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     4.2,
+     3.6
+    ],
+    "x": [
+     -6.0,
+     -1.8
+    ],
+    "z": [
+     -5.1,
+     -1.5
+    ]
+   },
+   {
+    "name": "store",
+    "kind": "store",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     4.2,
+     1.8
+    ],
+    "x": [
+     -6.0,
+     -1.8
+    ],
+    "z": [
+     -6.9,
+     -5.1
+    ]
+   },
+   {
+    "name": "stair",
+    "kind": "stair",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     1.4,
+     4.4
+    ],
+    "x": [
+     -1.8,
+     -0.4
+    ],
+    "z": [
+     -5.9,
+     -1.5
+    ]
+   },
+   {
+    "name": "backhall",
+    "kind": "corridor",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     1.4,
+     1.0
+    ],
+    "x": [
+     -1.8,
+     -0.4
+    ],
+    "z": [
+     -6.9,
+     -5.9
+    ]
+   },
+   {
+    "name": "dining",
+    "kind": "dining",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     6.4,
+     5.4
+    ],
+    "x": [
+     -0.4,
+     6.0
+    ],
+    "z": [
+     -6.9,
+     -1.5
+    ]
+   },
+   {
+    "name": "balcony",
+    "kind": "open",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     3.6,
+     1.8
+    ],
+    "x": [
+     -1.8,
+     1.8
+    ],
+    "z": [
+     5.1,
+     6.9
+    ]
+   },
+   {
+    "name": "bedroom2",
+    "kind": "bed",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     4.2,
+     3.6
+    ],
+    "x": [
+     -6.0,
+     -1.8
+    ],
+    "z": [
+     1.5,
+     5.1
+    ]
+   },
+   {
+    "name": "bath2",
+    "kind": "bath",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     2.4,
+     1.8
+    ],
+    "x": [
+     -6.0,
+     -3.6
+    ],
+    "z": [
+     -0.3,
+     1.5
+    ]
+   },
+   {
+    "name": "linen",
+    "kind": "store",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     1.8,
+     1.8
+    ],
+    "x": [
+     -3.6,
+     -1.8
+    ],
+    "z": [
+     -0.3,
+     1.5
+    ]
+   },
+   {
+    "name": "lounge",
+    "kind": "lounge",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     3.6,
+     5.4
+    ],
+    "x": [
+     -1.8,
+     1.8
+    ],
+    "z": [
+     -0.3,
+     5.1
+    ]
+   },
+   {
+    "name": "master",
+    "kind": "bed",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     4.2,
+     3.6
+    ],
+    "x": [
+     1.8,
+     6.0
+    ],
+    "z": [
+     1.5,
+     5.1
+    ]
+   },
+   {
+    "name": "master_bath",
+    "kind": "bath",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     2.2,
+     1.8
+    ],
+    "x": [
+     1.8,
+     4.0
+    ],
+    "z": [
+     -0.3,
+     1.5
+    ]
+   },
+   {
+    "name": "dressing",
+    "kind": "store",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     2.0,
+     1.8
+    ],
+    "x": [
+     4.0,
+     6.0
+    ],
+    "z": [
+     -0.3,
+     1.5
+    ]
+   },
+   {
+    "name": "corridor_up",
+    "kind": "corridor",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     12.0,
+     1.2
+    ],
+    "x": [
+     -6.0,
+     6.0
+    ],
+    "z": [
+     -1.5,
+     -0.3
+    ]
+   },
+   {
+    "name": "bedroom3",
+    "kind": "bed",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     4.2,
+     3.6
+    ],
+    "x": [
+     -6.0,
+     -1.8
+    ],
+    "z": [
+     -5.1,
+     -1.5
+    ]
+   },
+   {
+    "name": "bath3",
+    "kind": "bath",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     4.2,
+     1.8
+    ],
+    "x": [
+     -6.0,
+     -1.8
+    ],
+    "z": [
+     -6.9,
+     -5.1
+    ]
+   },
+   {
+    "name": "stairwell",
+    "kind": "void",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     1.4,
+     5.4
+    ],
+    "x": [
+     -1.8,
+     -0.4
+    ],
+    "z": [
+     -6.9,
+     -1.5
+    ]
+   },
+   {
+    "name": "bedroom4",
+    "kind": "bed",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     6.4,
+     3.6
+    ],
+    "x": [
+     -0.4,
+     6.0
+    ],
+    "z": [
+     -5.1,
+     -1.5
+    ]
+   },
+   {
+    "name": "bath4",
+    "kind": "bath",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     2.4,
+     1.8
+    ],
+    "x": [
+     -0.4,
+     2.0
+    ],
+    "z": [
+     -6.9,
+     -5.1
+    ]
+   },
+   {
+    "name": "store4",
+    "kind": "store",
+    "floor": 1,
+    "floor_y": 3.3,
+    "size_m": [
+     4.0,
+     1.8
+    ],
+    "x": [
+     2.0,
+     6.0
+    ],
+    "z": [
+     -6.9,
+     -5.1
+    ]
+   }
+  ],
+  "doors": [
+   {
+    "node": "door_f0_hall_porch",
+    "security_node": "door_f0_hall_porch_security",
+    "between": [
+     "hall",
+     "porch"
+    ],
+    "floor": 0,
+    "centre": [
+     -0.0,
+     0.0,
+     5.1
+    ],
+    "width": 1.2,
+    "in_wall_along": "x",
+    "main": true
+   },
+   {
+    "node": "door_f0_guest_guest_bath",
+    "security_node": null,
+    "between": [
+     "guest",
+     "guest_bath"
+    ],
+    "floor": 0,
+    "centre": [
+     -4.8,
+     0.0,
+     1.5
+    ],
+    "width": 0.75,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f0_corridor_kitchen",
+    "security_node": null,
+    "between": [
+     "corridor",
+     "kitchen"
+    ],
+    "floor": 0,
+    "centre": [
+     -3.9,
+     0.0,
+     -1.5
+    ],
+    "width": 0.9,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f0_kitchen_store",
+    "security_node": null,
+    "between": [
+     "kitchen",
+     "store"
+    ],
+    "floor": 0,
+    "centre": [
+     -3.9,
+     0.0,
+     -5.1
+    ],
+    "width": 0.8,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f0_backhall_out",
+    "security_node": null,
+    "between": [
+     "backhall",
+     "out"
+    ],
+    "floor": 0,
+    "centre": [
+     -1.1,
+     0.0,
+     -6.9
+    ],
+    "width": 0.9,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f0_hall_guest",
+    "security_node": null,
+    "between": [
+     "hall",
+     "guest"
+    ],
+    "floor": 0,
+    "centre": [
+     -1.8,
+     0.0,
+     3.3
+    ],
+    "width": 0.9,
+    "in_wall_along": "z",
+    "main": false
+   },
+   {
+    "node": "door_f0_hall_wc",
+    "security_node": null,
+    "between": [
+     "hall",
+     "wc"
+    ],
+    "floor": 0,
+    "centre": [
+     -1.8,
+     0.0,
+     0.6
+    ],
+    "width": 0.7,
+    "in_wall_along": "z",
+    "main": false
+   },
+   {
+    "node": "door_f0_backhall_store",
+    "security_node": null,
+    "between": [
+     "backhall",
+     "store"
+    ],
+    "floor": 0,
+    "centre": [
+     -1.8,
+     0.0,
+     -6.4
+    ],
+    "width": 0.8,
+    "in_wall_along": "z",
+    "main": false
+   },
+   {
+    "node": "door_f0_backhall_dining",
+    "security_node": null,
+    "between": [
+     "backhall",
+     "dining"
+    ],
+    "floor": 0,
+    "centre": [
+     -0.4,
+     0.0,
+     -6.4
+    ],
+    "width": 0.8,
+    "in_wall_along": "z",
+    "main": false
+   },
+   {
+    "node": "door_f1_lounge_balcony",
+    "security_node": null,
+    "between": [
+     "lounge",
+     "balcony"
+    ],
+    "floor": 1,
+    "centre": [
+     -0.0,
+     3.3,
+     5.1
+    ],
+    "width": 1.2,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f1_bedroom2_bath2",
+    "security_node": null,
+    "between": [
+     "bedroom2",
+     "bath2"
+    ],
+    "floor": 1,
+    "centre": [
+     -4.8,
+     3.3,
+     1.5
+    ],
+    "width": 0.75,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f1_master_master_bath",
+    "security_node": null,
+    "between": [
+     "master",
+     "master_bath"
+    ],
+    "floor": 1,
+    "centre": [
+     2.9,
+     3.3,
+     1.5
+    ],
+    "width": 0.75,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f1_master_dressing",
+    "security_node": null,
+    "between": [
+     "master",
+     "dressing"
+    ],
+    "floor": 1,
+    "centre": [
+     5.0,
+     3.3,
+     1.5
+    ],
+    "width": 0.75,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f1_corridor_up_bedroom3",
+    "security_node": null,
+    "between": [
+     "corridor_up",
+     "bedroom3"
+    ],
+    "floor": 1,
+    "centre": [
+     -3.9,
+     3.3,
+     -1.5
+    ],
+    "width": 0.9,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f1_corridor_up_bedroom4",
+    "security_node": null,
+    "between": [
+     "corridor_up",
+     "bedroom4"
+    ],
+    "floor": 1,
+    "centre": [
+     2.8,
+     3.3,
+     -1.5
+    ],
+    "width": 0.9,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f1_bedroom3_bath3",
+    "security_node": null,
+    "between": [
+     "bedroom3",
+     "bath3"
+    ],
+    "floor": 1,
+    "centre": [
+     -3.9,
+     3.3,
+     -5.1
+    ],
+    "width": 0.75,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f1_bedroom4_bath4",
+    "security_node": null,
+    "between": [
+     "bedroom4",
+     "bath4"
+    ],
+    "floor": 1,
+    "centre": [
+     0.8,
+     3.3,
+     -5.1
+    ],
+    "width": 0.75,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f1_bedroom4_store4",
+    "security_node": null,
+    "between": [
+     "bedroom4",
+     "store4"
+    ],
+    "floor": 1,
+    "centre": [
+     4.0,
+     3.3,
+     -5.1
+    ],
+    "width": 0.75,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f1_lounge_bedroom2",
+    "security_node": null,
+    "between": [
+     "lounge",
+     "bedroom2"
+    ],
+    "floor": 1,
+    "centre": [
+     -1.8,
+     3.3,
+     3.3
+    ],
+    "width": 0.9,
+    "in_wall_along": "z",
+    "main": false
+   },
+   {
+    "node": "door_f1_lounge_linen",
+    "security_node": null,
+    "between": [
+     "lounge",
+     "linen"
+    ],
+    "floor": 1,
+    "centre": [
+     -1.8,
+     3.3,
+     0.6
+    ],
+    "width": 0.7,
+    "in_wall_along": "z",
+    "main": false
+   },
+   {
+    "node": "door_f1_lounge_master",
+    "security_node": null,
+    "between": [
+     "lounge",
+     "master"
+    ],
+    "floor": 1,
+    "centre": [
+     1.8,
+     3.3,
+     3.3
+    ],
+    "width": 0.9,
+    "in_wall_along": "z",
+    "main": false
+   }
+  ],
+  "unreachable": []
+ },
+ "exterior": {
+  "file": "duplex_exterior.glb",
+  "tris": 12070,
+  "bytes": 1166708,
+  "compound_m": [
+   22.0,
+   34.0
+  ],
+  "building_offset": [
+   -6.0,
+   0,
+   -0.0
+  ],
+  "floor_level_above_ground": 0.3,
+  "roof_rise": 2.67,
+  "doors": [
+   {
+    "node": "door_f0_hall_porch",
+    "security_node": "door_f0_hall_porch_security",
+    "between": [
+     "hall",
+     "porch"
+    ],
+    "floor": 0,
+    "centre": [
+     -0.0,
+     0.3,
+     -0.0
+    ],
+    "width": 1.2,
+    "in_wall_along": "x",
+    "main": true
+   },
+   {
+    "node": "door_f0_backhall_out",
+    "security_node": null,
+    "between": [
+     "backhall",
+     "out"
+    ],
+    "floor": 0,
+    "centre": [
+     -1.1,
+     0.3,
+     -12.0
+    ],
+    "width": 0.9,
+    "in_wall_along": "x",
+    "main": false
+   },
+   {
+    "node": "door_f1_lounge_balcony",
+    "security_node": null,
+    "between": [
+     "lounge",
+     "balcony"
+    ],
+    "floor": 1,
+    "centre": [
+     -0.0,
+     3.6,
+     -0.0
+    ],
+    "width": 1.2,
+    "in_wall_along": "x",
+    "main": false
+   }
+  ],
+  "compound": {
+   "gate": {
+    "left": "gate_left",
+    "right": "gate_right",
+    "centre": [
+     0.0,
+     0,
+     -17.0
+    ],
+    "width": 7.2,
+    "note": "leaves hinged at the pillars; open inward by rotating about the vertical axis"
+   }
+  },
+  "car_bays": [
+   [
+    -2.5,
+    0,
+    8.0
+   ],
+   [
+    0.0,
+    0,
+    8.0
+   ],
+   [
+    2.5,
+    0,
+    8.0
+   ]
+  ],
+  "water_tank": [
+   -8.5,
+   3.0,
+   -14.5
+  ],
+  "generator": [
+   8.5,
+   0.12,
+   -14.5
+  ],
+  "others": {}
+ }
+}

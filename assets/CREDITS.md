@@ -226,6 +226,10 @@ All **CC0**. They were cut, made mono and looped from recordings by Joseph Sardi
 
 Modelled for Delta City by script: **CC0**, no credit needed. The LPG cylinder in `props/gas/` is the one from the Delta City home kitchen set (also CC0). No logos or brand names.
 
+## Homes (`buildings/homes/`)
+
+Modelled for Delta City by script (`source/homes/`): **CC0**, no credit needed. Textures from [Poly Haven](https://polyhaven.com), all **CC0**: Large Floor Tiles 02, Tiled Floor 001, Anti Skid Tiles, Terracotta Floor Tiles, Granite Tile, Wood Floor, Terrazzo Tiles, Square Tiled Wall, Hexagonal Concrete Paving, Clay Roof Tiles 02 (made grey and recoloured), Blue Floor Tiles 01, Concrete Floor, and the existing `textures/` plaster, roof-sheet and door textures. The generator is from `home/` (CC0).
+
 ## Animations (`animations/`)
 
 All **CC0** by Quaternius ([Universal Animation Library 1 and 2](https://quaternius.com/packs/universalanimationlibrary.html), Standard version; licence text in `animations/LICENSE_Quaternius_UAL.txt`). Several clips were combined and adjusted in Blender. See `animations/animations.md`.

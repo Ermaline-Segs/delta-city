@@ -1,0 +1,289 @@
+{
+ "interior": {
+  "file": "room_interior.glb",
+  "tris": 1434,
+  "bytes": 366628,
+  "size_m": [
+   4.2,
+   7.8
+  ],
+  "storeys": 1,
+  "rooms": [
+   {
+    "name": "veranda",
+    "kind": "open",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     4.2,
+     2.0
+    ],
+    "x": [
+     -2.1,
+     2.1
+    ],
+    "z": [
+     1.9,
+     3.9
+    ]
+   },
+   {
+    "name": "room",
+    "kind": "bed",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     4.2,
+     4.0
+    ],
+    "x": [
+     -2.1,
+     2.1
+    ],
+    "z": [
+     -2.1,
+     1.9
+    ]
+   },
+   {
+    "name": "kitchenette",
+    "kind": "kitchen",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     2.1,
+     1.8
+    ],
+    "x": [
+     -2.1,
+     0.0
+    ],
+    "z": [
+     -3.9,
+     -2.1
+    ]
+   },
+   {
+    "name": "shower",
+    "kind": "bath",
+    "floor": 0,
+    "floor_y": 0.0,
+    "size_m": [
+     2.1,
+     1.8
+    ],
+    "x": [
+     0.0,
+     2.1
+    ],
+    "z": [
+     -3.9,
+     -2.1
+    ]
+   }
+  ],
+  "doors": [
+   {
+    "node": "door_f0_room_veranda",
+    "security_node": "door_f0_room_veranda_security",
+    "between": [
+     "room",
+     "veranda"
+    ],
+    "floor": 0,
+    "centre": [
+     -0.93,
+     0.0,
+     1.9
+    ],
+    "width": 0.9,
+    "in_wall_along": "x",
+    "main": true
+   },
+   {
+    "node": "door_f0_room_shower",
+    "security_node": null,
+    "between": [
+     "room",
+     "shower"
+    ],
+    "floor": 0,
+    "centre": [
+     1.05,
+     0.0,
+     -2.1
+    ],
+    "width": 0.75,
+    "in_wall_along": "x",
+    "main": false
+   }
+  ],
+  "unreachable": []
+ },
+ "exterior": {
+  "file": "room_exterior.glb",
+  "tris": 11970,
+  "bytes": 1158780,
+  "compound_m": [
+   31.0,
+   24.0
+  ],
+  "building_offset": [
+   -12.6,
+   0,
+   -0.0
+  ],
+  "floor_level_above_ground": 0.3,
+  "roof_rise": 1.82,
+  "doors": [
+   {
+    "node": "door_f0_room_1_veranda_1",
+    "security_node": "door_f0_room_1_veranda_1_security",
+    "between": [
+     "room_1",
+     "veranda_1"
+    ],
+    "floor": 0,
+    "centre": [
+     -11.43,
+     0.3,
+     -2.0
+    ],
+    "width": 0.9,
+    "in_wall_along": "x",
+    "main": true
+   },
+   {
+    "node": "door_f0_room_2_veranda_2",
+    "security_node": "door_f0_room_2_veranda_2_security",
+    "between": [
+     "room_2",
+     "veranda_2"
+    ],
+    "floor": 0,
+    "centre": [
+     -7.23,
+     0.3,
+     -2.0
+    ],
+    "width": 0.9,
+    "in_wall_along": "x",
+    "main": true
+   },
+   {
+    "node": "door_f0_room_3_veranda_3",
+    "security_node": "door_f0_room_3_veranda_3_security",
+    "between": [
+     "room_3",
+     "veranda_3"
+    ],
+    "floor": 0,
+    "centre": [
+     -3.03,
+     0.3,
+     -2.0
+    ],
+    "width": 0.9,
+    "in_wall_along": "x",
+    "main": true
+   },
+   {
+    "node": "door_f0_room_4_veranda_4",
+    "security_node": "door_f0_room_4_veranda_4_security",
+    "between": [
+     "room_4",
+     "veranda_4"
+    ],
+    "floor": 0,
+    "centre": [
+     1.17,
+     0.3,
+     -2.0
+    ],
+    "width": 0.9,
+    "in_wall_along": "x",
+    "main": true
+   },
+   {
+    "node": "door_f0_room_5_veranda_5",
+    "security_node": "door_f0_room_5_veranda_5_security",
+    "between": [
+     "room_5",
+     "veranda_5"
+    ],
+    "floor": 0,
+    "centre": [
+     5.37,
+     0.3,
+     -2.0
+    ],
+    "width": 0.9,
+    "in_wall_along": "x",
+    "main": true
+   },
+   {
+    "node": "door_f0_room_6_veranda_6",
+    "security_node": "door_f0_room_6_veranda_6_security",
+    "between": [
+     "room_6",
+     "veranda_6"
+    ],
+    "floor": 0,
+    "centre": [
+     9.57,
+     0.3,
+     -2.0
+    ],
+    "width": 0.9,
+    "in_wall_along": "x",
+    "main": true
+   }
+  ],
+  "compound": {
+   "gate": {
+    "left": "gate_left",
+    "right": "gate_right",
+    "centre": [
+     0.0,
+     0,
+     -12.0
+    ],
+    "width": 7.2,
+    "note": "leaves hinged at the pillars; open inward by rotating about the vertical axis"
+   }
+  },
+  "car_bays": [
+   [
+    -3.75,
+    0,
+    7.0
+   ],
+   [
+    -1.25,
+    0,
+    7.0
+   ],
+   [
+    1.25,
+    0,
+    7.0
+   ],
+   [
+    3.75,
+    0,
+    7.0
+   ]
+  ],
+  "water_tank": [
+   -13.5,
+   3.0,
+   9.0
+  ],
+  "generator": [
+   13.5,
+   0.12,
+   9.5
+  ],
+  "others": {}
+ }
+}
