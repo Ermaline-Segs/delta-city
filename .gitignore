@@ -3,3 +3,9 @@
 
 # Tool output from AI helper sessions — never part of the game
 .helix-overflow/
+
+# Python bytecode caches
+__pycache__/
+
+# AI agent working notes
+.agent/
