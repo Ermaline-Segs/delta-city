@@ -1,2 +1,5 @@
 # Archives: GitHub refuses files over 100 MB, so never commit .zip files
 *.zip
+
+# Tool output from AI helper sessions — never part of the game
+.helix-overflow/

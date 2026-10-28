@@ -321,15 +321,27 @@ sections 5 to 9.
   server can't be reached it falls back to single-player with an "Offline mode" notice.
 
 ### Multiplayer: what is left, in order
-Everything below is already written in `index.html` and `server/`, but switched off: `const NET_EXTRAS=false;` in
-`index.html`. To work on them, set it to `true` and test with two signed-in windows, phone and desktop. The test
-scripts used so far are described in sections 7 and 11.
-1. **Other players' cars:** the car, doors, wheels and seated driver. A player who is driving is hidden for now, name
-   tag included.
+Everything below is already written in `index.html` and `server/`, each behind its own flag on one line near the top of
+`index.html`: `const NET_EXTRAS_CARS=...,NET_EXTRAS_STREET=...,NET_EXTRAS_INDOORS=...,NET_EXTRAS_CHAT=...;`.
+Set a flag to `true` to turn that one on, then test with two signed-in windows, phone and desktop. The test scripts
+used so far are described in sections 7 and 11; the flag defaults are guarded by `test/flags.mjs` (run
+`node test/flags.mjs` from the repository root — it must pass before pushing a change to that line).
+1. **Other players' cars:** the car, doors, wheels and seated driver. **Turned on by job 1 (this PR, 28 October
+   2026):** `NET_EXTRAS_CARS=true` ships, so a driving player is now seen in their car with name tag, instead of
+   being hidden. Until the server records which model each player drives, **every remote car is drawn as a Sovereign
+   GT** — add a `car` field to the peer message when more cars become drivable.
 2. **The shared street:** knocked-over and repaired street objects, and burst hydrants, seen by everyone in the town.
 3. **Chat:** the phone's Chat app, or T on a keyboard. Today it only says "Chat is coming soon".
-4. **Inside buildings:** players in the same room see each other, and doors open for other players. Built, but not
-   re-tested since the first version.
+4. **Inside buildings:** players in the same room see each other, and doors open for other players. This was already
+   live since the first version and was never behind the old `NET_EXTRAS` flag, so `NET_EXTRAS_INDOORS` ships `true`:
+   the re-test job only confirms it, it does not switch anything off.
+
+**Job 1 result (28 October 2026, this PR):** the one `NET_EXTRAS` flag was split into four per-feature flags;
+`NET_EXTRAS_CARS` ships on, `NET_EXTRAS_STREET` and `NET_EXTRAS_CHAT` ship off, `NET_EXTRAS_INDOORS` ships on (it
+protects what was already live). Checks: `node test/flags.mjs` 10 of 10 pass; JavaScript syntax check clean;
+`npm test` in `server/` 31 of 31 pass (server unchanged). **Live car smoke test with two throwaway accounts: pending**
+— it will run with the owner's test accounts before the merge; sessions kept short (free daily limit on the live
+server, real players may be online).
 
 ### Next steps after that, in order
 1. Phase 3, homes (section 6). The buildings are ready in `assets/buildings/homes/`. Prices are set: room

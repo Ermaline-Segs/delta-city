@@ -5316,8 +5316,8 @@ const LIVE=(u=>({ws:u,http:u.replace(/^ws/,"http").replace(/\/ws$/,"")}))(window
 const NET={ws:null,state:"off",id:null,room:null,peers:new Map(),last:0,lastSig:"",retry:0,timer:null,ping:null,sent:{},chat:[],until:0,why:"",t0:0};
 const NETDOORS=["FL","FR","RL","RR"];
 // first version: who is here, and players on foot with their name tags. Others' cars, the shared street (knocked-over
-// objects) and chat are written below but switched off until they are tested: set NET_EXTRAS to true to turn them on.
-const NET_EXTRAS=false;
+// objects) and chat are written below but switched off until they are tested: set a flag to true to turn that one on.
+const NET_EXTRAS_CARS=true,NET_EXTRAS_STREET=false,NET_EXTRAS_INDOORS=true,NET_EXTRAS_CHAT=false;
 function netOn(){return NET.state==="on"&&NET.ws&&NET.ws.readyState===1}
 function netSend(o){try{if(netOn())NET.ws.send(JSON.stringify(o))}catch(e){}}
 function netRoom(){return scene==="town"?"town:"+me.town:scene==="gov"&&GV?"gov:"+me.town+":"+GV.kind:scene==="hosp"?"hosp:"+me.town+":"+HFLOOR_N:scene==="bank"?"bank:"+me.town:scene==="trs"?"trs:"+me.town:scene==="imm"?"imm":"border"}
@@ -5342,11 +5342,11 @@ function netPill(){const el=document.getElementById("netpill");if(!el)return;con
   el.hidden=!show;if(show){el.textContent=NET.state==="replaced"?"Playing in another window":"Offline mode";el.title="Single-player: "+NET.why+"."}}
 function netGot(m){
   if(m.t==="welcome"||m.t==="roomok"){if(m.t==="welcome"){NET.id=m.id;NET.state="on";NET.retry=0;NET.until=0;NET.why="";netPill();clearInterval(NET.ping);NET.ping=setInterval(()=>{try{if(NET.ws&&NET.ws.readyState===1)NET.ws.send("ping")}catch(e){}},25000)}
-    NET.room=m.room;netClear();for(const p of m.peers||[])netPeer(p);if(NET_EXTRAS)netStreetApply(m.street||{},true);NET.lastSig="";return}
+    NET.room=m.room;netClear();for(const p of m.peers||[])netPeer(p);if(NET_EXTRAS_STREET)netStreetApply(m.street||{},true);NET.lastSig="";return}
   if(m.t==="join"||m.t==="p"){netPeer(m);return}
   if(m.t==="leave"){const p=NET.peers.get(m.id);if(p){if(p.tag)p.tag.remove();NET.peers.delete(m.id)}return}
-  if(m.t==="st"){if(NET_EXTRAS)netStreetApply(m.ch||{},false);return}
-  if(m.t==="chat"){if(NET_EXTRAS)chatAdd(m.name,m.text,m.id===NET.id);return}
+  if(m.t==="st"){if(NET_EXTRAS_STREET)netStreetApply(m.ch||{},false);return}
+  if(m.t==="chat"){if(NET_EXTRAS_CHAT)chatAdd(m.name,m.text,m.id===NET.id);return}
   if(m.t==="err"&&m.code==="over-limit"&&m.until)NET.until=m.until}
 function netClear(){for(const p of NET.peers.values())if(p.tag)p.tag.remove();NET.peers.clear()}
 // a player's news: their new place becomes where they are heading; they glide there (see netTick)
@@ -5360,7 +5360,7 @@ function netPeer(m){let p=NET.peers.get(m.id);const now=performance.now();
 function netTick(dt){if(NET.state!=="on")return;try{const now=performance.now(),r=netRoom(),town=scene==="town",T=town?townOf(me.town):null;
     if(r!==NET.room){NET.room=r;netClear();const b=town?cam:me;netSend({t:"room",room:r,x:+b.x.toFixed(2),z:+b.z.toFixed(2)});NET.lastSig=""}
     const b=town?cam:me,C=T&&T.car,mode=town&&driving?"d":gait.amt>.15&&!(town&&driving)?(gait.run>.5?"r":"w"):"s";
-    const car=NET_EXTRAS&&C?{x:+C.x.toFixed(2),z:+C.z.toFixed(2),a:+C.yaw.toFixed(2),v:+(C.v||0).toFixed(1),st:driving?+VEH.steer.toFixed(2):0,dr:NETDOORS.reduce((s,k,i)=>s|((carAnim(C).want[k]?1:0)<<i),0),l:VEH.lights|0,d:driving?1:0}:null;
+    const car=NET_EXTRAS_CARS&&C?{x:+C.x.toFixed(2),z:+C.z.toFixed(2),a:+C.yaw.toFixed(2),v:+(C.v||0).toFixed(1),st:driving?+VEH.steer.toFixed(2):0,dr:NETDOORS.reduce((s,k,i)=>s|((carAnim(C).want[k]?1:0)<<i),0),l:VEH.lights|0,d:driving?1:0}:null;
     const o={t:"p",x:+b.x.toFixed(2),z:+b.z.toFixed(2),y:+(town?TGY:MEY).toFixed(2),a:+((town?cam.yaw:me.yaw)||0).toFixed(2),m:mode,sp:+Math.hypot(VEL.x,VEL.z).toFixed(1),car};
     const sig=JSON.stringify([Math.round(o.x*20),Math.round(o.z*20),Math.round(o.a*20),o.m,car&&[Math.round(car.x*20),Math.round(car.z*20),Math.round(car.a*20),car.dr,car.l,car.d,Math.round(car.v)]]);
     if(sig!==NET.lastSig&&now-NET.last>=500){NET.last=now;NET.lastSig=sig;netSend(o)}
@@ -5373,7 +5373,7 @@ function netTick(dt){if(NET.state!=="on")return;try{const now=performance.now(),
         for(let i=0;i<4;i++){const w=(c.dr>>i)&1,K=NETDOORS[i];p.door[K]=clamp((p.door[K]||0)+(w?1:-1)*dt/.45,0,1)}}}}catch(e){}}
 function netModel(p){const L=ROSTER[p.g]||ROSTER.Female||[];return((L.find(r=>r.key===p.look)||L[0])||{}).m||null}
 // someone else in this room near a point (doors open for them too)
-function netNear(x,z,r){if(NET.state!=="on")return false;for(const p of NET.peers.values())if(Math.hypot(p.x-x,p.z-z)<r)return true;return false}
+function netNear(x,z,r){if(!NET_EXTRAS_INDOORS||NET.state!=="on")return false;for(const p of NET.peers.values())if(Math.hypot(p.x-x,p.z-z)<r)return true;return false}
 // a car belonging to another player, posed from what they sent: its doors, wheels and steering
 function netCarPose(p){const c=p.car,R=carRig(),base=mul(trans(c.x,0,c.z),rotY(c.a+Math.PI));
   for(const S of CARSCENE.parts){const n=S.part;let M=base;
@@ -5383,22 +5383,22 @@ function netCarPose(p){const c=p.car,R=carRig(),base=mul(trans(c.x,0,c.z),rotY(c
     S.model=M}}
 // drawing everyone else in this room: on foot with their own character, or in their car with the driver seated
 function netDraw(VP,eye,t,T){if(NET.state!=="on"||!NET.peers.size)return;try{const town=scene==="town";let cars=false;
-    if(NET_EXTRAS&&town&&CARSCENE){const keep=CARSCENE;if(CARSCENE0)CARSCENE=CARSCENE0;
+    if(NET_EXTRAS_CARS&&town&&CARSCENE){const keep=CARSCENE;if(CARSCENE0)CARSCENE=CARSCENE0;
       for(const p of NET.peers.values()){if(!p.car||Math.hypot(p.car.x-eye[0],p.car.z-eye[2])>160)continue;cars=true;netCarPose(p);carDraw(VP,eye,false,false);carDraw(VP,eye,true,false);
         const M=netModel(p),R=carRig(),h=R.seats&&R.seats.driver;if(p.car.d&&M&&h){const q=carPt({x:p.car.x,z:p.car.z,yaw:p.car.a},[h[0],0,h[2]+CARSIT.z]);WALKER.draw(M,VP,q[0],h[1]+CARSIT.y,q[2],p.car.a,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"")}}
       CARSCENE=keep;if(cars&&T&&T.car)carPose(T.car,0)}
-    for(const p of NET.peers.values()){if(p.car&&p.car.d||p.m==="d")continue;if(Math.hypot(p.x-eye[0],p.z-eye[2])>120)continue;const M=netModel(p);if(!M)continue;
+    for(const p of NET.peers.values()){if(!NET_EXTRAS_INDOORS&&!town||p.car&&p.car.d||p.m==="d")continue;if(Math.hypot(p.x-eye[0],p.z-eye[2])>120)continue;const M=netModel(p);if(!M)continue;
       FEET=town?(x,z,from)=>groundTop(T,x,z,from):null;WALKER.draw(M,VP,p.x,p.y,p.z,p.a,p.gait,t,null,"");FEET=null}
     netTags(VP,eye)}catch(e){FEET=null}}
 // name tags over the other players (within 60 m and in view)
 function netTags(VP,eye){const box=document.getElementById("nettags");if(!box)return;const W=cv.clientWidth,H=cv.clientHeight;
   for(const p of NET.peers.values()){if(!p.tag){p.tag=document.createElement("div");p.tag.className="ptag";box.appendChild(p.tag)}if(p.tag.textContent!==p.name)p.tag.textContent=p.name;
-    if(!NET_EXTRAS&&p.m==="d"){p.tag.hidden=true;continue}const inCar=p.car&&p.car.d,x=inCar?p.car.x:p.x,z=inCar?p.car.z:p.z,y=(inCar?1.75:p.y+2.0),d=Math.hypot(x-eye[0],z-eye[2]);
+    if(!NET_EXTRAS_CARS&&p.m==="d"||scene!=="town"&&!NET_EXTRAS_INDOORS){p.tag.hidden=true;continue}const inCar=p.car&&p.car.d,x=inCar?p.car.x:p.x,z=inCar?p.car.z:p.z,y=(inCar?1.75:p.y+2.0),d=Math.hypot(x-eye[0],z-eye[2]);
     const c=[VP[0]*x+VP[4]*y+VP[8]*z+VP[12],VP[1]*x+VP[5]*y+VP[9]*z+VP[13],VP[3]*x+VP[7]*y+VP[11]*z+VP[15]];
     const on=d<60&&c[2]>.1&&Math.abs(c[0]/c[2])<1.05&&Math.abs(c[1]/c[2])<1.05;p.tag.hidden=!on;
     if(on){p.tag.style.left=((c[0]/c[2]*.5+.5)*W).toFixed(1)+"px";p.tag.style.top=((1-(c[1]/c[2]*.5+.5))*H).toFixed(1)+"px";p.tag.style.opacity=d>40?.75:1}}}
 // the street: send what changed here since last time (knocked over, burst, put right), and take others' changes
-function netStreet(out){if(!NET_EXTRAS||NET.state!=="on"||!NET.room||!NET.room.startsWith("town:"))return;const st=NET.room.slice(5),cur=(out[st]&&out[st].dyn)||{},prev=NET.sent[st]||(NET.sent[st]={});
+function netStreet(out){if(!NET_EXTRAS_STREET||NET.state!=="on"||!NET.room||!NET.room.startsWith("town:"))return;const st=NET.room.slice(5),cur=(out[st]&&out[st].dyn)||{},prev=NET.sent[st]||(NET.sent[st]={});
   let ch={},n=0;const flush=()=>{if(n)netSend({t:"st",ch});ch={};n=0};
   for(const[i,v]of Object.entries(cur)){const s=JSON.stringify(v);if(prev[i]!==s){prev[i]=s;ch[i]=v;if(++n>=20)flush()}}
   for(const i of Object.keys(prev))if(!(i in cur)){delete prev[i];ch[i]=null;if(++n>=20)flush()}flush()}
@@ -5414,7 +5414,7 @@ function chatAdd(name,text,mine){NET.chat.push({name,text,mine,at:Date.now()});i
 function chatDraw(){const el=document.getElementById("chatlog");if(!el)return;const box=document.getElementById("chatbox"),open=box&&!box.hidden,now=Date.now();
   const L=NET.chat.filter(c=>open||now-c.at<20000).slice(open?-12:-5);el.hidden=!L.length;el.innerHTML=L.map(c=>`<div class="cl${c.mine?" me":""}"><b>${esc(c.name)}</b> ${esc(c.text)}</div>`).join("")}
 setInterval(()=>{if(NET.chat.length)chatDraw()},2000);
-function chatOpen(){const box=document.getElementById("chatbox");if(!box)return;if(!NET_EXTRAS){toast("Chat is coming soon.");return}if(NET.state!=="on"){toast("Chat needs the live server. "+(NET.why?"Single-player for now: "+NET.why+".":"Sign in to chat."));return}
+function chatOpen(){const box=document.getElementById("chatbox");if(!box)return;if(!NET_EXTRAS_CHAT){toast("Chat is coming soon.");return}if(NET.state!=="on"){toast("Chat needs the live server. "+(NET.why?"Single-player for now: "+NET.why+".":"Sign in to chat."));return}
   box.hidden=false;chatDraw();const inp=document.getElementById("chatin");inp.value="";setTimeout(()=>inp.focus(),30)}
 function chatClose(){const box=document.getElementById("chatbox");if(box)box.hidden=true;const inp=document.getElementById("chatin");if(inp)inp.blur();chatDraw()}
 document.getElementById("chatbox").addEventListener("submit",e=>{e.preventDefault();chatSend()});document.getElementById("chatin").addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();chatClose()}e.stopPropagation()});
