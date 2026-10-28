@@ -297,3 +297,79 @@ stairs: all done and pushed, plus the reverse camera.
 3. Nigerian clothing and hair for the character creator (agbada, kaftan, senator wear, beards, ankara gown, iro and
    buba, gele, locs, twists, slippers, sandals), fitted to the MPFB bodies with hide lists.
 4. Convert the Ural police and fire trucks.
+
+## 12. State of the project (28 October 2026; read this first if you are new)
+
+This file alone is enough to carry on. The game is one file, `index.html`, served by GitHub Pages at
+https://ermaline-segs.github.io (from `main`). Supabase holds logins, money, ownership, roles and saving (the
+`supabase_*.sql` files set it up). The live multiplayer server is in `server/` and runs on Cloudflare at
+`https://delta-city-live.deltacity.workers.dev`. Rules for helpers are in section 2; the owner's decisions are in
+sections 5 to 9.
+
+### Finished and live (on `main`)
+- Four states (Asaba, Warri, Ozoro, Agbor), with government, courts, police, banks, Treasury, Immigration, hospital,
+  markets and shops, public insides, compounds with gates and car parks, and a map tag on every building.
+- Driving: the Sovereign GT with opening doors, a visible driver, damage, repairs and tow, garages and car parks, and a
+  reverse camera.
+- Feet on the ground: real stairs and kerbs; solid indoor furniture.
+- Fuel: two filling stations per state, each with one male and one female attendant, the real pump and nozzle, and
+  real fuel caps. K950 a litre, held on the server; only the Chief Admin and the Minister of Agriculture & Natural
+  Resources can change it. Each state has a cooking-gas depot beside both of its stations (building, sign, map tag and
+  props, no buttons yet).
+- **Live multiplayer, first version** (pull request https://github.com/Ermaline-Segs/delta-city/pull/1, merged
+  28 October 2026; its server deploy needed a test fix, https://github.com/Ermaline-Segs/delta-city/pull/2): who is online, and other players walking in the same town or building with name tags. When the
+  server can't be reached it falls back to single-player with an "Offline mode" notice.
+
+### Multiplayer: what is left, in order
+Everything below is already written in `index.html` and `server/`, but switched off: `const NET_EXTRAS=false;` in
+`index.html`. To work on them, set it to `true` and test with two signed-in windows, phone and desktop. The test
+scripts used so far are described in sections 7 and 11.
+1. **Other players' cars:** the car, doors, wheels and seated driver. A player who is driving is hidden for now, name
+   tag included.
+2. **The shared street:** knocked-over and repaired street objects, and burst hydrants, seen by everyone in the town.
+3. **Chat:** the phone's Chat app, or T on a keyboard. Today it only says "Chat is coming soon".
+4. **Inside buildings:** players in the same room see each other, and doors open for other players. Built, but not
+   re-tested since the first version.
+
+### Next steps after that, in order
+1. Phase 3, homes (section 6). The buildings are ready in `assets/buildings/homes/`. Prices are set: room
+   K250,000 / K15M, flat K500,000 / K30M, three-bedroom bungalow K800,000 / K50M, duplex K1.2M / K75M, mansion
+   K3M / K200M. Rent is per two weeks, followed by the price to buy. Only the Minister of Housing & Infrastructure
+   and the Chief Admin can change them, checked on the server.
+2. Then the rest of the queue in section 4 (solid usable furniture, highways, public transport, character creator,
+   buying cars, life needs).
+3. Smaller jobs:
+   - when another car becomes drivable, lower the attendant's hand for low fuel caps (BRT bus, Starlite, UAZ,
+     Mula Van), and add a refuel test for that car's fuel-cap side;
+   - set a cooking-gas price (the owner decides it);
+   - the attendants' red and navy coverall variants;
+   - the six-wheel Ural trucks;
+   - whether the 53-bone MPFB skeleton can be skinned in the game.
+
+### SQL the owner still has to run
+None. Every `supabase_*.sql` file in the repository has been run; the last was `supabase_fuel.sql` on 28 October
+2026, the version that removes the Minister of Petroleum. Any new SQL file must say in this section that it is
+waiting to be run.
+
+### If multiplayer causes problems
+1. **Undo it:**
+   1. Open https://github.com/Ermaline-Segs/delta-city/pull/1 and press **Revert**. GitHub makes a new pull
+      request.
+   2. Open that new pull request and press **Merge pull request**, then **Confirm merge**.
+   3. GitHub Pages republishes the game without multiplayer within a few minutes. Players should reload the page.
+   4. Leave pull request 2 as it is: it only changed a server test, and it works with the old server too.
+2. **The server:** merging the revert also puts back the previous server code automatically. The revert changes
+   `server/`, and the "Live server" workflow (`.github/workflows/live-server.yml`) publishes `server/` to Cloudflare
+   whenever it changes on `main`. **Nothing needs doing in Cloudflare.**
+   - Check it under the repository's **Actions** tab: a green tick on "Live server".
+   - If it shows a red cross, open **Actions → Live server → Run workflow** (branch `main`) to publish again.
+   - Without multiplayer the game never contacts the server, so even an old or stopped server does no harm.
+3. **Daily use, and the free limit:**
+   - **In the game:** the Chief Admin's **Admin** screen, "Live server" part. It shows today's requests against the
+     free 100,000, running time, players online, and a projection for 2, 5 and 10 players.
+   - **In Cloudflare:** dash.cloudflare.com → **Workers & Pages** → `delta-city-live` → **Metrics**.
+   - **When the free daily limit is used up:** the server stops taking players. The game carries on single-player.
+     A small "Offline mode" notice appears top right; on a computer, holding the mouse over it says "the live server has used
+     today's free allowance; it comes back at 01:00". That is 00:00 UTC, 01:00 Lagos time. Players reconnect by
+     themselves after that.
+   - The server stops at 95,000 requests, so it stays inside the free plan and never costs money.
