@@ -75,7 +75,8 @@ traffic lights, hydrants and breakable street objects; the cream-and-green HUD; 
   cooking-gas price will follow the same rule. There is **no** Minister of Petroleum. A fill is charged at the
   end: litres actually put in x the price, rounded to the nearest K, paid to the **state's account**. A typed amount buys
   amount / price litres (K10,000 = 10.53 L, exactly K10,000), stopping early if the tank fills.
-- **Cooking gas:** sold at the depot beside each filling station; prices to be decided.
+- **Cooking gas:** sold at the gas depot beside **every** filling station (8 depots, 2 per state); gas prices to be
+  decided (same price rule as fuel: Chief Admin and the Minister of Agriculture & Natural Resources).
 - BRT bus livery: **red and white**, "BRT" on the sides and front.
 - No mosque. Asaba's Lifestyle centre "#Chapel" is part of the club.
 
@@ -98,12 +99,18 @@ traffic lights, hydrants and breakable street objects; the cream-and-green HUD; 
   in `assets/home/` (Codex is adding a large Nigerian home set: fans, generators, gas cooker and cylinder, TVs, sofas,
   beds, mosquito nets, buckets and so on).
 - Invitations: build the rules now; seeing visitors move inside comes with live multiplayer.
+- **Home buildings (made by the local session, commit a7552b7):** in `assets/buildings/homes/`, one exterior and one
+  interior `.glb` per type, each with a `.json` of its door nodes. **Quarters** use the self-contained room row
+  (`room_*`); **Township** the flat block (`flat_*`) and the three-bedroom bungalow (`bungalow_*`); **GRA** and
+  **Estate** the duplex (`duplex_*`) and the mansion (`mansion_*`). Door, room, gate and car-park positions are in
+  `assets/buildings/homes/homes.md`. The **three-bedroom bungalow is new: its rent and buying price are still to be
+  decided by the owner** (do not invent one).
 - **Owner's decisions on changing homes:**
   - Rent already paid is **not refunded** when a renter upgrades to buying, moves to another home or ends the
     rental. The new contract starts fresh. Ending a rental keeps the home until the paid 14 days run out, then it is
     freed and the furniture goes to storage.
   - An owner may **rent their home out** to another player, or **sell it** to another player or to the state.
-  - **Selling back to the state:** the state pays **70% of the price the owner actually paid**, so the price paid is
+  - **Selling back to the state:** the state pays **70% of the price the owner actually paid** (no rent refunds of any kind), so the price paid is
     stored on the home record. It is paid from the state's account. If the state's account can't cover it, **ask the
     owner** before choosing a fallback.
   - Furniture in a sold home goes to the owner's **storage, appended** (never replacing what is already there); the
