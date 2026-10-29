@@ -1,2 +1,14 @@
 # Archives: GitHub refuses files over 100 MB, so never commit .zip files
 *.zip
+
+# Tool output from AI helper sessions — never part of the game
+.helix-overflow/
+
+# Python bytecode caches
+__pycache__/
+
+# AI agent working notes
+.agent/
+
+# Playwright/E2E test harness for NET_EXTRAS live tests
+.nettest/

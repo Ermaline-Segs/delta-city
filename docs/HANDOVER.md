@@ -321,15 +321,56 @@ sections 5 to 9.
   server can't be reached it falls back to single-player with an "Offline mode" notice.
 
 ### Multiplayer: what is left, in order
-Everything below is already written in `index.html` and `server/`, but switched off: `const NET_EXTRAS=false;` in
-`index.html`. To work on them, set it to `true` and test with two signed-in windows, phone and desktop. The test
-scripts used so far are described in sections 7 and 11.
-1. **Other players' cars:** the car, doors, wheels and seated driver. A player who is driving is hidden for now, name
-   tag included.
+Everything below is already written in `index.html` and `server/`, each behind its own flag on one line near the top of
+`index.html`: `const NET_EXTRAS_CARS=...,NET_EXTRAS_STREET=...,NET_EXTRAS_INDOORS=...,NET_EXTRAS_CHAT=...;`.
+Set a flag to `true` to turn that one on, then test with two signed-in windows, phone and desktop. The test scripts
+used so far are described in sections 7 and 11; the flag defaults are guarded by `test/flags.mjs` (run
+`node test/flags.mjs` from the repository root — it must pass before pushing a change to that line).
+1. **Other players' cars:** the car, doors, wheels and seated driver. **Turned on by job 1 (this PR, 28 October
+   2026):** `NET_EXTRAS_CARS=true` ships, so a driving player is now seen in their car with name tag, instead of
+   being hidden. Until the server records which model each player drives, **every remote car is drawn as a Sovereign
+   GT** — add a `car` field to the peer message when more cars become drivable.
 2. **The shared street:** knocked-over and repaired street objects, and burst hydrants, seen by everyone in the town.
 3. **Chat:** the phone's Chat app, or T on a keyboard. Today it only says "Chat is coming soon".
-4. **Inside buildings:** players in the same room see each other, and doors open for other players. Built, but not
-   re-tested since the first version.
+4. **Inside buildings:** players in the same room see each other, and doors open for other players. This was already
+   live since the first version and was never behind the old `NET_EXTRAS` flag, so `NET_EXTRAS_INDOORS` ships `true`:
+   the re-test job only confirms it, it does not switch anything off.
+
+**Job 1 result (28 October 2026, this PR):** the one `NET_EXTRAS` flag was split into four per-feature flags;
+`NET_EXTRAS_CARS` ships on, `NET_EXTRAS_STREET` and `NET_EXTRAS_CHAT` ship off, `NET_EXTRAS_INDOORS` ships on (it
+protects what was already live). Checks: `node test/flags.mjs` 10 of 10 pass; JavaScript syntax check clean;
+`npm test` in `server/` 31 of 31 pass (server unchanged).
+
+**Live two-account car test (final run, 28 October 2026):** one car — the Chief Admin's Sovereign GT, given to
+Account A. Account B stays on foot throughout and never holds the Chief Admin role. Round 1: A drives in a
+desktop-sized window, B watches in a phone-sized window. Round 2: the windows are resized so A drives at phone
+size and B watches at desktop size. Score **44 of 56 pass, 12 fail, 0 errors.** Every check of what the driver
+does to its own car passes in both rounds (get in, door, wheel spin, speed, gear, seated driver, get out); all 12
+failures are on what the *watcher* sees of the *other player's car*:
+- R1 (5): name tag not positioned in the DOM before the walk (`before=null`); name tag left/top never sampled;
+  peer-car lights + state desynced (self `l=1` vs peer `l=0`, peer `dr=0` while A is driving); name tag never
+  follows the moving car (`null -> null`); B still sees A as "in-car" after A exits.
+- R2 (7): B's view of the peer car is stale for the whole round — door opening not seen (`null`); peer car
+  position frozen (`d=0.00m`), no yaw change on steer (`dYaw=0.000rad`), front wheels never steer (`st=0`),
+  lights + state mismatch (self `l=2` vs peer `l=1, st=0, dr=0`), name tag not attached to the car
+  (`null -> null`), peer wheel spin never accumulates (`0 -> 0`). "B drives, A watches" was not tested because
+  there is only one car; the code path is the same in both directions. These 12 are the remaining remote-car
+  bugs to chase before the car experience is considered done; the on-foot checks (position, heading, name-tag
+  presence, reconnection, state change, chat/street off) pass in both rounds.
+
+**Finding (reported, not fixed in this PR) — `toTown()` → `parkCar(T)` gives ordinary players a drivable
+Sovereign GT at the kerb, breaking the "only the Chief Admin has the car, and only the Chief Admin gives cars"
+rule:** `index.html:2903` — `toTown` calls `parkCar(T)` whenever the town has no car and `garOn()` is false.
+`garOn()` at `index.html:3896` is `!!AUTH.user && !AUTH.offline && !!AUTH.char` — true for **any** signed-in
+player with a character, not admin-only; for those players `parkCar` is skipped and `T.car` stays null unless
+the Chief Admin handed over keys. But for a player without a car in their profile (or one who is offline /
+unsigned) the guard fails open: `parkCar` (`index.html:2905-2906`) spawns `T.car = {x, z, yaw, v: 0}` **with no
+`vid`**, and `garCanDrive` at `index.html:3937` is `!C.vid || GAR.list.some(...)` — a no-`vid` car is drivable by
+**everyone** through the `!C.vid` branch, and `carEnter` at `index.html:3631-3632` has no role check at all.
+The only place `vid` (ownership) is set is `garPlace`, `index.html:3916-3918`, which handles only keys-given
+cars. So an ordinary player arriving in a town with no parked car gets a Sovereign GT at the kerb that anyone
+can drive. Fix (for the next job): make `parkCar` ownership-aware, or drop the `!C.vid` fallback in
+`garCanDrive` so a car without a recorded owner cannot be driven.
 
 ### Next steps after that, in order
 1. Phase 3, homes (section 6). The buildings are ready in `assets/buildings/homes/`. Prices are set: room
