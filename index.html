@@ -2987,10 +2987,7 @@ let HV=null,HFLOOR_N=0;
 const toHosp=(n,fromLift)=>fadeTo(STATES[me.town].hosp+": "+HFLOORS.find(f=>f.n===n).name,()=>{HV=hospOf(n,STATES[me.town].hosp);HFLOOR_N=n;const L=HV.F.lift;stand("hosp",fromLift?{x:L.x,z:L.z+1.4,yaw:Math.PI}:{x:0,z:6.1,yaw:0})});
 const toGov=(kind,spot)=>fadeTo(GOV_SPEC[kind](me.town).title,()=>{GV=govOf(kind,me.town);govSpot=spot;stand("gov",{x:0,z:G_LD-3.05,yaw:0})});
 // arrive in a town, standing outside one of its doors and facing away from it
-const toTown=(st,spot,text,dist,pos)=>fadeTo(text||st,()=>{me.town=st;driving=false;const T=townOf(st),d=T.spots[spot]||T.spots.imm;TGY=0;scene="town";me.inside=false;me.entered=true;Object.assign(cam,pos?{x:pos.x,y:1.7,z:pos.z,yaw:pos.yaw||0,pitch:0}:{x:d.x+d.fx*(dist||5),y:1.7,z:d.z+d.fz*(dist||5),yaw:Math.atan2(-d.fx,-d.fz),pitch:0});SNAPCAM=true;if(!T.car&&!garOn())parkCar(T);garResume()});
-// one car, parked at the kerb of the road nearest to where you arrive
-function parkCar(T){let best=null;for(const r of T.map.roads){if(r.bridge)continue;const vx=r.x1-r.x0,vz=r.z1-r.z0,L=Math.hypot(vx,vz),t=clamp(((cam.x-r.x0)*vx+(cam.z-r.z0)*vz)/(L*L),.08,.92),x=r.x0+vx*t,z=r.z0+vz*t,d=Math.hypot(cam.x-x,cam.z-z);if(!best||d<best.d)best={d,x,z,ux:vx/L,uz:vz/L,w:r.w}}
-  if(!best)return;const side=((cam.x-best.x)*-best.uz+(cam.z-best.z)*best.ux)>=0?1:-1,off=best.w/2-1.4;T.car={x:best.x-best.uz*side*off,z:best.z+best.ux*side*off,yaw:Math.atan2(-best.ux*side,-best.uz*side),v:0};if(T.savedCar){const s=T.savedCar;T.savedCar=null;if(s.pos&&(s.job||s.shop)){T.car.x=s.pos[0];T.car.z=s.pos[1];T.car.yaw=s.pos[2]}delete s.pos;T.car.dmg=s}}       // a car left at the workshop is still there
+const toTown=(st,spot,text,dist,pos)=>fadeTo(text||st,()=>{me.town=st;driving=false;const T=townOf(st),d=T.spots[spot]||T.spots.imm;TGY=0;scene="town";me.inside=false;me.entered=true;Object.assign(cam,pos?{x:pos.x,y:1.7,z:pos.z,yaw:pos.yaw||0,pitch:0}:{x:d.x+d.fx*(dist||5),y:1.7,z:d.z+d.fz*(dist||5),yaw:Math.atan2(-d.fx,-d.fz),pitch:0});SNAPCAM=true;garResume()});
 // how high the bank's floor is where you stand: its stairs rise from the hall to the gallery
 function floorAt(x,z,y){if(scene!=="bank")return 0;if(x>14.3&&z<=4.1&&z>=-2)return z>4?0:Math.min(18,Math.floor((4-z)*3)+1)*HALL.mezz/18;      /* the 18 steps of the stairs, each 1/3 m deep */if(y>1.6&&z<-1.9)return HALL.mezz;return 0}
 function blocked(x,z){const r=.32,hit=w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r;
@@ -4024,7 +4021,7 @@ function garTick(){if(scene==="town")GAR.out=[cam.x,cam.z,me.town];if(!garOn())r
   if(!garHold(C)&&!(driving&&M.st===me.town)&&NOW-GAR.ruleT>3){const far=garDist(M.st,C)>GAR.cfg.despawn_distance_m,late=C.abandonedAt&&garNow()-C.abandonedAt>GAR.cfg.abandon_s*1000;if(far||late){due=true;GAR.ruleT=NOW}}
   if(due)garBeat()}
 // keys: the car can be driven by its owner or someone holding its keys (the server only lists those cars)
-const garCanDrive=C=>!C.vid||GAR.list.some(v=>v.id===C.vid&&v.out_by_me);
+const garCanDrive=C=>!!C.vid&&GAR.list.some(v=>v.id===C.vid&&v.out_by_me);
 // after getting out: a car outside a car park is on the 15-minute clock
 function garLeft(C){GAR.beatT=-1e9;if(!C.vid)return"";const T=townOf(me.town),w=parkWhere(T,C);if(w&&w.bay!=null)return"Parked in bay "+(w.bay+1)+" of "+w.P.name+". It stays here safely.";
   return"Your car is outside a car park bay. If you leave it here, it is taken back to its car park in "+Math.round(GAR.cfg.abandon_s/60)+" minutes."}
@@ -5233,7 +5230,6 @@ function hudSheet(){const el=HUD.el.sheet;if(!el)return;const k=HUD.open;el.hidd
   if(typeof AUTH!=="undefined"&&AUTH.char)row("wallet","K"+Number(me.cash||0).toLocaleString("en-GB"),"Cash in your wallet");
   if(me.cert)row("id","Identity card",[me.cert.name,me.cert.state&&"Citizen of "+me.cert.state,me.cert.no].filter(Boolean).join(" · "));
   if(garOn())for(const v of GAR.list){const P=v.park&&garPark(v.park);row("car",v.plate||"Vehicle",v.status==="stored"?"Stored at "+(P?P.name:"a car park"):v.out_by_me?"Out with you"+(v.state?" in "+v.state:""):"Out with someone who has its keys")}
-  else{const C=TOWNS[me.town]&&TOWNS[me.town].car;if(C&&!C.vid)row("car","Practice car","For guests; it is not saved")}
   el.innerHTML='<h4>INVENTORY</h4><div class="inv">'+(R.join("")||"<p>Nothing here yet.</p>")+(garOn()?"<p>Open a garage at any car park (P on the map) to take out a vehicle or give keys.</p>":"")+"</div>"}
 /* ---- notifications: every toast becomes a card for a few seconds, and stays in the history behind the bell */
 function hudKind(t){return/(cannot|can't|not |no room|refus|fail|error|only |blocked|fire|burst|too far|taken back|you do not|occupied|wait)/i.test(t)?"warn":/(paid|ready|done|stored|spawn|clocked|welcome|complete|arrived|repaired|refuelled|given|now has|added|saved)/i.test(t)?"ok":"info"}
@@ -5322,7 +5318,7 @@ function ui(){guide();const el=document.getElementById("picks");el.innerHTML="";
     else if(scene==="imm"||scene==="border")add("Go to the town",()=>toTown(me.entered?me.town:(me.cert&&STATES[me.cert.state]?me.cert.state:"Asaba"),"imm",null,9));
     add("Start again at the border",()=>toBorder(true))}
   const walk=touch?"Left thumb: move. Drag elsewhere to look around, pinch to zoom. Hold Run to run. ":"W A S D move, Shift runs, Space jumps. Click the scene to look around with the mouse (Esc frees it); the wheel zooms; V switches view. ";
-  document.getElementById("tip").textContent={town:walk+(touch?"":"Hold Shift to run. ")+"Tap the round map for directions. Blue doorways lead inside. "+(garOn()?"Your vehicles are kept in the car parks (P on the map).":"Walk up to the red car to drive it."),
+  document.getElementById("tip").textContent={town:walk+(touch?"":"Hold Shift to run. ")+"Tap the round map for directions. Blue doorways lead inside. "+(garOn()?"Your vehicles are kept in the car parks (P on the map).":"There is no car in the street; the Chief Admin gives keys at the car parks (P on the map)."),
     border:walk+"Go through the gate and into the blue doorway marked Arrivals.",imm:walk+(touch?"Walk up to Violet to talk to her.":"Walk up to Violet and press E to talk to her."),bank:walk+"The blue doorway is the way out.",gov:walk+"The blue doorway is the way out.",trs:walk+"Walk up to a desk terminal to use it. The blue doorway leads out.",hosp:walk+"The lifts are at the back of the lobby; walk up to them to change floor. The blue doorways lead out."}[scene];hudNav()}
 /* The airport's departures board: choose a state and fly there. */
 function departures(){choosing=true;const el=document.getElementById("choose");el.hidden=false;
