@@ -196,6 +196,32 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 
 ## 11. Updates since the first handover (newest first)
 
+- **A distinct look for each state bank (PR 6, OPEN — do not merge until the owner OKs the screenshots):**
+  - Bank names come from the Discord server; no real Nigerian bank names or logos anywhere.
+    `BANK_STYLES` in `index.html` holds each bank's palette, logo and layout variant, applied inside
+    and out: walls, sign bands, counters, carpets, medal wall and the bank's ATMs (which carry the
+    bank's name and colours, PR 5).
+  - **Crestfield Bank (Asaba)** — emerald green and gold, gold crest/shield logo: grand double-height
+    hall, round information desk mid-hall, long curved teller counter at the back, twin staircases up
+    to a mezzanine gallery of offices overlooking the hall.
+  - **Eastway Bank (Warri)** — deep teal and silver, rising-sun-with-arrow-east logo: long narrow hall,
+    tellers along one wall, customer-service desks along the other, queue lane down the middle, offices
+    along a back corridor, straight side staircase.
+  - **Trustmark Bank (Ozoro)** — burgundy and cream with dark wood, round seal logo: compact
+    wood-panelled hall, tellers behind glass windows facing the door, rows of waiting benches, the
+    manager's office visible through glass, corner staircase.
+  - **Grandview Bank (Agbor)** — charcoal and amber, window-over-skyline logo: open-plan modern hall,
+    island teller pods, self-service area by the ATM vestibule, glass-walled offices around the edge,
+    L-shaped staircase.
+  - Rooms and who may enter them are unchanged (still per `docs/interiors_from_discord.md`); stairs,
+    doors, counters and aisles checked clear; the PR 5 ATM vestibule and the outside ATM gallery are
+    kept at every bank.
+  - Visually checked in a real browser (phone and desktop sizes): all eight screenshots (four
+    exteriors, four halls) render as proper 3D scenes; Crestfield (dark green walls, gold sign band)
+    and Eastway (deep teal, silver) confirmed by vision; Trustmark and Grandview verified by their
+    own colour signatures in the saved frames (the vision API was billing-blocked mid-check).
+  - **Status: pull request open, awaiting the owner's OK before merge.**
+
 - **Blocked paths, real doors, ATMs everywhere (PR 5, merged 29 October 2026):**
   - **36 ATMs — 9 per state** — all wired to the existing banking system: the machine only reads
     the wallet the bank keeps, in K; deposits/withdrawals stay at the teller counters, no new

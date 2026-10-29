@@ -900,20 +900,37 @@ function homesSample(){ground(160);const rows=[["villa","luxury","estate"],["fla
 /* Crestfield Bank from outside: ivory sides, a glass front in a navy frame, the name in gold,
    cash machines under their own canopy beside the door, railings and flags. */
 const NAVY="#10244a",NAVY2="#1b3566",GOLD="#c9a13a",IVORY="#f1ead8";
+/* Per-bank looks: each state's bank gets its own palette, logo and layout variant (PR 6). */
+const BANK_STYLES={
+ "Crestfield Bank":{v:"grand",wall:"#0e3b2c",wall2:"#0a2c21",panel:"#0a2c21",accent:"#c9a13a",accent2:"#f1d27a",signBg:"#0e3b2c",signTx:"#f1d27a",counter:"#175c41",counter2:"#0e3b2c",carpet:"#123f2f",medal:"#0e3b2c",medal2:"#c9a13a",border:"#0e3b2c",floor:"#f2eee5",atm:["#0e3b2c","#c9a13a"],roof:"#0a2c21",glass:"#5f93b4",logo:"crest",name:"Crestfield"},
+ "Eastway Bank":{v:"long",wall:"#0f4a52",wall2:"#0b3840",panel:"#0b3840",accent:"#c9cdd3",accent2:"#e8ebef",signBg:"#0f4a52",signTx:"#e8ebef",counter:"#17606c",counter2:"#0f4a52",carpet:"#123f4a",medal:"#0f4a52",medal2:"#c9cdd3",border:"#0f4a52",floor:"#eef2f2",atm:["#0f4a52","#c9cdd3"],roof:"#0b3840",glass:"#8fc3d4",logo:"sun",name:"Eastway"},
+ "Trustmark Bank":{v:"compact",wall:"#5a1f2a",wall2:"#43151f",panel:"#4a3222",accent:"#f1ead8",accent2:"#d8c9a8",signBg:"#5a1f2a",signTx:"#f1ead8",counter:"#6e2836",counter2:"#5a1f2a",carpet:"#4a2028",medal:"#5a1f2a",medal2:"#f1ead8",border:"#5a1f2a",floor:"#efe8dc",atm:["#5a1f2a","#f1ead8"],roof:"#43151f",glass:"#cfe6f2",logo:"seal",name:"Trustmark"},
+ "Grandview Bank":{v:"open",wall:"#2b2f33",wall2:"#1f2327",panel:"#33383d",accent:"#d98e2b",accent2:"#f2b56b",signBg:"#2b2f33",signTx:"#f2b56b",counter:"#3a4046",counter2:"#2b2f33",carpet:"#24282c",medal:"#2b2f33",medal2:"#d98e2b",border:"#2b2f33",floor:"#e8e6e2",atm:["#2b2f33","#d98e2b"],roof:"#1f2327",glass:"#8fa8bd",logo:"window",name:"Grandview"}
+};
+function bankStyle(n){return BANK_STYLES[n]||BANK_STYLES["Crestfield Bank"]}
+/* The bank's logo, flat on a wall (faces +z before the optional turn): crest, rising sun with east arrow, round seal, window over a skyline. */
+function bankLogo(x,y,z,r,kind,main,sub,turn){at(x,z,turn||0,()=>{const Y=y;
+  if(kind==="crest"){box(0,Y+r*.14,0,r*.95,r*.5,.05,main,K.flat);box(0,Y-.28*r,0,r*.7,r*.46,.05,main,K.flat);box(0,Y-.62*r,0,r*.42,r*.24,.05,main,K.flat);for(const s of[-1,1])box(s*.3*r,Y+.12*r,.04,r*.1,r*.44,.03,sub,K.gold);box(0,Y+.14*r,.04,r*.26,r*.26,.03,sub,K.gold)}
+  else if(kind==="sun"){discF(0,Y-.1*r,0,r*.62,main,K.flat,24);for(let k=0;k<8;k++){const a=k/8*6.2832+Math.PI/8;box(Math.cos(a)*r*.85,Y-.1*r+Math.sin(a)*r*.85,0,r*.22,.08*r,.03,sub,K.gold)}box(0,Y+.5*r,0,r*1.05,.07*r,.03,sub,K.gold);box(r*.78*r,Y-.02*r,0,0,.07*r,.03,sub,K.gold);box(r*.88*r,Y+.08*r,0,r*.18*r,.14*r,.04,sub,K.gold)}
+  else if(kind==="seal"){discF(0,Y,0,r*.95,main,K.flat,32);discF(0,Y,.02,r*.7,sub,K.gold,32);discF(0,Y,.04,r*.5,main,K.flat,32);for(let k=0;k<12;k++){const a=k/12*6.2832;box(Math.cos(a)*r*.82,Y+Math.sin(a)*r*.82,.03,.05*r,.05*r,.02,sub,K.gold)}}
+  else{box(0,Y+.1*r,0,r*.9,r*.62,.05,main,K.flat);for(let k=0;k<6;k++){const h=(k%3)+1;box(-r*.4+k*r*.16,Y-.42*r+(h-1)*.09*r,r*.06*r,0,.09*r,.03,sub,K.gold)}box(0,Y-.2*r,.05,r*.94,.05*r,.03,sub,K.gold)}
+});}
 function royalBank(o){const W=o.w,Dp=o.d,Ht=o.h||7.2,YW=o.yardW,YD=o.yardD,f=Dp/2,yc=(YD-Dp)/2-3;            // the yard reaches further in front than behind
-  box(0,0,yc,YW,.06,YD,"#d9d6cc",K.tile);box(0,0,0,W+.8,.5,Dp+.8,"#b8bcbf");box(0,.5,-.2,W,Ht,Dp-.4,IVORY);box(0,Ht+.5,0,W+.8,1.0,Dp+.8,NAVY);box(0,Ht+1.5,0,W+1.1,.14,Dp+1.1,GOLD,K.gold);box(0,Ht+1.64,0,W+.7,.05,Dp+.7,"#c5cacf");
-  const n=Math.round(W/2);for(let k=0;k<=n;k++)box(-W/2+k*W/n,.5,f,.18,Ht,.24,NAVY);for(const y of[3.2,5.2])box(0,y,f,W,.16,.24,NAVY);
-  for(let k=0;k<n;k++){const x=-W/2+(k+.5)*W/n;if(Math.abs(x)>1.4)box(x,.5,f-.02,W/n-.16,Ht,.06,"#5f93b4",K.glass)}box(0,3.3,f-.02,2.6,Ht-2.8,.06,"#5f93b4",K.glass);
-  sign(0,Ht+.62,f+.44,Math.min(15,W*.45),.8,(o.name||"Crestfield Bank").toUpperCase(),NAVY,"#f1d27a");
+  const S=bankStyle(o.name);
+  box(0,0,yc,YW,.06,YD,"#d9d6cc",K.tile);box(0,0,0,W+.8,.5,Dp+.8,"#b8bcbf");box(0,.5,-.2,W,Ht,Dp-.4,S.wall);box(0,Ht+.5,0,W+.8,1.0,Dp+.8,S.wall2);box(0,Ht+1.5,0,W+1.1,.14,Dp+1.1,S.accent,K.gold);box(0,Ht+1.64,0,W+.7,.05,Dp+.7,"#c5cacf");
+  const n=Math.round(W/2);for(let k=0;k<=n;k++)box(-W/2+k*W/n,.5,f,.18,Ht,.24,S.wall2);for(const y of[3.2,5.2])box(0,y,f,W,.16,.24,S.wall2);
+  for(let k=0;k<n;k++){const x=-W/2+(k+.5)*W/n;if(Math.abs(x)>1.4)box(x,.5,f-.02,W/n-.16,Ht,.06,S.glass,K.glass)}box(0,3.3,f-.02,2.6,Ht-2.8,.06,S.glass,K.glass);
+  sign(0,Ht+.62,f+.44,Math.min(15,W*.45),.8,(o.name||"Crestfield Bank").toUpperCase(),S.signBg,S.signTx);
   for(const sx of[-1,1])for(let z=-Dp/2+2;z<Dp/2-1;z+=3)windowX(sx*W/2,4.4,z,1.5,1.6,sx);
-  for(let k=0;k<3;k++)box(0,0,f+.6+(3-k)*.4-.2,6+(3-k)*.6,(k+1)*.17,.4,"#c9cdd0");box(0,3.6,f+2,7,.3,4,NAVY);box(0,3.9,f+2,7.3,.1,4.3,GOLD,K.gold);for(const sx of[-1,1])cyl(sx*3,0,f+3.6,.2,3.6,GOLD,12);
+  for(let k=0;k<3;k++)box(0,0,f+.6+(3-k)*.4-.2,6+(3-k)*.6,(k+1)*.17,.4,"#c9cdd0");box(0,3.6,f+2,7,.3,4,S.wall2);box(0,3.9,f+2,7.3,.1,4.3,S.accent,K.gold);for(const sx of[-1,1])cyl(sx*3,0,f+3.6,.2,3.6,S.accent,12);
+  bankLogo(0,Ht-1.6,f+.3,1.5,S.logo,S.wall2,S.accent2,0);
   entrance(0,.5,f+.08,2.9,2.7,0,true);
-  const ax=Math.min(W/2-4,10),sh=o.name.replace(/\s+Bank\s*$/,"");box(ax,0,f+.9,7.6,.5,1.8,"#b8bcbf");box(ax,3.0,f+1,8.0,.22,2.4,NAVY);box(ax,3.22,f+1,8.2,.08,2.6,GOLD,K.gold);for(const sx of[-1,1])cyl(ax+sx*3.9,.5,f+2,.1,2.5,GOLD,8);     // ATM gallery: four machines side by side against the front wall
-  for(let k=0;k<4;k++)atmDraw(ax-3+(k*1.5),f+.5,0);   // geometry only; place() registers these four in WORLD coords (see the royal branch there)
-  sign(ax,2.55,f+2.22,3.4,.4,"ATM GALLERY  •  24 HOURS",NAVY,"#f1d27a");
-  const rail=(x,z,len,along)=>{if(NOFENCE)return;solidBox(x,z,along?len:.5,along?.5:len);box(x,0,z,along?len:.3,.6,along?.3:len,"#e6e8ea");for(let k=0;k<=len/1.4;k++){const q=-len/2+k*1.4;box(along?x+q:x,.6,along?z:z+q,.07,1.2,.07,NAVY)}box(x,1.8,z,along?len:.08,.07,along?.08:len,NAVY)};
+  const ax=Math.min(W/2-4,10),sh=o.name.replace(/\s+Bank\s*$/,"");box(ax,0,f+.9,7.6,.5,1.8,"#b8bcbf");box(ax,3.0,f+1,8.0,.22,2.4,S.wall2);box(ax,3.22,f+1,8.2,.08,2.6,S.accent,K.gold);for(const sx of[-1,1])cyl(ax+sx*3.9,.5,f+2,.1,2.5,S.accent,8);     // ATM gallery: four machines side by side against the front wall
+  for(let k=0;k<4;k++)atmDraw(ax-3+(k*1.5),f+.5,0,S.atm);   // geometry only; place() registers these four in WORLD coords (see the royal branch there)
+  sign(ax,2.55,f+2.22,3.4,.4,"ATM GALLERY  •  24 HOURS",S.signBg,S.signTx);
+  const rail=(x,z,len,along)=>{if(NOFENCE)return;solidBox(x,z,along?len:.5,along?.5:len);box(x,0,z,along?len:.3,.6,along?.3:len,"#e6e8ea");for(let k=0;k<=len/1.4;k++){const q=-len/2+k*1.4;box(along?x+q:x,.6,along?z:z+q,.07,1.2,.07,S.wall2)}box(x,1.8,z,along?len:.08,.07,along?.08:len,S.wall2)};
   const z0=yc-YD/2,z1=yc+YD/2;rail(0,z0,YW,true);rail(-YW/2,yc,YD,false);rail(YW/2,yc,YD,false);rail(-YW/4-2,z1,YW/2-4,true);rail(YW/4+2,z1,YW/2-4,true);
-  for(const s of[-1,1]){box(s*4,0,z1,.9,2.6,.9,IVORY);box(s*4,2.6,z1,1.1,.18,1.1,GOLD,K.gold);palm(s*(YW/2-3),z1-3,6.2);flag(s*6.5,z1-3,8.5)}}
+  for(const s of[-1,1]){box(s*4,0,z1,.9,2.6,.9,S.wall);box(s*4,2.6,z1,1.1,.18,1.1,S.accent,K.gold);palm(s*(YW/2-3),z1-3,6.2);flag(s*6.5,z1-3,8.5)}}
 /* ------------------------------ government buildings ------------------------------
    Federal: midnight navy, ivory stone, champagne gold, white, with charcoal roofs.
    State:   government teal, warm ivory, steel grey, white. One design for every state. */
@@ -1025,7 +1042,7 @@ function place(spec,x,z,turn){if(spec.key&&GUIDE_DOORS.includes(spec.key)){const
     {const yc=spec.kind==="royal"?(spec.yardD-spec.d)/2-3:0,P=spec.kind==="tower"&&spec.podium,bw=Math.max(spec.w,P?P.w:0)/2,bd=Math.max(spec.d,P?P.d:0)/2;yardBox(0,yc,spec.yardW,spec.yardD);
       if(pub)cmpReg(spec.key,spec.short||spec.name,[-spec.yardW/2,yc-spec.yardD/2,spec.yardW/2,yc+spec.yardD/2],[-bw,-bd,bw,bd])}
     mark(spec.kind==="tower"?(spec.short||spec.name):spec.short&&!/House|Court|Command|HQ|Immigration/.test(spec.short)?spec.name:(spec.short||spec.name),0,spec.kind==="royal"?spec.d/2+6:spec.d/2+5,spec.kind==="state"?S_TEAL:spec.kind==="royal"?NAVY:spec.band||spec.accent||"#14263D")});
-  if(spec.kind==="royal"&&MAPD.places){const ax=Math.min(spec.w/2-4,10),sh=spec.name.replace(/\s+Bank\s*$/,"");for(let k=0;k<4;k++){const p=doorAt(x,z,turn,spec.d/2+.5,ax-3+k*1.5);MAPD.places.push({name:spec.name+" ATM "+(k+1)+" of 4",x:p.x,z:p.z,color:"#10244a",group:"Services",icon:"🏧"});ATM_MACHINES.push({x:p.x,z:p.z,w:.9,d:.75,name:spec.name+" ATM "+(k+1)+" of 4",short:sh,turn,sc:"town",t:CUR_ST})}const vd=doorAt(x,z,turn,spec.d/2+.9);MAPD.places.push({name:spec.name+" ATM — Vestibule",x:vd.x,z:vd.z,color:"#10244a",group:"Services",icon:"🏧"})}
+  if(spec.kind==="royal"&&MAPD.places){const ax=Math.min(spec.w/2-4,10),sh=spec.name.replace(/\s+Bank\s*$/,""),ab=bankStyle(spec.name).atm[0];for(let k=0;k<4;k++){const p=doorAt(x,z,turn,spec.d/2+.5,ax-3+k*1.5);MAPD.places.push({name:spec.name+" ATM "+(k+1)+" of 4",x:p.x,z:p.z,color:ab,group:"Services",icon:"🏧"});ATM_MACHINES.push({x:p.x,z:p.z,w:.9,d:.75,name:spec.name+" ATM "+(k+1)+" of 4",short:sh,turn,sc:"town",t:CUR_ST})}const vd=doorAt(x,z,turn,spec.d/2+.9);MAPD.places.push({name:spec.name+" ATM — Vestibule",x:vd.x,z:vd.z,color:ab,group:"Services",icon:"🏧"})}
   const d=spec.yardD/2+8.7;BUILDINGS.push({name:spec.short||spec.name,x:x+Math.sin(turn)*d,z:z+Math.cos(turn)*d,y:spec.kind==="modern"?5:3.6,yaw:turn+Math.PI})}        // view from the middle of the road outside
 /* An airport: a glass-fronted terminal under a wide roof, a control tower, an apron with a
    parked aircraft, and a runway. Asaba's is Delta International Airport. */
@@ -1471,7 +1488,8 @@ function atmPublic(st,SP){const C=STATES[st],bn=C.bank,sh=bn.replace(/\s+Bank\s*
   if(A){if(A.cx!==undefined)spots.push([A.cx,A.cz,Math.atan2(A.fx,A.fz),"Delta International Airport"]);else spots.push([A.x+A.fz*3.4,A.z-A.fx*3.4,Math.atan2(A.fx,A.fz),"Delta International Airport"])}
   const L=LIFESITE[st];if(L&&guideBuilding("lifestyle",st)){const t=L[2],fx=Math.sin(t),fz=Math.cos(t);spots.push([L[0]+fx*5.5-fz*8.2,L[1]+fz*5.5+fx*8.2,t,"Lifestyle Centre"])}
   if(spots.length<4&&FS[1]){const F=FS[1];spots.push([F.x-F.f[1]*4.5,F.z+F.f[0]*4.5,Math.atan2(F.f[0],F.f[1]),"West Filling Station"])}
-  for(const[x,z,turn,what]of spots.slice(0,4)){atmState(x,z,turn,bn+" ATM — "+what,sh,undefined,{sc:"town",t:st});MAPD.places.push({name:bn+" ATM — "+what,x,z,color:"#10244a",group:"Services",icon:"🏧"})}}
+  const BS=bankStyle(bn);
+  for(const[x,z,turn,what]of spots.slice(0,4)){atmState(x,z,turn,bn+" ATM — "+what,sh,BS.atm,{sc:"town",t:st});MAPD.places.push({name:bn+" ATM — "+what,x,z,color:BS.atm[0],group:"Services",icon:"🏧"})}}
 function buildTown(st){CUR_ST=st;const C=STATES[st],SP={};PLACED_DOORS=[];const doors=()=>{for(const[k,d]of PLACED_DOORS)if(!SP[k]&&guideBuilding(k,st))SP[k]=d};BUILDINGS.length=0;CMPS=[];MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);if(st==="Asaba")nationalOffices();lifestylePlace(st);marketsPlace(st,SP);atmPublic(st,SP);doors();return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
   const R0=9,R1=17,W=9,LEN=110,start=R1-.6;roundabout(R0,R1);
   for(let k=0;k<4;k++)road(Math.sin(k*Math.PI/2)*(start+LEN/2),-Math.cos(k*Math.PI/2)*(start+LEN/2),W,LEN,-k*Math.PI/2);
@@ -1576,16 +1594,16 @@ function atmPanel(m){if(!m)return;
     <p>This machine reads the same account the bank keeps for you, in K. Deposits and withdrawals are done at the teller counters in the hall.</p>`:`<p>You are not signed in, so the machine has no account to read. Sign in to your account to see your wallet here.</p>`);
 }
 function chair(x,z,turn,color){at(x,z,turn,()=>{const c=color||NAVY2;box(0,.4,0,.52,.1,.5,c,K.fabric);box(0,.5,-.23,.52,.5,.08,c,K.fabric);cyl(0,0,0,.24,.04,"#8d8f94",8);cyl(0,.04,0,.035,.36,"#8d8f94",6);stands(0,0,.5,.5)})}
-function sofa(x,z,turn,n){at(x,z,turn,()=>{const L=n*.8;box(0,.12,0,L+.3,.3,.9,NAVY,K.fabric);box(0,.42,-.36,L+.3,.5,.18,NAVY,K.fabric);for(const s of[-1,1])box(s*(L/2+.06),.42,0,.18,.26,.9,NAVY,K.fabric);
-  for(let k=0;k<n;k++){box(-L/2+.4+k*.8,.42,.06,.74,.14,.68,NAVY2,K.fabric);box(-L/2+.4+k*.8,.56,-.2,.5,.34,.12,IVORY,K.fabric)}for(const[a,b]of[[-L/2,-.36],[L/2,-.36],[-L/2,.36],[L/2,.36]])cyl(a,0,b,.04,.12,GOLD,6);stands(0,0,L+.3,.9);solid(0,0,L+.3,.9,0)})}
+function sofa(x,z,turn,n,base,pillow){at(x,z,turn,()=>{const B=base||NAVY,P=pillow||IVORY,L=n*.8;box(0,.12,0,L+.3,.3,.9,B,K.fabric);box(0,.42,-.36,L+.3,.5,.18,B,K.fabric);for(const s of[-1,1])box(s*(L/2+.06),.42,0,.18,.26,.9,B,K.fabric);
+  for(let k=0;k<n;k++){box(-L/2+.4+k*.8,.42,.06,.74,.14,.68,NAVY2,K.fabric);box(-L/2+.4+k*.8,.56,-.2,.5,.34,.12,P,K.fabric)}for(const[a,b]of[[-L/2,-.36],[L/2,-.36],[-L/2,.36],[L/2,.36]])cyl(a,0,b,.04,.12,GOLD,6);stands(0,0,L+.3,.9);solid(0,0,L+.3,.9,0)})}
 function lowTable(x,z){box(x,.42,z,1.2,.04,.7,GLASSI,K.glass);for(const[a,b]of[[-.52,-.28],[.52,-.28],[-.52,.28],[.52,.28]])cyl(x+a,0,z+b,.03,.42,GOLD,6);box(x,.44,z,.36,.03,.26,"#f4f4f0");stands(x,z,1.2,.7)}
 function palmPot(x,z){cyl(x,0,z,.3,.62,GOLD,10,.36);cyl(x,.62,z,.05,1.0,"#5b4a2e",6);for(let k=0;k<7;k++)at(x,z,k/7*6.2832,()=>{const g=hex("#2f8f4b");both([0,1.55,-.08],[.6,1.95,-.16],[.6,1.95,.16],[0,1.55,.08],g);both([.6,1.95,-.16],[1.05,1.55,-.05],[1.05,1.55,.05],[.6,1.95,.16],g.map(v=>v*.85))});stands(x,z,.8,.8);solid(x,z,.6,.6,0)}
 function column(x,z,h){cyl(x,0,z,.5,.3,GOLD,14);cyl(x,.3,z,.36,h-.7,WHITE,14);cyl(x,h-.4,z,.36,.4,GOLD,14,.52);stands(x,z,1,1);solid(x,z,.8,.8,0)}
 function desk(x,z,turn,w,top,front){at(x,z,turn,()=>{const W=w||1.7;box(0,.72,0,W,.07,.85,top||DARKWOOD,K.wood);box(0,0,-.32,W-.1,.72,.06,front||NAVY);for(const s of[-1,1])box(s*(W/2-.05),0,0,.07,.72,.8,top||DARKWOOD,K.wood);box(0,.69,-.345,W-.1,.04,.03,GOLD,K.gold);
   box(.32,.8,.02,.56,.36,.04,"#161b22");box(.32,.82,.045,.5,.3,.01,"#a7d8f2",K.glow);box(.32,.79,.02,.14,.03,.16,"#161b22");box(-.4,.795,.1,.34,.02,.24,"#f6f6f2");box(-.02,.795,.2,.3,.02,.1,"#2a2f38");stands(0,0,W,.85);solid(0,0,W,.85)})}
-function ropeLine(pts){for(const[x,z]of pts){cyl(x,0,z,.16,.04,GOLD,10);cyl(x,.04,z,.035,.95,GOLD,8);cyl(x,.99,z,.07,.06,GOLD,8);stands(x,z,.3,.3)}
-  for(let k=0;k<pts.length-1;k++){const[a,b]=pts[k],[c,d]=pts[k+1];box((a+c)/2,.82,(b+d)/2,Math.abs(c-a)||.05,.06,Math.abs(d-b)||.05,NAVY2,K.fabric)}}
-function ceilingLamp(x,y,z){box(x,y-.05,z,1.3,.05,.64,"#fffdf2",K.glow);box(x,y-.03,z,1.44,.03,.78,GOLD,K.gold)}
+function ropeLine(pts,accent,fabric){const A=accent||GOLD,F=fabric||NAVY2;for(const[x,z]of pts){cyl(x,0,z,.16,.04,A,10);cyl(x,.04,z,.035,.95,A,8);cyl(x,.99,z,.07,.06,A,8);stands(x,z,.3,.3)}
+  for(let k=0;k<pts.length-1;k++){const[a,b]=pts[k],[c,d]=pts[k+1];box((a+c)/2,.82,(b+d)/2,Math.abs(c-a)||.05,.06,Math.abs(d-b)||.05,F,K.fabric)}}
+function ceilingLamp(x,y,z,accent){box(x,y-.05,z,1.3,.05,.64,"#fffdf2",K.glow);box(x,y-.03,z,1.44,.03,.78,accent||GOLD,K.gold)}
 
 /* --------------------------- inside Crestfield Bank: "Royal Banking" ---------------------------
    Navy, gold, ivory and white. A tall banking hall behind a glass front, polished tiles, a
@@ -1594,92 +1612,116 @@ function ceilingLamp(x,y,z){box(x,y-.05,z,1.3,.05,.64,"#fffdf2",K.glow);box(x,y-
 let BANK_NAME="Crestfield Bank",BANK_WALLS=[];const BANK_CACHE={};
 function bankOf(st){BANK_NAME=STATES[st].bank;if(!BANK_CACHE[st]){BANK_CACHE[st]=captureLit(bankInside,BANK_LIGHTS,true);BANK_WALLS=WALLS.slice()}return BANK_CACHE[st]}
 const HALL={x0:-17,x1:17,z0:-10,z1:10,high:6.4,mezz:3.3};
-function bankInside(){const H=HALL.high,MZ=HALL.mezz;
-  // ---- floor: polished tiles, a navy and gold border, a medallion under the chandelier
-  floorGrid(-17,-10,17,10,0,MARBLE,K.tile,.5);
-  for(const[x,z,w,d]of[[0,8.3,31,.35],[0,-.9,31,.35],[-15.5,3.7,.35,9.55],[15.5,3.7,.35,9.55]])box(x,0,z,w,.006,d,NAVY,K.tile);
-  for(const[x,z,w,d]of[[0,8.0,30.3,.08],[0,-.6,30.3,.08],[-15.2,3.7,.08,8.7],[15.2,3.7,.08,8.7]])box(x,0,z,w,.008,d,GOLD,K.gold);
-  cyl(0,0,3.6,2.9,.006,NAVY,40);cyl(0,0,3.6,2.6,.008,GOLD,40);cyl(0,0,3.6,2.45,.01,WHITE,40);cyl(0,0,3.6,1.2,.012,NAVY,32);cyl(0,0,3.6,.95,.014,GOLD,32);
-  for(let k=0;k<8;k++)at(0,3.6,k/8*6.2832,()=>tri([0,.016,.2],[2.3,.016,0],[0,.016,-.2],hex(NAVY),K.tile));
+function bankInside(){const H=HALL.high,MZ=HALL.mezz,BS=bankStyle(BANK_NAME);
+  // ---- floor: polished tiles, a bank-coloured border, a medallion under the chandelier
+  floorGrid(-17,-10,17,10,0,BS.floor,K.tile,.5);
+  for(const[x,z,w,d]of[[0,8.3,31,.35],[0,-.9,31,.35],[-15.5,3.7,.35,9.55],[15.5,3.7,.35,9.55]])box(x,0,z,w,.006,d,BS.border,K.tile);
+  for(const[x,z,w,d]of[[0,8.0,30.3,.08],[0,-.6,30.3,.08],[-15.2,3.7,.08,8.7],[15.2,3.7,.08,8.7]])box(x,0,z,w,.008,d,BS.accent,K.gold);
+  cyl(0,0,3.6,2.9,.006,BS.medal,40);cyl(0,0,3.6,2.6,.008,BS.medal2,40);cyl(0,0,3.6,2.45,.01,WHITE,40);cyl(0,0,3.6,1.2,.012,BS.medal,32);cyl(0,0,3.6,.95,.014,BS.medal2,32);
+  for(let k=0;k<8;k++)at(0,3.6,k/8*6.2832,()=>tri([0,.016,.2],[2.3,.016,0],[0,.016,-.2],hex(BS.medal),K.tile));
+  if(BS.v==="long"){for(const[x,z,w,d]of[[-11.5,3.4,1.5,.12],[-8,3.4,1.5,.12],[-4.5,3.4,1.5,.12],[-11.5,.4,1.5,.12],[-8,.4,1.5,.12],[-4.5,.4,1.5,.12]])box(x,0,z,w,.008,d,BS.border,K.tile);
+    for(const s of[-1,1])for(let z=1;z<7;z+=2){cyl(s*.42,0,z,.035,.95,BS.accent,8);box(s*.42,.97,z,.07,.05,.07,BS.medal2,K.gold);cyl(s*.42,.99,z,.055,.04,BS.accent,10)};
+    for(let z=.8;z<6.6;z+=1.2)box(0,0,z,2.6,.01,.08,BS.medal2,K.gold);
+    at(0,3.6,Math.PI,()=>bankLogo(0,3.1,0,.9,BS.logo,BS.medal,BS.accent2,Math.PI));}
   // ---- ceilings and their lamps (on a 4 m grid, which the shiny floor mirrors)
-  ceilGrid(-17,-10,17,10,H,WHITE,2);for(let x=-16;x<=16;x+=4)for(const z of[0,4,8,-4,-8])ceilingLamp(x,H,z);
-  for(let x=-17;x<17;x+=4)box(x+2,H-.35,4,.25,.35,12,IVORY);for(const z of[-2,2,6,10])box(0,H-.35,z,34,.35,.25,IVORY);          // ceiling beams
-  // ---- side and back walls: ivory, with navy panelling and a gold rail
-  for(const sx of[-1,1]){wallRun(sx*17,-10,sx*17,10,0,H,IVORY);for(let z=-9;z<10;z+=2){box(sx*16.86,.12,z,.06,1.0,1.7,NAVY);box(sx*16.83,.3,z,.04,.64,1.34,NAVY2)}box(sx*16.85,1.16,0,.08,.07,20,GOLD,K.gold);box(sx*16.86,0,0,.08,.12,20,GOLD,K.gold)}
-  wallRun(-17,-10,17,-10,0,H,IVORY);
+  ceilGrid(-17,-10,17,10,H,WHITE,2);for(let x=-16;x<=16;x+=4)for(const z of[0,4,8,-4,-8])ceilingLamp(x,H,z,BS.accent);
+  for(let x=-17;x<17;x+=4)box(x+2,H-.35,4,.25,.35,12,BS.wall);for(const z of[-2,2,6,10])box(0,H-.35,z,34,.35,.25,BS.wall);          // ceiling beams
+  // ---- side and back walls: painted in the bank's colours, with panelling and a rail
+  for(const sx of[-1,1]){wallRun(sx*17,-10,sx*17,10,0,H,BS.wall);for(let z=-9;z<10;z+=2){box(sx*16.86,.12,z,.06,1.0,1.7,BS.panel);box(sx*16.83,.3,z,.04,.64,1.34,BS.panel)}box(sx*16.85,1.16,0,.08,.07,20,BS.accent,K.gold);box(sx*16.86,0,0,.08,.12,20,BS.accent,K.gold)}
+  wallRun(-17,-10,17,-10,0,H,BS.wall);
   // ---- the glass front, with the way out in the middle
-  for(let x=-17;x<=17;x+=2)if(Math.abs(x)>1.2)box(x,0,10,.16,H,.2,NAVY);for(const y of[2.7,4.6])box(0,y,10,34,.14,.2,NAVY);box(0,H-.5,10,34,.5,.24,NAVY);box(0,0,10,34,.14,.2,NAVY);
-  for(let x=-16;x<17;x+=2){const mid=Math.abs(x)<1.1;box(x,mid?2.84:.14,10,1.84,mid?H-3.34:H-.64,.04,GLASSI,K.glass)}
-  WALLS.push([-17,9.85,-1.5,10.15],[1.5,9.85,17,10.15]);for(const s of[-1,1])box(s*1.55,0,10,.16,2.7,.22,GOLD,K.gold);entrance(0,0,9.9,2.9,2.6,Math.PI,true);label(0,2.95,9.86,1.5,.36,"EXIT",NAVY,"#f1d27a",Math.PI);
+  for(let x=-17;x<=17;x+=2)if(Math.abs(x)>1.2)box(x,0,10,.16,H,.2,BS.panel);for(const y of[2.7,4.6])box(0,y,10,34,.14,.2,BS.panel);box(0,H-.5,10,34,.5,.24,BS.panel);box(0,0,10,34,.14,.2,BS.panel);
+  for(let x=-16;x<17;x+=2){const mid=Math.abs(x)<1.1;box(x,mid?2.84:.14,10,1.84,mid?H-3.34:H-.64,.04,BS.glass,K.glass)}
+  at(0,9.9,Math.PI,()=>bankLogo(0,0,0,1.1,BS.logo,BS.panel,BS.accent2));
+  WALLS.push([-17,9.85,-1.5,10.15],[1.5,9.85,17,10.15]);for(const s of[-1,1])box(s*1.55,0,10,.16,2.7,.22,BS.accent,K.gold);entrance(0,0,9.9,2.9,2.6,Math.PI,true);label(0,2.95,9.86,1.5,.36,"EXIT",BS.panel,BS.accent2,Math.PI);
   box(0,-.3,22,90,.1,24,"#cfc8b6",K.tile);                                                                                   // the forecourt, seen through the glass
   // ---- columns
   for(const[x,z]of[[-9,6],[9,6],[-9,1.6],[9,1.6]])column(x,z,H);for(const x of[-15.6,-9,-2.6,10])column(x,-2.2,MZ);
   // ---- the gallery (upper floor) across the back, its edge and glass rail
-  box(0,MZ-.25,-6,34,.23,8,WHITE);floorGrid(-17,-10,17,-2,MZ,MARBLE,K.tile,1);box(0,MZ-.55,-2.05,34,.6,.2,NAVY);box(0,MZ-.02,-2.02,34,.07,.26,GOLD,K.gold);box(0,MZ-.58,-2.02,34,.06,.24,GOLD,K.gold);
-  for(let x=-16.5;x<14;x+=1.5)box(x+.75,MZ+.08,-2.02,1.42,.95,.03,GLASSI,K.glass);for(let x=-17;x<=14;x+=1.5)box(x,MZ,-2.02,.06,1.08,.06,GOLD,K.gold);box(-1.5,MZ+1.06,-2.02,31,.06,.1,GOLD,K.gold);
+  box(0,MZ-.25,-6,34,.23,8,WHITE);floorGrid(-17,-10,17,-2,MZ,MARBLE,K.tile,1);box(0,MZ-.55,-2.05,34,.6,.2,BS.panel);box(0,MZ-.02,-2.02,34,.07,.26,BS.accent,K.gold);box(0,MZ-.58,-2.02,34,.06,.24,BS.accent,K.gold);
+  for(let x=-16.5;x<14;x+=1.5)box(x+.75,MZ+.08,-2.02,1.42,.95,.03,GLASSI,K.glass);for(let x=-17;x<=14;x+=1.5)box(x,MZ,-2.02,.06,1.08,.06,BS.accent,K.gold);box(-1.5,MZ+1.06,-2.02,31,.06,.1,BS.accent,K.gold);
   WALLS.push([-17,-2.14,14.05,-1.9,1]);
-  label(-6.5,MZ-.47,-1.92,5,.42,"TELLERS",NAVY,"#f1d27a");label(9.4,MZ-.47,-1.92,6.4,.42,"CUSTOMER SERVICE",NAVY,"#f1d27a");
-  // ---- the teller line: marble top, navy front, glass to the gallery, five windows
-  box(-6.5,0,-2.9,18.4,1.08,.75,NAVY);box(-6.5,.5,-2.51,18.4,.08,.02,GOLD,K.gold);box(-6.5,1.08,-2.9,18.7,.07,1.0,WHITE,K.tile);WALLS.push([-15.9,-3.4,2.9,-2.4,0]);
-  for(let k=0;k<5;k++){const x=-13.9+k*3.7;box(x,1.15,-3.05,3.3,MZ-1.7,.04,GLASSI,K.glass);for(const s of[-1,1])box(x+s*1.75,1.15,-3.05,.07,MZ-1.7,.08,GOLD,K.gold);box(x,1.15,-3.05,.9,.28,.1,NAVY);
-    label(x,MZ-1.05,-2.98,.7,.42,String(k+1),NAVY,"#f1d27a");desk(x,-4.9,Math.PI,1.6,MIDWOOD,NAVY2);chair(x,-5.8,0,"#2a2f38");box(x-.55,.8,-4.7,.28,.14,.16,"#3f9a5a");box(x-.2,.8,-4.7,.28,.09,.16,"#57b271")}
-  box(-6.5,MZ-.55,-3.05,18.6,.3,.1,NAVY);
-  ropeLine([[-12,.2],[-12,2.4],[-9,2.4]]);ropeLine([[-6,.2],[-6,2.4],[-3,2.4]]);ropeLine([[-1,.2],[-1,2.4]]);
+  label(-6.5,MZ-.47,-1.92,5,.42,"TELLERS",BS.panel,"#f1d27a");label(9.4,MZ-.47,-1.92,6.4,.42,"CUSTOMER SERVICE",BS.panel,"#f1d27a");
+  // ---- the teller line: marble top, bank-coloured front, glass to the gallery, five windows
+  if(BS.v==="open"){for(let k=0;k<5;k++){const x=-13.9+k*3.7;box(x,0,-2.9,3.35,1.08,.75,BS.panel);box(x,1.08,-2.9,3.4,.07,1.0,BS.floor,K.tile);box(x,.5,-2.51,3.35,.08,.02,BS.accent,K.gold)}}
+  else{box(-6.5,0,-2.9,18.4,1.08,.75,BS.panel);box(-6.5,.5,-2.51,18.4,.08,.02,BS.accent,K.gold);box(-6.5,1.08,-2.9,18.7,.07,1.0,BS.floor,K.tile);
+  if(BS.v==="grand")for(let k=0;k<=16;k++){const x=-15.9+k*(18.4/16);box(x,0,-2.42+Math.sin(k/16*Math.PI)*.18,.62,1.08,.16,BS.panel)}}
+  WALLS.push([-15.9,-3.4,2.9,-2.4,0]);
+  for(let k=0;k<5;k++){const x=-13.9+k*3.7;box(x,1.15,-3.05,3.3,MZ-1.7,.04,GLASSI,K.glass);for(const s of[-1,1])box(x+s*1.75,1.15,-3.05,.07,MZ-1.7,.08,BS.accent,K.gold);box(x,1.15,-3.05,.9,.28,.1,BS.panel);
+    label(x,MZ-1.05,-2.98,.7,.42,String(k+1),BS.panel,"#f1d27a");desk(x,-4.9,Math.PI,1.6,MIDWOOD,BS.panel);chair(x,-5.8,0,"#2a2f38");box(x-.55,.8,-4.7,.28,.14,.16,"#3f9a5a");box(x-.2,.8,-4.7,.28,.09,.16,"#57b271")}
+  box(-6.5,MZ-.55,-3.05,18.6,.3,.1,BS.panel);
+  ropeLine([[-12,.2],[-12,2.4],[-9,2.4]],BS.accent,BS.panel);ropeLine([[-6,.2],[-6,2.4],[-3,2.4]],BS.accent,BS.panel);ropeLine([[-1,.2],[-1,2.4]],BS.accent,BS.panel);
   // ---- the staff door beside the counter
-  wallRun(2.9,-3,3.5,-3,0,MZ-.25,IVORY,0,0);wallRun(4.7,-3,5.3,-3,0,MZ-.25,IVORY,0,0);box(4.1,2.15,-3,1.2,MZ-2.4,.2,IVORY);label(4.1,2.25,-2.88,1.15,.34,"STAFF ONLY",NAVY,"#f1d27a");
+  wallRun(2.9,-3,3.5,-3,0,MZ-.25,BS.wall,0,0);wallRun(4.7,-3,5.3,-3,0,MZ-.25,BS.wall,0,0);box(4.1,2.15,-3,1.2,MZ-2.4,.2,BS.wall);label(4.1,2.25,-2.88,1.15,.34,"STAFF ONLY",BS.panel,"#f1d27a");
   // ---- behind the tellers: the vault in the back wall, cabinets, a counting table
-  floorGrid(-17,-10,5.2,-3.4,.004,"#d9d4c8",K.tile,1);wallRun(5.3,-10,5.3,-3,0,MZ-.25,IVORY,0,0);
-  box(-6,.3,-9.8,3.6,2.9,.3,"#7f8a93");discZ(-6,1.75,-9.62,1.25,"#aab4bc");discZ(-6,1.75,-9.6,1.02,"#8d99a3");discZ(-6,1.75,-9.58,.34,GOLD,K.gold);
-  for(let k=0;k<6;k++){const a=k/6*6.2832;box(-6+Math.cos(a)*.62,1.71+Math.sin(a)*.62,-9.56,.09,.09,.06,"#5b6470")}for(let k=0;k<4;k++)box(-7.6,.7+k*.6,-9.6,.2,.14,.14,"#5b6470");label(-6,3.25-.42,-9.6,1.4,.3,"VAULT",NAVY,"#f1d27a");
-  for(const x of[-15,-13.4,-11.8,1,2.6]){box(x,0,-9.5,1.5,2.0,.6,MIDWOOD,K.wood);box(x,1.0,-9.18,1.4,.03,.02,GOLD,K.gold);stands(x,-9.5,1.5,.6)}
+  floorGrid(-17,-10,5.2,-3.4,.004,"#d9d4c8",K.tile,1);wallRun(5.3,-10,5.3,-3,0,MZ-.25,BS.wall,0,0);
+  box(-6,.3,-9.8,3.6,2.9,.3,"#7f8a93");discZ(-6,1.75,-9.62,1.25,"#aab4bc");discZ(-6,1.75,-9.6,1.02,"#8d99a3");discZ(-6,1.75,-9.58,.34,BS.accent,K.gold);
+  for(let k=0;k<6;k++){const a=k/6*6.2832;box(-6+Math.cos(a)*.62,1.71+Math.sin(a)*.62,-9.56,.09,.09,.06,"#5b6470")}for(let k=0;k<4;k++)box(-7.6,.7+k*.6,-9.6,.2,.14,.14,"#5b6470");label(-6,3.25-.42,-9.6,1.4,.3,"VAULT",BS.panel,"#f1d27a");
+  for(const x of[-15,-13.4,-11.8,1,2.6]){box(x,0,-9.5,1.5,2.0,.6,MIDWOOD,K.wood);box(x,1.0,-9.18,1.4,.03,.02,BS.accent,K.gold);stands(x,-9.5,1.5,.6)}
   at(-1.5,-8,0,()=>{box(0,.8,0,2.6,.07,1.1,"#5b6470");for(const s of[-1,1])box(s*1.2,0,0,.07,.8,1,"#5b6470");for(let a=0;a<4;a++)for(let b=0;b<2;b++)box(-.8+a*.52,.87+b*.11,0,.42,.1,.22,b?"#3f9a5a":"#57b271");stands(0,0,2.6,1.1);solid(0,0,2.6,1.1,0)});
   // ---- customer service, under the gallery: three desks between glass screens, and a waiting sofa
-  for(let k=0;k<3;k++){const x=7+k*2.6;desk(x,-8.2,Math.PI,1.8,IVORY,NAVY);chair(x,-9.1,0,"#2a2f38");chair(x-.4,-7.1,Math.PI);chair(x+.4,-7.1,Math.PI);if(k)box(x-1.3,0,-8.4,.05,1.7,2.6,GLASSI,K.glass)}
-  box(13.6,0,-8.4,.05,1.7,2.6,GLASSI,K.glass);sofa(9.6,-4.4,0,3);label(9.6,2.25,-9.86,3.4,.5,"LOANS  •  ACCOUNTS  •  CARDS",NAVY,"#f1d27a");
+  for(let k=0;k<3;k++){const x=7+k*2.6;desk(x,-8.2,Math.PI,1.8,BS.floor,BS.panel);chair(x,-9.1,0,"#2a2f38");chair(x-.4,-7.1,Math.PI);chair(x+.4,-7.1,Math.PI);if(k)box(x-1.3,0,-8.4,.05,1.7,2.6,GLASSI,K.glass)}
+  box(13.6,0,-8.4,.05,1.7,2.6,GLASSI,K.glass);sofa(9.6,-4.4,0,3,BS.panel);label(9.6,2.25,-9.86,3.4,.5,"LOANS  •  ACCOUNTS  •  CARDS",BS.panel,BS.accent2);
   // ---- the hall: a lounge, an enquiries desk, tables for filling in slips, greenery, the bank's name
-  sofa(-13.4,6.2,Math.PI/2,3);sofa(-11,8.6,Math.PI,3);lowTable(-11.4,6.2);box(-11.6,.006,6.4,5.6,.01,5,NAVY2,K.fabric);
-  at(11.5,6.6,0,()=>{box(0,0,0,3.8,1.08,.8,NAVY);box(0,.5,.41,3.8,.08,.02,GOLD,K.gold);box(0,1.08,0,4,.07,1,WHITE,K.tile);box(-.8,1.16,-.1,.5,.34,.04,"#161b22");stands(0,0,3.8,.8);solid(0,0,3.8,.9,0)});chair(11.5,5.7,0,"#2a2f38");label(11.5,2.1,6.6,2.6,.42,"ENQUIRIES",NAVY,"#f1d27a");for(const s of[-1,1])cyl(11.5+s*1.36,1.15,6.6,.03,.95,GOLD,6);
-  for(const x of[-3.6,3.6]){at(x,6.2,0,()=>{cyl(0,0,0,.34,.05,GOLD,12);cyl(0,.05,0,.06,1.0,GOLD,8);cyl(0,1.05,0,.52,.05,WHITE,16);box(0,1.11,0,.3,.02,.2,"#f6f6f2");stands(0,0,1,1);solid(0,0,.7,.7,0)})}
+  sofa(-13.4,6.2,Math.PI/2,3,BS.panel);sofa(-11,8.6,Math.PI,3,BS.panel);lowTable(-11.4,6.2);box(-11.6,.006,6.4,5.6,.01,5,BS.carpet,K.fabric);
+  at(11.5,6.6,0,()=>{box(0,0,0,3.8,1.08,.8,BS.panel);box(0,.5,.41,3.8,.08,.02,BS.accent,K.gold);box(0,1.08,0,4,.07,1,BS.floor,K.tile);box(-.8,1.16,-.1,.5,.34,.04,"#161b22");stands(0,0,3.8,.8);solid(0,0,3.8,.9,0)});chair(11.5,5.7,0,"#2a2f38");label(11.5,2.1,6.6,2.6,.42,"ENQUIRIES",BS.panel,"#f1d27a");for(const s of[-1,1])cyl(11.5+s*1.36,1.15,6.6,.03,.95,BS.accent,6);
+  for(const x of[-3.6,3.6]){at(x,6.2,0,()=>{cyl(0,0,0,.34,.05,BS.accent,12);cyl(0,.05,0,.06,1.0,BS.accent,8);cyl(0,1.05,0,.52,.05,WHITE,16);box(0,1.11,0,.3,.02,.2,"#f6f6f2");stands(0,0,1,1);solid(0,0,.7,.7,0)})}
+  if(BS.v==="compact")for(let r=0;r<3;r++)for(let c=0;c<3;c++){const x=-9+c*3,z=4.5+r*2.1;box(x,0,z,2.4,.02,.9,BS.panel,K.flat);box(x,0,z-.36,2.4,.36,.1,BS.panel);box(x,0,z+.36,2.4,.36,.1,BS.panel);box(x,0,z,2.4,.42,.04,BS.accent,K.flat)}                  // rows of waiting benches
   for(const[x,z]of[[-16,9.2],[16,9.2],[-16,-1.2],[6.2,-1.4],[13.2,2.6]])palmPot(x,z);
   // ---- ATM Services (added from the Discord guide): a glass vestibule on the east wall with exactly ONE cash machine
-  for(const[z0,z1]of[[5,6.4],[7.4,8.8]]){box(15,0,(z0+z1)/2,.05,2.5,z1-z0,GLASSI,K.glass);WALLS.push([14.9,z0,15.1,z1,0])}for(const z of[5,6.4,7.4,8.8])box(15,0,z,.08,2.5,.08,GOLD,K.gold);
-  box(16,2.5,6.9,2,.1,3.8,NAVY);label(15.02,2.2,6.9,1.6,.32,"ATM SERVICES",NAVY,"#f1d27a",-Math.PI/2);
-  atmState(16.6,6.9,-Math.PI/2,BANK_NAME+" ATM — Vestibule",BANK_NAME.replace(/\s+Bank\s*$/,""),undefined,{sc:"bank",t:CUR_ST});
+  for(const[z0,z1]of[[5,6.4],[7.4,8.8]]){box(15,0,(z0+z1)/2,.05,2.5,z1-z0,GLASSI,K.glass);WALLS.push([14.9,z0,15.1,z1,0])}for(const z of[5,6.4,7.4,8.8])box(15,0,z,.08,2.5,.08,BS.accent,K.gold);
+  box(16,2.5,6.9,2,.1,3.8,BS.panel);label(15.02,2.2,6.9,1.6,.32,"ATM SERVICES",BS.panel,"#f1d27a",-Math.PI/2);
+  atmState(16.6,6.9,-Math.PI/2,BANK_NAME+" ATM — Vestibule",BANK_NAME.replace(/\s+Bank\s*$/,""),BS.atm,{sc:"bank",t:CUR_ST});
   // ---- the Auditing Room (added from the Discord guide), behind the tellers in the west corner
-  wallRun(-17,-6.6,-12.4,-6.6,0,MZ-.25,IVORY,0,0);wallRun(-11.2,-6.6,-11,-6.6,0,MZ-.25,IVORY,0,0);wallRun(-11,-10,-11,-6.6,0,MZ-.25,IVORY,0,0);box(-11.8,2.15,-6.6,1.2,MZ-2.4,.2,IVORY);
-  label(-11.8,2.25,-6.48,1.6,.3,"AUDITING ROOM",NAVY,"#f1d27a");desk(-14,-7.6,0,1.8,DARKWOOD,NAVY);chair(-14,-8.5,0,"#2a2f38");box(-14.5,.8,-7.5,.5,.3,.04,"#161b22");box(-13.5,.8,-7.6,.3,.04,.4,"#ffffff");
-  label(-16.84,3.4,3.6,7.5,1.25,BANK_NAME.toUpperCase(),NAVY,"#f1d27a",Math.PI/2);label(-16.84,2.6,3.6,5,.42,"Secure.  Established.  Yours.",IVORY,NAVY,Math.PI/2);
+  wallRun(-17,-6.6,-12.4,-6.6,0,MZ-.25,BS.wall,0,0);wallRun(-11.2,-6.6,-11,-6.6,0,MZ-.25,BS.wall,0,0);wallRun(-11,-10,-11,-6.6,0,MZ-.25,BS.wall,0,0);box(-11.8,2.15,-6.6,1.2,MZ-2.4,.2,BS.wall);
+  label(-11.8,2.25,-6.48,1.6,.3,"AUDITING ROOM",BS.panel,"#f1d27a");desk(-14,-7.6,0,1.8,DARKWOOD,BS.panel);chair(-14,-8.5,0,"#2a2f38");box(-14.5,.8,-7.5,.5,.3,.04,"#161b22");box(-13.5,.8,-7.6,.3,.04,.4,"#ffffff");
+  label(-16.84,3.4,3.6,7.5,1.25,BANK_NAME.toUpperCase(),BS.panel,"#f1d27a",Math.PI/2);label(-16.84,2.6,3.6,5,.42,"Secure.  Established.  Yours.",BS.wall,BS.accent2,Math.PI/2);
   at(16.84,3.4,-Math.PI/2,()=>{box(0,3.0,-.04,6.6,2.3,.06,"#0b1730");for(let r=0;r<4;r++){box(-1.2,4.75-r*.5,0,3.6,.26,.02,r?"#9fd8ff":"#f1d27a",K.glow);box(2.3,4.75-r*.5,0,1.2,.26,.02,r%2?"#35d07f":"#ff8f8f",K.glow)}});
   // ---- chandelier over the medallion
-  cyl(0,H-1.5,3.6,.04,1.5,GOLD,6);for(const[r,y]of[[1.5,H-1.9],[1.0,H-1.6],[.5,H-1.35]]){for(let k=0;k<16;k++){const a=k/16*6.2832;box(Math.cos(a)*r,y,3.6+Math.sin(a)*r,.16,.07,.16,GOLD,K.gold);if(k%2===0)box(Math.cos(a)*r,y-.14,3.6+Math.sin(a)*r,.09,.14,.09,"#fff6d8",K.glow)}}
-  // ---- the staircase up to the gallery (staff): navy carpet, gold edges, glass rail
-  const N=18;for(let k=0;k<N;k++){const z=4-(k+.5)*(6/N),y=(k+1)*(MZ/N);box(15.55,0,z,2.7,y,6/N,WHITE);box(15.55,y,z,1.7,.012,6/N,NAVY,K.fabric);for(const s of[-1,1])box(15.55+s*.9,y,z,.06,.014,6/N,GOLD,K.gold)}
-  for(let k=0;k<=6;k++){const z=4-k,y=k*(MZ/6);box(14.15,y,z,.06,1.05,.06,GOLD,K.gold);if(k<6)both([14.15,y+.1,z],[14.15,y+MZ/6+.1,z-1],[14.15,y+MZ/6+.98,z-1],[14.15,y+.98,z],hex(GLASSI),K.glass)}
-  WALLS.push([14.0,-2,14.3,4.1],[14.2,-2.2,17,-1.95,0]);for(const x of[14.2,16.9])box(x,0,4.25,.08,1.1,.08,GOLD,K.gold);
-  // ---- upstairs: three glass-fronted rooms along the back
-  for(const[x0,x1,name,carpet]of[[-17,-6,"DIRECTOR","#5a2a2f"],[-6,5,"MANAGER","#2b4a3a"],[5,17,"BOARDROOM",NAVY2]]){const mid=(x0+x1)/2;
-    box(mid,MZ+.004,-7.7,x1-x0-.3,.01,4.4,carpet,K.fabric);for(let x=x0+.3;x<x1-.3;x+=1.6){if(Math.abs(x+.8-mid)<.9)continue;box(x+.8,MZ,-5.4,1.5,H-MZ,.04,GLASSI,K.glass);box(x,MZ,-5.4,.07,H-MZ,.08,NAVY)}
-    box(mid,MZ+2.2,-5.4,1.8,H-MZ-2.2,.06,NAVY);label(mid,MZ+2.3,-5.34,1.5,.32,name,NAVY,"#f1d27a");WALLS.push([x0,-5.5,mid-.75,-5.3,1],[mid+.75,-5.5,x1,-5.3,1]);if(x1<17)wallRun(x1,-10,x1,-5.4,MZ,H,IVORY,0,1)}
+  cyl(0,H-1.5,3.6,.04,1.5,BS.accent,6);for(const[r,y]of[[1.5,H-1.9],[1.0,H-1.6],[.5,H-1.35]]){for(let k=0;k<16;k++){const a=k/16*6.2832;box(Math.cos(a)*r,y,3.6+Math.sin(a)*r,.16,.07,.16,BS.accent,K.gold);if(k%2===0)box(Math.cos(a)*r,y-.14,3.6+Math.sin(a)*r,.09,.14,.09,"#fff6d8",K.glow)}}
+  // ---- the staircase up to the gallery (staff): bank carpet, accent edges, glass rail; every bank's flight covers the same 18-step run z 4→-2 (the walkable height of floorAt), but its shape follows the state: grand = twin flights, compact = an L around its corner, open = an L with a landing, long = one straight flight
+  if(BS.v==="grand"){for(const sx of[14.2,17]){const N=18;for(let k=0;k<N;k++){const z=4-(k+.5)*(6/N),y=(k+1)*(MZ/N);box(sx,0,z,1.55,y,6/N,WHITE);box(sx,y,z,.95,.012,6/N,BS.carpet,K.fabric);for(const s of[-1,1])box(sx+s*.52,y,z,.06,.014,6/N,BS.accent,K.gold)}
+    for(let k=0;k<=6;k++){const z=4-k,y=k*(MZ/6);box(sx-.72,y,z,.06,1.05,.06,BS.accent,K.gold);if(k<6)both([sx-.72,y+.1,z],[sx-.72,y+MZ/6+.1,z-1],[sx-.72,y+MZ/6+.98,z-1],[sx-.72,y+.98,z],hex(GLASSI),K.glass)}}
+    WALLS.push([13.5,-2,13.8,4.1],[18.7,-2.2,17,-1.95,0]);for(const x of[13.6,16.3,19.0])box(x,0,4.25,.08,1.1,.08,BS.accent,K.gold)}
+  else if(BS.v==="compact"){const N1=9,N2=9;
+    for(let k=0;k<N1;k++){const z=4-(k+.5)*(3/N1),y=(k+1)*(MZ/N1);box(15.1,0,z,1.5,y,3/N1,WHITE);box(15.1,y,z,.95,.012,3/N1,BS.carpet,K.fabric);for(const s of[-1,1])box(15.1+s*.62,y,z,.06,.014,3/N1,BS.accent,K.gold)}   // flight A: up to the corner landing
+    box(16.05,MZ/2,1.4,1.65,MZ/2,1.3,WHITE);box(16.05,MZ/2+.01,1.4,1.61,.012,1.26,BS.carpet,K.fabric);   // the corner landing at half height
+    for(let k=0;k<N2;k++){const z=1.4-(k+.5)*(3.4/N2),y=MZ/2+(k+1)*(MZ/N2);box(16.45,y,z,1.3,y-MZ/2,3.4/N2,WHITE);box(16.45,y+.012,z,.75,.012,3.4/N2,BS.carpet,K.fabric);for(const s of[-1,1])box(16.45+s*.56,y,z,.06,.014,3.4/N2,BS.accent,K.gold)}  // flight B: round the corner up to the gallery
+    for(let k=0;k<=4;k++){const z=4-k,y=k*(MZ/4);box(14.28,y,z,.06,1.05,.06,BS.accent,K.gold);if(k<4)both([14.28,y+.1,z],[14.28,y+MZ/4+.1,z-.75],[14.28,y+MZ/4+.98,z-.75],[14.28,y+.98,z],hex(GLASSI),K.glass)}
+    WALLS.push([14.4,-2,14.7,4.1],[17.15,-2.2,17,-1.95,0]);for(const x of[14.5,15.9,17.15])box(x,0,4.25,.08,1.1,.08,BS.accent,K.gold)}
+  else if(BS.v==="open"){const N1=9,N2=9;
+    for(let k=0;k<N1;k++){const z=4-(k+.5)*(3/N1),y=(k+1)*(MZ/N1);box(15.1,0,z,1.5,y,3/N1,WHITE);box(15.1,y,z,.95,.012,3/N1,BS.carpet,K.fabric);for(const s of[-1,1])box(15.1+s*.62,y,z,.06,.014,3/N1,BS.accent,K.gold)}   // flight A: up to the landing
+    box(15.1,MZ/2,1.25,2.3,MZ/2,1.5,WHITE);box(15.1,MZ/2+.01,1.25,2.24,.012,1.44,BS.carpet,K.fabric);   // the L landing at half height
+    for(let k=0;k<N2;k++){const z=1.2-(k+.5)*(3.2/N2),y=MZ/2+(k+1)*(MZ/N2);box(15.9,y,z,1.2,y-MZ/2,3.2/N2,WHITE);box(15.9,y+.012,z,.66,.012,3.2/N2,BS.carpet,K.fabric);for(const s of[-1,1])box(15.9+s*.52,y,z,.06,.014,3.2/N2,BS.accent,K.gold)}  // flight B: around the landing up to the gallery
+    for(let k=0;k<=4;k++){const z=4-k,y=k*(MZ/4);box(14.28,y,z,.06,1.05,.06,BS.accent,K.gold);if(k<4)both([14.28,y+.1,z],[14.28,y+MZ/4+.1,z-.75],[14.28,y+MZ/4+.98,z-.75],[14.28,y+.98,z],hex(GLASSI),K.glass)}
+    WALLS.push([14.4,-2,14.7,4.1],[16.55,-2.2,17,-1.95,0]);for(const x of[14.5,15.9,16.55])box(x,0,4.25,.08,1.1,.08,BS.accent,K.gold)}
+  else{const N=18;for(let k=0;k<N;k++){const z=4-(k+.5)*(6/N),y=(k+1)*(MZ/N);box(15.55,0,z,2.7,y,6/N,WHITE);box(15.55,y,z,1.7,.012,6/N,BS.carpet,K.fabric);for(const s of[-1,1])box(15.55+s*.9,y,z,.06,.014,6/N,BS.accent,K.gold)}
+    for(let k=0;k<=6;k++){const z=4-k,y=k*(MZ/6);box(14.15,y,z,.06,1.05,.06,BS.accent,K.gold);if(k<6)both([14.15,y+.1,z],[14.15,y+MZ/6+.1,z-1],[14.15,y+MZ/6+.98,z-1],[14.15,y+.98,z],hex(GLASSI),K.glass)}
+    WALLS.push([14.0,-2,14.3,4.1],[14.2,-2.2,17,-1.95,0]);for(const x of[14.2,16.9])box(x,0,4.25,.08,1.1,.08,BS.accent,K.gold)}
+  // ---- upstairs: three glass-fronted rooms along the back, each with the bank's own carpet
+  for(const[x0,x1,name,carpet]of[[-17,-6,"DIRECTOR","#5a2a2f"],[-6,5,"MANAGER","#2b4a3a"],[5,17,"BOARDROOM",BS.carpet]]){const mid=(x0+x1)/2;
+    box(mid,MZ+.004,-7.7,x1-x0-.3,.01,4.4,carpet,K.fabric);for(let x=x0+.3;x<x1-.3;x+=1.6){if(Math.abs(x+.8-mid)<.9)continue;box(x+.8,MZ,-5.4,1.5,H-MZ,.04,GLASSI,K.glass);box(x,MZ,-5.4,.07,H-MZ,.08,BS.panel)}
+    box(mid,MZ+2.2,-5.4,1.8,H-MZ-2.2,.06,BS.panel);label(mid,MZ+2.3,-5.34,1.5,.32,name,BS.panel,BS.accent2);WALLS.push([x0,-5.5,mid-.75,-5.3,1],[mid+.75,-5.5,x1,-5.3,1]);if(x1<17)wallRun(x1,-10,x1,-5.4,MZ,H,BS.wall,0,1)}
   M=mul(M,trans(0,0,0));const up=fn=>{const keep=M;M=mul(M,new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,MZ,0,1]));SOLIDLEVEL=1;fn();SOLIDLEVEL=undefined;M=keep};
   const trophy=(x,y,z,s)=>{cyl(x,y,z,.1*s,.05*s,DARKWOOD,8);cyl(x,y+.05*s,z,.025*s,.12*s,GOLD,6);cyl(x,y+.17*s,z,.05*s,.2*s,GOLD,10,.12*s);for(const d of[-1,1])box(x+d*.13*s,y+.24*s,z,.03*s,.1*s,.02*s,GOLD,K.gold)};
   up(()=>{
     // the Director's office, at the far end: a large desk, a sofa for visitors, and the bank's awards
-    desk(-11.5,-8.5,Math.PI,2.5,DARKWOOD,NAVY);chair(-11.5,-9.4,0,"#20262e");chair(-12.2,-7.4,Math.PI);chair(-10.8,-7.4,Math.PI);sofa(-7.2,-7.6,-Math.PI/2,2);lowTable(-8.6,-7.6);
+    desk(-11.5,-8.5,Math.PI,2.5,DARKWOOD,BS.panel);chair(-11.5,-9.4,0,"#20262e");chair(-12.2,-7.4,Math.PI);chair(-10.8,-7.4,Math.PI);sofa(-7.2,-7.6,-Math.PI/2,2,BS.panel);lowTable(-8.6,-7.6);
     for(const y of[.9,1.5,2.1]){box(-16.72,y,-7.7,.34,.05,3.6,DARKWOOD,K.wood);for(let k=0;k<5;k++)trophy(-16.72,y+.05,-9.1+k*.7,(k+y*2)%2<1?1:.8)}                // three shelves of trophies
-    box(-16.86,.5,-7.7,.06,2.2,3.8,NAVY);
-    at(-9.4,-5.95,0,()=>{box(0,0,0,.7,1.0,.7,NAVY);box(0,1.0,0,.76,.04,.76,GOLD,K.gold);trophy(0,1.04,0,1.9);box(0,1.04,0,.66,.75,.66,GLASSI,K.glass);stands(0,0,.7,.7);solid(0,0,.7,.7,1)});      // the biggest trophy, under glass
+    box(-16.86,.5,-7.7,.06,2.2,3.8,BS.panel);
+    at(-9.4,-5.95,0,()=>{box(0,0,0,.7,1.0,.7,BS.panel);box(0,1.0,0,.76,.04,.76,GOLD,K.gold);trophy(0,1.04,0,1.9);box(0,1.04,0,.66,.75,.66,GLASSI,K.glass);stands(0,0,.7,.7);solid(0,0,.7,.7,1)});      // the biggest trophy, under glass
     palmPot(-15.9,-6.1)});
-  for(const[x,text]of[[-14.4,"BANK OF THE YEAR 2026"],[-12.5,"MOST TRUSTED BANK"],[-10.6,"BEST CUSTOMER SERVICE"],[-8.7,"EXCELLENCE IN GOVERNANCE"]]){label(x,MZ+1.75,-9.86,1.5,1.0,text,"#fbf7ea",NAVY);box(x,MZ+1.62,-9.84,.36,.1,.02,GOLD,K.gold)}
-  label(-11.5,MZ+3.0,-9.86,3.6,.5,BANK_NAME,IVORY,NAVY);
-  for(const[z,text]of[[-8.8,"DIRECTOR OF THE YEAR"],[-7.2,"25 YEARS OF SERVICE"]])label(-6.14,MZ+1.6,z,1.3,.5,text,NAVY,"#f1d27a",-Math.PI/2);
-  label(-11.5,MZ+1.86,-5.34,1.5,.2,"By appointment",IVORY,NAVY);
+  for(const[x,text]of[[-14.4,"BANK OF THE YEAR 2026"],[-12.5,"MOST TRUSTED BANK"],[-10.6,"BEST CUSTOMER SERVICE"],[-8.7,"EXCELLENCE IN GOVERNANCE"]]){label(x,MZ+1.75,-9.86,1.5,1.0,text,"#fbf7ea",BS.panel);box(x,MZ+1.62,-9.84,.36,.1,.02,BS.accent,K.gold)}
+  label(-11.5,MZ+3.0,-9.86,3.6,.5,BANK_NAME,BS.wall,BS.accent2);
+  for(const[z,text]of[[-8.8,"DIRECTOR OF THE YEAR"],[-7.2,"25 YEARS OF SERVICE"]])label(-6.14,MZ+1.6,z,1.3,.5,text,BS.panel,BS.accent2,-Math.PI/2);
+  label(-11.5,MZ+1.86,-5.34,1.5,.2,"By appointment",BS.wall,BS.panel);
   up(()=>{
     // the Manager's office, in the middle
-    desk(-.5,-8.4,Math.PI,2.1,DARKWOOD,NAVY);chair(-.5,-9.3,0,"#20262e");chair(-1.1,-7.3,Math.PI);chair(.1,-7.3,Math.PI);box(4.6,0,-7.8,.5,2,3,DARKWOOD,K.wood);stands(4.6,-7.8,.5,3);palmPot(-5.2,-6.1);
+    desk(-.5,-8.4,Math.PI,2.1,DARKWOOD,BS.panel);chair(-.5,-9.3,0,"#20262e");chair(-1.1,-7.3,Math.PI);chair(.1,-7.3,Math.PI);box(4.6,0,-7.8,.5,2,3,DARKWOOD,K.wood);stands(4.6,-7.8,.5,3);palmPot(-5.2,-6.1);
     // the boardroom
     box(11,.74,-7.7,5.6,.08,1.7,DARKWOOD,K.wood);for(const s of[-1,1])cyl(11+s*2,0,-7.7,.14,.74,GOLD,10);stands(11,-7.7,5.6,1.7);for(let k=0;k<5;k++){chair(8.8+k*1.1,-6.5,Math.PI);chair(8.8+k*1.1,-8.9,0)}
     box(11,1.5,-9.86,3.4,1.9,.06,"#0b1730");box(11,1.6,-9.82,3.1,1.6,.02,"#a7d8f2",K.glow)});
-  for(const x of[-.5])label(x,MZ+2.9,-9.86,2.6,.6,BANK_NAME,IVORY,NAVY)}
+  for(const x of[-.5])label(x,MZ+2.9,-9.86,2.6,.6,BANK_NAME,BS.wall,BS.accent2)}
 
 const BANK_LIGHTS=(()=>{const L=[];for(let x=-16;x<=16;x+=4){for(const z of[0,4,8])L.push([x,6.2,z,.15,5.2]);for(const z of[-4,-8]){L.push([x,3.0,z,.2,2.6]);L.push([x,6.2,z,.13,4.6])}}L.push([0,4.6,3.6,.22,3.5]);return L})();
 
@@ -1696,13 +1738,13 @@ const BANK_GATES=[{key:"tellers",r:[3.5,-3.15,4.7,-2.85],level:0,msg:"Staff only
   {key:"director",r:[-12.25,-5.55,-10.75,-5.25],level:1,msg:"The Director's office opens only for the Director, the Manager and invited visitors."},
   {key:"audit",r:[-12.4,-6.75,-11.2,-6.45],level:0,msg:"The Auditing Room is for the Audit Officer and the State Banking Director."},
   {key:"atm",r:[14.85,6.4,15.15,7.4],level:0,msg:"ATM Services are for citizens and visitors of this state."}];
-const lit=fn=>captureLit(fn,BANK_LIGHTS,true),MZ1=HALL.mezz;
+const lit=fn=>captureLit(fn,BANK_LIGHTS,true),MZ1=HALL.mezz,BDS=bankStyle(BANK_NAME);
 const BANK_DOORS=[
-  {key:"tellers",shut:lit(()=>{box(4.1,0,-3,1.16,2.1,.07,DARKWOOD,K.wood);box(4.5,1.0,-2.95,.06,.06,.06,GOLD,K.gold)}),open:lit(()=>{box(3.54,0,-3.55,.07,2.1,1.1,DARKWOOD,K.wood)})},
-  {key:"stairs",shut:lit(()=>{box(15.55,.05,4.25,2.6,1.0,.05,GLASSI,K.glass);box(15.55,1.05,4.25,2.7,.06,.08,GOLD,K.gold);label(15.55,1.3,4.3,1.6,.3,"STAFF & VISITORS",NAVY,"#f1d27a")}),
+  {key:"tellers",shut:lit(()=>{box(4.1,0,-3,1.16,2.1,.07,DARKWOOD,K.wood);box(4.5,1.0,-2.95,.06,.06,.06,BDS.accent,K.gold)}),open:lit(()=>{box(3.54,0,-3.55,.07,2.1,1.1,DARKWOOD,K.wood)})},
+  {key:"stairs",shut:lit(()=>{box(15.55,.05,4.25,2.6,1.0,.05,GLASSI,K.glass);box(15.55,1.05,4.25,2.7,.06,.08,BDS.accent,K.gold);label(15.55,1.3,4.3,1.6,.3,"STAFF & VISITORS",BDS.panel,BDS.accent2)}),
    open:lit(()=>{box(14.25,.05,4.9,.05,1.0,1.3,GLASSI,K.glass);box(16.85,.05,4.9,.05,1.0,1.3,GLASSI,K.glass)})},
-  {key:"audit",shut:lit(()=>{box(-11.8,0,-6.6,1.16,2.1,.07,DARKWOOD,K.wood);box(-11.35,1.0,-6.55,.06,.06,.06,GOLD,K.gold)}),open:lit(()=>{box(-12.36,0,-7.15,.07,2.1,1.1,DARKWOOD,K.wood)})},
-  {key:"director",shut:lit(()=>{box(-11.5,MZ1,-5.4,1.46,2.15,.07,DARKWOOD,K.wood);box(-11.5,MZ1+1.0,-5.35,1.3,.04,.02,GOLD,K.gold);box(-10.95,MZ1+1.0,-5.34,.07,.07,.06,GOLD,K.gold)}),
+  {key:"audit",shut:lit(()=>{box(-11.8,0,-6.6,1.16,2.1,.07,DARKWOOD,K.wood);box(-11.35,1.0,-6.55,.06,.06,.06,BDS.accent,K.gold)}),open:lit(()=>{box(-12.36,0,-7.15,.07,2.1,1.1,DARKWOOD,K.wood)})},
+  {key:"director",shut:lit(()=>{box(-11.5,MZ1,-5.4,1.46,2.15,.07,DARKWOOD,K.wood);box(-11.5,MZ1+1.0,-5.35,1.3,.04,.02,BDS.accent,K.gold);box(-10.95,MZ1+1.0,-5.34,.07,.07,.06,BDS.accent,K.gold)}),
    open:lit(()=>{box(-12.22,MZ1,-6.1,.07,2.15,1.4,DARKWOOD,K.wood)})}];
 
 /* ====================== the Delta City Immigration Authority ======================
