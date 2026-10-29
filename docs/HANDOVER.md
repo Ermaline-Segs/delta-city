@@ -211,12 +211,18 @@ main and at the Pages URL. The repo has no build, typecheck or lint; the only ru
        rental period, and whether a rented bike is saved to the account.
      - No bike model exists in `assets/vehicles/` yet, so a bike asset is needed first — a
        local-session/Blender job, not a cloud job.
-  3. **No "play without an account" option — signing in is required to play.** This is NOT the same
-     as the multiplayer "Offline mode" fallback, which stays exactly as it is: a signed-in player
-     whose live server is unreachable keeps playing single-player with the Offline notice (section 7
-     and "If multiplayer causes problems", section 12). Do not confuse the two: guest/account-less
-     play is to be removed (a scope report of every guest/account-less assumption in the current
-     `index.html` accompanies this entry — report only, nothing removed yet); Offline mode stays.
+3. **No "play without an account" option — signing in is required to play.** This is NOT the same
+      as the multiplayer "Offline mode" fallback, which stays exactly as it is: a signed-in player
+      whose live server is unreachable keeps playing single-player with the Offline notice (section 7
+      and "If multiplayer causes problems", section 12). Do not confuse the two: guest/account-less
+      play is to be removed; Offline mode stays.
+      **Done in PR 9 (this handover entry):** the sign-in screen's guest button and its offline
+      handler are gone, the "play without an account" fallback sentences and all guest-facing text
+      are removed, and the now-dead `!AUTH.offline` terms in the gates were cleaned up
+      (`garOn`, `govOn`, the CB terminal gate, `adminAct`, the fuel `signed` flag and the phone
+      sheet's `signed`). The stale practice-car strings (`garLine`, the garage panel note, the
+      comment in the owned-vehicles section) were removed in the same PR. The `netPill` "Offline
+      mode" fallback for a signed-in player whose server is unreachable is unchanged.
   4. **The car gate is ownership, not role.** "Only the Chief Admin has a car" is true today only
      because the dealership (section 9) is not built. Anyone will be able to buy and drive a car;
      do not add a role check to driving.
