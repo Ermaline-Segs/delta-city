@@ -267,8 +267,8 @@ must pass before pushing).
     stairs, doors, counters and aisles reachable. Aggravating fix: the Agbor stairway ATM (above).
   - Verified headless in a real browser at 390×844 (phone) and 1280×800 (desktop): 36 machines
     registered (8 town + 1 bank in each state), no console errors.
-  - **Note: the work is on main via direct merge commit `dfe4f47`, but GitHub pull request #5
-    itself is still open — close it once the owner confirms nothing is missing.**
+- **Note: the work is on main via direct merge commit `dfe4f47`. GitHub pull request #5 is now
+    closed (as superseded) — the commit on main is the record of this work.**
 
 - **No HUD bar covers a dialog's buttons (PR 4, merged 29 October 2026):** on phones, the phone /
   inventory / settings bar (and the other bottom HUD bars) covered Violet's "Begin registration" button
