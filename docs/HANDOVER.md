@@ -196,6 +196,29 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 
 ## 11. Updates since the first handover (newest first)
 
+- **Blocked paths, real doors, ATMs everywhere (PR 5, merged 29 October 2026):**
+  - **36 ATMs — 9 per state** — all wired to the existing banking system: the machine only reads
+    the wallet the bank keeps, in K; deposits/withdrawals stay at the teller counters, no new
+    money rules. Each shows its state bank's name, sits on the map with a 🏧 icon, and is
+    one-player-at-a-time ("Use the ATM" prompt; a toast asks you to wait your turn if the machine
+    is taken). Per state: 1 machine in the bank's ATM Services vestibule (Agbor's old stairway
+    blocker removed — the vestibule now has exactly one), 4 in a row in the bank's compound under
+    an "ATM GALLERY • 24 HOURS" sign, and 4 at public places: the Market, the Filling Station, the
+    Delta International Airport, and the Lifestyle Centre.
+  - **Airport and repair shops (garage):** real doors people walk through — a gap in the front
+    wall with the blue entry square at the door — and the "Delta International Airport" sign moved
+    off the gate to the terminal's roof.
+  - **Filling stations and gas depots (all 8):** the planter between the way in and the way out
+    pulled 1.35 units back from the forecourt gate (z 13.25 → 11.9) so the gate is clear.
+  - **Car parks:** `streetTidy` now takes the town's parks and pushes street props, trees and
+    lamps out of each gate's apron and out of every numbered bay's footprint; the roadside-park
+    no-props strip extended (3.4 → 6.2). No building, grass, flower, tree or prop overlaps a bay,
+    gate or driveway.
+  - **Entry check, all four towns:** every building's entry square and every interior walked;
+    stairs, doors, counters and aisles reachable. Aggravating fix: the Agbor stairway ATM (above).
+  - Verified headless in a real browser at 390×844 (phone) and 1280×800 (desktop): 36 machines
+    registered (8 town + 1 bank in each state), no console errors.
+
 - **No HUD bar covers a dialog's buttons (PR 4, merged 29 October 2026):** on phones, the phone /
   inventory / settings bar (and the other bottom HUD bars) covered Violet's "Begin registration" button
   and the buttons of every other dialog. Fix in `index.html`: while `#talk` or `#choose` is open, the
