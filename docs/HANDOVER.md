@@ -196,6 +196,15 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 
 ## 11. Updates since the first handover (newest first)
 
+- **No HUD bar covers a dialog's buttons (PR 4, merged 29 October 2026):** on phones, the phone /
+  inventory / settings bar (and the other bottom HUD bars) covered Violet's "Begin registration" button
+  and the buttons of every other dialog. Fix in `index.html`: while `#talk` or `#choose` is open, the
+  bottom HUD bars (`#nav`, `.tbtn`, `.towskip`, `#picks.sheet`, `#hudSheet`) get `display:none` via one
+  `body:has(...)` rule, and `.talk` carries `z-index:7` as a backstop. Every dialog in the game (auth,
+  registration, buying, refuelling, garage, admin, settings) goes through `#talk` or `#choose`, so all
+  are covered. Verified in a real browser at 390×844 (phone) and 1280×800 (desktop): no bar over the
+  dialog, all buttons visible.
+
 **Ways of working**
 - All Claude sessions (this chat, local Claude Code, cloud Claude Code) share **one weekly allowance**. Run one at a time
   where possible. Codex does not use it (good for simple, well-defined asset jobs; it struggled with `index.html`).
