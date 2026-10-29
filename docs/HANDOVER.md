@@ -197,20 +197,25 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 ## 11. Updates since the first handover (newest first)
 
 main is at `50228b8` (Merge pull request #7, 29 October 2026). Everything below that
-is merged is live on main and at the Pages URL.
+is merged is live on main and at the Pages URL. The repo has no build, typecheck or lint;
+the only runnable check is `test/flags.mjs` (`node test/flags.mjs` from the repo root — it
+must pass before pushing).
 
 - **Agbor/Grandview: rebuilt the L-staircase and moved the ATM vestibule off the stair
   approach (PR 7, merged 29 October 2026):**
   - The PR 5 ATM vestibule was sitting on Grandview Bank's (Agbor) stair approach, so the
     L-shaped staircase was rebuilt and the vestibule relocated clear of the approach
     (21+/12- in `index.html`, commit `0500f64`).
-  - The original commit was flagged UNVERIFIED (the headless geometry audit crashed three
-    times, so it was pushed from the working tree before sandbox reclamation). It was then
-    verified by a real headless-browser walk: 8 clean pass screenshots plus a
-    four-reviewer composite grid.
-  - **Status: merged 29 October 2026 (merge commit `50228b8`) — the owner reviewed all
-    four review composites and OK'd the visuals (stairs and ATM vestibule placement).**
-- **A distinct look for each state bank (PR 6, merged 29 October 2026):**
+  - The original commit was pushed from the ephemeral sandbox working tree before it could
+    be reworked (the headless geometry audit crashed three times), so it shipped UNVERIFIED.
+    It was then verified by: a headless render (no console errors), a by-eye browser
+    walkthrough, and the owner's screenshot review of the four review composites (each
+    bank's stairs and ATM vestibule placement).
+  - **No automated geometry or clearance check was run on this change — no walkable-path or
+    footprint measurements exist for it.** Crestfield, Eastway and Trustmark were checked by
+    eye only and needed no changes; Trustmark was the weakest pass (dark frames).
+  - **Status: merged 29 October 2026 (merge commit `50228b8`).**
+- **A distinct look for each state bank (PR 6, merged 29 October 2026, commit `6479eae`):**
   - Bank names come from the Discord server; no real Nigerian bank names or logos anywhere.
     `BANK_STYLES` in `index.html` holds each bank's palette, logo and layout variant, applied inside
     and out: walls, sign bands, counters, carpets, medal wall and the bank's ATMs (which carry the
@@ -234,6 +239,10 @@ is merged is live on main and at the Pages URL.
     exteriors, four halls) render as proper 3D scenes; Crestfield (dark green walls, gold sign band)
     and Eastway (deep teal, silver) confirmed by vision; Trustmark and Grandview verified by their
     own colour signatures in the saved frames (the vision API was billing-blocked mid-check).
+  - **How it was verified: a headless render check (screenshots of all four banks, phone and
+    desktop sizes), a by-eye browser walkthrough, and the owner's screenshot review before
+    merge. No automated geometry, clearance, build or typecheck check was run on it either —
+    the repo has no build, typecheck or lint; `test/flags.mjs` is the only runnable check.**
   - **Status: merged 29 October 2026 — the owner OK'd the screenshots before merge.**
 
 - **Blocked paths, real doors, ATMs everywhere (PR 5, merged 29 October 2026):**
@@ -275,6 +284,9 @@ is merged is live on main and at the Pages URL.
   where possible. Codex does not use it (good for simple, well-defined asset jobs; it struggled with `index.html`).
 - **Only the cloud session edits `index.html`.** The local session does Blender and asset work in `delta-city`.
 - Keep this file up to date with every new decision.
+- **Handover discipline (from 29 October 2026):** update `docs/HANDOVER.md` at the end of every
+  task and commit it with the work — the chat context gets truncated, so this file is the only
+  reliable record of project state.
 
 **Done since the first handover**
 - Markets and shops in Warri, Ozoro and Agbor. Right-hand traffic (vans and tow truck keep right, anticlockwise round
