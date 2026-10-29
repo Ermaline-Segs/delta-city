@@ -202,6 +202,25 @@ point at the merge commit created at merge time. Everything below that is merged
 main and at the Pages URL. The repo has no build, typecheck or lint; the only runnable check is
 `test/flags.mjs` (`node test/flags.mjs` from the repo root — it must pass before pushing).
 
+- **Owner decisions, 29 October 2026 (after PR 8; recorded on merge commit `558afa8`):**
+  1. **No practice car, and no new player gets a car.** Removed deliberately in PR 8 — not a bug. Do not re-add it.
+  2. **How new players get around until they can buy a car:**
+     - the public transport system (BRT buses and taxis — section 8);
+     - **renting a bike:** a player can rent one specific bike from any garage at the start.
+       **Open decisions (owner to decide — not assumptions):** which bike, the rental price, the
+       rental period, and whether a rented bike is saved to the account.
+     - No bike model exists in `assets/vehicles/` yet, so a bike asset is needed first — a
+       local-session/Blender job, not a cloud job.
+  3. **No "play without an account" option — signing in is required to play.** This is NOT the same
+     as the multiplayer "Offline mode" fallback, which stays exactly as it is: a signed-in player
+     whose live server is unreachable keeps playing single-player with the Offline notice (section 7
+     and "If multiplayer causes problems", section 12). Do not confuse the two: guest/account-less
+     play is to be removed (a scope report of every guest/account-less assumption in the current
+     `index.html` accompanies this entry — report only, nothing removed yet); Offline mode stays.
+  4. **The car gate is ownership, not role.** "Only the Chief Admin has a car" is true today only
+     because the dealership (section 9) is not built. Anyone will be able to buy and drive a car;
+     do not add a role check to driving.
+
 - **Unowned-car exploit: FIXED (PR 8, this work — commit `36b5267`):**
   - The finding below (section 12, "reported, not fixed") is now resolved. Chosen fix: **dropped
     the `!C.vid` fallback in `garCanDrive`** (it is now `!!C.vid && GAR.list.some(...)`) and
