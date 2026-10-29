@@ -908,9 +908,9 @@ function royalBank(o){const W=o.w,Dp=o.d,Ht=o.h||7.2,YW=o.yardW,YD=o.yardD,f=Dp/
   for(const sx of[-1,1])for(let z=-Dp/2+2;z<Dp/2-1;z+=3)windowX(sx*W/2,4.4,z,1.5,1.6,sx);
   for(let k=0;k<3;k++)box(0,0,f+.6+(3-k)*.4-.2,6+(3-k)*.6,(k+1)*.17,.4,"#c9cdd0");box(0,3.6,f+2,7,.3,4,NAVY);box(0,3.9,f+2,7.3,.1,4.3,GOLD,K.gold);for(const sx of[-1,1])cyl(sx*3,0,f+3.6,.2,3.6,GOLD,12);
   entrance(0,.5,f+.08,2.9,2.7,0,true);
-  const ax=Math.min(W/2-4,10);box(ax,0,f+.9,7,.5,1.8,"#b8bcbf");box(ax,3.0,f+1,7.4,.22,2.4,NAVY);box(ax,3.22,f+1,7.6,.08,2.6,GOLD,K.gold);for(const sx of[-1,1])cyl(ax+sx*3.4,.5,f+2,.1,2.5,GOLD,8);     // cash machines outside
-  for(let k=0;k<3;k++)at(ax-2+k*2,f+.5,0,()=>{box(0,.5,0,.9,2.0,.75,NAVY);box(0,1.7,.38,.56,.42,.03,"#9fd8ff",K.glow);box(0,1.36,.44,.56,.2,.16,"#d9dde2");box(0,2.24,.385,.8,.2,.02,GOLD,K.gold)});
-  sign(ax,2.55,f+2.22,2.2,.4,"ATM  •  24 HOURS",NAVY,"#f1d27a");
+  const ax=Math.min(W/2-4,10),sh=o.name.replace(/\s+Bank\s*$/,"");box(ax,0,f+.9,7.6,.5,1.8,"#b8bcbf");box(ax,3.0,f+1,8.0,.22,2.4,NAVY);box(ax,3.22,f+1,8.2,.08,2.6,GOLD,K.gold);for(const sx of[-1,1])cyl(ax+sx*3.9,.5,f+2,.1,2.5,GOLD,8);     // ATM gallery: four machines side by side against the front wall
+  for(let k=0;k<4;k++)atmDraw(ax-3+(k*1.5),f+.5,0);   // geometry only; place() registers these four in WORLD coords (see the royal branch there)
+  sign(ax,2.55,f+2.22,3.4,.4,"ATM GALLERY  •  24 HOURS",NAVY,"#f1d27a");
   const rail=(x,z,len,along)=>{if(NOFENCE)return;solidBox(x,z,along?len:.5,along?.5:len);box(x,0,z,along?len:.3,.6,along?.3:len,"#e6e8ea");for(let k=0;k<=len/1.4;k++){const q=-len/2+k*1.4;box(along?x+q:x,.6,along?z:z+q,.07,1.2,.07,NAVY)}box(x,1.8,z,along?len:.08,.07,along?.08:len,NAVY)};
   const z0=yc-YD/2,z1=yc+YD/2;rail(0,z0,YW,true);rail(-YW/2,yc,YD,false);rail(YW/2,yc,YD,false);rail(-YW/4-2,z1,YW/2-4,true);rail(YW/4+2,z1,YW/2-4,true);
   for(const s of[-1,1]){box(s*4,0,z1,.9,2.6,.9,IVORY);box(s*4,2.6,z1,1.1,.18,1.1,GOLD,K.gold);palm(s*(YW/2-3),z1-3,6.2);flag(s*6.5,z1-3,8.5)}}
@@ -1025,19 +1025,20 @@ function place(spec,x,z,turn){if(spec.key&&GUIDE_DOORS.includes(spec.key)){const
     {const yc=spec.kind==="royal"?(spec.yardD-spec.d)/2-3:0,P=spec.kind==="tower"&&spec.podium,bw=Math.max(spec.w,P?P.w:0)/2,bd=Math.max(spec.d,P?P.d:0)/2;yardBox(0,yc,spec.yardW,spec.yardD);
       if(pub)cmpReg(spec.key,spec.short||spec.name,[-spec.yardW/2,yc-spec.yardD/2,spec.yardW/2,yc+spec.yardD/2],[-bw,-bd,bw,bd])}
     mark(spec.kind==="tower"?(spec.short||spec.name):spec.short&&!/House|Court|Command|HQ|Immigration/.test(spec.short)?spec.name:(spec.short||spec.name),0,spec.kind==="royal"?spec.d/2+6:spec.d/2+5,spec.kind==="state"?S_TEAL:spec.kind==="royal"?NAVY:spec.band||spec.accent||"#14263D")});
+  if(spec.kind==="royal"&&MAPD.places){const ax=Math.min(spec.w/2-4,10),sh=spec.name.replace(/\s+Bank\s*$/,"");for(let k=0;k<4;k++){const p=doorAt(x,z,turn,spec.d/2+.5,ax-3+k*1.5);MAPD.places.push({name:spec.name+" ATM "+(k+1)+" of 4",x:p.x,z:p.z,color:"#10244a",group:"Services",icon:"🏧"});ATM_MACHINES.push({x:p.x,z:p.z,w:.9,d:.75,name:spec.name+" ATM "+(k+1)+" of 4",short:sh,turn,sc:"town",t:CUR_ST})}const vd=doorAt(x,z,turn,spec.d/2+.9);MAPD.places.push({name:spec.name+" ATM — Vestibule",x:vd.x,z:vd.z,color:"#10244a",group:"Services",icon:"🏧"})}
   const d=spec.yardD/2+8.7;BUILDINGS.push({name:spec.short||spec.name,x:x+Math.sin(turn)*d,z:z+Math.cos(turn)*d,y:spec.kind==="modern"?5:3.6,yaw:turn+Math.PI})}        // view from the middle of the road outside
 /* An airport: a glass-fronted terminal under a wide roof, a control tower, an apron with a
    parked aircraft, and a runway. Asaba's is Delta International Airport. */
-function airport(o){yardBox(-50,o.model?-60:-28,270,o.model?190:120);cmpReg("air",o.name,[-30,-6,30,21],o.model?[-30,-56,30,8]:[-23,-7,33.5,7],{bays:5,backOpen:true});if(!o.model){solidBox(0,0,46,14);solidBox(31,-3,5,5)}mark(o.name,0,14,"#4b5563");const w=46,d=14,h=8.5,f=d/2,WH="#f4f6f8",NV="#14263D",TL="#167C80";
+function airport(o){yardBox(-50,o.model?-60:-28,270,o.model?190:120);cmpReg("air",o.name,[-30,-6,30,21],o.model?[-30,-56,30,8]:[-23,-7,33.5,7],{bays:5,backOpen:true});if(!o.model){solidBox(-12.3,0,21.4,14);solidBox(12.3,0,21.4,14);solidBox(31,-3,5,5)}mark(o.name,0,14,"#4b5563");const w=46,d=14,h=8.5,f=d/2,WH="#f4f6f8",NV="#14263D",TL="#167C80";
   box(0,0,10,70,.06,36,"#d9dcdd",K.tile);
   if(o.model){                     // the supplied terminal: its public side faces the forecourt, its boarding bridges face the apron
-    at(0,7-31,Math.PI/2,()=>placeModel(o.model));solidBox(0,-24,60,64);entrance(0,.1,7.4,3.4,3,0,true);at(0,24,0,()=>{for(const s of[-1,1])box(s*8,0,0,.5,4.6,.5,"#c9d0d6");box(0,3.2,0,16.6,1.5,.4,NV);sign(0,3.4,.22,15.6,1.1,o.name.toUpperCase(),NV,"#ffffff")})}
-  else{box(0,0,0,w+1,.5,d+1,"#b8bcbf");box(0,.5,0,w,h,d,WH);
-  for(let k=0;k<=18;k++)box(-w/2+k*w/18,.5,f,.16,h-1.4,.24,NV);for(let k=0;k<18;k++){const x=-w/2+(k+.5)*w/18;if(Math.abs(x)>1.6)box(x,.5,f-.02,w/18-.16,h-1.4,.06,"#4f86a8",K.glass)}box(0,3.4,f-.02,3.2,h-4.3,.06,"#4f86a8",K.glass);
+    at(0,7-31,Math.PI/2,()=>placeModel(o.model));solidBox(0,-24,60,64);box(0,0,7.4,3.6,.12,1.1,"#b8bcbf");entrance(0,.1,7.55,3.4,3,0,true);at(16.5,24.5,0,()=>{for(const s of[-1,1])box(s*8,0,0,.5,4.6,.5,"#c9d0d6");box(0,3.2,0,16.6,1.5,.4,NV);sign(0,3.4,.22,15.6,1.1,o.name.toUpperCase(),NV,"#ffffff")})}
+  else{box(0,0,0,w+1,.5,d+1,"#b8bcbf");box(-12.6,.5,0,20.8,h,d,WH);box(12.6,.5,0,20.8,h,d,WH);box(0,2.55,f,3.2,.7,.12,NV);door(0,.5,f,1,"#1d3a5f",3.2);   // PR 5: a real doorway in the centre wall
+  for(let k=0;k<=18;k++){const mx=-w/2+k*w/18;if(Math.abs(mx)>2)box(mx,.5,f,.16,h-1.4,.24,NV)}for(let k=0;k<18;k++){const x=-w/2+(k+.5)*w/18;if(Math.abs(x)>2)box(x,.5,f-.02,w/18-.16,h-1.4,.06,"#4f86a8",K.glass)}box(0,4.15,f-.02,3.2,1.5,.06,"#4f86a8",K.glass);
   box(0,h-.9,f+.1,w,1.4,.4,NV);sign(0,h-.72,f+.32,Math.min(30,w*.62),1.04,o.name.toUpperCase(),NV,"#ffffff");
   box(0,h+.5,1.5,w+6,.5,d+7,WH);box(0,h+1,1.5,w+5,.2,d+6,"#3a3f45");box(0,h+.3,f+5,w+6,.2,.5,TL);                       // the wide roof, with a teal edge
   box(0,3.5,f+2.6,20,.3,5.2,WH);box(0,3.8,f+2.6,20.4,.1,5.6,TL);for(const x of[-9,-3,3,9])cyl(x,0,f+4.8,.16,3.5,"#c9d0d6",10);sign(0,2.8,f+5.24,6,.5,"DEPARTURES  •  ARRIVALS",TL,"#ffffff");
-  entrance(0,.5,f+.12,3,2.7,0,true);for(let k=0;k<2;k++)box(0,0,f+.7+(2-k)*.4-.2,8+(2-k)*.6,(k+1)*.25,.4,"#c9cdd0");
+  for(let k=0;k<2;k++)box(0,0,f+.7+(2-k)*.4-.2,8+(2-k)*.6,(k+1)*.25,.4,"#c9cdd0");
   at(31,-3,0,()=>{cyl(0,0,0,2.4,20,WH,16,2);cyl(0,20,0,3.9,.5,NV,16);cyl(0,20.5,0,3.7,3,"#4f86a8",16,4.1);cyl(0,23.5,0,4.4,.5,WH,16);cyl(0,24,0,.12,3.4,"#c9d0d6",6);cyl(0,10,0,2.5,.6,TL,16)});   // control tower
 }
   at(0,o.model?-50:0,0,()=>{  box(0,0,-30,84,.05,46,"#aeb4b8",K.tile);for(let k=0;k<5;k++)box(-28+k*14,.06,-16,.3,.01,12,"#f4d35e");                                                        // apron
@@ -1279,7 +1280,7 @@ PLANS.Asaba=function(C,S,SP){const H=Math.PI/2,W=9,SW=8,EW=13,off=d=>W/2+4.2+d/2
   at(-86,-74,0,()=>federalCompound({}));SP.fed=doorAt(-86,-74,0,-5.3);SP.villa=doorAt(-86,-74,0,-39.8);SP.villa1=doorAt(-86,-74,0,-38.8,-27);SP.villa2=doorAt(-86,-74,0,-38.8,27);
   BUILDINGS.push({name:"Federal Government",x:-86,y:13,z:22,yaw:Math.PI,pitch:-.04},{name:"Presidential Villa",x:-86,y:16,z:-84,yaw:Math.PI,pitch:-.2});
   // the airport, beside the expressway
-  at(-262,-70,H,()=>airport({name:C.air,model:"m_terminal"}));SP.air=doorAt(-262,-70,H,7.4);BUILDINGS.push({name:C.air,x:-222,y:9,z:-70,yaw:H,pitch:.02});
+  at(-262,-70,H,()=>airport({name:C.air,model:"m_terminal"}));SP.air=Object.assign(doorAt(-262,-70,H,7.4),{cx:-253.56,cz:-90});BUILDINGS.push({name:C.air,x:-222,y:9,z:-70,yaw:H,pitch:.02});
   const view=(name,x,y,z,yaw,pitch)=>BUILDINGS.push({name,x,y,z,yaw:yaw+Math.PI,pitch}),sd=k=>SW/2+4.2+HOMES[k].yardD/2;
   // GRA: along DBS Road and the north of Dennis Osadebay Way
   at(49,-105-SW/2-4.2-23,0,()=>{NOFENCE=true;landmarkTower({name:C.hotel.toUpperCase(),short:C.hotel,r:5.6,floors:13,yardW:50,yardD:46,signW:8});NOFENCE=false;cmpReg("hotel",C.hotel,[-25,-23,25,23],[-15,-15,15,15],{bays:4})});SP.hotel=doorAt(49,-105-SW/2-4.2-23,0,14.4);
@@ -1379,7 +1380,7 @@ PLANS.Warri=function(C,S,SP){MAPD.lawnZones=[[30,-178,236,-92],[4,8,60,62],[-32,
   place(S.util,-70,off(S.util.yardD),Math.PI);place(S.court,92,off(S.court.yardD),Math.PI);place(S.trans,100,92-SW/2-4.2-S.trans.yardD/2,0);
   place(S.imm,off(S.imm.yardD),119,-H);SP.imm=doorAt(off(S.imm.yardD),119,-H,S.imm.d/2+.22);
   // the port on the river, the refinery at Ekpan, the airport at Osubi
-  at(150,RIV-13,0,port);at(-276,-92,0,refinery);at(-70,-130,0,()=>airport({name:C.air}));SP.air=doorAt(-70,-130,0,7);
+  at(150,RIV-13,0,port);at(-276,-92,0,refinery);at(-70,-130,0,()=>airport({name:C.air}));SP.air=Object.assign(doorAt(-70,-130,0,7),{cx:-50,cz:-122.06});
   // GRA: modern homes along the north side of PTI Road and up the Sapele road, with Bon Hotel Hyatti at the end
   [["villa",44],["luxury",72],["villa",99],["luxury",127],["villa",154],["luxury",181]].forEach(([k,x])=>home(k,x,-92-sd(k),0));
   home("estate",W/2+4.2+10,-122,-H);home("estate",W/2+4.2+10,-143,-H);home("estate",-(W/2+4.2+10),-143,H);
@@ -1459,7 +1460,19 @@ function marketsClear(st){const M=MARKETS[st];if(!M||typeof PROPS_ON==="undefine
 // the Lifestyle centre (the guide's clubhouse), on a plot checked to be clear of roads, buildings and car parks
 const LIFESITE={Asaba:[-180.4,47.1,Math.atan2(.957,-.291)],Warri:[-37,71.8,0],Ozoro:[-115,-98.7,Math.PI],Agbor:[-115,-98.7,Math.PI]};
 function lifestylePlace(st){const L=LIFESITE[st];if(!L||!guideBuilding("lifestyle",st))return;place({kind:"modern",key:"lifestyle",name:st.toUpperCase()+" LIFESTYLE",short:"Lifestyle Centre",w:22,d:12,floors:2,yardW:30,yardD:24,accent:"#1f3a2c",strips:Math.abs(Math.sin(L[2]))>.01&&Math.abs(Math.cos(L[2]))>.01},L[0],L[1],L[2])}
-function buildTown(st){const C=STATES[st],SP={};PLACED_DOORS=[];const doors=()=>{for(const[k,d]of PLACED_DOORS)if(!SP[k]&&guideBuilding(k,st))SP[k]=d};BUILDINGS.length=0;CMPS=[];MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);if(st==="Asaba")nationalOffices();lifestylePlace(st);marketsPlace(st,SP);doors();return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
+let CUR_ST="Asaba";
+const ATMPUB={Asaba:[137,66],Warri:null,Ozoro:null,Agbor:null};
+function atmPublic(st,SP){const C=STATES[st],bn=C.bank,sh=bn.replace(/\s+Bank\s*$/,"");
+  const spots=[];
+  const mk=MARKETS[st]?MARKETS[st].m:ATMPUB[st];if(mk)spots.push([mk[0]-21,mk[1]-15,Math.PI/2,"Market"]);
+  const FS=STATIONS[st]||[];
+  if(FS[0]){const F=FS[0],tt=Math.atan2(F.f[0],F.f[1]),cc=Math.cos(tt),ss=Math.sin(tt);spots.push([F.x+cc*3.2-ss*(-5.25),F.z+ss*3.2+cc*(-5.25),tt,"Filling Station"])}
+  const A=SP&&SP.air;
+  if(A){if(A.cx!==undefined)spots.push([A.cx,A.cz,Math.atan2(A.fx,A.fz),"Delta International Airport"]);else spots.push([A.x+A.fz*3.4,A.z-A.fx*3.4,Math.atan2(A.fx,A.fz),"Delta International Airport"])}
+  const L=LIFESITE[st];if(L&&guideBuilding("lifestyle",st)){const t=L[2],fx=Math.sin(t),fz=Math.cos(t);spots.push([L[0]+fx*5.5-fz*8.2,L[1]+fz*5.5+fx*8.2,t,"Lifestyle Centre"])}
+  if(spots.length<4&&FS[1]){const F=FS[1];spots.push([F.x-F.f[1]*4.5,F.z+F.f[0]*4.5,Math.atan2(F.f[0],F.f[1]),"West Filling Station"])}
+  for(const[x,z,turn,what]of spots.slice(0,4)){atmState(x,z,turn,bn+" ATM — "+what,sh,undefined,{sc:"town",t:st});MAPD.places.push({name:bn+" ATM — "+what,x,z,color:"#10244a",group:"Services",icon:"🏧"})}}
+function buildTown(st){CUR_ST=st;const C=STATES[st],SP={};PLACED_DOORS=[];const doors=()=>{for(const[k,d]of PLACED_DOORS)if(!SP[k]&&guideBuilding(k,st))SP[k]=d};BUILDINGS.length=0;CMPS=[];MAPD={roads:[],rounds:[],water:[],places:[],lamps:[],raised:[],dyn:[]};BLOCKS=[];YARDS=[];MODERN=false;if(PLANS[st]){PLANS[st](C,townSpecs(st,C),SP);if(st==="Asaba")nationalOffices();lifestylePlace(st);marketsPlace(st,SP);atmPublic(st,SP);doors();return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}ground(320);
   const R0=9,R1=17,W=9,LEN=110,start=R1-.6;roundabout(R0,R1);
   for(let k=0;k<4;k++)road(Math.sin(k*Math.PI/2)*(start+LEN/2),-Math.cos(k*Math.PI/2)*(start+LEN/2),W,LEN,-k*Math.PI/2);
   const off=d=>W/2+4.2+d/2;                                    // how far a plot's centre sits from the middle of its road
@@ -1474,7 +1487,7 @@ function buildTown(st){const C=STATES[st],SP={};PLACED_DOORS=[];const doors=()=>
   // south road
   place(S.util,-off(S.util.yardD),58,H);place(S.agri,off(S.agri.yardD),64,-H);
   // the airport, reached by its own road off the south road
-  road(-32.3,97,W,55.6,H);at(-88,97,H,()=>airport({name:C.air}));SP.air={x:-81,z:97,fx:1,fz:0};BUILDINGS.push({name:C.air,x:-52,y:9,z:97,yaw:H,pitch:.02});
+  road(-32.3,97,W,55.6,H);at(-88,97,H,()=>airport({name:C.air}));SP.air=Object.assign({x:-81,z:97,fx:1,fz:0},{cx:-80.06,cz:77});BUILDINGS.push({name:C.air,x:-52,y:9,z:97,yaw:H,pitch:.02});
   if(C.capital){                                                // the federal compound, at the head of the west road, facing the roundabout
     const fx=-(start+LEN)-2-64;at(fx,0,H,()=>federalCompound({}));SP.fed={x:fx-5.3,z:0,fx:1,fz:0};SP.villa={x:fx-39.8,z:0,fx:1,fz:0};SP.villa1={x:fx-38.8,z:27,fx:1,fz:0};SP.villa2={x:fx-38.8,z:-27,fx:1,fz:0};
     BUILDINGS.push({name:"Federal Government",x:fx+92,y:13,z:0,yaw:-H+Math.PI,pitch:-.04},{name:"Presidential Villa",x:fx-10,y:16,z:0,yaw:-H+Math.PI,pitch:-.2})}
@@ -1493,7 +1506,7 @@ function buildTown(st){const C=STATES[st],SP={};PLACED_DOORS=[];const doors=()=>
   [["onebed",-50],["onebed",-33],["onebed",-16],["selfcon",3],["selfcon",21],["selfcon",39]].forEach(([k,x])=>home(k,x,qz+side(k),Math.PI));
   [["singleroom",-40],["singleroom",-23],["singleroom",23]].forEach(([k,x])=>home(k,x,qz-side(k),0));
   view(C.areas[2],-5,15,qz-34,Math.PI,-.25);mark(C.areas[0],0,gz,"#8a3d6a");mark(C.areas[1],tx,4,"#0d7a70");mark(C.areas[2],-5,qz,"#a67a05");
-  lifestylePlace(st);marketsPlace(st,SP);doors();return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}
+  lifestylePlace(st);marketsPlace(st,SP);atmPublic(st,SP);doors();return{spots:SP,views:BUILDINGS.slice(),map:MAPD,blocks:BLOCKS}}
 const SCENE="asaba";if(SCENE==="homes")homesSample();else if(SCENE==="modern")modernSample();
 
 /* ================================== drawing ================================== */
@@ -1540,7 +1553,28 @@ function wallRun(x0,z0,x1,z1,y0,y1,color,kind,level,noCollide){const len=Math.hy
   if(!noCollide)WALLS.push([Math.min(x0,x1)-(alongX?0:.12),Math.min(z0,z1)-(alongX?.12:0),Math.max(x0,x1)+(alongX?0:.12),Math.max(z0,z1)+(alongX?.12:0),level])}
 function discZ(x,y,z,r,color,kind,n){const c=hex(color),N=n||20;for(let k=0;k<N;k++){const a=k/N*6.2832,b=(k+1)/N*6.2832;tri([x,y,z],[x+Math.cos(a)*r,y+Math.sin(a)*r,z],[x+Math.cos(b)*r,y+Math.sin(b)*r,z],c,kind)}}
 function label(x,y,z,w,h,text,bg,fg,turn){at(x,z,turn||0,()=>{box(0,y-.04,-.03,w+.1,h+.08,.04,GOLD,K.gold);sign(0,y,0,w,h,text,bg,fg)})}
-function atm(x,z,turn){at(x,z,turn,()=>{box(0,0,0,.9,2.0,.75,NAVY);box(0,1.2,.38,.56,.42,.03,"#9fd8ff",K.glow);box(0,.86,.44,.56,.2,.16,"#d9dde2");box(.28,.62,.385,.2,.06,.02,"#111820");box(0,1.74,.385,.8,.2,.02,GOLD,K.gold);box(-.3,1.0,.385,.14,.05,.02,"#35d07f",K.glow);stands(0,0,.9,.75)});}
+let ATM_MACHINES=[];       // interactive cash machines: {x,z,w,d,name,short,turn}
+function atm(x,z,turn,body,brand){at(x,z,turn,()=>{box(0,0,0,.9,2.0,.75,NAVY);box(0,1.2,.38,.56,.42,.03,"#9fd8ff",K.glow);box(0,.86,.44,.56,.2,.16,"#d9dde2");box(.28,.62,.385,.2,.06,.02,"#111820");box(0,1.74,.385,.8,.2,.02,GOLD,K.gold);box(-.3,1.0,.385,.14,.05,.02,"#35d07f",K.glow);stands(0,0,.9,.75)})}
+// Draw-only cash machine (no registry entry). Callers that place it inside a parent
+// transform (e.g. the royal bank's gallery) register the machine separately in
+// WORLD coordinates, so the HUD, the map and the one-player lock line up.
+function atmDraw(x,z,turn,band){const c=band||[NAVY,"#f1d27a"];at(x,z,turn,()=>{box(0,0,0,.9,2.0,.75,c[0]);box(0,.95,.4,.94,.16,.02,c[1]);box(0,1.2,.38,.56,.42,.03,"#9fd8ff",K.glow);box(0,.86,.44,.56,.2,.16,"#d9dde2");box(.28,.62,.385,.2,.06,.02,"#111820");box(0,1.74,.385,.8,.2,.02,c[1]);box(0,2.06,0,.9,.44,.04,c[0]);box(0,2.3,0,1.8,.24,.02,"#e9eef4");stands(0,0,.9,.75)})}
+// PR 5: the state's cash machine. The cabinet and its side stripe take the state bank's
+// colours, the little sign on top carries the bank's name, and it joins the interactive
+// registry so the HUD can offer it (and lock it to one player at a time). The banks pass
+// band:null to keep the current navy-and-gold machine (their distinct looks come in PR 6).
+function atmState(x,z,turn,name,short,band,reg){const c=band||[NAVY,"#f1d27a"];at(x,z,turn,()=>{box(0,0,0,.9,2.0,.75,c[0]);box(0,.95,.4,.94,.16,.02,c[1]);box(0,1.2,.38,.56,.42,.03,"#9fd8ff",K.glow);box(0,.86,.44,.56,.2,.16,"#d9dde2");box(.28,.62,.385,.2,.06,.02,"#111820");box(0,1.74,.385,.8,.2,.02,c[1]);box(-.3,1.0,.385,.14,.05,.02,"#35d07f",K.glow);box(0,2.06,0,.9,.44,.04,c[0]);box(0,2.3,0,Math.min(2.2,.4*short.length+.3),.24,.02,"#e9eef4");stands(0,0,.9,.75)});const r=reg||{sc:"town",t:me&&me.town};const m=ATM_MACHINES.find(q=>q.t===r.t&&q.sc===r.sc&&Math.hypot(q.x-x,q.z-z)<.3);if(!m)ATM_MACHINES.push(Object.assign({x,z,w:.9,d:.75,name,short,turn},r))}
+// ATM screen: wired to the bank's safe — it only shows the server-kept wallet in K.
+// No local money rules: deposits/withdrawals stay with the tellers in the hall. One customer at a time.
+function atmPanel(m){if(!m)return;
+  if(netNear(m.x,m.z,1.5)){toast("Someone is already at this machine. Please wait your turn.");return}
+  const bank=(m.name||"").split(" ATM")[0]||"the bank";
+  choosing=true;const el=document.getElementById("choose");el.hidden=false;
+  const signed=typeof AUTH!=="undefined"&&AUTH.char;
+  const shell=b=>`<div class="card rpcard gcard"><h1>${esc(bank)} ATM</h1><p class="cdsub">${esc(m.short||"")} &middot; ${esc(m.t||"")}</p>${b}<p class="amsg" role="status"></p><button class="go ghost" data-stay="1">Close</button></div>`;
+  el.innerHTML=shell(signed?`<div class="rptot">Your wallet <b>${kfmt(Number(me.cash||0))}</b></div>
+    <p>This machine reads the same account the bank keeps for you, in K. Deposits and withdrawals are done at the teller counters in the hall.</p>`:`<p>You are not signed in, so the machine has no account to read. Sign in to your account to see your wallet here.</p>`);
+}
 function chair(x,z,turn,color){at(x,z,turn,()=>{const c=color||NAVY2;box(0,.4,0,.52,.1,.5,c,K.fabric);box(0,.5,-.23,.52,.5,.08,c,K.fabric);cyl(0,0,0,.24,.04,"#8d8f94",8);cyl(0,.04,0,.035,.36,"#8d8f94",6);stands(0,0,.5,.5)})}
 function sofa(x,z,turn,n){at(x,z,turn,()=>{const L=n*.8;box(0,.12,0,L+.3,.3,.9,NAVY,K.fabric);box(0,.42,-.36,L+.3,.5,.18,NAVY,K.fabric);for(const s of[-1,1])box(s*(L/2+.06),.42,0,.18,.26,.9,NAVY,K.fabric);
   for(let k=0;k<n;k++){box(-L/2+.4+k*.8,.42,.06,.74,.14,.68,NAVY2,K.fabric);box(-L/2+.4+k*.8,.56,-.2,.5,.34,.12,IVORY,K.fabric)}for(const[a,b]of[[-L/2,-.36],[L/2,-.36],[-L/2,.36],[L/2,.36]])cyl(a,0,b,.04,.12,GOLD,6);stands(0,0,L+.3,.9);solid(0,0,L+.3,.9,0)})}
@@ -1607,10 +1641,10 @@ function bankInside(){const H=HALL.high,MZ=HALL.mezz;
   at(11.5,6.6,0,()=>{box(0,0,0,3.8,1.08,.8,NAVY);box(0,.5,.41,3.8,.08,.02,GOLD,K.gold);box(0,1.08,0,4,.07,1,WHITE,K.tile);box(-.8,1.16,-.1,.5,.34,.04,"#161b22");stands(0,0,3.8,.8);solid(0,0,3.8,.9,0)});chair(11.5,5.7,0,"#2a2f38");label(11.5,2.1,6.6,2.6,.42,"ENQUIRIES",NAVY,"#f1d27a");for(const s of[-1,1])cyl(11.5+s*1.36,1.15,6.6,.03,.95,GOLD,6);
   for(const x of[-3.6,3.6]){at(x,6.2,0,()=>{cyl(0,0,0,.34,.05,GOLD,12);cyl(0,.05,0,.06,1.0,GOLD,8);cyl(0,1.05,0,.52,.05,WHITE,16);box(0,1.11,0,.3,.02,.2,"#f6f6f2");stands(0,0,1,1);solid(0,0,.7,.7,0)})}
   for(const[x,z]of[[-16,9.2],[16,9.2],[-16,-1.2],[6.2,-1.4],[13.2,2.6]])palmPot(x,z);
-  // ---- ATM Services (added from the Discord guide): a glass vestibule on the east wall with two cash machines
+  // ---- ATM Services (added from the Discord guide): a glass vestibule on the east wall with exactly ONE cash machine
   for(const[z0,z1]of[[5,6.4],[7.4,8.8]]){box(15,0,(z0+z1)/2,.05,2.5,z1-z0,GLASSI,K.glass);WALLS.push([14.9,z0,15.1,z1,0])}for(const z of[5,6.4,7.4,8.8])box(15,0,z,.08,2.5,.08,GOLD,K.gold);
   box(16,2.5,6.9,2,.1,3.8,NAVY);label(15.02,2.2,6.9,1.6,.32,"ATM SERVICES",NAVY,"#f1d27a",-Math.PI/2);
-  for(const z of[5.7,8.1])at(16.6,z,-Math.PI/2,()=>{box(0,0,0,.7,1.6,.6,"#2f3b4a");box(0,1.05,.31,.46,.34,.02,"#7dd3fc",K.glow);box(0,.82,.31,.3,.16,.03,"#c9ced6");box(0,1.48,.31,.56,.08,.02,"#f1d27a",K.glow);stands(0,0,.7,.6);solid(0,0,.7,.6,0)});
+  atmState(16.6,6.9,-Math.PI/2,BANK_NAME+" ATM — Vestibule",BANK_NAME.replace(/\s+Bank\s*$/,""),undefined,{sc:"bank",t:CUR_ST});
   // ---- the Auditing Room (added from the Discord guide), behind the tellers in the west corner
   wallRun(-17,-6.6,-12.4,-6.6,0,MZ-.25,IVORY,0,0);wallRun(-11.2,-6.6,-11,-6.6,0,MZ-.25,IVORY,0,0);wallRun(-11,-10,-11,-6.6,0,MZ-.25,IVORY,0,0);box(-11.8,2.15,-6.6,1.2,MZ-2.4,.2,IVORY);
   label(-11.8,2.25,-6.48,1.6,.3,"AUDITING ROOM",NAVY,"#f1d27a");desk(-14,-7.6,0,1.8,DARKWOOD,NAVY);chair(-14,-8.5,0,"#2a2f38");box(-14.5,.8,-7.5,.5,.3,.04,"#161b22");box(-13.5,.8,-7.6,.3,.04,.4,"#ffffff");
@@ -2681,7 +2715,7 @@ function clearDoorways(T){const inC=(x,z,r)=>{for(const k in T.spots){const d=T.
 // every shop has its own tag on the map, with its name
 function tagShops(T,st){for(const k in T.spots){if(!/^shop\d+$/.test(k))continue;const d=T.spots[k];if(T.map.places.some(p=>!p.road&&Math.hypot(p.x-d.x,p.z-d.z)<6))continue;
   T.map.places.push({name:(typeof SHOPNAME!=="undefined"&&SHOPNAME[st+"/"+k])||"Shop",x:d.x-d.fx*2,z:d.z-d.fz*2,color:"#b45309",group:"Services",icon:"🛍"})}}
-function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;TOPS=new Map();const t=buildTown(st);t.tops=TOPS;clearDoorways(t);tagShops(t,st);roadJoins();highway(st);workshop(st,t);station(st,t);marketsClear(st);compounds(st,t);streetTidy();TOPS=null;t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
+function townOf(st){if(!TOWNS[st]){BAKE=null;CLEAR_GLASS=false;reset();TREES.inst=[];CELL=CELLS;TOPS=new Map();const t=buildTown(st);t.tops=TOPS;clearDoorways(t);tagShops(t,st);roadJoins();highway(st);workshop(st,t);station(st,t);marketsClear(st);compounds(st,t);streetTidy(t);TOPS=null;t.scene=upload();CELL=0;t.treeInst=TREES.inst.slice();t.trees=TREES.data?uploadTrees():null;TOWNS[st]=t;crashLoad(st,t)}return TOWNS[st]}
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3400);hudNote(t)}
 function fadeTo(text,change){if(busy||(scene!=="town"&&NOW<exitCool))return;busy=true;const f=document.getElementById("fade");document.getElementById("where").textContent=text;f.classList.add("on");setTimeout(()=>{change();ui();setTimeout(()=>{f.classList.remove("on");busy=false},260)},320)}
 let exitCool=0;       /* for a moment after arriving inside, the way out cannot trigger, so a player still walking in is never bounced straight back out */
@@ -2918,8 +2952,9 @@ function blocked(x,z){const r=.32,hit=w=>x>w[0]-r&&x<w[2]+r&&z>w[1]-r&&z<w[3]+r;
   if(x<-17+r||x>17-r||z<-10+r)return true;if(level===1&&z>-2.2&&!(x>14.3))return true;
   for(const g of BANK_GATES)if(g.level===level&&!bankCan(g.key)&&hit(g.r)){toast(g.msg);return true}return false}
 const nearViolet=()=>scene==="imm"&&Math.hypot(me.x-VIOLET.x,me.z-2.6)<2.4;
-const actNow=()=>{if(nearViolet())return"talk";if(scene==="gov"&&GV&&GV.kind==="air"&&me.z>1.6&&me.z<3.4&&Math.abs(me.x)<7.4)return"checkin";if(scene==="trs"){const T=TRS.terminals.find(q=>Math.hypot(me.x-q.x,me.z-q.z)<1.6);return T?"term_"+T.kind:null}if(scene==="hosp"&&HV){const L=HV.F.lift;return me.z<L.doorZ+2.4&&Math.abs(me.x-L.x)<2.6?"lift":null}if(scene!=="town"||flying)return null;if(!driving&&dynValve(townOf(me.town)))return"valve";return null};       // the car: through its door icon (carEnter, carExit)
-function doAct(){const a=actNow();if(a==="checkin")return departures();if(a==="valve")return shutValve();if(a==="lift")return liftMenu();if(a&&a.startsWith("term_"))return trsTerminal(a.slice(5));if(a==="talk")talk("hello")}
+const atmNear=()=>{if(!me)return null;const t=me.town;let best=null,bd=1.6;for(const m of ATM_MACHINES){if(m.t!==t)continue;if(m.sc==="town"&&scene!=="town")continue;if(m.sc==="bank"&&scene!=="bank")continue;const d=Math.hypot(me.x-m.x,me.z-m.z);if(d<bd){bd=d;best=m}}return best};
+ const actNow=()=>{if(nearViolet())return"talk";if(scene==="gov"&&GV&&GV.kind==="air"&&me.z>1.6&&me.z<3.4&&Math.abs(me.x)<7.4)return"checkin";if(scene==="trs"){const T=TRS.terminals.find(q=>Math.hypot(me.x-q.x,me.z-q.z)<1.6);return T?"term_"+T.kind:null}if(scene==="hosp"&&HV){const L=HV.F.lift;return me.z<L.doorZ+2.4&&Math.abs(me.x-L.x)<2.6?"lift":null}if((scene==="town"||scene==="bank")&&!flying){const A=atmNear();if(A&&!(scene==="town"&&driving))return"atm"}if(scene!=="town"||flying)return null;if(!driving&&dynValve(townOf(me.town)))return"valve";return null};       // the car: through its door icon (carEnter, carExit)
+function doAct(){const a=actNow();if(a==="checkin")return departures();if(a==="valve")return shutValve();if(a==="lift")return liftMenu();if(a==="atm")return atmPanel(atmNear());if(a&&a.startsWith("term_"))return trsTerminal(a.slice(5));if(a==="talk")talk("hello")}
 /* ================================ driving ================================
    One vehicle state shared by the physics, the keyboard, the touch controls, the lights, the sound, the camera and the
    dashboard, so they always agree. Automatic gears: P, R, N, D. The car must be stopped to go into Park or to change
@@ -3765,7 +3800,7 @@ function workshop(st,t){const S=WORKSHOPS[st];if(!S)return;const turn=Math.atan2
   at(S.x,S.z,turn,()=>{cmpReg("woffice",S.name,[-8.6,-7,8.6,10],[-7,-5.5,7,5.5],{gateIn:5.6});
     box(0,0,0,W,.03,D,"#a19d94",K.tile);box(0,0,D/2+1.4,W-1,.025,2.8,"#8f8b84",K.tile);                                   // the concrete floor and apron
     for(const x of[-1.75,1.75])box(x,.031,.4,.12,.01,6.4,"#f2c230");box(0,.031,-2.85,3.62,.01,.12,"#f2c230");                // the bay's yellow lines and stop line
-    box(0,0,-D/2,W,H,.25,WALL);for(const x of[-W/2,W/2])box(x,0,0,.25,H,D,WALL);box(0,0,-D/2+.14,W-.3,1.1,.04,BAND);for(const x of[-W/2+.14,W/2-.14])box(x,0,0,.04,1.1,D-.3,BAND);
+    box(-2.475,0,-D/2,9.05,H,.25,WALL);box(5.275,0,-D/2,3.45,H,.25,WALL);for(const x of[-W/2,W/2])box(x,0,0,.25,H,D,WALL);box(-2.4,0,-D/2+.14,8.9,1.1,.04,BAND);box(5.2,0,-D/2+.14,3.3,1.1,.04,BAND);for(const x of[-W/2+.14,W/2-.14])box(x,0,0,.04,1.1,D-.3,BAND);   // PR 5: the back wall has a real office doorway at x 2.05..3.55
     for(const x of[-W/2+.15,W/2-.15])box(x,0,D/2,.3,H,.3,"#cfc8b8");box(0,H,0,W+.8,.14,D+1.4,"#9aa3ad");box(0,H-.75,D/2+.68,W+.8,.8,.12,"#1f4e79");
     sign(0,H-.7,D/2+.76,W-1.2,.62,S.name.toUpperCase()+"  •  REPAIRS",  "#1f4e79","#ffffff");
     // tools: a workbench with a vice and a board of spanners, a red tool chest, tyres, oil drums, a jack and a compressor
@@ -3774,7 +3809,9 @@ function workshop(st,t){const S=WORKSHOPS[st];if(!S)return;const turn=Math.atan2
     box(4.6,0,-D/2+.5,1.3,1.1,.6,"#c0392b");for(let i=0;i<4;i++)box(4.6,.22+i*.22,-D/2+.81,1.15,.03,.02,"#7b241c");
     for(let i=0;i<4;i++){cyl(5.7,i*.24,-1.6,.36,.22,"#1c1f24",14);cyl(5.7,i*.24+.01,-1.6,.16,.22,"#8a8f96",10)}for(const z of[-3.3,-2.6])cyl(-6.05,0,z,.3,.9,"#1d4ed8",12);
     box(2.25,0,2.4,.35,.18,.9,"#c0392b");box(2.25,.18,2.95,.06,.06,.8,STEEL);cyl(5.6,0,1.6,.28,.6,"#c0392b",12);box(5.6,.6,1.6,.5,.06,.25,STEEL);
-    SOLIDTAG="cwall";solidBox(0,-D/2,W,.4);solidBox(-W/2,0,.4,D);solidBox(W/2,0,.4,D);SOLIDTAG=null;
+    // PR 5: a real door in the back wall at x 2.05..3.55, with the blue entry square at that door (the existing entrance holo below)
+    box(2.05,0,-D/2,.16,2.26,.3,STEEL);box(3.55,0,-D/2,.16,2.26,.3,STEEL);box(2.8,2.22,-D/2,1.66,.14,.3,STEEL);box(2.8,1.08,-D/2,1.5,2.16,.08,"#5b6470");
+    SOLIDTAG="cwall";solidBox(-2.475,-D/2,9.05,.4);solidBox(5.275,-D/2,3.45,.4);solidBox(-W/2,0,.4,D);solidBox(W/2,0,.4,D);SOLIDTAG=null;   // PR 5: the door gap at x 2.05..3.55 is walkable
     solidBox(-4,-D/2+.55,3.3,.9);solidBox(4.6,-D/2+.5,1.4,.7);solidBox(5.7,-1.6,.8,.8);solidBox(-6.05,-2.95,.7,1.4);
     mark(S.name,0,2);const b=wpt(0,.4),f=wpt(0,1.4);t.workshop={st,name:S.name,x:b[0],z:b[1],fx:f[0]-b[0],fz:f[1]-b[1],yaw:turn};
     entrance(2.8,0,-D/2+.16,1.4,2.3,0);sign(2.8,2.55,-D/2+.15,1.6,.3,"OFFICE","#1f4e79","#ffffff")});t.spots.woffice=doorAt(S.x,S.z,turn,-D/2+.4,2.8)}       // the office, through a door in the back wall
@@ -3839,7 +3876,7 @@ function compounds(st,t){t.parks=[];t.compounds=[];t.cmpFail=[];const L=CMPS.sli
   for(const P of t.compounds)drawCompound(st,t,P)}
 // a lay-by along the kerb in front of roadside shops: three bays end to end, a car in each facing the way the traffic
 // beside it flows (keeping right), the terminal and the P sign at its end
-function drawLayby(st,t,P){const{s,F,F_,C}=P,keep=M,u0=s>0?1.4:-19.4,WHITE="#f4f3ef",inL=(x,z)=>{const q=F_.loc(x,z);return q[0]>u0-1.5&&q[0]<u0+19.5&&q[1]>F-3.4&&q[1]<F+.4};
+function drawLayby(st,t,P){const{s,F,F_,C}=P,keep=M,u0=s>0?1.4:-19.4,WHITE="#f4f3ef",inL=(x,z)=>{const q=F_.loc(x,z);return q[0]>u0-1.5&&q[0]<u0+19.5&&q[1]>F-6.2&&q[1]<F+.4};
   t.map.dyn=(t.map.dyn||[]).filter(o=>{if(!inL(o.x,o.z))return true;if(o.b)o.b.splice(0,4,1e9,1e9,1e9,1e9);if(o.type==="lamp"&&t.map.lamps)t.map.lamps=t.map.lamps.filter(p=>Math.hypot(p[0]-o.hx,p[2]-o.hz)>.5);return false});
   for(let i=TREES.inst.length-1;i>=0;i--){const q=TREES.inst[i];if(inL(q[1],q[2])){TREES.inst.splice(i,1);for(const b of t.blocks){const g=BTAG.get(b);if(g&&g.t===q)b.splice(0,4,1e9,1e9,1e9,1e9)}}}
   M=C.M;box(u0+9,0,F-1.3,18,.13,2.6,"#4a4d52",K.tile);for(let i=0;i<=3;i++)box(u0+i*6,.13,F-1.3,.1,.012,2.4,WHITE);box(u0+9,.13,F-2.55,18,.012,.1,WHITE);
@@ -4277,11 +4314,25 @@ function highway(st){const H=HIGHWAYS[st];if(!H)return;const[ex,ez]=highwayEnd(s
 /* street objects never stand on a road: anything whose spot falls on the carriageway (a hydrant at a junction, a lamp at a
    road's end) is moved sideways onto the walkway, with its outline and, for a lamp, where its light falls */
 const STREET_R={hydrant:.3,bench:.95,bin:.4,lamp:.25,sign:.4,tlight:.4,bus:1.9};
-function streetTidy(){if(!MAPD||!MAPD.dyn)return;for(const o of MAPD.dyn){const m=STREET_R[o.type]||.5;let x=o.x,z=o.z;
-  for(let pass=0;pass<10;pass++){let moved=false;
+function streetTidy(t){if(!MAPD||!MAPD.dyn)return;
+  const aprons=[];const bays=[];for(const P of(t&&t.parks)||[]){const C=P.cmp;if(!C||!C.F_||!C.F_.loc||!C.F_.wp||!C.gate||!C.R)continue;aprons.push(C);for(const B of P.bays||[])bays.push([C,B.x,B.z])}
+  const outA=(x,z)=>{for(const C of aprons){const q=C.F_.loc(x,z),a0=C.gate[0]-1.5,a1=C.gate[1]+1.5,b0=C.R[3]-3.5,b1=C.R[3]+9.5;
+    if(q[0]<a0||q[0]>a1||q[1]<b0||q[1]>b1)continue;
+    const dL=q[0]-a0,dR=a1-q[0],dB=q[1]-b0,dT=b1-q[1],e=Math.min(dL,dR,dB,dT);let u=q[0],v=q[1];
+    if(e===dL)u=a0-.5;else if(e===dR)u=a1+.5;else if(e===dB)v=b0-.5;else v=b1+.5;
+    return C.F_.wp(u,v)}return null};
+  const outB=(x,z)=>{for(const[C,bx,bz]of bays){const q=C.F_.loc(x,z),L=bx-2,R=bx+2,B0=bz-3.2,T=bz+3.2;
+    if(q[0]<L||q[0]>R||q[1]<B0||q[1]>T)continue;
+    const dL=q[0]-L,dR=R-q[0],dB=q[1]-B0,dT=T-q[1],e=Math.min(dL,dR,dB,dT);let u=q[0],v=q[1];
+    if(e===dL)u=L-.5;else if(e===dR)u=R+.5;else if(e===dB)v=B0-.5;else v=T+.5;
+    return C.F_.wp(u,v)}return null};
+  for(const o of MAPD.dyn){const m=STREET_R[o.type]||.5;let x=o.x,z=o.z;
+  for(let pass=0;pass<14;pass++){let moved=false;
     for(const r of MAPD.roads||[]){const vx=r.x1-r.x0,vz=r.z1-r.z0,L2=vx*vx+vz*vz||1,s=((x-r.x0)*vx+(z-r.z0)*vz)/L2;if(s<-.05||s>1.05)continue;const px=r.x0+vx*s,pz=r.z0+vz*s,dx=x-px,dz=z-pz,dd=Math.hypot(dx,dz),need=r.w/2+.6+m;
       if(dd<need-.15){const L=Math.sqrt(L2),nx=dd>1e-3?dx/dd:-vz/L,nz=dd>1e-3?dz/dd:vx/L;x=px+nx*need;z=pz+nz*need;moved=true}}
     for(const c of MAPD.rounds||[]){const dx=x-c.x,dz=z-c.z,dd=Math.hypot(dx,dz)||1;if(dd<c.r+m+.5&&dd>c.r*.6){x=c.x+dx/dd*(c.r+m+.5);z=c.z+dz/dd*(c.r+m+.5);moved=true}}
+    const an=outA(x,z);if(an&&Math.abs(an[0]-x)+Math.abs(an[1]-z)>.01){x=an[0];z=an[1];moved=true}
+    const bn=outB(x,z);if(bn&&Math.abs(bn[0]-x)+Math.abs(bn[1]-z)>.01){x=bn[0];z=bn[1];moved=true}
     if(!moved)break}
   const dx=x-o.x,dz=z-o.z;if(Math.abs(dx)+Math.abs(dz)<1e-3)continue;
   for(const b of[o.b,o.box0]){b[0]+=dx;b[2]+=dx;b[1]+=dz;b[3]+=dz}
@@ -4334,7 +4385,7 @@ function stationOne(st,t,S,idx){const turn=Math.atan2(S.f[0],S.f[1]),c=Math.cos(
     const solidRun=(x,z,w,d)=>{const along=w>=d,L=along?w:d,n=Math.max(1,Math.ceil(L/Math.max(.8,Math.min(w,d))));for(let k=0;k<n;k++){const u=-L/2+L*(k+.5)/n;along?solidBox(x+u,z,L/n,d):solidBox(x,z+u,w,L/n)}};
     for(const x of[-3.4,3.4])solidRun(x,.5,1,5.4);solidRun(0,-6.4,9,3.2);solidBox(8.6,6.6,.4,.4);
     // one way through: a planter between the way in and the way out, their signs, and arrows on the forecourt
-    box(0,0,13.25,6.2,.42,.9,"#b9b3a4");box(0,.42,13.25,5.9,.12,.6,"#3f7d3a",K.leaf);solidRun(0,13.25,6.2,.9);
+    box(0,0,11.9,6.2,.42,.9,"#b9b3a4");box(0,.42,11.9,5.9,.12,.6,"#3f7d3a",K.leaf);solidRun(0,11.9,6.2,.9);
     for(const[sx,txt]of[[-flow,"IN"],[flow,"OUT"]]){const x=sx*7.6;box(x+sx*2.6,0,13.3,.12,1.6,.12,"#3a4048");sign(x+sx*2.6,1.6,13.36,1.3,.5,txt,txt==="IN"?"#0b6b3a":"#c81e1e","#ffffff")}
     for(const x of[-6.6,0,6.6])at(x,10.6,flow>0?-Math.PI/2:Math.PI/2,()=>{box(0,.04,.35,.28,.012,1.6,"#ffffff");at(0,-.65,Math.PI/4,()=>box(0,.04,0,.24,.012,.8,"#ffffff"));at(0,-.65,-Math.PI/4,()=>box(0,.04,0,.24,.012,.8,"#ffffff"))});
     sign(0,1.25,13.72,2.2,.32,"ONE WAY","#14263D","#ffffff");
@@ -4790,7 +4841,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
       else if(me.y<.5&&Math.abs(me.x)<1.5&&me.z>9.55)toTown(me.town,"bank")}
     if(talking){const ey=me.y+1.62,cp=Math.cos(me.pitch);eye=[me.x,ey,me.z];to=[me.x-Math.sin(me.yaw)*cp,ey+Math.sin(me.pitch),me.z-Math.cos(me.yaw)*cp]}
     else[eye,to]=followCam(me.x,MEY,me.z,(x,z)=>outsideRoom(x,z)||((x,z)=>scene==="border"?BORDER_WALLS.some(w=>x>w[0]-.2&&x<w[2]+.2&&z>w[1]-.2&&z<w[3]+.2):(scene==="imm"?IMM_WALLS:scene==="gov"?GV.walls:scene==="hosp"?HV.walls:scene==="trs"?TV.walls:BANK_WALLS).some(w=>w[4]!==-1&&(scene!=="bank"||w[4]===undefined||w[4]===(me.y>1.6?1:0))&&x>w[0]-.2&&x<w[2]+.2&&z>w[1]-.2&&z<w[3]+.2))(x,z),scene==="bank"?(me.y>1.6?6.1:3.0):scene==="gov"?3.5:scene==="hosp"?3.35:scene==="imm"?3.9:99)}
-  {const a=actNow(),el=document.getElementById("act");el.hidden=!a||talking||busy||choosing||mapOpen;if(a)el.textContent=a==="term_cb"?"Use the Central Bank terminal":a==="term_res"?"Use the reserves terminal":a==="lift"?"Use the lift":a==="talk"?"Talk to Violet":a==="checkin"?"Check in for a flight":"Shut off the water";}
+  {const a=actNow(),el=document.getElementById("act");el.hidden=!a||talking||busy||choosing||mapOpen;if(a)el.textContent=a==="term_cb"?"Use the Central Bank terminal":a==="term_res"?"Use the reserves terminal":a==="atm"?"Use the ATM":a==="lift"?"Use the lift":a==="talk"?"Talk to Violet":a==="checkin"?"Check in for a flight":"Shut off the water";}
   const w=cv.clientWidth,h=cv.clientHeight,dpr=Math.min(window.devicePixelRatio||1,quality);if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
   const fly=scene==="town",indoor=scene==="bank"||scene==="imm"||scene==="gov"||scene==="hosp"||scene==="trs",fovNow=fly?(w>h?.85:1.05):(w>h?1.05:1.25),PMs=PLAYERS[me.gender]||PLAYERS.Female;
   // the sun's picture first: the town near you, the car, and your own character all cast shadows
