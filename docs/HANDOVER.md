@@ -196,10 +196,39 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 
 ## 11. Updates since the first handover (newest first)
 
-main is at `50228b8` (Merge pull request #7, 29 October 2026). Everything below that
-is merged is live on main and at the Pages URL. The repo has no build, typecheck or lint;
-the only runnable check is `test/flags.mjs` (`node test/flags.mjs` from the repo root — it
-must pass before pushing).
+main is at `f44031f` (29 October 2026) as of this work; once this PR (#8) is merged, main's
+history will include `36b5267` (the unowned-car fix) plus this handover commit, and main will
+point at the merge commit created at merge time. Everything below that is merged is live on
+main and at the Pages URL. The repo has no build, typecheck or lint; the only runnable check is
+`test/flags.mjs` (`node test/flags.mjs` from the repo root — it must pass before pushing).
+
+- **Unowned-car exploit: FIXED (PR 8, this work — commit `36b5267`):**
+  - The finding below (section 12, "reported, not fixed") is now resolved. Chosen fix: **dropped
+    the `!C.vid` fallback in `garCanDrive`** (it is now `!!C.vid && GAR.list.some(...)`) and
+    **removed `parkCar` entirely** — `toTown` no longer spawns any car at the kerb, so a car with
+    no recorded owner can no longer be driven by anyone, including the Chief Admin. The gate is
+    ownership, not role: a car with a `vid` is drivable by its owner or a key-holder; `garPlace`
+    (the keys-given path) is unchanged, so the Chief Admin's Sovereign GT and any keys they hand
+    out work exactly as before. `carEnter` needs no change: it only starts the enter sequence when
+    `garCanDrive` already passed, so it is the sole entry gate.
+  - **Why not make `parkCar` ownership-aware instead:** a role-aware `parkCar` would keep spawning
+    a car object that non-owners can see but not use (a "phantom car") and would need an admin
+    check — the wrong gate. The rule "only the Chief Admin has a car" is only true **today**
+    because the dealership (section 9) does not exist yet; once it does, buying a car writes the
+    `vehicles` row that IS the `vid`, so bought cars will be drivable with no further change here.
+    **Do not add a Chief-Admin/role check to driving.**
+  - A player with no car still gets a working town: no car spawns, no crash, no stuck state; the
+    street hint now reads "There is no car in the street; the Chief Admin gives keys at the car
+    parks (P on the map)."
+  - Verified: `node test/flags.mjs` from the repo root (ALL 10 FLAG CHECKS PASS) before pushing;
+    real-browser (Chromium, headless) test at 390x844 (phone) and 1280x800 (desktop) driving the
+    real game functions with a fresh page load per case: (A) Chief Admin drives the Sovereign GT —
+    `garCanDrive` true, enter sequence starts; (B) signed-in player with no car — no kerb car
+    spawns, nothing drivable, no crash; (C) player given keys by the Chief Admin (`garPlace`
+    path) — drives the car; (D) offline/unsigned guest with a simulated old-style no-`vid` kerb
+    car — `garCanDrive` false, entry blocked with the "You do not have the keys to this vehicle"
+    toast. All four cases pass at both viewports; no page errors in any case (only unrelated
+    400/404 network noise from the local test server).
 
 - **Agbor/Grandview: rebuilt the L-staircase and moved the ATM vestibule off the stair
   approach (PR 7, merged 29 October 2026):**
@@ -444,7 +473,7 @@ failures are on what the *watcher* sees of the *other player's car*:
   bugs to chase before the car experience is considered done; the on-foot checks (position, heading, name-tag
   presence, reconnection, state change, chat/street off) pass in both rounds.
 
-**Finding (reported, not fixed in this PR) — `toTown()` → `parkCar(T)` gives ordinary players a drivable
+**Finding (fixed in `36b5267`, PR 8) — `toTown()` → `parkCar(T)` gave ordinary players a drivable
 Sovereign GT at the kerb, breaking the "only the Chief Admin has the car, and only the Chief Admin gives cars"
 rule:** `index.html:2903` — `toTown` calls `parkCar(T)` whenever the town has no car and `garOn()` is false.
 `garOn()` at `index.html:3896` is `!!AUTH.user && !AUTH.offline && !!AUTH.char` — true for **any** signed-in
@@ -455,8 +484,18 @@ unsigned) the guard fails open: `parkCar` (`index.html:2905-2906`) spawns `T.car
 **everyone** through the `!C.vid` branch, and `carEnter` at `index.html:3631-3632` has no role check at all.
 The only place `vid` (ownership) is set is `garPlace`, `index.html:3916-3918`, which handles only keys-given
 cars. So an ordinary player arriving in a town with no parked car gets a Sovereign GT at the kerb that anyone
-can drive. Fix (for the next job): make `parkCar` ownership-aware, or drop the `!C.vid` fallback in
-`garCanDrive` so a car without a recorded owner cannot be driven.
+can drive. Fixed in `36b5267` (PR 8, 29 October 2026): the `!C.vid` fallback was dropped from `garCanDrive`, so
+a car with no recorded owner (`vid`) cannot be driven by anyone — not even the Chief Admin — and `parkCar` was
+removed, so no vid-less kerb car is ever spawned. The Chief Admin still has the Sovereign GT because they own
+it (`vid` is set), and the `garPlace` keys path is unchanged. Verified by `node test/flags.mjs` and a headless
+browser pass at 390x844 and 1280x800 covering all four cases: Chief Admin drives the Sovereign GT; a signed-in
+player with no car cannot drive anything; a player given keys by the Chief Admin can drive that car; an
+offline/unsigned player cannot drive a kerb car.
+**Intent — record for the future:** "only the Chief Admin has a car" is true **today only** because the
+dealership (section 9) does not exist yet. It is not a permanent rule — anyone will be able to buy and drive a
+car. When the dealership is built, buying a car writes the `vehicles` row, and that row **is** the `vid`, so
+bought cars will work with no further change to this code. Do not re-add a Chief-Admin or role check to driving;
+the gate is on ownership, not role.
 
 ### Next steps after that, in order
 1. Phase 3, homes (section 6). The buildings are ready in `assets/buildings/homes/`. Prices are set: room
