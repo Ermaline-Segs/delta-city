@@ -1668,10 +1668,17 @@ function bankInside(){const H=HALL.high,MZ=HALL.mezz,BS=bankStyle(BANK_NAME);
   for(const x of[-3.6,3.6]){at(x,6.2,0,()=>{cyl(0,0,0,.34,.05,BS.accent,12);cyl(0,.05,0,.06,1.0,BS.accent,8);cyl(0,1.05,0,.52,.05,WHITE,16);box(0,1.11,0,.3,.02,.2,"#f6f6f2");stands(0,0,1,1);solid(0,0,.7,.7,0)})}
   if(BS.v==="compact")for(let r=0;r<3;r++)for(let c=0;c<3;c++){const x=-9+c*3,z=4.5+r*2.1;box(x,0,z,2.4,.02,.9,BS.panel,K.flat);box(x,0,z-.36,2.4,.36,.1,BS.panel);box(x,0,z+.36,2.4,.36,.1,BS.panel);box(x,0,z,2.4,.42,.04,BS.accent,K.flat)}                  // rows of waiting benches
   for(const[x,z]of[[-16,9.2],[16,9.2],[-16,-1.2],[6.2,-1.4],[13.2,2.6]])palmPot(x,z);
-  // ---- ATM Services (added from the Discord guide): a glass vestibule on the east wall with exactly ONE cash machine
+  // ---- ATM Services (added from the Discord guide): a glass vestibule with exactly ONE cash machine.
+  // Grandview puts it on the NORTH wall (the east-wall alcove would sit on the stair approach);
+  // the other three banks keep the east-wall alcove — clear of their staircases.
+  if(BS.v==="open"){
+  for(const[x0,x1]of[[13.2,14.6],[15.6,17]]){box((x0+x1)/2,0,-8.8,.05,x1-x0,2.2,GLASSI,K.glass);WALLS.push([x0,-8.95,x1,-8.65,0])}for(const x of[13.2,14.6,15.6,17])box(x,0,-8.8,.08,2.5,.08,BS.accent,K.gold);
+  box(16.3,2.5,-8.46,.4,.1,3.4,BS.panel);label(15.9,2.2,-8.44,1.6,.32,"ATM SERVICES",BS.panel,"#f1d27a");
+  atmState(16.6,-9.35,0,BANK_NAME+" ATM — Vestibule",BANK_NAME.replace(/\s+Bank\s*$/,""),BS.atm,{sc:"bank",t:CUR_ST});
+  }else{
   for(const[z0,z1]of[[5,6.4],[7.4,8.8]]){box(15,0,(z0+z1)/2,.05,2.5,z1-z0,GLASSI,K.glass);WALLS.push([14.9,z0,15.1,z1,0])}for(const z of[5,6.4,7.4,8.8])box(15,0,z,.08,2.5,.08,BS.accent,K.gold);
   box(16,2.5,6.9,2,.1,3.8,BS.panel);label(15.02,2.2,6.9,1.6,.32,"ATM SERVICES",BS.panel,"#f1d27a",-Math.PI/2);
-  atmState(16.6,6.9,-Math.PI/2,BANK_NAME+" ATM — Vestibule",BANK_NAME.replace(/\s+Bank\s*$/,""),BS.atm,{sc:"bank",t:CUR_ST});
+  atmState(16.6,6.9,-Math.PI/2,BANK_NAME+" ATM — Vestibule",BANK_NAME.replace(/\s+Bank\s*$/,""),BS.atm,{sc:"bank",t:CUR_ST});}
   // ---- the Auditing Room (added from the Discord guide), behind the tellers in the west corner
   wallRun(-17,-6.6,-12.4,-6.6,0,MZ-.25,BS.wall,0,0);wallRun(-11.2,-6.6,-11,-6.6,0,MZ-.25,BS.wall,0,0);wallRun(-11,-10,-11,-6.6,0,MZ-.25,BS.wall,0,0);box(-11.8,2.15,-6.6,1.2,MZ-2.4,.2,BS.wall);
   label(-11.8,2.25,-6.48,1.6,.3,"AUDITING ROOM",BS.panel,"#f1d27a");desk(-14,-7.6,0,1.8,DARKWOOD,BS.panel);chair(-14,-8.5,0,"#2a2f38");box(-14.5,.8,-7.5,.5,.3,.04,"#161b22");box(-13.5,.8,-7.6,.3,.04,.4,"#ffffff");
@@ -1683,17 +1690,19 @@ function bankInside(){const H=HALL.high,MZ=HALL.mezz,BS=bankStyle(BANK_NAME);
   if(BS.v==="grand"){for(const sx of[14.2,17]){const N=18;for(let k=0;k<N;k++){const z=4-(k+.5)*(6/N),y=(k+1)*(MZ/N);box(sx,0,z,1.55,y,6/N,WHITE);box(sx,y,z,.95,.012,6/N,BS.carpet,K.fabric);for(const s of[-1,1])box(sx+s*.52,y,z,.06,.014,6/N,BS.accent,K.gold)}
     for(let k=0;k<=6;k++){const z=4-k,y=k*(MZ/6);box(sx-.72,y,z,.06,1.05,.06,BS.accent,K.gold);if(k<6)both([sx-.72,y+.1,z],[sx-.72,y+MZ/6+.1,z-1],[sx-.72,y+MZ/6+.98,z-1],[sx-.72,y+.98,z],hex(GLASSI),K.glass)}}
     WALLS.push([13.5,-2,13.8,4.1],[18.7,-2.2,17,-1.95,0]);for(const x of[13.6,16.3,19.0])box(x,0,4.25,.08,1.1,.08,BS.accent,K.gold)}
-  else if(BS.v==="compact"){const N1=9,N2=9;
-    for(let k=0;k<N1;k++){const z=4-(k+.5)*(3/N1),y=(k+1)*(MZ/N1);box(15.1,0,z,1.5,y,3/N1,WHITE);box(15.1,y,z,.95,.012,3/N1,BS.carpet,K.fabric);for(const s of[-1,1])box(15.1+s*.62,y,z,.06,.014,3/N1,BS.accent,K.gold)}   // flight A: up to the corner landing
-    box(16.05,MZ/2,1.4,1.65,MZ/2,1.3,WHITE);box(16.05,MZ/2+.01,1.4,1.61,.012,1.26,BS.carpet,K.fabric);   // the corner landing at half height
-    for(let k=0;k<N2;k++){const z=1.4-(k+.5)*(3.4/N2),y=MZ/2+(k+1)*(MZ/N2);box(16.45,y,z,1.3,y-MZ/2,3.4/N2,WHITE);box(16.45,y+.012,z,.75,.012,3.4/N2,BS.carpet,K.fabric);for(const s of[-1,1])box(16.45+s*.56,y,z,.06,.014,3.4/N2,BS.accent,K.gold)}  // flight B: round the corner up to the gallery
-    for(let k=0;k<=4;k++){const z=4-k,y=k*(MZ/4);box(14.28,y,z,.06,1.05,.06,BS.accent,K.gold);if(k<4)both([14.28,y+.1,z],[14.28,y+MZ/4+.1,z-.75],[14.28,y+MZ/4+.98,z-.75],[14.28,y+.98,z],hex(GLASSI),K.glass)}
+  else if(BS.v==="compact"){const N1=9,N2=9,rr=MZ/18,dd=1/3;
+    for(let k=0;k<N1;k++){const z=4-(k+.5)*dd,y=(k+1)*rr;box(15.1,0,z,1.5,y,dd,WHITE);box(15.1,y,z,.95,.012,dd,BS.carpet,K.fabric);for(const s of[-1,1])box(15.1+s*.62,y,z,.06,.014,dd,BS.accent,K.gold)}   // flight A: 9 steps at the true rise (MZ/18), z 4→4/3
+    box(16.05,MZ/2,1.35,1.65,MZ/2,1.3,WHITE);box(16.05,MZ/2+.01,1.35,1.61,.012,1.26,BS.carpet,K.fabric);   // the corner landing at half height, flush with step 9
+    for(let k=0;k<N2;k++){const z=1-(k+.5)*dd,y=MZ/2+(k+1)*rr;box(16.45,0,z,1.3,y,dd,WHITE);box(16.45,y+.012,z,.75,.012,dd,BS.carpet,K.fabric);for(const s of[-1,1])box(16.45+s*.56,y,z,.06,.014,dd,BS.accent,K.gold)}  // flight B: 9 steps at the true rise, z 1→-2, up to the gallery
+    for(let k=0;k<=9;k++){const z=4-k*dd*2,y=k*rr*2;box(14.28,y,z,.06,1.05,.06,BS.accent,K.gold);if(k<9)both([14.28,y+.1,z],[14.28,y+rr*2+.1,z-2*dd],[14.28,y+rr*2+.98,z-2*dd],[14.28,y+.98,z],hex(GLASSI),K.glass)}   // glass rail on the open side of flight A
+    for(let k=0;k<=9;k++){const z=1-k*dd*2,y=MZ/2+k*rr*2;box(15.78,y,z,.06,1.05,.06,BS.accent,K.gold);if(k<9)both([15.78,y+.1,z],[15.78,y+rr*2+.1,z-2*dd],[15.78,y+rr*2+.98,z-2*dd],[15.78,y+.98,z],hex(GLASSI),K.glass)}   // glass rail on the open side of flight B
     WALLS.push([14.4,-2,14.7,4.1],[17.15,-2.2,17,-1.95,0]);for(const x of[14.5,15.9,17.15])box(x,0,4.25,.08,1.1,.08,BS.accent,K.gold)}
-  else if(BS.v==="open"){const N1=9,N2=9;
-    for(let k=0;k<N1;k++){const z=4-(k+.5)*(3/N1),y=(k+1)*(MZ/N1);box(15.1,0,z,1.5,y,3/N1,WHITE);box(15.1,y,z,.95,.012,3/N1,BS.carpet,K.fabric);for(const s of[-1,1])box(15.1+s*.62,y,z,.06,.014,3/N1,BS.accent,K.gold)}   // flight A: up to the landing
-    box(15.1,MZ/2,1.25,2.3,MZ/2,1.5,WHITE);box(15.1,MZ/2+.01,1.25,2.24,.012,1.44,BS.carpet,K.fabric);   // the L landing at half height
-    for(let k=0;k<N2;k++){const z=1.2-(k+.5)*(3.2/N2),y=MZ/2+(k+1)*(MZ/N2);box(15.9,y,z,1.2,y-MZ/2,3.2/N2,WHITE);box(15.9,y+.012,z,.66,.012,3.2/N2,BS.carpet,K.fabric);for(const s of[-1,1])box(15.9+s*.52,y,z,.06,.014,3.2/N2,BS.accent,K.gold)}  // flight B: around the landing up to the gallery
-    for(let k=0;k<=4;k++){const z=4-k,y=k*(MZ/4);box(14.28,y,z,.06,1.05,.06,BS.accent,K.gold);if(k<4)both([14.28,y+.1,z],[14.28,y+MZ/4+.1,z-.75],[14.28,y+MZ/4+.98,z-.75],[14.28,y+.98,z],hex(GLASSI),K.glass)}
+  else if(BS.v==="open"){const N1=9,N2=9,rr=MZ/18,dd=1/3;
+    for(let k=0;k<N1;k++){const z=4-(k+.5)*dd,y=(k+1)*rr;box(15.1,0,z,1.5,y,dd,WHITE);box(15.1,y,z,.95,.012,dd,BS.carpet,K.fabric);for(const s of[-1,1])box(15.1+s*.62,y,z,.06,.014,dd,BS.accent,K.gold)}   // flight A: 9 steps at the bank's true rise (MZ/18), z 4→4/3
+    box(15.3,MZ/2,1.25,1.9,MZ/2,1.3,WHITE);box(15.3,MZ/2+.01,1.25,1.84,.012,1.24,BS.carpet,K.fabric);   // the turn landing, top flush with step 9
+    for(let k=0;k<N2;k++){const z=1-(k+.5)*dd,y=MZ/2+(k+1)*rr;box(15.7,0,z,1.3,y,dd,WHITE);box(15.7,y,z,.78,.012,dd,BS.carpet,K.fabric);for(const s of[-1,1])box(15.7+s*.52,y,z,.06,.014,dd,BS.accent,K.gold)}  // flight B: 9 steps, z 1→-2, up to the gallery
+    for(let k=0;k<=9;k++){const z=4-k*dd*2,y=k*rr*2;box(14.28,y,z,.06,1.05,.06,BS.accent,K.gold);if(k<9)both([14.28,y+.1,z],[14.28,y+rr*2+.1,z-2*dd],[14.28,y+rr*2+.98,z-2*dd],[14.28,y+.98,z],hex(GLASSI),K.glass)}   // glass rail on the open side of flight A
+    for(let k=0;k<=9;k++){const z=1-k*dd*2,y=MZ/2+k*rr*2;box(15.03,y,z,.06,1.05,.06,BS.accent,K.gold);if(k<9)both([15.03,y+.1,z],[15.03,y+rr*2+.1,z-2*dd],[15.03,y+rr*2+.98,z-2*dd],[15.03,y+.98,z],hex(GLASSI),K.glass)}   // glass rail on the open side of flight B
     WALLS.push([14.4,-2,14.7,4.1],[16.55,-2.2,17,-1.95,0]);for(const x of[14.5,15.9,16.55])box(x,0,4.25,.08,1.1,.08,BS.accent,K.gold)}
   else{const N=18;for(let k=0;k<N;k++){const z=4-(k+.5)*(6/N),y=(k+1)*(MZ/N);box(15.55,0,z,2.7,y,6/N,WHITE);box(15.55,y,z,1.7,.012,6/N,BS.carpet,K.fabric);for(const s of[-1,1])box(15.55+s*.9,y,z,.06,.014,6/N,BS.accent,K.gold)}
     for(let k=0;k<=6;k++){const z=4-k,y=k*(MZ/6);box(14.15,y,z,.06,1.05,.06,BS.accent,K.gold);if(k<6)both([14.15,y+.1,z],[14.15,y+MZ/6+.1,z-1],[14.15,y+MZ/6+.98,z-1],[14.15,y+.98,z],hex(GLASSI),K.glass)}
