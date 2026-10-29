@@ -196,7 +196,21 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 
 ## 11. Updates since the first handover (newest first)
 
-- **A distinct look for each state bank (PR 6, OPEN — do not merge until the owner OKs the screenshots):**
+main is at `50228b8` (Merge pull request #7, 29 October 2026). Everything below that
+is merged is live on main and at the Pages URL.
+
+- **Agbor/Grandview: rebuilt the L-staircase and moved the ATM vestibule off the stair
+  approach (PR 7, merged 29 October 2026):**
+  - The PR 5 ATM vestibule was sitting on Grandview Bank's (Agbor) stair approach, so the
+    L-shaped staircase was rebuilt and the vestibule relocated clear of the approach
+    (21+/12- in `index.html`, commit `0500f64`).
+  - The original commit was flagged UNVERIFIED (the headless geometry audit crashed three
+    times, so it was pushed from the working tree before sandbox reclamation). It was then
+    verified by a real headless-browser walk: 8 clean pass screenshots plus a
+    four-reviewer composite grid.
+  - **Status: merged 29 October 2026 (merge commit `50228b8`) — the owner reviewed all
+    four review composites and OK'd the visuals (stairs and ATM vestibule placement).**
+- **A distinct look for each state bank (PR 6, merged 29 October 2026):**
   - Bank names come from the Discord server; no real Nigerian bank names or logos anywhere.
     `BANK_STYLES` in `index.html` holds each bank's palette, logo and layout variant, applied inside
     and out: walls, sign bands, counters, carpets, medal wall and the bank's ATMs (which carry the
@@ -220,7 +234,7 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
     exteriors, four halls) render as proper 3D scenes; Crestfield (dark green walls, gold sign band)
     and Eastway (deep teal, silver) confirmed by vision; Trustmark and Grandview verified by their
     own colour signatures in the saved frames (the vision API was billing-blocked mid-check).
-  - **Status: pull request open, awaiting the owner's OK before merge.**
+  - **Status: merged 29 October 2026 — the owner OK'd the screenshots before merge.**
 
 - **Blocked paths, real doors, ATMs everywhere (PR 5, merged 29 October 2026):**
   - **36 ATMs — 9 per state** — all wired to the existing banking system: the machine only reads
@@ -244,6 +258,8 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
     stairs, doors, counters and aisles reachable. Aggravating fix: the Agbor stairway ATM (above).
   - Verified headless in a real browser at 390×844 (phone) and 1280×800 (desktop): 36 machines
     registered (8 town + 1 bank in each state), no console errors.
+  - **Note: the work is on main via direct merge commit `dfe4f47`, but GitHub pull request #5
+    itself is still open — close it once the owner confirms nothing is missing.**
 
 - **No HUD bar covers a dialog's buttons (PR 4, merged 29 October 2026):** on phones, the phone /
   inventory / settings bar (and the other bottom HUD bars) covered Violet's "Begin registration" button
