@@ -1588,10 +1588,9 @@ function atmPanel(m){if(!m)return;
   if(netNear(m.x,m.z,1.5)){toast("Someone is already at this machine. Please wait your turn.");return}
   const bank=(m.name||"").split(" ATM")[0]||"the bank";
   choosing=true;const el=document.getElementById("choose");el.hidden=false;
-  const signed=typeof AUTH!=="undefined"&&AUTH.char;
   const shell=b=>`<div class="card rpcard gcard"><h1>${esc(bank)} ATM</h1><p class="cdsub">${esc(m.short||"")} &middot; ${esc(m.t||"")}</p>${b}<p class="amsg" role="status"></p><button class="go ghost" data-stay="1">Close</button></div>`;
-  el.innerHTML=shell(signed?`<div class="rptot">Your wallet <b>${kfmt(Number(me.cash||0))}</b></div>
-    <p>This machine reads the same account the bank keeps for you, in K. Deposits and withdrawals are done at the teller counters in the hall.</p>`:`<p>You are not signed in, so the machine has no account to read. Sign in to your account to see your wallet here.</p>`);
+  el.innerHTML=shell(`<div class="rptot">Your wallet <b>${kfmt(Number(me.cash||0))}</b></div>
+    <p>This machine reads the same account the bank keeps for you, in K. Deposits and withdrawals are done at the teller counters in the hall.</p>`);
 }
 function chair(x,z,turn,color){at(x,z,turn,()=>{const c=color||NAVY2;box(0,.4,0,.52,.1,.5,c,K.fabric);box(0,.5,-.23,.52,.5,.08,c,K.fabric);cyl(0,0,0,.24,.04,"#8d8f94",8);cyl(0,.04,0,.035,.36,"#8d8f94",6);stands(0,0,.5,.5)})}
 function sofa(x,z,turn,n,base,pillow){at(x,z,turn,()=>{const B=base||NAVY,P=pillow||IVORY,L=n*.8;box(0,.12,0,L+.3,.3,.9,B,K.fabric);box(0,.42,-.36,L+.3,.5,.18,B,K.fabric);for(const s of[-1,1])box(s*(L/2+.06),.42,0,.18,.26,.9,B,K.fabric);
@@ -3870,7 +3869,7 @@ function workshop(st,t){const S=WORKSHOPS[st];if(!S)return;const turn=Math.atan2
    brought out). New citizens get no vehicle; the Chief Admin gives them out. You bring a car out at the car park it is
    kept in, and put it back in any car park bay. A car left outside a car park is taken back to its car park 15 minutes
    after it was left (timed by the server), or as soon as you walk more than 250 m away from it; a car in a bay stays.
-   Damage goes with the car. Guests (no account) get a practice car that is not saved on the server. */
+   Damage goes with the car. */
 const PARKLIST=[["asaba-gov", "Asaba", "State Government House Car Park"],["asaba-court", "Asaba", "Supreme Court Car Park"],["asaba-police", "Asaba", "Police HQ Car Park"],["asaba-bank", "Asaba", "Crestfield Bank Car Park"],["asaba-hosp", "Asaba", "National Specialist Hospital Car Park"],["asaba-uni", "Asaba", "Cambridge University Car Park"],["asaba-util", "Asaba", "National Public Utilities Car Park"],["asaba-trans", "Asaba", "National Transport Authority Car Park"],["asaba-house", "Asaba", "Asaba Housing Development Car Park"],["asaba-agri", "Asaba", "Ministry of Agriculture & Resources Car Park"],["asaba-fed", "Asaba", "Federal Government Car Park"],["asaba-air", "Asaba", "Delta International Airport Car Park"],["asaba-hotel", "Asaba", "Best GRA Hotel Car Park"],["asaba-guest", "Asaba", "Asaba Guest House Car Park"],["asaba-market", "Asaba", "Asaba Market Car Park"],["asaba-church", "Asaba", "Asaba Church Car Park"],["asaba-treasury", "Asaba", "National Treasury Car Park"],["asaba-imm", "Asaba", "Immigration Car Park"],["asaba-trade", "Asaba", "Ministry of Trade & Commerce Car Park"],["asaba-foreign", "Asaba", "Ministry of Foreign Affairs Car Park"],["asaba-culture", "Asaba", "National Culture & Heritage Bureau Car Park"],["asaba-stats", "Asaba", "National Bureau of Statistics Car Park"],["asaba-lifestyle", "Asaba", "Lifestyle Centre Car Park"],["asaba-woffice", "Asaba", "Asaba Auto Workshop Car Park"],["asaba-fshop", "Asaba", "Asaba Filling Station Car Park"],["asaba-shop6", "Asaba", "Shop 6 Lay-by"],["asaba-shop7", "Asaba", "Shop 7 Lay-by"],["asaba-shop8", "Asaba", "Shop 8 Lay-by"],["asaba-fshop2", "Asaba", "Asaba West Filling Station Car Park"],["warri-agri", "Warri", "Natural Resources Office Car Park"],["warri-hosp", "Warri", "Warri State Hospital Car Park"],["warri-uni", "Warri", "Warri State University Car Park"],["warri-house", "Warri", "Warri Housing Development Car Park"],["warri-police", "Warri", "Police Command Car Park"],["warri-gov", "Warri", "State Government House Car Park"],["warri-bank", "Warri", "Eastway Bank Car Park"],["warri-util", "Warri", "Warri Public Utilities Car Park"],["warri-court", "Warri", "State High Court Car Park"],["warri-trans", "Warri", "State Ministry of Transport Car Park"],["warri-imm", "Warri", "Immigration Car Park"],["warri-air", "Warri", "Warri Airport Car Park"],["warri-hotel", "Warri", "Bon Hotel Hyatti Car Park"],["warri-guest", "Warri", "Legacy Suites Car Park"],["warri-lifestyle", "Warri", "Lifestyle Centre Car Park"],["warri-market", "Warri", "Warri Main Market Car Park"],["warri-woffice", "Warri", "Warri Port Auto Workshop Car Park"],["warri-fshop", "Warri", "Warri Filling Station Car Park"],["warri-shop3", "Warri", "Okere Provisions Car Park"],["warri-shop4", "Warri", "Effurun Mini Mart Car Park"],["warri-shop5", "Warri", "Ekpan Supermarket Car Park"],["warri-fshop2", "Warri", "Warri West Filling Station Car Park"],["ozoro-gov", "Ozoro", "State Government House Car Park"],["ozoro-court", "Ozoro", "State High Court Car Park"],["ozoro-police", "Ozoro", "Police Command Car Park"],["ozoro-bank", "Ozoro", "Trustmark Bank Car Park"],["ozoro-uni", "Ozoro", "University Car Park"],["ozoro-hosp", "Ozoro", "Hospital Car Park"],["ozoro-imm", "Ozoro", "Immigration Car Park"],["ozoro-trans", "Ozoro", "Transport Car Park"],["ozoro-house", "Ozoro", "Housing Office Car Park"],["ozoro-util", "Ozoro", "Utilities Car Park"],["ozoro-agri", "Ozoro", "Agriculture Car Park"],["ozoro-air", "Ozoro", "Ozoro Airport Car Park"],["ozoro-hotel", "Ozoro", "Ozoro Presidential Hotel Car Park"],["ozoro-guest", "Ozoro", "Okay Hotels Car Park"],["ozoro-lifestyle", "Ozoro", "Lifestyle Centre Car Park"],["ozoro-market", "Ozoro", "Ozoro Central Market Car Park"],["ozoro-woffice", "Ozoro", "Ozoro Auto Workshop Car Park"],["ozoro-fshop", "Ozoro", "Ozoro Filling Station Car Park"],["ozoro-shop3", "Ozoro", "Isoko Provisions Car Park"],["ozoro-shop4", "Ozoro", "Oleh Road Stores Car Park"],["ozoro-shop5", "Ozoro", "Ozoro Mini Mart Car Park"],["ozoro-fshop2", "Ozoro", "Ozoro West Filling Station Car Park"],["agbor-gov", "Agbor", "State Government House Car Park"],["agbor-court", "Agbor", "State High Court Car Park"],["agbor-police", "Agbor", "Police Command Car Park"],["agbor-bank", "Agbor", "Grandview Bank Car Park"],["agbor-uni", "Agbor", "University Car Park"],["agbor-hosp", "Agbor", "Hospital Car Park"],["agbor-imm", "Agbor", "Immigration Car Park"],["agbor-trans", "Agbor", "Transport Car Park"],["agbor-house", "Agbor", "Housing Office Car Park"],["agbor-util", "Agbor", "Utilities Car Park"],["agbor-agri", "Agbor", "Agriculture Car Park"],["agbor-air", "Agbor", "Agbor Airport Car Park"],["agbor-hotel", "Agbor", "Agbor Palace Hotel Car Park"],["agbor-guest", "Agbor", "Royal Suites Car Park"],["agbor-lifestyle", "Agbor", "Lifestyle Centre Car Park"],["agbor-market", "Agbor", "Agbor Obi Market Car Park"],["agbor-woffice", "Agbor", "Agbor Auto Workshop Car Park"],["agbor-fshop", "Agbor", "Agbor Filling Station Car Park"],["agbor-shop3", "Agbor", "Ika Provisions Car Park"],["agbor-shop4", "Agbor", "Boji-Boji Mini Mart Car Park"],["agbor-shop5", "Agbor", "Alihame Stores Car Park"],["agbor-fshop2", "Agbor", "Agbor West Filling Station Car Park"]];       // every car park (its id, state, name): the same as car_parks in supabase_vehicles.sql
 /* ---- compounds: every public building stands in its own fenced compound, with a gate at least 7 m wide facing its
    road and its own car park inside (numbered bays and the garage terminal), so a car can drive in and out. While a
@@ -3980,7 +3979,7 @@ function parkWhere(T,C){for(const P of T.parks||[]){if(!P.inside(C.x,C.z,.8))con
     let bay=null;for(const B of P.bays)if(Math.hypot(B.x-C.x,B.z-C.z)<1.5)bay=B.i;return{P,bay}}return null}
 
 const GAR={list:[],parks:[],cfg:{despawn_distance_m:250,abandon_s:900},skew:0,syncT:-1e9,beatT:-1e9,beating:false,out:null,keysFor:null,found:[],panel:null,ruleT:0};
-const garOn=()=>typeof AUTH!=="undefined"&&!!AUTH.user&&!AUTH.offline&&!!AUTH.char;
+const garOn=()=>typeof AUTH!=="undefined"&&!!AUTH.char;
 // "That is not a car park" from the server means its list of car parks is older than the game's: say what to do
 const GARPARKMSG="This car park isn't set up on the server yet. The Chief Admin needs to run supabase_compound_car_parks.sql in Supabase.";
 async function garCall(fn,body){await freshToken();const fix=t=>/not a car park/i.test(t||"")?GARPARKMSG:t;
@@ -4025,7 +4024,7 @@ const garCanDrive=C=>!!C.vid&&GAR.list.some(v=>v.id===C.vid&&v.out_by_me);
 // after getting out: a car outside a car park is on the 15-minute clock
 function garLeft(C){GAR.beatT=-1e9;if(!C.vid)return"";const T=townOf(me.town),w=parkWhere(T,C);if(w&&w.bay!=null)return"Parked in bay "+(w.bay+1)+" of "+w.P.name+". It stays here safely.";
   return"Your car is outside a car park bay. If you leave it here, it is taken back to its car park in "+Math.round(GAR.cfg.abandon_s/60)+" minutes."}
-function garLine(C){if(!C||!C.vid)return C?"Practice car (not saved to an account)":"";const T=townOf(me.town),w=parkWhere(T,C);
+function garLine(C){if(!C||!C.vid)return "";const T=townOf(me.town),w=parkWhere(T,C);
   return esc(C.plate||"")+(C.special?" &middot; Chief Admin vehicle":"")+(w&&w.bay!=null?" &middot; in bay "+(w.bay+1)+" of "+esc(w.P.name):C.abandonedAt?" &middot; taken back to the car park in "+mmss(C.abandonedAt+GAR.cfg.abandon_s*1000-garNow()):"")}
 
 /* ---- the garage: open it anywhere in a car park (E, or the Open Garage button), see your vehicles, and spawn one here.
@@ -4040,7 +4039,7 @@ function garFree(P,v){const S=GAR.parks.find(q=>q.id===P.id),taken=new Set(S?S.t
 const garPic=v=>{const c=v.special?"#c9a227":"#d61f26";return`<svg class="vpic" viewBox="0 0 120 52" aria-hidden="true"><path d="M8 36c0-6 4-9 10-10l16-3 14-10c4-2 8-3 13-3h18c6 0 11 2 15 6l9 8 9 2c4 1 6 4 6 8v4H8z" fill="${c}"/><path d="M50 15h12v10H40zM66 15h12c3 0 6 2 8 4l5 6H66z" fill="#cfe3f0"/><circle cx="32" cy="40" r="8" fill="#15181d"/><circle cx="32" cy="40" r="3.4" fill="#9aa3ad"/><circle cx="92" cy="40" r="8" fill="#15181d"/><circle cx="92" cy="40" r="3.4" fill="#9aa3ad"/><rect x="104" y="29" width="7" height="3" rx="1.5" fill="#fff3b0"/></svg>`};
 function garDraw(note){const P=GAR.panel,el=document.getElementById("choose");if(!P)return;const T=townOf(P.st),M=garMine();
   const shell=b=>`<div class="card rpcard gcard"><h1>${esc(P.name)}</h1><p class="cdsub">${garOn()?garFree(P).length+" of "+P.bays.length+" spaces free":"Garage"}</p>${b}<p class="amsg" id="gpMsg" role="status">${esc(note||"")}</p><button class="go ghost" data-stay="1">Close Garage</button></div>`;
-  if(!garOn()){el.innerHTML=shell(`<p>Sign in to your account to keep vehicles in a garage. The practice car is for guests and is not saved.</p>`);return}
+  if(!garOn()){el.innerHTML=shell(`<p>Sign in to your account to keep vehicles in a garage.</p>`);return}
   if(GAR.err&&!GAR.list.length){el.innerHTML=shell(`<p class="amsg err">${esc(GAR.err)}</p>`);return}
   if(GAR.keysFor){const v=GAR.list.find(q=>q.id===GAR.keysFor);if(!v){GAR.keysFor=null;return garDraw()}
     el.innerHTML=shell(`<p><b>Keys to ${esc(v.plate)}</b></p><p>People holding keys can spawn the car at a car park and drive it. You can take them back at any time; if they have the car out, it goes back to the car park.</p>
@@ -4087,7 +4086,7 @@ async function garAct(what,arg,bay){const P=GAR.panel,msg=()=>document.getElemen
   catch(e){GAR.busyId=0;if(what==="spawn")garDraw();say(e.message,true)}}
 
 /* ---- paying: through the server, from the signed-in citizen's cash to the state's account ---- */
-async function payService(amount,state,reason,veh){if(typeof AUTH==="undefined"||!AUTH.user||AUTH.offline||!AUTH.char)throw new Error("Sign in to your account to pay. Guests cannot pay for services.");
+async function payService(amount,state,reason,veh){if(typeof AUTH==="undefined"||!AUTH.user||!AUTH.char)throw new Error("Sign in to your account to pay for services.");
   await freshToken();const r=veh&&veh.id?await supa("/rest/v1/rpc/veh_pay",{method:"POST",auth:true,body:{p_vehicle:veh.id,p_amount:Math.round(amount),p_state:state,p_reason:reason,p_fields:veh.fields}})       // a car of yours: the parts paid for may then be made good
     :await supa("/rest/v1/rpc/pay_service",{method:"POST",auth:true,body:{p_amount:Math.round(amount),p_state:state,p_reason:reason}});if(r&&r.cash!=null){me.cash=+r.cash;showCash()}return r}
 
@@ -4455,13 +4454,13 @@ const kL=v=>(+v).toFixed(2).replace(/\.?0+$/,"")||"0";
    (the tank's space, the amount, and what you can afford), the attendant fills, the pump counts up, and you are
    charged at the end for the litres that actually went in. ---- */
 function refuelPanel(){const T=townOf(me.town),C=T.car;if(!C)return;const hit=stationPump(T,C),S=hit?hit.S:(T.stations||[])[0];if(!S)return;const D=carD(C);choosing=true;const el=document.getElementById("choose");el.hidden=false;
-  const inTank=D.fuel*TANK,room=Math.max(0,TANK-inTank),signed=typeof AUTH!=="undefined"&&AUTH.user&&!AUTH.offline&&AUTH.char,pr=FUEL.price,still=Math.abs(C.v)<.3;
+  const inTank=D.fuel*TANK,room=Math.max(0,TANK-inTank),signed=typeof AUTH!=="undefined"&&AUTH.user&&AUTH.char,pr=FUEL.price,still=Math.abs(C.v)<.3;
   const head=`<h1>${esc(S.name)}</h1><p class="cdsub">${pr?"K"+pr.toLocaleString("en-GB")+" / litre":"Price not available"} &middot; paid to the ${esc(S.st)} State account</p>
     <div class="cdrow"><span>In the tank</span><i class="cdbar"><em style="width:${Math.round(D.fuel*100)}%;background:${D.fuel<.15?"#dc2626":"#0284c7"}"></em></i><b>${kL(inTank)} of ${TANK} L</b></div>`;
   let body;
   if(FUEL.s)body=`<p>${FUEL.s.phase==="walk"?"The attendant is coming to your car.":FUEL.s.phase==="pay"?"Paying...":"Filling: <b>"+kL(FUEL.s.litres)+" L</b> &middot; K"+Math.round(FUEL.s.litres*FUEL.s.price).toLocaleString("en-GB")+" so far."}</p>${FUEL.s.phase==="fill"||FUEL.s.phase==="walk"?`<button class="go" data-rp="fstop">Stop</button>`:""}`;
   else if(!hit||!still)body=`<p>Stop your car beside a pump to buy fuel.</p>`;
-  else if(!signed)body=`<p>Sign in to your account to buy fuel. Guests cannot pay for fuel.</p>`;
+  else if(!signed)body=`<p>Sign in to your account to buy fuel.</p>`;
   else if(FUEL.missing)body=`<p>${FUEL_SETUP}</p>`;
   else if(!pr)body=`<p>The pump can't reach the fuel company's server just now. Try again in a moment.</p>`;
   else if(room<.05)body=`<p>The tank is full.</p>`;
@@ -4621,7 +4620,7 @@ function liftMenu(){choosing=true;const el=document.getElementById("choose");el.
    Chief of Staff; pay for 5 hours clocked in at the workplace each day. The database enforces every rule. */
 let GOVME=null,GOVL=null,govTab="National",govPick=null;
 async function govCall(fn,body){await freshToken();return supa("/rest/v1/rpc/"+fn,{method:"POST",auth:true,body:body||{}})}
-const govOn=()=>typeof AUTH!=="undefined"&&AUTH.user&&!AUTH.offline;
+const govOn=()=>typeof AUTH!=="undefined"&&!!AUTH.user;
 // your posts decide which doors open to you, as well as your main role
 async function govRefresh(){if(!govOn())return;try{GOVME=await govCall("gov_me");if(GOVME.cash!=null){me.cash=+GOVME.cash;showCash()}me.roles=(GOVME.posts||[]).map(p=>p.key).filter(Boolean);
   if(GOVME.today&&GOVME.today.clocked_in&&!govAtAnyWork())govClock(false,true);ui()}catch(e){}}
@@ -4668,7 +4667,7 @@ async function cbCall(fn,body){await freshToken();return supa("/rest/v1/rpc/"+fn
 function cbClose(){clearInterval(cbTimer);cbTimer=null}
 function trsTerminal(kind){cbKind=kind;cbMsg="";choosing=true;const el=document.getElementById("choose");el.hidden=false;
   const head=kind==="cb"?"Delta Central Bank":"Reserve Office",shell=body=>`<div class="card cbcard"><h1>${head}</h1>${body}<button class="go" data-stay="1">Close</button></div>`;
-  if(typeof AUTH==="undefined"||!AUTH.user||AUTH.offline){el.innerHTML=shell(`<p>This terminal works on the live game with a signed-in account whose role on the server is Bank Governor or Minister of Finance.</p>`);return}
+  if(typeof AUTH==="undefined"||!AUTH.user){el.innerHTML=shell(`<p>This terminal works on the live game with a signed-in account whose role on the server is Bank Governor or Minister of Finance.</p>`);return}
   if(!allowed(TRS_RES)){el.innerHTML=shell(`<p>Only the Bank Governor and the Minister of Finance can use this terminal.</p>`);return}
   el.innerHTML=shell(`<div id="cbBody"><p>Loading the reserves...</p></div>`);cbRefresh();cbClose();cbTimer=setInterval(()=>{if(document.getElementById("cbBody"))cbRefresh();else cbClose()},5000)}
 async function cbRefresh(){const box_=document.getElementById("cbBody");if(!box_)return;let d;try{d=await cbCall("cb_status")}catch(e){box_.innerHTML=`<p class="amsg err">${esc(e.message)}</p>`;return}
@@ -4814,7 +4813,7 @@ async function adminPanel(msg){choosing=true;const el=document.getElementById("c
     <button class="go" data-stay="1">Close</button></div>`;
   const inp=document.getElementById("admQ");inp.addEventListener("keydown",e=>{if(e.key==="Enter")adminAct("find")});if(q)adminAct("find");adminLive()}
 async function adminAct(what){const list=document.getElementById("admList");if(!list)return;
-  if(typeof AUTH==="undefined"||!AUTH.user||AUTH.offline){list.innerHTML="<p>The role tool works on the live game while signed in.</p>";return}
+  if(typeof AUTH==="undefined"||!AUTH.user){list.innerHTML="<p>The role tool works on the live game while signed in.</p>";return}
   try{if(what==="find"){const rows=await cbCall("admin_find",{p_query:(document.getElementById("admQ").value||"").trim()});
       list.innerHTML=rows.length?`<table class="cbt"><tr><th>Citizen</th><th>Certificate</th><th>Role</th><th></th></tr>${rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.cert_no||"")}</td><td><select data-owner="${r.owner}">${ROLES.filter(x=>x[0]!=="newcomer").map(([k,l])=>`<option value="${k}" ${k===r.role?"selected":""}>${esc(l)}</option>`).join("")}</select></td><td><button class="btn2s" data-adm="set:${r.owner}">Set</button> <button class="btn2s" data-adm="car:${r.owner}">Give car</button></td></tr>`).join("")}</table>`:"<p>No citizen found.</p>"}
     else if(what.startsWith("car:")){if(what.length<6)return;const sp=document.getElementById("admSpecial").checked,pk=document.getElementById("admPark").value,r=await cbCall("veh_admin_provision",{p_owner:what.slice(4),p_model:"sovereign",p_special:sp,p_park:pk});
@@ -5000,7 +4999,7 @@ function submitForm(){keepForm();const name=form.name.replace(/\s+/g," ").trim()
     me.cert={no:"DC-"+STATE_CODE[form.state]+"-"+String(1+Math.floor(Math.random()*9000)).padStart(4,"0"),name,dob:form.dob.replace(/\s+/g," ").trim(),gender:form.gender,state:form.state,date:new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"})};
     {const done=()=>issueCertificate(me.cert).then(()=>{me.role="citizen";ui();talk("cert",true);toast("Your birth certificate has been issued. The city entrance is now open to you."+(typeof AUTH!=="undefined"&&AUTH.char?" You received K"+Number(me.cash||0).toLocaleString("en-GB")+" in cash.":""))});
       // signed in: the server issues the certificate number and pays the K100,000 from the home state's revenue
-      if(typeof AUTH!=="undefined"&&AUTH.user&&!AUTH.offline)registerOnServer(me.cert).then(c=>{becomeCitizen(c);me.entered=false;done()}).catch(e=>{closeTalk();toast("Registration failed: "+(e.offline?"the save server can't be reached.":e.message))});else done()}}};next()}
+      registerOnServer(me.cert).then(c=>{becomeCitizen(c);me.entered=false;done()}).catch(e=>{closeTalk();toast("Registration failed: "+(e.offline?"the save server can't be reached.":e.message))})}}};next()}
 document.getElementById("talk").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.g){keepForm();form.gender=b.dataset.g;return talk("form")}if(b.dataset.s){keepForm();form.state=b.dataset.s;return talk("form")}
   const t=b.dataset.t;if(t==="close")closeTalk();else if(t==="way"){closeTalk();me.yaw=Math.PI/2;me.pitch=-.12;guide()}else if(t==="form")talk("form");else if(t==="submit")submitForm();else if(t==="cert")talk("cert",false)});
 document.getElementById("act").addEventListener("click",()=>doAct());
@@ -5214,7 +5213,7 @@ function hudNav(){if(!HUD.el.nav)return;const B=[["phone","Phone","phone"],["bag
   for(const b of nav.children)b.setAttribute("aria-pressed",HUD.open===b.dataset.k?"true":"false");
   document.getElementById("picks").classList.toggle("open",HUD.open==="set");document.body.classList.toggle("sheet",!!HUD.open);hudSheet()}
 function hudSheet(){const el=HUD.el.sheet;if(!el)return;const k=HUD.open;el.hidden=k!=="phone"&&k!=="inv";if(el.hidden){el.innerHTML="";return}
-  const signed=typeof AUTH!=="undefined"&&AUTH.user&&!AUTH.offline,go=fn=>()=>{HUD.open=null;hudNav();fn()};
+  const signed=typeof AUTH!=="undefined"&&AUTH.user,go=fn=>()=>{HUD.open=null;hudNav();fn()};
   if(k==="phone"){const A=[];
     if(scene==="town")A.push(["map","Map",go(()=>{if(!mapOpen)openMap()})]);else if(fpPlan())A.push(["map","Floor plan",go(()=>openPlan())]);
     if(signed&&GOVME&&(GOVME.posts||[]).length)A.push(["work","My Work",go(()=>govWork())]);
@@ -5345,7 +5344,7 @@ const guide0=guide;guide=function(){guide0();if(choosing)document.getElementById
    Supabase directly over the web. Only the public key lives in this page; the database's own rules stop
    anyone changing money, certificates or roles from here. */
 const SUPA=window.SUPA_OVERRIDE||{url:"https://jowcbkdesdrggkaivgbv.supabase.co",key:"sb_publishable_75V2WsFBHFkBh-thw4qe3A_Pgswez9G"};
-const AUTH={user:null,token:null,refresh:null,expires:0,offline:false,char:null,mode:"login",busyNow:false};
+const AUTH={user:null,token:null,refresh:null,expires:0,char:null,mode:"login",busyNow:false};
 const STORE_KEY="dc_session";
 function store(v){try{if(v)localStorage.setItem(STORE_KEY,JSON.stringify(v));else localStorage.removeItem(STORE_KEY)}catch(e){}}
 function stored(){try{return JSON.parse(localStorage.getItem(STORE_KEY)||"null")}catch(e){return null}}
@@ -5380,19 +5379,18 @@ function authScreen(msg,isError){chooserOn=false;choosing=true;const el=document
     <p class="amsg ${isError?"err":""}" role="status">${msg?esc(msg):""}</p>
     <button class="go" data-auth="${login?"login":"signup"}" ${AUTH.busyNow?"disabled":""}>${AUTH.busyNow?"Please wait...":login?"Log in":"Create account"}</button>
     <div class="aswitch"><button class="link" data-auth="switch">${login?"New here? Create an account":"Already have an account? Log in"}</button></div>
-    <div class="aswitch"><button class="link" data-auth="offline">Play without an account (nothing is saved)</button></div></div>`;
+    </div></div>`;
   const pass=document.getElementById("a_pass");setTimeout(()=>(last?pass:document.getElementById("a_email")).focus(),50);
   for(const id of["a_email","a_pass"])document.getElementById(id).addEventListener("keydown",e=>{if(e.key==="Enter")authClick(login?"login":"signup")})}
 async function authClick(what){if(AUTH.busyNow)return;
   if(what==="switch"){AUTH.mode=AUTH.mode==="login"?"signup":"login";return authScreen()}
-  if(what==="offline"){AUTH.offline=true;choosing=false;document.getElementById("choose").hidden=true;return chooser()}
   const email=(document.getElementById("a_email").value||"").trim(),pass=document.getElementById("a_pass").value||"";
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return authScreen("Please enter a valid email address.",true);
   if(pass.length<6)return authScreen("The password must be at least 6 characters.",true);
   AUTH.busyNow=true;authScreen();
   try{if(what==="signup"){const d=await signUp(email,pass);if(d&&d.access_token)takeSession(d);else{AUTH.busyNow=false;AUTH.mode="login";return authScreen("Account created. We've sent a confirmation link to "+email+". Open it, then log in here.")}}
     else await signIn(email,pass);AUTH.busyNow=false;afterSignIn()}
-  catch(e){AUTH.busyNow=false;authScreen(e.offline?"Can't reach the save server from here. If you're on the test page, use the live game on GitHub, or play without an account.":/invalid login/i.test(e.message)?"That email and password don't match an account.":/already registered|already exists/i.test(e.message)?"That email already has an account. Log in instead.":/not confirmed/i.test(e.message)?"Please open the confirmation link in your email first.":e.message,true)}}
+  catch(e){AUTH.busyNow=false;authScreen(e.offline?"Can't reach the save server from here. Try again in a moment.":/invalid login/i.test(e.message)?"That email and password don't match an account.":/already registered|already exists/i.test(e.message)?"That email already has an account. Log in instead.":/not confirmed/i.test(e.message)?"Please open the confirmation link in your email first.":e.message,true)}}
 // once signed in: carry on as your citizen, or, for a new account, choose a character and go to the border
 async function afterSignIn(){choosing=true;document.getElementById("choose").innerHTML=`<div class="card auth"><h1>Delta City RP</h1><p>Loading your citizen...</p></div>`;
   let c=null;try{c=await loadCitizen()}catch(e){return authScreen(e.offline?"Can't reach the save server. Try again in a moment.":e.message,true)}
@@ -5421,7 +5419,7 @@ const NET_EXTRAS_CARS=true,NET_EXTRAS_STREET=false,NET_EXTRAS_INDOORS=true,NET_E
 function netOn(){return NET.state==="on"&&NET.ws&&NET.ws.readyState===1}
 function netSend(o){try{if(netOn())NET.ws.send(JSON.stringify(o))}catch(e){}}
 function netRoom(){return scene==="town"?"town:"+me.town:scene==="gov"&&GV?"gov:"+me.town+":"+GV.kind:scene==="hosp"?"hosp:"+me.town+":"+HFLOOR_N:scene==="bank"?"bank:"+me.town:scene==="trs"?"trs:"+me.town:scene==="imm"?"imm":"border"}
-async function netStart(){try{if(!AUTH.user||!AUTH.refresh||AUTH.offline||NET.ws)return;clearTimeout(NET.timer);
+async function netStart(){try{if(!AUTH.user||!AUTH.refresh||NET.ws)return;clearTimeout(NET.timer);
     if(NET.until&&Date.now()<NET.until){netWait(NET.until-Date.now());return}
     try{await freshToken()}catch(e){netDown(0,"the login could not be refreshed");return}
     NET.state="connecting";NET.t0=Date.now();const ws=new WebSocket(LIVE.ws);NET.ws=ws;
@@ -5438,7 +5436,7 @@ function netDown(code,reason){clearInterval(NET.ping);NET.ws=null;NET.id=null;ne
   NET.state="offline";netPill();if(!AUTH.user)return;
   const wait=NET.until&&Date.now()<NET.until?NET.until-Date.now():[5,10,20,40,60,120][Math.min(5,NET.retry++)]*1000;netWait(wait)}
 // the small notice, top right: only for a signed-in player whose live play is not working
-function netPill(){const el=document.getElementById("netpill");if(!el)return;const show=!!AUTH.user&&!AUTH.offline&&(NET.state==="offline"||NET.state==="replaced");
+function netPill(){const el=document.getElementById("netpill");if(!el)return;const show=!!AUTH.user&&(NET.state==="offline"||NET.state==="replaced");
   el.hidden=!show;if(show){el.textContent=NET.state==="replaced"?"Playing in another window":"Offline mode";el.title="Single-player: "+NET.why+"."}}
 function netGot(m){
   if(m.t==="welcome"||m.t==="roomok"){if(m.t==="welcome"){NET.id=m.id;NET.state="on";NET.retry=0;NET.until=0;NET.why="";netPill();clearInterval(NET.ping);NET.ping=setInterval(()=>{try{if(NET.ws&&NET.ws.readyState===1)NET.ws.send("ping")}catch(e){}},25000)}
@@ -5536,7 +5534,7 @@ async function adminLive(){const el=document.getElementById("admLive");if(!el)re
     el.innerHTML=h}catch(e){el.innerHTML=`<p>The live server did not answer: ${esc(e.message||"no connection")}. The game is single-player until it does.</p>`}}
 // at the start: a saved sign-in carries straight on; otherwise the sign-in screen
 function startAuth(){const s=stored();if(s&&s.refresh){AUTH.refresh=s.refresh;choosing=true;document.getElementById("choose").hidden=false;document.getElementById("choose").innerHTML=`<div class="card auth"><h1>Delta City RP</h1><p>Signing you in...</p></div>`;
-    freshToken().then(()=>supa("/auth/v1/user",{auth:true})).then(u=>{AUTH.user=u;afterSignIn()}).catch(e=>{if(!e.offline)store(null);authScreen(e.offline?"Can't reach the save server. Log in again, or play without an account.":"Please log in again.",!!e.offline)});return}
+    freshToken().then(()=>supa("/auth/v1/user",{auth:true})).then(u=>{AUTH.user=u;afterSignIn()}).catch(e=>{if(!e.offline)store(null);authScreen(e.offline?"Can't reach the save server. Log in again when it does.":"Please log in again.",!!e.offline)});return}
   authScreen()}
 
 loadGround();loadTrees();loadProps();ui();startAuth();requestAnimationFrame(frame);
