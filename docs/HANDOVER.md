@@ -563,24 +563,71 @@ What it does, in order:
    (`vehicle_audit_vehicle`) and **no foreign key** to `vehicles`, so deleting a vehicles row neither
    cascades nor blocks — its `vehicle_audit` rows survive. No schema change was needed.
 
-**Checklist to run in the SQL Editor after the file has been applied** (pick a car park that has a
-free bay; `test-park` below is just an example — use a real park id from
-`select id, name, bays from car_parks;`):
+**Checklist to run in the SQL Editor after the file has been applied.**
 
-1. Rent: `select public.veh_rent_bike('test-park');` — expect `{"ok":true,...}` with a `vehicle`
-   whose `model` is `motorbike` and `rents_until` is about 24 hours ahead.
-2. Your cash is down by exactly 10,000 and there is a `vehicle_keys` row for the bike.
-3. Rent again from the same or another park: old bike row is **gone** (wherever it was, even if
-   being driven), a fresh bike exists with a fresh 24 hours, cash is down by another 10,000, and
-   `vehicle_audit` has a `replaced by newer rental` row for the old bike.
-4. Force an expiry on the server's clock:
-   `update public.vehicles set rents_until = now() - interval '1 minute' where model = 'motorbike' and owner = (select (current_setting('request.jwt.claims')::jsonb)->>'sub');`
-   then `select public.veh_sweep();` — the bike row is deleted.
-5. The audit rows are still there:
-   `select action, detail from public.vehicle_audit where vehicle_id = <that bike id> order by at;`
-   — expect the rent, any replacement, and a `rental expired` row.
-6. Unsigned sanity (optional): with no character signed in, `veh_rent_bike` raises a
-   "sign in" error and changes nothing.
+In the SQL Editor, `auth.uid()` is **null** — there is no signed-in request. So **each test block
+below starts with the same sign-in line**; replace `<a real test user uuid>` with the `owner` uuid
+of a real test character (find it with `select owner, name, town, cash from characters;`) and run
+that block as one paste, top to bottom. The character's `town` must be a state that has car parks
+(Asaba, Warri, Ozoro or Agbor), and pick a car park in that same state (`select id, state, name,
+bays from car_parks;`) — the file now refuses any park outside the character's own state.
+
+**1. Rent** (expects `{"ok": true, ...}` with a `vehicle` whose `model` is `motorbike` and
+`rents_until` about 24 hours ahead):
+```sql
+select set_config('request.jwt.claims', json_build_object('sub', '<a real test user uuid>')::text, true);
+select public.veh_rent_bike('<park id in the character's own state>');
+select id, plate, model, status, park_id, bay, rents_until from public.vehicles
+ where owner = '<a real test user uuid>' and model = 'motorbike';
+```
+
+**2. Cash and key** (cash down by exactly 10,000, one live `vehicle_keys` row for the bike):
+```sql
+select set_config('request.jwt.claims', json_build_object('sub', '<a real test user uuid>')::text, true);
+select owner, name, cash from public.characters where owner = '<a real test user uuid>';
+select id, vehicle_id, holder, granted_by, revoked_at from public.vehicle_keys
+ where vehicle_id = (select id from public.vehicles where model = 'motorbike'
+                     and owner = '<a real test user uuid>') and revoked_at is null;
+```
+
+**3. Rent again (replacement)** (old bike row gone wherever it was, fresh bike with fresh 24 hours,
+cash down by another 10,000, and a `vehicle_audit` row with action `rental replaced` for the old
+bike):
+```sql
+select set_config('request.jwt.claims', json_build_object('sub', '<a real test user uuid>')::text, true);
+select public.veh_rent_bike('<park id in the character's own state>');
+select id, action, detail from public.vehicle_audit where action in ('rented', 'rental replaced')
+ order by id desc limit 5;
+```
+
+**4. Wrong-state park (new rule)** (a park in another state must be refused, nothing created,
+nothing charged):
+```sql
+select set_config('request.jwt.claims', json_build_object('sub', '<a real test user uuid>')::text, true);
+select public.veh_rent_bike('<a park id in a DIFFERENT state>');   -- expect the "own state" error
+select count(*) from public.vehicles where model = 'motorbike' and owner = '<a real test user uuid>';
+```
+
+**5. Expiry** (force the bike past its `rents_until` on the server's clock, then sweep — the bike
+row is deleted, the audit rows stay):
+```sql
+select set_config('request.jwt.claims', json_build_object('sub', '<a real test user uuid>')::text, true);
+update public.vehicles set rents_until = now() - interval '1 minute'
+ where model = 'motorbike' and owner = '<a real test user uuid>';
+select public.veh_sweep();
+select count(*) from public.vehicles where model = 'motorbike' and owner = '<a real test user uuid>';
+select id, action, detail from public.vehicle_audit
+ where vehicle_id = (select max(vehicle_id) from public.vehicle_audit where vehicle_id is not null)
+ order by id desc limit 5;   -- expect 'rented', any 'rental replaced', and a 'rental expired' row
+```
+
+**6. Unsigned sanity (optional)** (no signed-in user in the same run: `veh_rent_bike` raises a
+"sign in" error and changes nothing):
+```sql
+select set_config('request.jwt.claims', '{}'::text, true);
+select public.veh_rent_bike('<any park id>');   -- expect the sign-in error
+select count(*) from public.vehicles where model = 'motorbike';
+```
 
 ### If multiplayer causes problems
 1. **Undo it:**

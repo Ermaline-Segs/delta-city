@@ -25,6 +25,7 @@ returns jsonb language plpgsql security definer set search_path = public as $$
 declare
   me       uuid := auth.uid();
   pk_state text;
+  my_state text;
   b        int;
   id_    bigint;
   pl     text;
@@ -38,18 +39,20 @@ begin
   if not exists(select 1 from characters where owner = me) then raise exception 'You need a character to rent a bike'; end if;
   if not exists(select 1 from car_parks where id = p_park) then raise exception 'That is not a car park'; end if;
   select state into pk_state from car_parks where id = p_park for update;   -- lock the row so two rentals at once can't take the same bay
+  -- every car park is a public one belonging to a state; the character may only use the parks of their own state
+  select town into my_state from characters where owner = me;
+  if my_state is null or my_state <> pk_state then
+    raise exception 'You can only rent a bike in your own state — your character is in %, that car park is in %', coalesce(my_state, '(no state yet)'), pk_state;
+  end if;
 
   -- an old rental bike of this citizen is replaced: deleted wherever it is, with an audit row
   for old in
     select * from vehicles
      where owner = me and model = 'motorbike' and rents_until is not null
      order by id
-     for update skip locked
+     for update
   loop
     perform veh_log(me, old.id, 'rental replaced', jsonb_build_object('park', old.park_id, 'bay', old.bay, 'status', old.status, 'state', old.state));
-    update vehicles set token = null, active_by = null, occupied = false, pos = null, in_bay = null,
-                        hold = null, hold_since = null, last_seen = null, abandoned_at = null
-     where id = old.id;
     delete from vehicles where id = old.id;
     old_id := old.id;
   end loop;
