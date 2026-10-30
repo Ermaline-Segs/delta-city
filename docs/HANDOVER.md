@@ -196,7 +196,7 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 
 ## 11. Updates since the first handover (newest first)
 
-- **PR 9 merged as `7e2a1c7`** (guest play and stale practice-car strings removed; main is at `7e2a1c7` as of this
+- **PR 9 merged as 7e2a1c7** (guest play and stale practice-car strings removed; main is at 7e2a1c7 as of this
   asset-branch work).
 
 main is at `f44031f` (29 October 2026) as of this work; once this PR (#8) is merged, main's
