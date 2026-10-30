@@ -540,9 +540,14 @@ the gate is on ownership, not role.
 ### SQL the owner still has to run
 
 Bike rental (this branch, from the open decision in section 4): the SQL for the motorbike rental
-is in **`supabase_bike_rental.sql`**. It has NOT been run against Supabase — I have no access to
-the database, so the owner runs it. It is safe to run twice: every statement is idempotent
-(`add column if not exists`, `create or replace`, `create index if not exists`).
+is in **`supabase_bike_rental.sql`** — **run on live Supabase on 30 Oct 2026**. It is safe to run
+twice: every statement is idempotent (`add column if not exists`, `create or replace`,
+`create index if not exists`).
+
+**Ordering warning:** `supabase_bike_rental.sql` must run **after** `supabase_vehicles.sql`, and
+`supabase_vehicles.sql` must **not** be re-run on the live database afterwards — it contains the
+older `veh_row` and `veh_sweep` and would silently remove the rental support. If
+`supabase_vehicles.sql` ever has to be re-run, re-run `supabase_bike_rental.sql` straight after it.
 
 **How to run it:** in the Supabase SQL Editor, paste the full contents of `supabase_bike_rental.sql`
 and press **Run**. Order matters only within the file — run the file as one paste, top to bottom.
