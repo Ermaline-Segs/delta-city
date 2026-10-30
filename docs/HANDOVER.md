@@ -538,9 +538,49 @@ the gate is on ownership, not role.
    - whether the 53-bone MPFB skeleton can be skinned in the game.
 
 ### SQL the owner still has to run
-None. Every `supabase_*.sql` file in the repository has been run; the last was `supabase_fuel.sql` on 28 October
-2026, the version that removes the Minister of Petroleum. Any new SQL file must say in this section that it is
-waiting to be run.
+
+Bike rental (this branch, from the open decision in section 4): the SQL for the motorbike rental
+is in **`supabase_bike_rental.sql`**. It has NOT been run against Supabase — I have no access to
+the database, so the owner runs it. It is safe to run twice: every statement is idempotent
+(`add column if not exists`, `create or replace`, `create index if not exists`).
+
+**How to run it:** in the Supabase SQL Editor, paste the full contents of `supabase_bike_rental.sql`
+and press **Run**. Order matters only within the file — run the file as one paste, top to bottom.
+
+What it does, in order:
+1. `vehicles.rents_until` column (server-clock expiry, null for non-rentals) + a partial index.
+2. `veh_rent_bike(p_park text)` — signed-in check, locks the car park row, deletes any rental bike
+   the renter already has (audit row written), finds a free bay or raises, charges K10,000 through
+   `pay_service` in the same transaction (a failed payment creates nothing), inserts the bike
+   (model `motorbike`, `rents_until = now() + interval '24 hours'`) with a `vehicle_keys` row and an
+   audit row, returns the vehicle as json like `veh_mine`. No role check — anyone signed in can rent;
+   a second rental replaces the old bike, pays again, no refund.
+3. `veh_sweep()` extended — any row with `rents_until <= now()` is DELETED (stored and active alike),
+   audit row `rental expired` written first; the audit rows stay (see 5).
+4. `veh_row(v, me)` now includes `rents_until` so the client can show a countdown; `veh_mine` gets it
+   for free since it calls `veh_row`.
+5. Audit check (item e): `vehicle_audit.vehicle_id` is a plain `bigint` with only a regular index
+   (`vehicle_audit_vehicle`) and **no foreign key** to `vehicles`, so deleting a vehicles row neither
+   cascades nor blocks — its `vehicle_audit` rows survive. No schema change was needed.
+
+**Checklist to run in the SQL Editor after the file has been applied** (pick a car park that has a
+free bay; `test-park` below is just an example — use a real park id from
+`select id, name, bays from car_parks;`):
+
+1. Rent: `select public.veh_rent_bike('test-park');` — expect `{"ok":true,...}` with a `vehicle`
+   whose `model` is `motorbike` and `rents_until` is about 24 hours ahead.
+2. Your cash is down by exactly 10,000 and there is a `vehicle_keys` row for the bike.
+3. Rent again from the same or another park: old bike row is **gone** (wherever it was, even if
+   being driven), a fresh bike exists with a fresh 24 hours, cash is down by another 10,000, and
+   `vehicle_audit` has a `replaced by newer rental` row for the old bike.
+4. Force an expiry on the server's clock:
+   `update public.vehicles set rents_until = now() - interval '1 minute' where model = 'motorbike' and owner = (select (current_setting('request.jwt.claims')::jsonb)->>'sub');`
+   then `select public.veh_sweep();` — the bike row is deleted.
+5. The audit rows are still there:
+   `select action, detail from public.vehicle_audit where vehicle_id = <that bike id> order by at;`
+   — expect the rent, any replacement, and a `rental expired` row.
+6. Unsigned sanity (optional): with no character signed in, `veh_rent_bike` raises a
+   "sign in" error and changes nothing.
 
 ### If multiplayer causes problems
 1. **Undo it:**
