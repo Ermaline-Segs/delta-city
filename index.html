@@ -3705,7 +3705,7 @@ const CARS={sovereign:{name:"Sovereign GT",lhd:true,doors:{
   FL:{hinge:[.98,.78,.52],handle:[1.03,.9,-.82],seat:[.44,.42,-.29],stand:[1.65,0,-.35],swing:1.2,part:"door_FL"},
   FR:{hinge:[-.98,.78,.52],handle:[-1.03,.9,-.82],seat:[-.45,.42,-.29],stand:[-1.65,0,-.35],swing:-1.2,part:"door_FR"}}},
 motorbike:{name:"Motorbike",lhd:true,doors:{FL:{hinge:[.55,.95,-.285],handle:[.5,.9,-.285],seat:[0,1.226,-.285],stand:[.9,0,-.285],swing:0,part:""}},
-  cfg:{vmax:12.5,accel:4.6,rev:5,brake:9,steerMax:.85,base:1.4,grip:7.2,creep:1.0,len:2.7,wid:.75}}};
+  cfg:{vmax:16.7,accel:4.6,rev:5,brake:9,steerMax:.85,base:1.4,grip:7.2,creep:1.0,len:2.7,wid:.75}}};
 {const R=carRig();for(const k in CARS.sovereign.doors){const d=CARS.sovereign.doors[k],h=R.doors[k];if(h)d.hinge=h.at}}       // the hinges where the model has them
 const carCfg=C=>CARS[C.model]||CARS.sovereign;
 const carDoors=C=>{const c=carCfg(C);return c.lhd?{driver:c.doors.FL,passenger:c.doors.FR}:{driver:c.doors.FR,passenger:c.doors.FL}};
