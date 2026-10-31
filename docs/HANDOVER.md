@@ -196,6 +196,22 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 
 ## 11. Updates since the first handover (newest first)
 
+- **PR 13, branch `pr/c-motorbike-drives` (item: PR C — the bike drives), commit `a083f10`** — `index.html`
+  only, on top of the merged bike-asset PRs (#10 asset, #12 GLB header fix, #11 rental SQL). What PR C does:
+  - Adds the `CARS.motorbike` model config (top speed ~45 km/h, gear ratio, mass, drag) so the vehicle
+    physics knows how a bike behaves, driven by the new per-model helpers `carPhys(C)`, `carSit(C)`,
+    `carRig(C)` and `tankOf(C)` instead of the old single global config.
+  - Per-model config: `carPhys(C)` returns the CARS entry for the vehicle's own model (car vs bike) so each
+    vehicle type keeps its own speed / handling / tank numbers.
+  - Adds a `m_bike` rig and a `BIKESCENE` (built once at startup) so the bike is drawn from the bike model,
+    while cars keep using `CARSCENE` — `carScenes({model:"m_bike"})` picks the right scene.
+  - Seat: the rider is drawn seated on the bike seat (driver-eyes and half-in draw paths now go through
+    `carSit(C)` / `carRig(C)` so the seat height/anchor is per model).
+  - Small fuel tank: the bike's tank is smaller than a car's; fuel tick, refuel panel and server-confirm all
+    use `tankOf(C)` so the bike's bar and fill rate match its real tank size.
+  - **NOT done in this PR (later work):** the bike wheels do not spin yet, the rent button UI and other
+    players seeing the bike (network sync) come in a later PR.
+
 - **PR 9 merged as 7e2a1c7** (guest play and stale practice-car strings removed; main is at 7e2a1c7 as of this
   asset-branch work).
 
