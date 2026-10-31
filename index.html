@@ -3996,6 +3996,9 @@ async function garCall(fn,body){await freshToken();const fix=t=>/not a car park/
   try{const d=await supa("/rest/v1/rpc/"+fn,{method:"POST",auth:true,body:body||{}});if(d&&typeof d.error==="string")d.error=fix(d.error);return d}catch(e){if(e&&e.message)e.message=fix(e.message);throw e}}
 const garNow=()=>Date.now()+GAR.skew;          // the server's clock
 function garTake(d){if(d&&d.now)GAR.skew=new Date(d.now).getTime()-Date.now()}
+// rental time left, measured against the server's clock (GAR.skew) so a slow local clock can't
+// make a 24h rental look like 2 days
+const rentMs=ru=>new Date(ru).getTime()-(Date.now()+(GAR.skew||0));
 function garMine(){for(const[st,T]of Object.entries(TOWNS))if(T.car&&T.car.vid)return{st,T,C:T.car};return null}
 const garPark=id=>{for(const T of Object.values(TOWNS))for(const P of T.parks||[])if(P.id===id)return P;const L=PARKLIST.find(q=>q[0]===id);return L?{id:L[0],st:L[1],name:L[2]}:null};
 const garHold=C=>TOW&&TOW.C===C?"tow":C.dmg&&C.dmg.job?"repair":C.dmg&&C.dmg.refuel?"refuel":C.dmg&&C.dmg.fire>0?"fire":null;
@@ -4027,16 +4030,16 @@ async function garBeat(){const M=garMine();if(!M||!garOn()||GAR.beating)return;c
 // each frame: remember where the driver last stood outside, report every 10 seconds, and at once when a rule is reached
 function garTick(){if(scene==="town")GAR.out=[cam.x,cam.z,me.town];if(!garOn())return;if(NOW-GAR.syncT>60)garSync();
   if(!GAR.rw)GAR.rw={};
-  for(const v of GAR.list||[]){if(!v.rents_until)continue;const k=v.id+"|"+v.rents_until,rem=new Date(v.rents_until).getTime()-Date.now();
+  for(const v of GAR.list||[]){if(!v.rents_until)continue;const k=v.id+"|"+v.rents_until,rem=rentMs(v.rents_until);
     if(!isFinite(rem)||rem<=0){delete GAR.rw[k];continue}
     if(rem<=1800000&&!GAR.rw[k+":30"]){GAR.rw[k+":30"]=1;toast("Your bike rental is almost up — 30 minutes left.")}
     else if(rem<=3600000&&!GAR.rw[k+":60"]){GAR.rw[k+":60"]=1;toast("Your bike rental has one hour left.")}}
   if(GAR.panel&&document.querySelector(".rentc")){const L=Date.now();
-    for(const s of document.querySelectorAll(".rentc")){const ms=new Date(s.getAttribute("data-ru")).getTime()-L;let t;
+    for(const s of document.querySelectorAll(".rentc")){const ms=new Date(s.getAttribute("data-ru")).getTime()-(L+(GAR.skew||0));let t;
       if(!isFinite(ms)||ms<=0)t="expiring now";else{const m=Math.floor(ms/60000);if(m>=720)t=Math.floor(m/1440)+"d "+Math.floor(m%1440/60)+"h";else if(m>=60)t=Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m";else t=m+"m"}
       s.textContent=" \u00b7 "+t;s.style.color=!isFinite(ms)||ms<=1800000?"#e2574c":ms<=3600000?"#b98a1f":"#3d7a46"}}
   const M=garMine();if(!M)return;
-  if(M.vid&&M.rents_until){const rem=new Date(M.rents_until).getTime()-Date.now();
+  if(M.vid&&M.rents_until){const rem=rentMs(M.rents_until);
     if(!isFinite(rem)||rem<=0){garGone(townOf(me.town),M.C,"Your bike's 24-hour rental is up — it has gone back to the rental company, and you are on foot beside it.")}}
   let due=NOW-GAR.beatT>10;const C=M.C;
   if(!garHold(C)&&!(driving&&M.st===me.town)&&NOW-GAR.ruleT>3){const far=garDist(M.st,C)>GAR.cfg.despawn_distance_m,late=C.abandonedAt&&garNow()-C.abandonedAt>GAR.cfg.abandon_s*1000;if(far||late){due=true;GAR.ruleT=NOW}}
@@ -4058,7 +4061,7 @@ function garNear(T){if(scene!=="town"||!T.parks)return null;for(const P of T.par
 function garPanel(P){GAR.panel=P;GAR.keysFor=null;GAR.found=[];GAR.busyId=0;choosing=true;const el=document.getElementById("choose");el.hidden=false;garDraw("Loading your vehicles...");if(garOn())garSync().then(()=>{if(GAR.panel===P&&choosing)garDraw()})}
 function garFree(P,v){const S=GAR.parks.find(q=>q.id===P.id),taken=new Set(S?S.taken:[]);if(v&&v.park===P.id&&v.in_bay!=null)taken.delete(v.in_bay);return P.bays.filter(B=>!taken.has(B.i))}
 // time left on a rental bike, shown on its card: "1d 3h" / "14h 05m" / "09m", reddening as it runs out
-const rentChip=v=>{if(!v.rents_until)return"";const ms=new Date(v.rents_until).getTime()-Date.now();
+const rentChip=v=>{if(!v.rents_until)return"";const ms=rentMs(v.rents_until);
   let t;if(!isFinite(ms)||ms<=0)t="expiring now";else{const m=Math.floor(ms/60000);if(m>=720)t=Math.floor(m/1440)+"d "+Math.floor(m%1440/60)+"h";else if(m>=60)t=Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m";else t=m+"m"}
   return` <span class="rentc" data-ru="${v.rents_until}" style="color:${!isFinite(ms)||ms<=1800000?"#e2574c":ms<=3600000?"#b98a1f":"#3d7a46"}"> &middot; ${t}</span>`};
 // the motorbike rental offered at this car park. Shown only in the player's own state (the only state
