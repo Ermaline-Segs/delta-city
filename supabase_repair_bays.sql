@@ -262,8 +262,6 @@ returns jsonb language plpgsql security definer set search_path = public as $$
 declare
   me      uuid := auth.uid();
   w       workshops;
-  itm     jsonb;
-  k       text;
   price   numeric := 0;
   mins    numeric := 0;
   scale   numeric;
@@ -593,7 +591,6 @@ declare
   me   uuid := auth.uid();
   j    repair_jobs;
   n    int;
-  till timestamptz;
 begin
   if me is null then
     raise exception 'Sign in first.';
