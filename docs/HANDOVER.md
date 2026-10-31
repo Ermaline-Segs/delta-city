@@ -653,6 +653,76 @@ select public.veh_rent_bike('<any park id>');   -- expect the sign-in error
 select count(*) from public.vehicles where model = 'motorbike';
 ```
 
+Repair bays and the workshop queue (this branch): the SQL is in **`supabase_repair_bays.sql`** —
+**run it on live Supabase AFTER `supabase_bike_rental.sql` (i.e. last of all), and BEFORE any client
+code that calls the `rep_*` functions is released.** Safe to run twice: every `create table`,
+`create [unique] index` uses `if not exists` and every function is `create or replace`, so a
+second paste of the same file changes nothing.
+
+**Full run order if building a fresh database, all four files in this order:**
+1. `supabase_services.sql`
+2. `supabase_vehicles.sql`
+3. `supabase_bike_rental.sql`
+4. `supabase_repair_bays.sql`
+
+**Ordering warning:** `supabase_repair_bays.sql` depends on `pay_service` (from
+`supabase_services.sql`) and on `vehicles` / `vehicle_keys` / `characters` / `car_parks` /
+`state_accounts` (from `supabase_vehicles.sql`). It also **re-defines
+`public.veh_can_drive`** (the one and only older function it replaces): the re-definition
+locks a car out of `veh_spawn` / `veh_update` / `veh_store` / `veh_despawn` while it has an
+open workshop entry (`waiting`, `in_bay` or finished-but-not-collected). It runs last, so
+that definition is the one that stays. So the same rule as the bike rental warning
+applies: **if `supabase_services.sql` or `supabase_vehicles.sql` is ever re-run on the live
+database afterwards, re-run `supabase_bike_rental.sql` and `supabase_repair_bays.sql`
+straight after it** — otherwise the old, lock-less `veh_can_drive` comes back.
+
+What it does, briefly:
+1. `workshops` (the three-bay workshops: name, state, position) and `repair_queue` — one table
+   for BOTH the queue and the bay occupancy: each row is a car with a `status` of `waiting`,
+   `in_bay` or `finished`. Unique indexes enforce: one active entry per vehicle, one active entry
+   per player (across ALL workshops), and at most one car per bay number 1-3 per workshop.
+2. `repair_jobs` — the job row (items, price, `started_at`, `planned_until`, `finished_at`).
+   Server time is the only authority: both timestamps come from `now()`.
+3. `rep_join(p_workshop, p_vehicle, items, mins)` — signed-in and ownership/keys checks, prices
+   the job, scales every item's minutes proportionally so a full restoration is 15 minutes,
+   clamps `planned_until` to `now() + 15 minutes` as a safety limit, charges through
+   `pay_service` in the SAME transaction (a failed payment creates nothing), and puts the car in
+   a free bay (starting the job) or in the queue.
+4. `rep_leave(p_workshop, p_vehicle)` — leaving the queue / cancelling before work starts:
+   **full refund**. The refund is the opposite of `pay_service`: the state account is DEBITED
+   (its balance goes down, no money is created), the player's cash is credited, and a `refund`
+   ledger row balancing the original payment is written. **If the state's balance is too small,
+   the refund is still allowed and the balance goes negative** — a refund pays back money the
+   state already received, so it must never be blocked. Once work has started, `rep_leave` is
+   refused: the paid repair completes and cannot be refunded.
+5. `rep_advance(p_workshop)` — moves the first queued car into a free bay and starts its job
+   (`started_at = now()`, `planned_until = now() + clamped minutes`). Called by every poll,
+   join, leave and finish.
+6. `rep_finish(p_workshop, p_vehicle)` — atomic and once-only; it **refuses until the server's
+   `now()` has passed `planned_until`**, and a second call is a no-op.
+7. `rep_collect(p_workshop, p_vehicle)` — only when the repair is finished; releases the bay and
+   parks the car in the workshop's car park. Each workshop's car park is a **normal `car_parks`
+   row** (id `<workshop>-ws-park`) created by this file, so the existing garage/park flow works
+   unchanged.
+8. `rep_queue_view(p_workshop)` — the read function the client polls: the queue (with each car's
+   place), the three bays, and each bay job's state and `planned_until`. `rep_state` and
+   `rep_role` are helpers for the client's per-car and per-player checks.
+9. Row security is ON on both tables (players can not read or write them directly); every
+   `rep_*` function is `security definer`, reads the caller through `auth.uid()`, is revoked
+   from `public`/`anon` and granted to `authenticated` only.
+
+   **Known limit (price check):** the server only checks that every part a player prices in
+   `rep_join` costs **at least K1,500** and comes from the repair list — it does **not** check
+   that the price matches the car's actual damage. The owner can therefore be charged anything
+   at or above K1,500 per part (including a full "engine" for a dented bumper) without the
+   server noticing. Enforcing a real damage→price mapping is a known open item; for now the
+   rule is trust between the player and the state mechanic.
+
+**Checklist to run in the SQL Editor after the file has been applied:** see
+`docs/REPAIR_BAYS_SQL_TEST_CHECKLIST.md` (numbered, each block starts with the same
+`set_config('request.jwt.claims', ...)` sign-in line because `auth.uid()` is null in the
+SQL Editor). Run that checklist in the same way as the bike rental checklist above.
+
 ### If multiplayer causes problems
 1. **Undo it:**
    1. Open https://github.com/Ermaline-Segs/delta-city/pull/1 and press **Revert**. GitHub makes a new pull
