@@ -198,7 +198,7 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 
 - **PR 13, branch `pr/c-motorbike-drives` (item: PR C — the bike drives), commit `a083f10`** — `index.html`
   only, on top of the merged bike-asset PRs (#10 asset, #12 GLB header fix, #11 rental SQL). What PR C does:
-  - Adds the `CARS.motorbike` model config (top speed ~45 km/h, gear ratio, mass, drag) so the vehicle
+  - Adds the `CARS.motorbike` model config (top speed ~60 km/h, gear ratio, mass, drag) so the vehicle
     physics knows how a bike behaves, driven by the new per-model helpers `carPhys(C)`, `carSit(C)`,
     `carRig(C)` and `tankOf(C)` instead of the old single global config.
   - Per-model config: `carPhys(C)` returns the CARS entry for the vehicle's own model (car vs bike) so each
