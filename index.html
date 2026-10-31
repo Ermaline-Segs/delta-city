@@ -2688,11 +2688,11 @@ function gaitSpeed(run){let dist=0,prev=null;for(let i=0;i<=200;i++){const g=gai
 // colour painted on to the body for an outfit (the woman's tops and leggings)
 function paintFor(m,part,look,key){if(part.paints[key]!==undefined)return part.paints[key];let buf=null;if(part.name==="AvatarBody"&&look&&look.paint){const C=new Uint8Array(part.verts*4);for(let k=0;k<part.verts;k++){const r=look.paint(m.lo[0]+part.pos[k*3]/65535*m.span,m.lo[1]+part.pos[k*3+1]/65535*m.span);if(r){const h=hex(r[0]);C[k*4]=h[0];C[k*4+1]=h[1];C[k*4+2]=h[2];C[k*4+3]=r[1]*255}}buf=mk(C)}return part.paints[key]=buf}
 // draw one person. state: {p: place in the walk cycle, run: 0..1, amt: 0 standing .. 1 moving}. Returns the pose, for hair fixed to the head.
-function draw(m,VP,x,y,z,yaw,state,t,look,lookKey){use(m);let lift;if(ANIM&&m.rest){const a=state.amt,r=state.run;const idle=state.idle||m.clips.idle;
+function draw(m,VP,x,y,z,yaw,state,t,look,lookKey,lean){use(m);let lift;if(ANIM&&m.rest){const a=state.amt,r=state.run;const idle=state.idle||m.clips.idle;
     if(state.sit){const c=state.sitClip&&ANIM.clips[state.sitClip]?state.sitClip:"drive";lift=poseClips(m,[[c,t/ANIM.clips[c].dur,1]],false,0)}
     else if(state.jump>=0&&m.clips.jump&&ANIM.clips[m.clips.jump])lift=poseClips(m,[[m.clips.jump,state.jump,1]],false,0,0,t);       // in the air: the jump recording; the height itself comes from the jump
     else{lift=poseClips(m,[[idle,t/ANIM.clips[idle].dur,1-a]].concat(blend(m,state).list.map(([n,w])=>[n,state.p,w*a])),true,0,0,t);if(FEET&&m.index.LeftUpLeg!==undefined)lift+=placeFeet(m,x,y+lift,z,yaw)}}
-  else{const g=gaitPose(state.p,state.run,state.amt,t);poseBones(g.turns);lift=g.rise}const model=mul(trans(x,y+lift,z),rotY(yaw+Math.PI)),P=SKINP;
+  else{const g=gaitPose(state.p,state.run,state.amt,t);poseBones(g.turns);lift=g.rise}const model0=mul(trans(x,y+lift,z),rotY(yaw+Math.PI)),P=SKINP;const model=lean?mul(model0,mrotZ(lean)):model0;
   gl.enable(gl.CULL_FACE);gl.useProgram(P.p);gl.uniformMatrix4fv(P.u.vp,false,VP);gl.uniformMatrix4fv(P.u.model,false,model);setLight(P,!(scene==="town"||scene==="border"));gl.uniform4fv(BLOC,BONES);gl.uniform3fv(P.u.lo,m.lo);gl.uniform1f(P.u.span,m.span);
   const A=(loc,buf,size,type,norm,stride)=>{gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,type,norm,stride||0,0)};
   for(const part of m.parts){A(P.a.p,part.p,3,gl.UNSIGNED_SHORT,true);A(P.a.n,part.n,3,gl.BYTE,true,4);A(P.a.uv,part.uv,2,gl.UNSIGNED_SHORT,true);A(P.a.j,part.j,4,gl.UNSIGNED_BYTE,false);A(P.a.w,part.w,4,gl.UNSIGNED_BYTE,true);
@@ -3006,7 +3006,7 @@ function doAct(){const a=actNow();if(a==="checkin")return departures();if(a==="v
    One vehicle state shared by the physics, the keyboard, the touch controls, the lights, the sound, the camera and the
    dashboard, so they always agree. Automatic gears: P, R, N, D. The car must be stopped to go into Park or to change
    between Drive and Reverse. Settings per car in VEH.cfg (top speed in m/s, acceleration, braking, steering, grip). */
-const VEH={gear:"P",steer:0,hand:false,ind:"off",lights:0,horn:false,cam:0,mph:false,roll:0,pitch:0,rpm:.12,slip:0,jolt:0,thr:0,brk:0,orbit:0,orbitAt:0,lastVY:null,blink:0,blinkOn:false,lastV:0,
+const VEH={gear:"P",steer:0,hand:false,ind:"off",lights:0,horn:false,cam:0,mph:false,roll:0,lean:0,pitch:0,rpm:.12,slip:0,jolt:0,thr:0,brk:0,orbit:0,orbitAt:0,lastVY:null,blink:0,blinkOn:false,lastV:0,
   touch:{steer:0,thr:0,brk:0},model:null,camPos:null,
   cfg:{vmax:52,accel:5.4,rev:7,brake:10,steerMax:.62,base:2.94,grip:8.6,creep:1.3,len:2.36,wid:1.0}};
 const mrotX=a=>{const c=Math.cos(a),s=Math.sin(a);return new Float32Array([1,0,0,0,0,c,s,0,0,-s,c,0,0,0,0,1])};
@@ -3043,11 +3043,11 @@ function vehicleStep(C,T,dt){const cfg=carPhys(C),pw=carEngine(C,dt),ty=carUse(C
   if(VEH.gear==="P"&&VEH.thr>0&&still&&!VEH.brk){VEH.gear="D";dashToast("Drive")}
   if(VEH.brk&&still&&VEH.gear==="D"&&!VEH.revHint){VEH.revHint=true;dashToast(touch?"Stopped. Press R to reverse.":"Stopped. Press 2 (or R on screen) to reverse.")}if(!still)VEH.revHint=false;
   if(!pw&&VEH.engine&&VEH.thr&&NOW>(VEH.deadMsg||0)){const D=carD(C);VEH.deadMsg=NOW+4;dashToast(D.refuel?"Refuelling: wait until the tank is filled.":D.fuel<=0?"Out of fuel. Call a tow truck from the Car panel.":"The engine won't run. Call a tow truck from the Car panel.",3)}
-  let a=0;if(VEH.gear==="D"){a+=VEH.thr*cfg.accel*pw*Math.max(0,1-Math.max(0,C.v)/(cfg.vmax*ty.vmax));if(!VEH.thr&&!VEH.brk&&!hand&&C.v<cfg.creep&&pw)a+=1.1}
+  let a=0;if(VEH.gear==="D"){const evm=cfg.vmax*ty.vmax;const F=isBike(C)?(Math.max(0,C.v)<cfg.torq*ty.vmax?1:Math.max(0,(evm-Math.max(0,C.v))/((cfg.vmax-cfg.torq)*ty.vmax))):Math.max(0,1-Math.max(0,C.v)/evm);a+=VEH.thr*cfg.accel*pw*F;if(!VEH.thr&&!VEH.brk&&!hand&&C.v<cfg.creep&&pw)a+=1.1}
   if(VEH.gear==="R"){a-=VEH.thr*cfg.accel*pw*.75*Math.max(0,1-Math.max(0,-C.v)/cfg.rev);if(!VEH.thr&&!VEH.brk&&!hand&&-C.v<cfg.creep*.7&&pw)a-=.8}
-  C.v+=a*dt;const dec=VEH.brk*cfg.brake*(1-.35*wet)*(.55+.45*ty.grip)+(hand?5.5:0)+(VEH.gear==="P"?14:0)+.3+.0024*C.v*C.v+(VEH.gear==="N"?.2:0);if(C.v){const s=Math.sign(C.v);C.v-=s*Math.min(Math.abs(C.v),dec*dt)}
+  C.v+=a*dt;if(isBike(C)&&C.v<-1.4)C.v=-1.4;const dec=VEH.brk*cfg.brake*(1-.35*wet)*(.55+.45*ty.grip)+(hand?5.5:0)+(VEH.gear==="P"?14:0)+.3+.0024*C.v*C.v+(VEH.gear==="N"?.2:0);if(C.v){const s=Math.sign(C.v);C.v-=s*Math.min(Math.abs(C.v),dec*dt)}
   // steering: full lock at walking pace, less as speed rises; it returns to centre when let go (a burst tyre pulls it towards its side)
-  const target=(steerIn+ty.pull*Math.min(1,Math.abs(C.v)/5))*cfg.steerMax/(1+Math.abs(C.v)/14);VEH.steer+=(target-VEH.steer)*Math.min(1,dt*(steerIn?5:6.5));
+  const sv=Math.abs(C.v);const target=(steerIn+ty.pull*Math.min(1,sv/5))*(isBike(C)?cfg.steerMax/(1+sv/10+Math.pow(sv/16.7,2)):cfg.steerMax/(1+sv/14));VEH.steer+=(target-VEH.steer)*Math.min(1,dt*(steerIn?5:6.5));
   let yr=C.v*Math.tan(VEH.steer)/cfg.base;const maxYr=cfg.grip*(1-.45*wet)*ty.grip/Math.max(2,Math.abs(C.v))*(hand&&Math.abs(C.v)>6?1.7:1);VEH.slip=Math.max(0,Math.abs(yr)-maxYr)/(maxYr||1);yr=clamp(yr,-maxYr,maxYr);C.yaw-=yr*dt;if(VEH.spin){C.yaw+=VEH.spin*dt;VEH.spin*=Math.max(0,1-dt*3.2);if(Math.abs(VEH.spin)<.01)VEH.spin=0}       // the turn an off-centre blow gave the car dies away as the tyres grip
   // moving, and running into things: the car's outline is checked at its corners and sides
   const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),rx=-fz,rz=fx,nx=C.x+fx*C.v*dt,nz=C.z+fz*C.v*dt;let hit=null;
@@ -3057,7 +3057,8 @@ function vehicleStep(C,T,dt){const cfg=carPhys(C),pw=carEngine(C,dt),ty=carUse(C
   if(hit){if(crashAt(T,C,hit[0],hit[1],hit[2],cfg)){C.x=nx;C.z=nz}}else{C.x=nx;C.z=nz}
   // the body: leans out on corners, dips under braking, lifts under acceleration
   {const Dv=carD(C),vib=Math.max(0,Dv.susp-.3)+.5*Dv.rim.reduce((s,v)=>s+v,0)+.4*Dv.steer;if(vib>0&&Math.abs(C.v)>3)VEH.jolt=Math.min(1,VEH.jolt+vib*dt*Math.abs(C.v)*.14*Math.random())}
-  const lat=C.v*yr,lon=(C.v-v0)/Math.max(dt,1e-3);VEH.roll+=(clamp(lat*.011,-.07,.07)-VEH.roll)*Math.min(1,dt*6);VEH.pitch+=(clamp(-lon*.006,-.05,.05)-VEH.pitch)*Math.min(1,dt*5);VEH.jolt*=Math.max(0,1-dt*5);
+  // the bike stands straight when still and leans into the turn as speed rises; the car leans a little either way
+  const lat=C.v*yr,lon=(C.v-v0)/Math.max(dt,1e-3);if(isBike(C)){const lean=Math.atan(clamp(lat,-9,9)*.08*clamp(Math.abs(C.v)/3,0,1));VEH.lean+=(lean-VEH.lean)*Math.min(1,dt*6.7);VEH.roll=VEH.lean}else VEH.roll+=(clamp(lat*.011,-.07,.07)-VEH.roll)*Math.min(1,dt*6);VEH.pitch+=(clamp(-lon*.006,-.05,.05)-VEH.pitch)*Math.min(1,dt*5);VEH.jolt*=Math.max(0,1-dt*5);
   // the engine: five automatic gears; the needle rises through each one and drops at the change
   const sp=Math.abs(C.v),step=cfg.vmax/5,gi=Math.min(4,Math.floor(sp/step)),frac=(sp-gi*step)/step;{const want=!VEH.engine?0:(VEH.gear==="D"||VEH.gear==="R")&&sp>.5?.18+.72*frac*(.55+.45*VEH.thr)+.05*gi:.12+.3*VEH.thr*(VEH.gear==="N"||VEH.gear==="P"?1:.4);VEH.rpm+=(Math.min(1,want)-VEH.rpm)*Math.min(1,dt*6)}
   // indicators blink at 1.5 per second; clicks while blinking
@@ -3076,14 +3077,14 @@ function carLamps(driven){const L=[],night=LIGHT.night>.05;if(!CARL.low)return L
 function carHeadlightLamps(C){if(!C||!VEH.lights||LIGHT.night<.05||DMG.flick)return[];const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),d=VEH.lights===2?13:7,s=VEH.lights===2?1.8:1.25,rx=-fz,rz=fx;
   const D=C.dmg||{},out=[];if(!D.hlR)out.push([C.x+fx*d+rx*.8,1.1,C.z+fz*d+rz*.8,s]);if(!D.hlL)out.push([C.x+fx*d-rx*.8,1.1,C.z+fz*d-rz*.8,s]);return out}
 /* ---- controls ---- */
-function setGear(g){const C=townOf(me.town).car;if(!C)return;const still=Math.abs(C.v)<.4;
+function setGear(g){const C=townOf(me.town).car;if(!C)return;if(isBike(C)&&(g==="P"||g==="N"))return;const still=Math.abs(C.v)<.4;
   if((g==="P"||(g==="R"&&VEH.gear!=="R")||(g==="D"&&VEH.gear==="R"))&&!still){dashToast("Stop the car first");return}VEH.gear=g;dashUpdate(true)}
 function indicate(k){VEH.ind=VEH.ind===k?"off":k;VEH.indTurn=0;VEH.blink=0;dashUpdate(true)}
 function cycleLights(){VEH.lights=(VEH.lights+1)%3;dashToast(["Lights off","Low beam","High beam"][VEH.lights])}
 function driveKey(k,down){if(!driving)return false;if(!down){if(k==="f")VEH.horn=false;return k==="f"}
   if(k==="q"){indicate("left");return true}if(k==="r"){indicate("right");return true}if(k==="g"){indicate("hazard");return true}if(k==="h"){cycleLights();return true}if(k==="t"){towCar();return true}if(k==="b"){beltToggle();return true}if(k==="i"){engineToggle();return true}
   if(k==="c"){VEH.cam=(VEH.cam+1)%3;VEH.orbit=0;dashToast(["Chase camera","Close camera","Driver's seat"][VEH.cam]);return true}if(k==="f"){VEH.horn=true;return true}
-  const G={"1":"P","2":"R","3":"N","4":"D"}[k];if(G){setGear(G);return true}return false}
+  const G={"1":"P","2":"R","3":"N","4":"D"}[k];if(G){const Cb=townOf(me.town).car;if(!(Cb&&isBike(Cb)&&(G==="P"||G==="N"))){setGear(G);return true}}return false}
 /* ---- the driving screen. Left: camera, horn, seatbelt and condition buttons, and the condition card (engine, body,
    tyres, fuel). Right: indicators, hazards, headlights and warning lamps; the gear selector; handbrake and exit.
    Bottom: the steering wheel (touch), the speedometer with the rev counter, the indicator arrows and the fuel gauge,
@@ -3118,7 +3119,7 @@ const dash=document.createElement("div");dash.id="dash";dash.hidden=true;
       <button data-dk="hazard" id="dHz" class="wide" aria-label="Hazard lights">${ICO.hazard}</button><button data-dk="low" id="dLo" aria-label="Low beam">${ICO.low}</button><button data-dk="high" id="dHi" aria-label="High beam">${ICO.high}</button>
 </div>
     <div class="dgears">${["P","R","N","D"].map(g=>`<button data-dg="${g}">${g}</button>`).join("")}</div>
-    <div class="dright"><label><button class="rb" data-dk="engine" id="dEngB" aria-label="Start or stop the engine">${ICO.power}</button><span>Engine</span></label><label><button class="rb" data-dk="hand" id="dHand" aria-label="Handbrake">${ICO.park}</button><span>Handbrake</span></label><label><button class="rb" data-dk="exit" aria-label="Exit vehicle">${ICO.exit}</button><span>Exit Vehicle</span></label></div>
+    <div class="dright"><label><button class="rb" data-dk="engine" id="dEngB" aria-label="Start or stop the engine">${ICO.power}</button><span>Engine</span></label><label><button class="rb" data-dk="hand" id="dHand" aria-label="Handbrake">${ICO.park}</button><span id="dHandL">Handbrake</span></label><label><button class="rb" data-dk="exit" aria-label="Exit vehicle">${ICO.exit}</button><span>Exit Vehicle</span></label></div>
     <div class="dmeter"><div class="dbar"><i id="wInd">${ICO.left}</i><i id="wBelt">${ICO.belt}</i><i id="wEng">${ICO.eng}</i><i id="wTemp">${ICO.temp}</i><i id="wOil">${ICO.oil}</i><i id="wBat">${ICO.batt}</i><i id="wFire">${ICO.flame}</i><i id="wPark">${ICO.park}</i><i id="wLt">${ICO.low}</i></div><div class="dialw" id="dDial">${dial}</div>
       <div class="dfuel"><i id="dAL" class="darr">${ICO.left}</i><i class="fi">${ICO.fuel}</i><b>E</b><u><em id="dFuel"></em></u><b>F</b><i id="dAR" class="darr">${ICO.right}</i></div></div>
     <div class="dmsg" id="dMsg"></div>`}
@@ -3128,7 +3129,7 @@ let dashMsgT=0;function dashToast(t,dur){const m=document.getElementById("dMsg")
 const dashSet=(id,f)=>{const e=document.getElementById(id);if(e)f(e)},dashOn=(id,c,on)=>dashSet(id,e=>{if(e.classList.contains(c)!==!!on)e.classList.toggle(c,!!on)});
 // one condition chip: its number, and a colour from green through amber to red (red flashing when nearly gone)
 function dashBar(id,v){const p=Math.round(clamp(v,0,1)*100);dashSet(id+"V",e=>{const t=String(p);if(e.textContent!==t)e.textContent=t});dashSet(id,e=>{const c=p>70?"ok":p>40?"warn":p>15?"bad":"dead";if(e.dataset.c!==c){e.dataset.c=c;e.className="dchip "+c}})}
-function dashUpdate(){if(!driving){dash.hidden=true;return}const C=townOf(me.town).car;if(!C)return;dash.hidden=false;const D=carD(C),kmh=Math.abs(C.v)*3.6,bl=VEH.blinkOn;
+function dashUpdate(){if(!driving){dash.hidden=true;return}const C=townOf(me.town).car;if(!C)return;dash.hidden=false;const D=carD(C),kmh=Math.abs(C.v)*3.6,bl=VEH.blinkOn;const bK=isBike(C);const dg=dash.querySelector(".dgears");if(dg)dg.style.display=bK?"none":"";dashSet("dHandL",e=>{const tx=bK?"Brake":"Handbrake";if(e.textContent!==tx)e.textContent=tx});
   dashSet("dSpd",e=>{const t=String(Math.round(VEH.mph?kmh*.6214:kmh));if(e.textContent!==t)e.textContent=t});dashSet("dUnit",e=>{const t=VEH.mph?"MPH":"KM/H";if(e.textContent!==t)e.textContent=t});
   dashSet("dGear",e=>{if(e.textContent!==VEH.gear)e.textContent=VEH.gear});dashSet("dNeedle",e=>e.setAttribute("transform",`rotate(${(-135+270*clamp(VEH.rpm,0,1)).toFixed(1)} 100 100)`));
   for(const s of dash.querySelectorAll(".dgears button"))s.classList.toggle("on",s.dataset.dg===VEH.gear);
@@ -3508,7 +3509,7 @@ function carPose(C,dt){const A=carAnim(C),R=carRig(C),base=carModel(C);
 function carDraw(VP,eye,clear,inside){for(const S of CARSCENE.parts){if(inside&&S.part.startsWith("wheel_"))continue;S.fogFar=flying?1500:150;if(clear)drawSceneClear(S,VP,eye,NOW);else drawScene(S,VP,eye,false)}}
 // the driver in the seat, hands on the wheel: drawn whenever someone is driving (and not from the driver's own eyes)
 function carDriver(C,VP,t){const PM=PLAYERS[me.gender]||PLAYERS.Female,R=carRig(C),h=R.seats&&R.seats.driver;if(!PM||!h)return;const p=carPt(C,[h[0],0,h[2]+carSit(C).z]);
-  WALKER.draw(PM,VP,p[0],h[1]+CARSIT.y,p[2],C.yaw,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"")}
+  WALKER.draw(PM,VP,p[0],h[1]+CARSIT.y,p[2],C.yaw,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"",isBike(C)?VEH.lean:0)}
 const CARSIT={y:-.72,z:.11};
 const carSit=C=>isBike(C)?{y:CARSIT.y,z:0}:{y:CARSIT.y,z:CARSIT.z};
        // the bike's saddle is higher in the world, but the seated clip is fixed to the seat node, so the same vertical offset
@@ -3705,7 +3706,7 @@ const CARS={sovereign:{name:"Sovereign GT",lhd:true,doors:{
   FL:{hinge:[.98,.78,.52],handle:[1.03,.9,-.82],seat:[.44,.42,-.29],stand:[1.65,0,-.35],swing:1.2,part:"door_FL"},
   FR:{hinge:[-.98,.78,.52],handle:[-1.03,.9,-.82],seat:[-.45,.42,-.29],stand:[-1.65,0,-.35],swing:-1.2,part:"door_FR"}}},
 motorbike:{name:"Motorbike",lhd:true,doors:{FL:{hinge:[.55,.95,-.285],handle:[.5,.9,-.285],seat:[0,1.226,-.285],stand:[.9,0,-.285],swing:0,part:""}},
-  cfg:{vmax:16.7,accel:4.6,rev:5,brake:9,steerMax:.85,base:1.4,grip:7.2,creep:1.0,len:2.7,wid:.75}}};
+  cfg:{vmax:16.9,accel:4.2,rev:5,brake:6,torq:16,steerMax:.85,base:1.4,grip:7.2,creep:1.0,len:2.7,wid:.75}}};
 {const R=carRig();for(const k in CARS.sovereign.doors){const d=CARS.sovereign.doors[k],h=R.doors[k];if(h)d.hinge=h.at}}       // the hinges where the model has them
 const carCfg=C=>CARS[C.model]||CARS.sovereign;
 const carDoors=C=>{const c=carCfg(C);return c.lhd?{driver:c.doors.FL,passenger:c.doors.FR}:{driver:c.doors.FR,passenger:c.doors.FL}};
@@ -4962,7 +4963,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     if(scene==="town"){mechDraw(T,VP,eye,t);vansDraw(VP,eye,t,false);attDraw(T,VP,eye,t)}
     if(TOW&&TOW.truckM&&scene==="town"){TOWTRUCK.model=TOW.truckM;TOWTRUCK.fogFar=150;drawScene(TOWTRUCK,VP,eye,false);towPeople(VP,t)}
   {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing&&!TOW&&!FOLLOW;      // your own character, seen from behind
-    if(show&&scene==="town"&&CARSEQ&&CARSEQ.sit>.5){const C=CARSEQ.C,h=carRig(C).seats.driver||[0,.6,0];WALKER.draw(PM,VP,cam.x,h[1]+carSit(C).y,cam.z,C.yaw,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"")}       // half in: seated
+    if(show&&scene==="town"&&CARSEQ&&CARSEQ.sit>.5){const C=CARSEQ.C,h=carRig(C).seats.driver||[0,.6,0];WALKER.draw(PM,VP,cam.x,h[1]+carSit(C).y,cam.z,C.yaw,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"",isBike(C)?VEH.lean:0)}       // half in: seated
     else if(show){const town=scene==="town";FEET=jump.y>0?null:feetFn();WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:MEY)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"");FEET=null}}
   netDraw(VP,eye,t,T);
   for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE)carDraw(VP,eye,true,driving&&VEH.cam===2);if(TOW&&TOW.truckM&&scene==="town")drawSceneClear(TOWTRUCK,VP,eye,t);if(scene==="town")vansDraw(VP,eye,t,true);if(scene==="town")fxDraw(VP,eye,to);

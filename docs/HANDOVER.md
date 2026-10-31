@@ -196,6 +196,15 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 
 ## 11. Updates since the first handover (newest first)
 
+- **Bike feel: lean, steering, controls and top speed (this PR; owner feedback "too stiff, does not drive or feel like a real bike ride")** — `index.html` only, motorbike only (every change is guarded by `isBike(C)`; the car path, including the Sovereign GT config line, is byte-identical before/after).
+  1. **Lean:** bike and rider lean into turns together — `VEH.lean = atan(clamp(lat,-9,9)*.08*clamp(|v|/3,0,1))`, smoothed with a ~0.15 s time constant (`dt*6.7`). Up to ~30° near top speed, less at low speed, zero when stopped. The lean is applied to the whole model+rider by multiplying the model matrix by `mrotZ(lean)` in `WALKER.draw` (new `lean` argument, car passes 0). The bike model has **no separate handlebar node**, so the bars are not turned; the whole rig leans.
+  2. **Speed-dependent steering:** `steerMax/(1 + v/10 + (v/16.7)²)` (bike only; car keeps `steerMax/(1+v/14)`). Tight at walking pace (U-turn possible below ~15 km/h), calmer at speed. Measured turning radius: 1.8 m @10 km/h, 8.3 m @30 km/h, 32.7 m @60 km/h.
+  3. **No P R N D:** the gear strip (`.dgears`) is hidden for the bike; the bike starts in drive and throttle always goes forward. Reverse is allowed but capped at ~5 km/h (measured 5.04).
+  4. **Handbrake → "Brake":** the dash button reads **Brake** for the bike; it is the rear brake — decelerates hard but smoothly (brake 6 m/s², torque-curve keeps pulling at low speed) and never locks the wheel or spins the bike.
+  5. **Acceleration/braking:** 0–60 in **5.03 s**, 60–0 in **2.56 s** (measured with the real physics code, flat road). Config now `vmax:16.9, accel:4.2, rev:5, brake:6, torq:16`.
+  6. **Top speed = 60 km/h:** with the real drag in the code the plateau measured **60.09 km/h** (59–61 target met). Tuned by sweep on the actual vehicleStep loop, not by guessing vmax.
+  - **Not touched:** bike lights/indicators, crash behaviour, multiplayer, garage, and everything for cars.
+
 - **PR 13, branch `pr/c-motorbike-drives` (item: PR C — the bike drives), commit `a083f10`** — `index.html`
   only, on top of the merged bike-asset PRs (#10 asset, #12 GLB header fix, #11 rental SQL). What PR C does:
   - Adds the `CARS.motorbike` model config (top speed ~60 km/h, gear ratio, mass, drag) so the vehicle
