@@ -651,10 +651,14 @@ second paste of the same file changes nothing.
 
 **Ordering warning:** `supabase_repair_bays.sql` depends on `pay_service` (from
 `supabase_services.sql`) and on `vehicles` / `vehicle_keys` / `characters` / `car_parks` /
-`state_accounts` (from `supabase_vehicles.sql`). It `create or replace`s nothing from the older
-files, so the same rule as the bike rental warning applies: **if `supabase_services.sql` or
-`supabase_vehicles.sql` is ever re-run on the live database afterwards, re-run
-`supabase_bike_rental.sql` and `supabase_repair_bays.sql` straight after it.**
+`state_accounts` (from `supabase_vehicles.sql`). It also **re-defines
+`public.veh_can_drive`** (the one and only older function it replaces): the re-definition
+locks a car out of `veh_spawn` / `veh_update` / `veh_store` / `veh_despawn` while it has an
+open workshop entry (`waiting`, `in_bay` or finished-but-not-collected). It runs last, so
+that definition is the one that stays. So the same rule as the bike rental warning
+applies: **if `supabase_services.sql` or `supabase_vehicles.sql` is ever re-run on the live
+database afterwards, re-run `supabase_bike_rental.sql` and `supabase_repair_bays.sql`
+straight after it** — otherwise the old, lock-less `veh_can_drive` comes back.
 
 What it does, briefly:
 1. `workshops` (the three-bay workshops: name, state, position) and `repair_queue` — one table

@@ -132,9 +132,9 @@ create index if not exists repair_jobs_vehicle on repair_jobs (vehicle_id, paid_
 create index if not exists repair_jobs_open on repair_jobs (workshop, status)
   where status in ('pending', 'in_progress');
 
--- RLS: players read the whole queue of their workshops (that is the point),
--- but can never write the tables directly; every mutation goes through an
--- RPC below.
+-- RLS: players can NEVER read or write these tables directly. All reading and
+-- writing goes through the security definer RPCs below; rep_queue_view hides
+-- player ids and shows display names only.
 alter table workshops      enable row level security;
 alter table repair_queue   enable row level security;
 alter table repair_jobs    enable row level security;
@@ -146,8 +146,6 @@ drop policy if exists "workshops are public" on workshops;
 drop policy if exists "players read the queue"  on repair_queue;
 drop policy if exists "players read the jobs"   on repair_jobs;
 create policy "workshops are public" on workshops for select using (true);
-create policy "players read the queue"  on repair_queue for select using (true);
-create policy "players read the jobs"   on repair_jobs  for select using (true);
 
 -- -------------------------------- helpers -----------------------------------
 
@@ -201,6 +199,9 @@ begin
   if not exists(select 1 from workshops where id = p_workshop) then
     raise exception 'That is not a workshop';
   end if;
+  -- auto-finish first, even if this poll comes from a player who owns nothing
+  -- here: the server clock alone frees bays and moves the queue
+  perform public.rep_sweep(p_workshop);
   select jsonb_build_object(
     'ok', true,
     'workshop', p_workshop,
@@ -229,15 +230,16 @@ begin
     'waiting', coalesce((
                select jsonb_agg(wo) from (
                  select jsonb_build_object(
-                         'vehicle', vehicle_id,
-                         'owner',   owner,
-                         'position', position,
-                         'joined_at', joined_at) as wo
+                         'vehicle',  w.vehicle_id,
+                         'name',     coalesce(c.name, 'a player'),
+                         'position', w.position,
+                         'joined_at', w.joined_at) as wo
                  from (select vehicle_id, owner, joined_at,
                               row_number() over (order by joined_at, id) as position
                        from repair_queue
                        where workshop = p_workshop and status = 'waiting') as w
-                 order by position
+                 left join characters c on c.owner = w.owner
+                 order by w.position
                ) as ww),
                      to_jsonb(array[]::int[]))
   ) into r;
@@ -275,10 +277,12 @@ begin
   if me is null then
     raise exception 'Sign in first.';
   end if;
-  select * into w from workshops where id = p_workshop;
+  -- lock the workshop row: two joins at once cannot both take the last free bay
+  select * into w from workshops where id = p_workshop for update;
   if not found then
     raise exception 'That is not a workshop';
   end if;
+  perform public.rep_sweep(p_workshop);
   if not public.veh_can_drive(p_vehicle, me) then
     raise exception 'You cannot drive that car (you must own it or hold its key)';
   end if;
@@ -303,6 +307,18 @@ begin
                  where coalesce((it->>'price')::numeric, 0) > 0)
      or mins <= 0 then
     raise exception 'The work must cost money and take minutes';
+  end if;
+  -- the game's own minimums (repairItems in index.html): every part key comes
+  -- from the REPAIRS list, and repairItems never prices a part below 1500 nor
+  -- times it below 1 minute, so a value under either floor is not from the game
+  if exists(select 1 from jsonb_array_elements(p_items) as it
+             where coalesce(it->>'k', '') not in
+                   ('engine', 'chassis', 'susp', 'radiator', 'bumperF', 'bumperR',
+                    'bonnet', 'grille', 'trunk', 'sideL', 'sideR', 'under',
+                    'oilLeak', 'fuelLeak', 'elec', 'steer', 'ws', 'rw', 'winL', 'winR')
+                or coalesce((it->>'price')::numeric, 0) < 1500
+                or coalesce((it->>'mins')::numeric, 0) < 1) then
+    raise exception 'Every part must come from the repair list, cost at least 1500, and take at least 1 minute';
   end if;
 
   -- the 15-minute cap: scale every part's minutes proportionally
@@ -380,6 +396,7 @@ begin
   if me is null then
     raise exception 'Sign in first.';
   end if;
+  perform public.rep_sweep(p_workshop);
   select * into j from repair_jobs
    where workshop = p_workshop and vehicle_id = p_vehicle and owner = me
      and status in ('pending', 'in_progress') and cancelled_at is null
@@ -472,6 +489,46 @@ begin
 end;
 $$;
 
+-- Auto-finish: every in-progress job whose planned_until has passed flips to
+-- finished (once only - the guarded UPDATE's row count is the race guard),
+-- frees its bay and queue row, then rep_advance moves the next waiting car in
+-- and starts its job. The server clock is the ONLY authority: the owner never
+-- has to call anything, and any player's poll unblocks the whole workshop.
+create or replace function public.rep_sweep(p_workshop text)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare done int := 0; j repair_jobs; n int;
+begin
+  if not exists(select 1 from workshops where id = p_workshop) then
+    raise exception 'That is not a workshop';
+  end if;
+  for j in
+    select * from repair_jobs
+     where workshop = p_workshop and status = 'in_progress'
+       and finished = false and cancelled_at is null
+       and planned_until is not null and planned_until <= now()
+order by id
+      for update
+  loop
+    update repair_jobs
+       set finished = true, status = 'finished', finished_at = now()
+     where id = j.id and status = 'in_progress'
+       and finished = false and cancelled_at is null;
+    get diagnostics n = row_count;
+    if n = 0 then
+      continue;
+    end if;
+    update repair_queue
+       set status = 'finished', bay = null
+     where id = j.queue_id and status = 'in_bay';
+    done := done + 1;
+  end loop;
+  if done > 0 then
+    perform public.rep_advance(p_workshop);
+  end if;
+  return jsonb_build_object('ok', true, 'finished_now', done);
+end;
+$$;
+
 -- Advance the workshop: the first waiting car fills a free bay and ITS JOB
 -- starts (started_at = now(), planned_until = now() + the clamped minutes,
 -- status 'pending' -> 'in_progress'). Server time is the only authority.
@@ -483,6 +540,7 @@ begin
   if not exists(select 1 from workshops where id = p_workshop) then
     raise exception 'That is not a workshop';
   end if;
+  perform public.rep_sweep(p_workshop);
   for q in
     select * from repair_queue
     where workshop = p_workshop and status = 'waiting'
@@ -586,6 +644,7 @@ begin
   if me is null then
     raise exception 'Sign in first.';
   end if;
+  perform public.rep_sweep(p_workshop);
   select * into w from workshops where id = p_workshop;
   if not found then
     raise exception 'That is not a workshop';
@@ -617,6 +676,24 @@ begin
                             'park', w.park_id,
                             'queue', public.rep_queue_view(p_workshop));
 end;
+$$;
+
+-- --------------------------------- the car lock ---------------------------------
+-- A car with an open workshop entry is locked out of the normal vehicle functions
+-- (veh_spawn, veh_update, veh_store and veh_despawn all go through veh_can_drive):
+-- it cannot be driven off while it is waiting, in a bay, or finished but not yet
+-- collected. The lock lifts only when the owner collects the car with rep_collect
+-- (queue row -> 'collected') or leaves with a refund (queue row -> 'left').
+-- rep_join checks veh_can_drive BEFORE it inserts the queue row, so a car can
+-- never be locked by its own entry. This is the one re-definition of an older
+-- function in this file; it runs last, so this is the definition that stays.
+create or replace function public.veh_can_drive(p_vehicle bigint, p_who uuid)
+returns boolean language sql stable security definer set search_path = public as $$
+  select (exists(select 1 from vehicles where id = p_vehicle and owner = p_who)
+          or exists(select 1 from vehicle_keys where vehicle_id = p_vehicle and holder = p_who and revoked_at is null))
+      and not exists(select 1 from repair_queue
+                      where vehicle_id = p_vehicle
+                        and status in ('waiting', 'in_bay', 'finished'))
 $$;
 
 -- ---------------------------------- access ----------------------------------
