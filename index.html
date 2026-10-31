@@ -4036,7 +4036,7 @@ function garTick(){if(scene==="town")GAR.out=[cam.x,cam.z,me.town];if(!garOn())r
     else if(rem<=3600000&&!GAR.rw[k+":60"]){GAR.rw[k+":60"]=1;toast("Your bike rental has one hour left.")}}
   if(GAR.panel&&document.querySelector(".rentc")){const L=Date.now();
     for(const s of document.querySelectorAll(".rentc")){const ms=new Date(s.getAttribute("data-ru")).getTime()-(L+(GAR.skew||0));let t;
-      if(!isFinite(ms)||ms<=0)t="expiring now";else{const m=Math.floor(ms/60000);if(m>=720)t=Math.floor(m/1440)+"d "+Math.floor(m%1440/60)+"h";else if(m>=60)t=Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m";else t=m+"m"}
+      if(!isFinite(ms)||ms<60000)t="expiring now";else{const m=Math.min(1440,Math.floor(ms/60000));t=m>=60?Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m":m+"m"}
       s.textContent=" \u00b7 "+t;s.style.color=!isFinite(ms)||ms<=1800000?"#e2574c":ms<=3600000?"#b98a1f":"#3d7a46"}}
   const M=garMine();if(!M)return;
   if(M.vid&&M.rents_until){const rem=rentMs(M.rents_until);
