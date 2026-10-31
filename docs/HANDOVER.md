@@ -695,6 +695,13 @@ What it does, briefly:
    `rep_*` function is `security definer`, reads the caller through `auth.uid()`, is revoked
    from `public`/`anon` and granted to `authenticated` only.
 
+   **Known limit (price check):** the server only checks that every part a player prices in
+   `rep_join` costs **at least K1,500** and comes from the repair list — it does **not** check
+   that the price matches the car's actual damage. The owner can therefore be charged anything
+   at or above K1,500 per part (including a full "engine" for a dented bumper) without the
+   server noticing. Enforcing a real damage→price mapping is a known open item; for now the
+   rule is trust between the player and the state mechanic.
+
 **Checklist to run in the SQL Editor after the file has been applied:** see
 `docs/REPAIR_BAYS_SQL_TEST_CHECKLIST.md` (numbered, each block starts with the same
 `set_config('request.jwt.claims', ...)` sign-in line because `auth.uid()` is null in the
