@@ -3996,6 +3996,9 @@ async function garCall(fn,body){await freshToken();const fix=t=>/not a car park/
   try{const d=await supa("/rest/v1/rpc/"+fn,{method:"POST",auth:true,body:body||{}});if(d&&typeof d.error==="string")d.error=fix(d.error);return d}catch(e){if(e&&e.message)e.message=fix(e.message);throw e}}
 const garNow=()=>Date.now()+GAR.skew;          // the server's clock
 function garTake(d){if(d&&d.now)GAR.skew=new Date(d.now).getTime()-Date.now()}
+// rental time left, measured against the server's clock (GAR.skew) so a slow local clock can't
+// make a 24h rental look like 2 days
+const rentMs=ru=>new Date(ru).getTime()-(Date.now()+(GAR.skew||0));
 function garMine(){for(const[st,T]of Object.entries(TOWNS))if(T.car&&T.car.vid)return{st,T,C:T.car};return null}
 const garPark=id=>{for(const T of Object.values(TOWNS))for(const P of T.parks||[])if(P.id===id)return P;const L=PARKLIST.find(q=>q[0]===id);return L?{id:L[0],st:L[1],name:L[2]}:null};
 const garHold=C=>TOW&&TOW.C===C?"tow":C.dmg&&C.dmg.job?"repair":C.dmg&&C.dmg.refuel?"refuel":C.dmg&&C.dmg.fire>0?"fire":null;
@@ -4025,7 +4028,19 @@ async function garBeat(){const M=garMine();if(!M||!garOn()||GAR.beating)return;c
     garTake(r);if(r&&r.gone){garGone(T,C,r.gone);garSync()}else if(r){C.abandonedAt=r.abandoned_at?new Date(r.abandoned_at).getTime():0;C.inBay=r.in_bay}}catch(e){}
   GAR.beating=false}
 // each frame: remember where the driver last stood outside, report every 10 seconds, and at once when a rule is reached
-function garTick(){if(scene==="town")GAR.out=[cam.x,cam.z,me.town];if(!garOn())return;if(NOW-GAR.syncT>60)garSync();const M=garMine();if(!M)return;
+function garTick(){if(scene==="town")GAR.out=[cam.x,cam.z,me.town];if(!garOn())return;if(NOW-GAR.syncT>60)garSync();
+  if(!GAR.rw)GAR.rw={};
+  for(const v of GAR.list||[]){if(!v.rents_until)continue;const k=v.id+"|"+v.rents_until,rem=rentMs(v.rents_until);
+    if(!isFinite(rem)||rem<=0){delete GAR.rw[k];continue}
+    if(rem<=1800000&&!GAR.rw[k+":30"]){GAR.rw[k+":30"]=1;toast("Your bike rental is almost up — 30 minutes left.")}
+    else if(rem<=3600000&&!GAR.rw[k+":60"]){GAR.rw[k+":60"]=1;toast("Your bike rental has one hour left.")}}
+  if(GAR.panel&&document.querySelector(".rentc")){const L=Date.now();
+    for(const s of document.querySelectorAll(".rentc")){const ms=new Date(s.getAttribute("data-ru")).getTime()-(L+(GAR.skew||0));let t;
+      if(!isFinite(ms)||ms<=0)t="expiring now";else{const m=Math.floor(ms/60000);if(m>=720)t=Math.floor(m/1440)+"d "+Math.floor(m%1440/60)+"h";else if(m>=60)t=Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m";else t=m+"m"}
+      s.textContent=" \u00b7 "+t;s.style.color=!isFinite(ms)||ms<=1800000?"#e2574c":ms<=3600000?"#b98a1f":"#3d7a46"}}
+  const M=garMine();if(!M)return;
+  if(M.vid&&M.rents_until){const rem=rentMs(M.rents_until);
+    if(!isFinite(rem)||rem<=0){garGone(townOf(me.town),M.C,"Your bike's 24-hour rental is up — it has gone back to the rental company, and you are on foot beside it.")}}
   let due=NOW-GAR.beatT>10;const C=M.C;
   if(!garHold(C)&&!(driving&&M.st===me.town)&&NOW-GAR.ruleT>3){const far=garDist(M.st,C)>GAR.cfg.despawn_distance_m,late=C.abandonedAt&&garNow()-C.abandonedAt>GAR.cfg.abandon_s*1000;if(far||late){due=true;GAR.ruleT=NOW}}
   if(due)garBeat()}
@@ -4045,8 +4060,21 @@ function garNear(T){if(scene!=="town"||!T.parks)return null;for(const P of T.par
     if(P.inside(cam.x,cam.z,1.5))return P}return null}       // standing anywhere in it, or on its pavement
 function garPanel(P){GAR.panel=P;GAR.keysFor=null;GAR.found=[];GAR.busyId=0;choosing=true;const el=document.getElementById("choose");el.hidden=false;garDraw("Loading your vehicles...");if(garOn())garSync().then(()=>{if(GAR.panel===P&&choosing)garDraw()})}
 function garFree(P,v){const S=GAR.parks.find(q=>q.id===P.id),taken=new Set(S?S.taken:[]);if(v&&v.park===P.id&&v.in_bay!=null)taken.delete(v.in_bay);return P.bays.filter(B=>!taken.has(B.i))}
-// a side view of the car, in its colour (gold for the Chief Admin's)
-const garPic=v=>{const c=v.special?"#c9a227":"#d61f26";return`<svg class="vpic" viewBox="0 0 120 52" aria-hidden="true"><path d="M8 36c0-6 4-9 10-10l16-3 14-10c4-2 8-3 13-3h18c6 0 11 2 15 6l9 8 9 2c4 1 6 4 6 8v4H8z" fill="${c}"/><path d="M50 15h12v10H40zM66 15h12c3 0 6 2 8 4l5 6H66z" fill="#cfe3f0"/><circle cx="32" cy="40" r="8" fill="#15181d"/><circle cx="32" cy="40" r="3.4" fill="#9aa3ad"/><circle cx="92" cy="40" r="8" fill="#15181d"/><circle cx="92" cy="40" r="3.4" fill="#9aa3ad"/><rect x="104" y="29" width="7" height="3" rx="1.5" fill="#fff3b0"/></svg>`};
+// time left on a rental bike, shown on its card: "24h 00m" / "14h 05m" / "09m", reddening as it runs out.
+// A rental lasts at most 24 hours, so the chip never shows days — above 24h (clock skew or a bad
+// rents_until) it caps at "24h 00m", and under a minute it reads "expiring now"
+const rentChip=v=>{if(!v.rents_until)return"";const ms=rentMs(v.rents_until);
+  let t;if(!isFinite(ms)||ms<60000)t="expiring now";else{const m=Math.min(1440,Math.floor(ms/60000));t=m>=60?Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m":m+"m"}
+  return` <span class="rentc" data-ru="${v.rents_until}" style="color:${!isFinite(ms)||ms<=1800000?"#e2574c":ms<=3600000?"#b98a1f":"#3d7a46"}"> &middot; ${t}</span>`};
+// the motorbike rental offered at this car park. Shown only in the player's own state (the only state
+// the server accepts it in), and the button is disabled while the rent call is in flight so a double tap
+// cannot charge twice
+const garRent=P=>{if(!garOn()||!me.town||me.town!==P.st)return"";const busy=GAR.busyId==="rent";
+  return`<div class="gveh grent">${garPic({model:"motorbike"})}<div class="ginfo"><b>Motorbike rental</b><small>K10,000 for 24 hours — the bike is yours for a day, standing in this car park.</small></div>
+    <div class="vbtns"><button class="go gspawn" data-vp="rent" ${busy?"disabled":""}>${busy?"<span class='spin'></span> Renting...":"Rent a motorbike, K10,000 for 24 hours"}</button></div></div>`};
+// a side view of the car, in its colour (gold for the Chief Admin's); the rental bike gets its own drawing
+const garPic=v=>{if(v.model==="motorbike")return`<svg class="vpic" viewBox="0 0 120 52" aria-hidden="true"><circle cx="30" cy="38" r="10" fill="#15181d"/><circle cx="30" cy="38" r="4" fill="#9aa3ad"/><circle cx="90" cy="38" r="10" fill="#15181d"/><circle cx="90" cy="38" r="4" fill="#9aa3ad"/><path d="M30 38 46 22h16l12 14h6" fill="none" stroke="#d61f26" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M42 22h22" stroke="#94a3b8" stroke-width="6" stroke-linecap="round"/></svg>`;
+const c=v.special?"#c9a227":"#d61f26";return`<svg class="vpic" viewBox="0 0 120 52" aria-hidden="true"><path d="M8 36c0-6 4-9 10-10l16-3 14-10c4-2 8-3 13-3h18c6 0 11 2 15 6l9 8 9 2c4 1 6 4 6 8v4H8z" fill="${c}"/><path d="M50 15h12v10H40zM66 15h12c3 0 6 2 8 4l5 6H66z" fill="#cfe3f0"/><circle cx="32" cy="40" r="8" fill="#15181d"/><circle cx="32" cy="40" r="3.4" fill="#9aa3ad"/><circle cx="92" cy="40" r="8" fill="#15181d"/><circle cx="92" cy="40" r="3.4" fill="#9aa3ad"/><rect x="104" y="29" width="7" height="3" rx="1.5" fill="#fff3b0"/></svg>`};
 function garDraw(note){const P=GAR.panel,el=document.getElementById("choose");if(!P)return;const T=townOf(P.st),M=garMine();
   const shell=b=>`<div class="card rpcard gcard"><h1>${esc(P.name)}</h1><p class="cdsub">${garOn()?garFree(P).length+" of "+P.bays.length+" spaces free":"Garage"}</p>${b}<p class="amsg" id="gpMsg" role="status">${esc(note||"")}</p><button class="go ghost" data-stay="1">Close Garage</button></div>`;
   if(!garOn()){el.innerHTML=shell(`<p>Sign in to your account to keep vehicles in a garage.</p>`);return}
@@ -4058,7 +4086,7 @@ function garDraw(note){const P=GAR.panel,el=document.getElementById("choose");if
       <div class="vlist">${GAR.found.map(f=>`<div class="vrow"><div><b>${esc(f.name)}</b></div><button class="btn2s" data-vp="give" data-v="${esc(f.owner)}">Give keys</button></div>`).join("")}</div>
       <button class="go ghost" data-vp="back">Back to my vehicles</button>`);
     const q=document.getElementById("gpQ");q.addEventListener("keydown",e=>{if(e.key==="Enter")garAct("find")});return}
-  if(!GAR.list.length){el.innerHTML=shell(`<p class="gnone">You do not own a vehicle yet. New citizens do not get one; for now the Chief Admin gives them out.</p>`);return}
+  if(!GAR.list.length){el.innerHTML=shell(`<p class="gnone">You do not own a vehicle yet. New citizens do not get one; for now the Chief Admin gives them out.</p>${garRent(P)}`);return}
   const bar=(lab,v,col)=>`<div class="gbar"><span>${lab}</span><i><em style="width:${Math.round(v*100)}%;background:${col(v)}"></em></i><b>${Math.round(v*100)}%</b></div>`,
     good=v=>v>.6?"#16a34a":v>.3?"#d97706":"#dc2626";
   const cards=GAR.list.map(v=>{let st="",btn="",note2="";const here=M&&M.C.vid===v.id&&M.T===T?parkWhere(T,M.C):null,inHere=here&&here.P===P;
@@ -4072,14 +4100,27 @@ function garDraw(note){const P=GAR.panel,el=document.getElementById("choose");if
     if(v.mine)btn+=`<button class="btn2s" data-vp="keys" data-v="${v.id}">Keys</button>`;
     const D=Object.assign(carDmg0(),v.damage||{}),hp=carHealth(D)/100,fuel=clamp01(D.fuel);
     return`<div class="gveh">${garPic(v)}<div class="ginfo"><b>${esc((CARS[v.model]||CARS.sovereign).name)}</b>${v.special?` <span class="vtag">Chief Admin</span>`:""}<small>${esc(v.plate)} &middot; ${v.mine?"Owned by you":"Keys from "+esc(v.owner_name||"its owner")}</small>
-      ${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<small>${st}</small>${note2}</div><div class="vbtns">${btn}</div></div>`}).join("");
-  el.innerHTML=shell(`<div class="glist">${cards}</div>`)}
+      ${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<small>${st}${rentChip(v)}</small>${note2}</div><div class="vbtns">${btn}</div></div>`}).join("");
+  el.innerHTML=shell(`<div class="glist">${cards}</div>${garRent(P)}`)}
 async function garAct(what,arg,bay){const P=GAR.panel,msg=()=>document.getElementById("gpMsg"),say=(t,err)=>{const m=msg();if(m){m.textContent=t;m.classList.toggle("err",!!err)}};if(!P||!garOn())return;
   try{if(what==="keys"){GAR.keysFor=+arg;GAR.found=[];return garDraw()}
     if(what==="back"){GAR.keysFor=null;return garDraw()}
     if(what==="find"){const r=await garCall("veh_find_citizen",{p_query:(document.getElementById("gpQ").value||"").trim()});GAR.found=r||[];return garDraw(GAR.found.length?"":"No citizen found by that name.")}
     if(what==="give"){const r=await garCall("veh_key_give",{p_vehicle:GAR.keysFor,p_holder:arg});GAR.found=[];await garSync();return garDraw((r&&r.name||"They")+" now has keys.")}
     if(what==="revoke"){await garCall("veh_key_revoke",{p_vehicle:GAR.keysFor,p_holder:arg});await garSync();return garDraw("Keys taken back.")}
+    if(what==="rent"){if(GAR.busyId)return;if(driving)return say("Get out of your vehicle first.",true);
+      if(!garOn()||!me.town||me.town!==P.st)return say("Bikes can only be rented in your own state.",true);
+      const had=GAR.list.some(v=>v.rents_until);
+      GAR.busyId="rent";garDraw("Renting the motorbike...");let r;
+      try{r=await garCall("veh_rent_bike",{p_park:P.id})}finally{GAR.busyId=0}garTake(r);
+      if(r.error){garDraw();return say(r.error,true)}
+      const v=r.vehicle,T=townOf(P.st);let x,z,yaw;
+      if(v.pos&&isFinite(v.pos.x)){x=v.pos.x;z=v.pos.z;yaw=v.pos.yaw||0}
+      else{const B=(P.bays||[]).find(q=>q.i===v.in_bay);if(B){x=B.x;z=B.z;yaw=B.yaw}}
+      if(x!=null)garPlace(T,v,x,z,yaw,null);
+      GAR.beatT=NOW;await garSync();choosing=false;document.getElementById("choose").hidden=true;
+      const swap=had?" (your old rental went back to the rental company)":"";
+      return toast(v.plate+" is yours for 24 hours — K10,000. Walk to the bike to get on."+swap)}
     if(what==="spawn"){if(GAR.busyId)return;if(driving)return say("Get out of your car first, or store it here.",true);
       GAR.busyId=+arg;garDraw("Spawning your vehicle...");let r;
       try{r=await garCall("veh_spawn",{p_vehicle:+arg,p_park:P.id})}finally{GAR.busyId=0}garTake(r);
@@ -5468,9 +5509,9 @@ function netPeer(m){let p=NET.peers.get(m.id);const now=performance.now();
 function netTick(dt){if(NET.state!=="on")return;try{const now=performance.now(),r=netRoom(),town=scene==="town",T=town?townOf(me.town):null;
     if(r!==NET.room){NET.room=r;netClear();const b=town?cam:me;netSend({t:"room",room:r,x:+b.x.toFixed(2),z:+b.z.toFixed(2)});NET.lastSig=""}
     const b=town?cam:me,C=T&&T.car,mode=town&&driving?"d":gait.amt>.15&&!(town&&driving)?(gait.run>.5?"r":"w"):"s";
-    const car=NET_EXTRAS_CARS&&C?{x:+C.x.toFixed(2),z:+C.z.toFixed(2),a:+C.yaw.toFixed(2),v:+(C.v||0).toFixed(1),st:driving?+VEH.steer.toFixed(2):0,dr:NETDOORS.reduce((s,k,i)=>s|((carAnim(C).want[k]?1:0)<<i),0),l:VEH.lights|0,d:driving?1:0}:null;
+    const car=NET_EXTRAS_CARS&&C?{x:+C.x.toFixed(2),z:+C.z.toFixed(2),a:+C.yaw.toFixed(2),v:+(C.v||0).toFixed(1),st:driving?+VEH.steer.toFixed(2):0,dr:NETDOORS.reduce((s,k,i)=>s|((carAnim(C).want[k]?1:0)<<i),0),l:VEH.lights|0,d:driving?1:0,md:C.model==="motorbike"?"motorbike":null}:null;
     const o={t:"p",x:+b.x.toFixed(2),z:+b.z.toFixed(2),y:+(town?TGY:MEY).toFixed(2),a:+((town?cam.yaw:me.yaw)||0).toFixed(2),m:mode,sp:+Math.hypot(VEL.x,VEL.z).toFixed(1),car};
-    const sig=JSON.stringify([Math.round(o.x*20),Math.round(o.z*20),Math.round(o.a*20),o.m,car&&[Math.round(car.x*20),Math.round(car.z*20),Math.round(car.a*20),car.dr,car.l,car.d,Math.round(car.v)]]);
+    const sig=JSON.stringify([Math.round(o.x*20),Math.round(o.z*20),Math.round(o.a*20),o.m,car&&[Math.round(car.x*20),Math.round(car.z*20),Math.round(car.a*20),car.dr,car.l,car.d,Math.round(car.v),car.md||0]]);
     if(sig!==NET.lastSig&&now-NET.last>=500){NET.last=now;NET.lastSig=sig;netSend(o)}
     const k=Math.min(1,dt*9);
     for(const p of NET.peers.values()){const age=Math.min(.6,(now-p.t)/1000),ex=p.tx+p.vx*age,ez=p.tz+p.vz*age;
@@ -5483,7 +5524,7 @@ function netModel(p){const L=ROSTER[p.g]||ROSTER.Female||[];return((L.find(r=>r.
 // someone else in this room near a point (doors open for them too)
 function netNear(x,z,r){if(!NET_EXTRAS_INDOORS||NET.state!=="on")return false;for(const p of NET.peers.values())if(Math.hypot(p.x-x,p.z-z)<r)return true;return false}
 // a car belonging to another player, posed from what they sent: its doors, wheels and steering
-function netCarPose(p){const c=p.car,R=carRig(),base=mul(trans(c.x,0,c.z),rotY(c.a+Math.PI));
+function netCarPose(p){const c=p.car,R=carRig(c.md==="motorbike"?{model:"motorbike"}:null),base=mul(trans(c.x,0,c.z),rotY(c.a+Math.PI));
   for(const S of CARSCENE.parts){const n=S.part;let M=base;
     if(n.startsWith("door_")){const d=R.doors[n.slice(5)],a=p.door[n.slice(5)]||0,e=a*a*(3-2*a);if(d&&e>0)M=mul(base,d.slide?trans(d.slide[0]*e,d.slide[1]*e,d.slide[2]*e):mrotAbout(d.at,[0,1,0],d.open*e))}
     else if(n.startsWith("wheel_")){const w=R.wheels[n.slice(6)];if(w){const q=w.at,st=n[6]==="F"?-(c.st||0):0;M=mul(base,mul(trans(q[0],q[1],q[2]),mul(rotY(st),mul(mrotX(p.spin),trans(-q[0],-q[1],-q[2])))))}}
@@ -5491,9 +5532,9 @@ function netCarPose(p){const c=p.car,R=carRig(),base=mul(trans(c.x,0,c.z),rotY(c
     S.model=M}}
 // drawing everyone else in this room: on foot with their own character, or in their car with the driver seated
 function netDraw(VP,eye,t,T){if(NET.state!=="on"||!NET.peers.size)return;try{const town=scene==="town";let cars=false;
-    if(NET_EXTRAS_CARS&&town&&CARSCENE){const keep=CARSCENE;if(CARSCENE0)CARSCENE=CARSCENE0;
-      for(const p of NET.peers.values()){if(!p.car||Math.hypot(p.car.x-eye[0],p.car.z-eye[2])>160)continue;cars=true;netCarPose(p);carDraw(VP,eye,false,false);carDraw(VP,eye,true,false);
-        const M=netModel(p),R=carRig(),h=R.seats&&R.seats.driver;if(p.car.d&&M&&h){const q=carPt({x:p.car.x,z:p.car.z,yaw:p.car.a},[h[0],0,h[2]+CARSIT.z]);WALKER.draw(M,VP,q[0],h[1]+CARSIT.y,q[2],p.car.a,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"")}}
+    if(NET_EXTRAS_CARS&&town&&(CARSCENE||BIKESCENE)){const keep=CARSCENE;if(CARSCENE0)CARSCENE=CARSCENE0;
+      for(const p of NET.peers.values()){if(!p.car||Math.hypot(p.car.x-eye[0],p.car.z-eye[2])>160)continue;const S=p.car.md==="motorbike"?BIKESCENE:CARSCENE;if(!S)continue;CARSCENE=S;cars=true;netCarPose(p);carDraw(VP,eye,false,false);carDraw(VP,eye,true,false);
+        const M=netModel(p),R=carRig(p.car.md==="motorbike"?{model:"motorbike"}:null),h=R.seats&&R.seats.driver,sit=p.car.md==="motorbike"?{y:CARSIT.y,z:0}:CARSIT;if(p.car.d&&M&&h){const q=carPt({x:p.car.x,z:p.car.z,yaw:p.car.a},[h[0],0,h[2]+sit.z]);WALKER.draw(M,VP,q[0],h[1]+sit.y,q[2],p.car.a,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"")}}
       CARSCENE=keep;if(cars&&T&&T.car)carPose(T.car,0)}
     for(const p of NET.peers.values()){if(!NET_EXTRAS_INDOORS&&!town||p.car&&p.car.d||p.m==="d")continue;if(Math.hypot(p.x-eye[0],p.z-eye[2])>120)continue;const M=netModel(p);if(!M)continue;
       FEET=town?(x,z,from)=>groundTop(T,x,z,from):null;WALKER.draw(M,VP,p.x,p.y,p.z,p.a,p.gait,t,null,"");FEET=null}
