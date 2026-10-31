@@ -4060,9 +4060,11 @@ function garNear(T){if(scene!=="town"||!T.parks)return null;for(const P of T.par
     if(P.inside(cam.x,cam.z,1.5))return P}return null}       // standing anywhere in it, or on its pavement
 function garPanel(P){GAR.panel=P;GAR.keysFor=null;GAR.found=[];GAR.busyId=0;choosing=true;const el=document.getElementById("choose");el.hidden=false;garDraw("Loading your vehicles...");if(garOn())garSync().then(()=>{if(GAR.panel===P&&choosing)garDraw()})}
 function garFree(P,v){const S=GAR.parks.find(q=>q.id===P.id),taken=new Set(S?S.taken:[]);if(v&&v.park===P.id&&v.in_bay!=null)taken.delete(v.in_bay);return P.bays.filter(B=>!taken.has(B.i))}
-// time left on a rental bike, shown on its card: "1d 3h" / "14h 05m" / "09m", reddening as it runs out
+// time left on a rental bike, shown on its card: "24h 00m" / "14h 05m" / "09m", reddening as it runs out.
+// A rental lasts at most 24 hours, so the chip never shows days — above 24h (clock skew or a bad
+// rents_until) it caps at "24h 00m", and under a minute it reads "expiring now"
 const rentChip=v=>{if(!v.rents_until)return"";const ms=rentMs(v.rents_until);
-  let t;if(!isFinite(ms)||ms<=0)t="expiring now";else{const m=Math.floor(ms/60000);if(m>=720)t=Math.floor(m/1440)+"d "+Math.floor(m%1440/60)+"h";else if(m>=60)t=Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m";else t=m+"m"}
+  let t;if(!isFinite(ms)||ms<60000)t="expiring now";else{const m=Math.min(1440,Math.floor(ms/60000));t=m>=60?Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m":m+"m"}
   return` <span class="rentc" data-ru="${v.rents_until}" style="color:${!isFinite(ms)||ms<=1800000?"#e2574c":ms<=3600000?"#b98a1f":"#3d7a46"}"> &middot; ${t}</span>`};
 // the motorbike rental offered at this car park. Shown only in the player's own state (the only state
 // the server accepts it in), and the button is disabled while the rent call is in flight so a double tap
