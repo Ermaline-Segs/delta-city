@@ -3394,9 +3394,11 @@ function carSim(T,dt){const C=T.car;DMG.rough=0;DMG.flick=false;if(!C||!C.dmg)re
   if(D.fuelLeak>.12&&D.fuel>0){D.fuel=Math.max(0,D.fuel-D.fuelLeak*.00036*dt);changed=true}
   if(!run)D.temp+=(32-D.temp)*Math.min(1,dt*.006);
   // fire: grows while untreated, stops the car, and in the end burns itself out
-  if(D.fire>0){const was=D.fire;if(D.fireT<150){D.fire=Math.min(1,D.fire+dt*(.0025+.007*D.fuelLeak+(D.fuel>.05?.0012:0)));if(D.fire>=.97)D.fireT=(D.fireT||0)+dt}
-    else{D.fire=Math.max(0,D.fire-dt*.012);if(D.fire===0){D.burnt=1;D.dead=true;D.elec=1;D.ver++;toast("The fire has burnt itself out. The car is a burnt wreck: it needs the workshop.")}}
-    D.engine=Math.min(1,D.engine+dt*.0036*D.fire);D.elec=Math.min(1,D.elec+dt*.01*D.fire);if(D.fire>.5&&!D.dead){D.dead=true;dashToast("The fire has spread: the car cannot be driven",3)}
+  if(D.fire>0){const was=D.fire;if(!D.fireAt)D.fireAt=Date.now();
+    const fe=Math.max(0,(Date.now()-D.fireAt)/1000);
+    if(fe>=FIRERUN){fireFinish(D)}
+    else{D.fire=fe<60?.06+.91*fe/60:fe<150?.97:.97*(180-fe)/30;
+    D.engine=Math.min(1,D.engine+dt*.0036*D.fire);D.elec=Math.min(1,D.elec+dt*.01*D.fire);if(D.fire>.5&&!D.dead){D.dead=true;dashToast("The fire has spread: the car cannot be driven",3)}}
     if((was<.3&&D.fire>=.3)||(was<.65&&D.fire>=.65))D.ver++;changed=true}
   else if(D.fuelLeak>.35&&driving&&v>3&&(D.under>.5||D.flat.some(f=>f))&&Math.random()<dt*.02*D.fuelLeak){fireStart(C,"Leaking fuel caught fire from the sparks")}
   if(changed&&NOW-dmgSaveT>5){dmgSaveT=NOW;crashSave()}
@@ -3430,7 +3432,12 @@ function carSim(T,dt){const C=T.car;DMG.rough=0;DMG.flick=false;if(!C||!C.dmg)re
 // the fire's own light at night, flickering, among the lamps that light the road
 function fireLamps(T){const C=T&&T.car,D=C&&C.dmg;if(!D||!(D.fire>0))return[];const p=carWorld(C,[0,1.5,CARFX.engine[2]]);return[[p[0],p[1],p[2],(.8+.6*D.fire)*(.85+.15*Math.sin(NOW*23)+.1*Math.sin(NOW*7))]]}
 // a fire starts on the car (from a crash, or leaking fuel meeting sparks)
-function fireStart(C,why){const D=carD(C);if(D.fire>0||D.burnt)return;D.fire=.06;D.fireT=0;D.ver++;crashSave(true);if(driving)VEH.engine=false;dashToast((why||"The engine is on fire")+". Get out of the car!",4);sndBeep(260,.4)}
+function fireStart(C,why){const D=carD(C);if(D.fire>0||D.burnt)return;D.fire=.06;D.fireT=0;D.fireAt=Date.now();D.ver++;crashSave(true);if(driving)VEH.engine=false;dashToast((why||"The engine is on fire")+". Get out of the car!",4);sndBeep(260,.4)}
+// the whole burn runs on the real clock: ~180 s from ignition, even if the tab is closed
+const FIRERUN=180;
+function fireFinish(D){D.fire=0;D.fireT=0;D.fireAt=0;D.burnt=1;D.dead=true;D.elec=1;D.ver++;toast("The fire has burnt itself out. The car is a burnt wreck: it needs the workshop.")}
+// a saved or resumed car whose real-clock burn is already over comes back a wreck
+function fireCheckD(D){if(D&&D.fire>0&&D.fireAt&&Date.now()-D.fireAt>=FIRERUN*1000){fireFinish(D);crashSave(true)}}
 
 // the car's shape with its dents, rebuilt only when the damage changes
 let CARBASE=null,CARSCENE0=null,BIKESCENE=null;
@@ -3695,7 +3702,7 @@ function crashLoad(st,T){let all;try{all=JSON.parse(localStorage.getItem(CRASH.K
   for(const[i,v]of Object.entries(s.dyn||{})){const o=(T.map.dyn||[]).find(q=>q.i===+i);if(!o)continue;dynProps(o);dynSet(o,v)}
   T.marks=(s.marks||[]).slice();
   for(const[x,z,dx,dz,kind,at]of s.trees||[]){const t=(T.treeInst||[]).find(q=>Math.abs(q[1]-x)<.05&&Math.abs(q[2]-z)<.05);if(!t)continue;const b=T.blocks.find(w=>BTAG.get(w)&&BTAG.get(w).t===t);treeFall(T,t,b||[0,0,0,0],[dx,dz],kind,at)}
-  if(s.car)T.savedCar=s.car}
+  if(s.car){T.savedCar=s.car;fireCheckD(s.car)}}
 /* ================================ cars: doors, seats, condition, the workshop ================================
    Each car model's doors, seats and driver's side, in the car's own metres: x across (+ is the car's left), y up,
    z along (+ is the front). lhd: left-hand drive, so the driver's door is the front left. For each door: hinge, where
@@ -4016,7 +4023,7 @@ function garResume(){const v=GAR.list.find(q=>q.out_by_me&&q.token),M=garMine();
   let dmg=v.damage&&Object.keys(v.damage).length?v.damage:null;const s=T.savedCar;if(s&&s.vid===v.id){dmg=Object.assign({},s);delete dmg.pos;delete dmg.vid}T.savedCar=null;
   garPlace(T,v,x,z,yaw,dmg)}
 function garPlace(T,v,x,z,yaw,dmg){T.car={x,z,yaw,v:0,vid:v.id,token:v.token,plate:v.plate,special:!!v.special,model:CARS[v.model]?v.model:"sovereign",mine:!!v.mine,abandonedAt:v.abandoned_at?new Date(v.abandoned_at).getTime():0};
-  if(dmg)T.car.dmg=dmg;carD(T.car);T.car.dmg.ver=(T.car.dmg.ver||0)+1;crashSave(true);return T.car}
+  if(dmg){T.car.dmg=dmg;fireCheckD(dmg)}carD(T.car);T.car.dmg.ver=(T.car.dmg.ver||0)+1;crashSave(true);return T.car}
 // the car is no longer ours to have out: whoever is in it gets out, and it goes
 function garGone(T,C,msg){if(T.car!==C)return;if(CARSEQ&&CARSEQ.C===C){CARSEQ=null;if(CARUI.door)CARUI.door.hidden=true}       // half way into (or out of) it: that stops
   if(driving&&townOf(me.town)===T){const p=carPt(C,carDoors(C).driver.stand);driving=false;C.v=0;VEH.gear="P";vehicleLetGo();sndUpdate(false);dashUpdate();cam.x=p[0];cam.z=p[2];CARSEQ=null}

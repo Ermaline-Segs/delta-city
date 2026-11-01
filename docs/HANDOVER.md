@@ -195,6 +195,19 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 - **Home buildings:** see section 6 (`assets/buildings/homes/`, `homes.md`).
 
 ## 11. Updates since the first handover (newest first)
+- **Fire now runs on the real clock (this PR)** — `index.html` only, no SQL. Background: the owner's Sovereign GT
+  (DC-ADMIN-1) caught fire in a crash and kept burning forever, because fire only advanced inside the owner's own tab
+  and nothing could extinguish it.
+  1. `fireStart` stores the ignition time as a real timestamp: `D.fireAt = Date.now()`. The `carSim` fire block derives
+     progress from elapsed **real** time, so closing the tab no longer freezes the burn.
+  2. Total burn time is `FIRERUN = 180` s of real time from ignition: grow 0–60 s (0.06→0.97), hold 60–150 s (0.97),
+     decay 150–180 s (→0). Engine/electrical damage accumulate as before, proportional to `fire * dt`.
+  3. When the 180 s elapse, the end-of-fire path is exactly today's: `fireFinish` → burnt wreck
+     (`fire=0, fireT=0, fireAt=0, burnt=1, dead=true, elec=1`), tow truck + repair to clear.
+  4. On load or resume — crash-state load, `garPlace`, `garResume` — `fireCheckD` runs: any stored car with
+     `fire>0` and a `fireAt` older than 180 s finishes the burn immediately and `crashSave(true)`, so the next
+     `veh_update` sends `p_hold=null` and the server hold clears.
+  5. Nothing else about damage changed. No new SQL file; no server change.
 
 - **Bike feel: lean, steering, controls and top speed (this PR; owner feedback "too stiff, does not drive or feel like a real bike ride")** — `index.html` only, motorbike only (every change is guarded by `isBike(C)`; the car path, including the Sovereign GT config line, is byte-identical before/after).
   1. **Lean:** bike and rider lean into turns together — `VEH.lean = atan(clamp(lat,-9,9)*.08*clamp(|v|/3,0,1))`, smoothed with a ~0.15 s time constant (`dt*6.7`). Up to ~30° near top speed, less at low speed, zero when stopped. The lean is applied to the whole model+rider by multiplying the model matrix by `mrotZ(lean)` in `WALKER.draw` (new `lean` argument, car passes 0). The bike model has **no separate handlebar node**, so the bars are not turned; the whole rig leans.
