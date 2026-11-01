@@ -195,7 +195,51 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 - **Home buildings:** see section 6 (`assets/buildings/homes/`, `homes.md`).
 
 ## 11. Updates since the first handover (newest first)
+- **Admin: "put this vehicle back in its garage" (this PR)** — new `supabase_admin_putaway.sql` + `index.html` only.
+  The admin panel (inside "Choose a citizen") now has a **"Put a vehicle back in its garage"** dropdown next to
+  "Give car" and "Set". It calls the new `veh_admin_putaway` function.
+  1. **SQL the owner must run by hand, once, in the Supabase SQL editor** (safe to run twice — everything is
+     `create or replace` / idempotent grant):
+     ```sql
+     create or replace function public.veh_admin_putaway(p_vehicle bigint)
+     returns jsonb language plpgsql security definer set search_path = public as $$
+     declare
+       me uuid := auth.uid();
+       v  vehicles;
+       r  jsonb;
+     begin
+       if me is null or veh_role(me) is distinct from 'admin' then
+         raise exception 'Only the Chief Admin can put a vehicle back in its garage';
+       end if;
+       select * into v from vehicles where id = p_vehicle;
+       if not found then
+         raise exception 'No such vehicle';
+       end if;
+       if v.status = 'stored' and v.park_id is not null then
+         return jsonb_build_object('park', v.park_id, 'bay', v.bay, 'already', true);
+       end if;
+       r := veh_put_away(p_vehicle, me, 'admin put away');
+       perform veh_log(me, v.id, 'admin put away',
+         jsonb_build_object('plate', v.plate, 'park', r->>'park', 'bay', r->>'bay'));
+       return r;
+     end $$;
 
+     revoke all on function public.veh_admin_putaway(bigint) from public, anon;
+     grant execute on function public.veh_admin_putaway(bigint) to authenticated;
+     ```
+  2. What it does: only the Chief Admin (`veh_role(auth.uid()) = 'admin'`) may call it; it reuses `veh_put_away` so it
+     follows any later garage changes; it bypasses the hold and staleness checks; it clears
+     `hold/hold_since/occupied/token/active_by` (via `veh_put_away`); it writes an audit row `'admin put away'`; it
+     never changes ownership. Revoked from `public`/`anon`, granted to `authenticated`. The "no role check on
+     driving" rule is not touched.
+  3. **UI:** picking a vehicle in the new dropdown calls the function, shows "PLATE is stored in space N of PARK",
+     refreshes the garage and the dropdown; on error the server's message is shown (e.g. "Car parks are not
+     switched on in the database yet…").
+  4. **Tested** on a stand-in database with all `supabase_*.sql` applied in order: civilian call rejected
+     (`Only the Chief Admin can put a vehicle back in its garage`), anon rejected, admin call stores the car
+     (`{"bay":1,"park":"asaba-agri"}`), row ends `stored` with hold/token/active_by null, two audit rows
+     (`despawn` + `admin put away`), second call returns `already:true` with no new audit row, ownership untouched.
+     The SQL file itself was applied twice with no errors.
 - **Bike feel: lean, steering, controls and top speed (this PR; owner feedback "too stiff, does not drive or feel like a real bike ride")** — `index.html` only, motorbike only (every change is guarded by `isBike(C)`; the car path, including the Sovereign GT config line, is byte-identical before/after).
   1. **Lean:** bike and rider lean into turns together — `VEH.lean = atan(clamp(lat,-9,9)*.08*clamp(|v|/3,0,1))`, smoothed with a ~0.15 s time constant (`dt*6.7`). Up to ~30° near top speed, less at low speed, zero when stopped. The lean is applied to the whole model+rider by multiplying the model matrix by `mrotZ(lean)` in `WALKER.draw` (new `lean` argument, car passes 0). The bike model has **no separate handlebar node**, so the bars are not turned; the whole rig leans.
   2. **Speed-dependent steering:** `steerMax/(1 + v/10 + (v/16.7)²)` (bike only; car keeps `steerMax/(1+v/14)`). Tight at walking pace (U-turn possible below ~15 km/h), calmer at speed. Measured turning radius: 1.8 m @10 km/h, 8.3 m @30 km/h, 32.7 m @60 km/h.
