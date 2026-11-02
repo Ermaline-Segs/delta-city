@@ -742,3 +742,20 @@ select count(*) from public.vehicles where model = 'motorbike';
      today's free allowance; it comes back at 01:00". That is 00:00 UTC, 01:00 Lagos time. Players reconnect by
      themselves after that.
    - The server stops at 95,000 requests, so it stays inside the free plan and never costs money.
+
+## Rule B: per-model repair prices and the 15-minute cap (owner decision)
+
+- ONE value table per vehicle model, in `index.html` (the `VEHICLES` table): **Sovereign GT K450,000**,
+  **motorbike K150,000**. The dealership is expected to change these values later — they live in one place on purpose.
+- A full restoration of a model costs **60% of its value** (K270,000 for the Sovereign GT, K90,000 for the motorbike)
+  and takes **15 real minutes**. Both are split across the model's own parts in proportion to each part's weight
+  (`vehMins`, `partPrice`); each part has a minimum price (0.33% of value, rounded to K500) and minimum time (1 min).
+- The motorbike gets its **own part list** (`VEHICLES.m_bike.parts`): engine, frame, forks and rear shock, radiator,
+  brakes, front/rear tyres, handlebars/controls, mirrors, headlight, tail light, indicators, fuel tank, exhaust,
+  seat, side panels, chain, battery/electrics, oil leak, fuel leak. **No** car parts on the bike (no bumpers, bonnet,
+  grille, boot, windows, windscreen). New damage keys default to 0 in the `carD` map.
+- The old flat per-part prices and the 10% "bundle discount" are **gone**; prices are derived from the value table.
+- Cars (Sovereign GT) keep today's part list and behaviour — only the price formula changed.
+- The repair functions (`carHealth`, `repairItems`, `repairFull`, `jobPlan`, `JOBSPARK`/`JOBLIFT`, the repair panel)
+  all read the vehicle's own part list now, so a new model only needs a `VEHICLES` entry.
+- **Not tested / unchanged:** the server still trusts the price the client sends; this change is client-side only.
