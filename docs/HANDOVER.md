@@ -820,9 +820,11 @@ Sovereign GT numbers are **byte-identical before and after** (32.77% @10 km/h, 1
 | 5374 | "Car condition" → "Bike condition" HUD bar label (bike) |
 | 3876 | condition card bar "Bonnet" → "Fuel tank" for the bike (shows the bike's tank damage; the car keeps "Bonnet") |
 
-The bike has no "boot"/"trunk" key (PR #19 removed it), so no "Boot" label is ever shown for the
-bike; the shared card's Bonnet bar is now the "Fuel tank" bar instead. There is no "under-seat
-storage" part in the bike model; "Seat" is its nearest part.
+The bike has no "boot"/"trunk" key (it is not in the bike part list), so no "Boot" label is ever
+shown for the bike. **"boot" → "under-seat storage":** the old R-zone "boot" wording no longer exists
+for the bike — a rear hit now hits the seat/tail light/rear tyre and is worded "seat" / "tail light" /
+"rear tyre"; where a bike's rear is described as storage in repair wording it is the **under-seat
+storage**. The shared card's Bonnet bar is now the "Fuel tank" bar instead.
 
 ### Item 2a — rider seat
 
