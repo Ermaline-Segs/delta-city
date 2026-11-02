@@ -3272,8 +3272,8 @@ function dynLamps(T){const L=T.map.dyn||[],out=[];for(const o of L)if(o.type==="
    coolant; once the coolant runs low the engine overheats, loses power, and seizes if it is kept running too hot.
    A wrecked engine, chassis or suspension leaves the car undrivable. Dents change the car's shape where it was hit. */
 const carDmg0=()=>({bumperF:0,bumperR:0,bonnet:0,grille:0,trunk:0,sideL:0,sideR:0,hlL:0,hlR:0,tlL:0,tlR:0,radiator:0,engine:0,susp:0,chassis:0,under:0,coolant:1,temp:90,hot:0,dead:false,dents:[],ver:0,fuel:1,tyre:[0,0,0,0],flat:[0,0,0,0],
-  oil:1,oilLeak:0,fuelLeak:0,elec:0,steer:0,steerDir:0,rim:[0,0,0,0],ws:0,rw:0,winL:0,winR:0,fire:0,fireT:0,burnt:0,hang:{}});
-const carD=C=>{const D=C.dmg||(C.dmg=carDmg0());if(!D.oilLeak&&D.oil==null||!D.rim||D.hang==null){const Z=carDmg0();for(const k in Z)if(D[k]==null)D[k]=Z[k]}if(D.fuel==null)D.fuel=1;if(!D.tyre)D.tyre=[0,0,0,0];if(!D.flat)D.flat=[0,0,0,0];return D};
+  oil:1,oilLeak:0,fuelLeak:0,elec:0,steer:0,steerDir:0,rim:[0,0,0,0],ws:0,rw:0,winL:0,winR:0,fire:0,fireT:0,burnt:0,brakes:0,mirrors:0,indicators:0,tank:0,exhaust:0,seat:0,chain:0,hl:0,tl:0,hang:{}});
+const carD=C=>{const D=C.dmg||(C.dmg=carDmg0());if(!D.oilLeak&&D.oil==null||!D.rim||D.hang==null){const Z=carDmg0();for(const k in Z)if(D[k]==null)D[k]=Z[k]}if(!D.model)D.model=carModelId(C);if(D.fuel==null)D.fuel=1;if(!D.tyre)D.tyre=[0,0,0,0];if(!D.flat)D.flat=[0,0,0,0];return D};
 const clamp01=v=>v<0?0:v>1?1:v;
 /* apply an impact to the car: dv is the change in its speed (m/s) the blow caused, ct where and how it landed:
    zone F (front), R (rear), L or R side (local x: + is the car's left), the contact width w, low for things under the bumper.
@@ -3831,7 +3831,8 @@ function carUI(T,VP,w,h){carUIInit();const all=[CARUI.door,CARUI.cond,CARUI.bay,
 /* ---- the car's condition, read from its damage record ---- */
 const CARPARTS=[["engine","Engine",.2],["chassis","Chassis",.15],["susp","Suspension",.1],["radiator","Radiator",.08],["bumperF","Front bumper",.06],["bumperR","Rear bumper",.05],
   ["bonnet","Bonnet",.06],["grille","Grille",.03],["trunk","Boot",.04],["sideL","Left side",.06],["sideR","Right side",.06],["under","Underbody",.05]];
-function carHealth(D){if(D.burnt)return 0;let s=0;for(const[k,,w]of CARPARTS)s+=w*(D[k]||0);for(const k of["hlL","hlR","tlL","tlR"])s+=.0075*(D[k]?1:0);
+function carHealth(D){if(D.burnt)return 0;let s=0;if((D.model||"m_sgt")==="m_bike"){const{parts,sum}=vehParts("m_bike");for(const[k,,w]of parts)s+=w*(D[k]||0);return Math.round(100*(1-Math.min(1,s/(sum||1))))}
+  for(const[k,,w]of CARPARTS)s+=w*(D[k]||0);for(const k of["hlL","hlR","tlL","tlR"])s+=.0075*(D[k]?1:0);
   s+=.05*(D.oilLeak||0)+.05*(D.fuelLeak||0)+.06*(D.elec||0)+.03*(D.steer||0)+.02*(D.ws||0)+.01*((D.rw||0)+(D.winL||0)+(D.winR||0))+.015*(D.rim||[0]).reduce((a,v)=>a+v,0)+(D.fire||0)*.3;return Math.round(100*(1-Math.min(1,s)))}
 function carWarnings(D){const W=[];if(D.fire>0)W.push("FIRE: the car is burning. Keep away.");if(D.burnt)W.push("Burnt out: the car needs the workshop");if(D.dead)W.push("Vehicle too damaged to drive");
   if(D.oilLeak>.15)W.push("Oil leaking: oil "+Math.round(D.oil*100)+"%");else if(D.oil<.5)W.push("Oil low");if(D.fuelLeak>.15)W.push("Fuel leaking: risk of fire");
@@ -4149,27 +4150,39 @@ async function payService(amount,state,reason,veh){if(typeof AUTH==="undefined"|
   await freshToken();const r=veh&&veh.id?await supa("/rest/v1/rpc/veh_pay",{method:"POST",auth:true,body:{p_vehicle:veh.id,p_amount:Math.round(amount),p_state:state,p_reason:reason,p_fields:veh.fields}})       // a car of yours: the parts paid for may then be made good
     :await supa("/rest/v1/rpc/pay_service",{method:"POST",auth:true,body:{p_amount:Math.round(amount),p_state:state,p_reason:reason}});if(r&&r.cash!=null){me.cash=+r.cash;showCash()}return r}
 
-/* ---- repairs: each damaged part, priced and timed from its damage, or everything at once. Prices in kobo-free
-   naira at full damage, and minutes of real time at full damage. ---- */
-const REPAIRS=[["engine","Engine",75000,12],["chassis","Chassis straightening",45000,10],["susp","Suspension",21000,7],["radiator","Radiator",13500,5],
-  ["bumperF","Front bumper",10500,4],["bumperR","Rear bumper",9000,3],["bonnet","Bonnet",12000,4],["grille","Grille",5500,2],["trunk","Boot lid",9000,3],
-  ["sideL","Left side panels",13500,5],["sideR","Right side panels",13500,5],["under","Underbody",10500,4],
-  ["oilLeak","Oil sump and seals (and fresh oil)",30000,5],["fuelLeak","Fuel tank and lines",36000,6],["elec","Electrical wiring",27000,6],["steer","Steering and wheel alignment",12000,3],
-  ["ws","Windscreen",24000,4],["rw","Rear window",12000,3],["winL","Left window",9000,2],["winR","Right window",9000,2]];
-function repairItems(D){const L=[];for(const[k,name,price,mins]of REPAIRS){const v=D[k]||0;if(v<.03)continue;L.push({k,name,price:Math.max(1500,Math.round(price*v/500)*500),mins:Math.max(1,Math.round(mins*v))})}
-  for(const[k,name]of[["hlL","Left headlight"],["hlR","Right headlight"],["tlL","Left tail light"],["tlR","Right tail light"]])if(D[k])L.push({k,name,price:k[0]==="h"?7500:3500,mins:k[0]==="h"?2:1});
-  for(let i=0;i<4;i++){const bent=(D.rim||[])[i]>.3;if(D.flat[i]||D.tyre[i]>.25||bent)L.push({k:"ty"+i,name:(bent?"New wheel and tyre, ":"New tyre, ")+TYRENAME[i]+(D.flat[i]?" (burst)":""),price:bent?25500:10500,mins:bent?2:1})}
+/* ---- Rule B: ONE value table per vehicle model. A full restoration of a model costs 60% of its value, split
+   across that model's parts by weight, and takes 15 real minutes. A dealership will change these values later. ---- */
+const VEHICLES={"m_sgt":{value:450000,parts:[["engine","Engine",.162],["chassis","Chassis",.12],["susp","Suspension",.08],["radiator","Radiator",.05],
+  ["bumperF","Front bumper",.05],["bumperR","Rear bumper",.04],["bonnet","Bonnet",.05],["grille","Grille",.02],["trunk","Boot lid",.04],
+  ["sideL","Left side panels",.045],["sideR","Right side panels",.045],["under","Underbody",.04],
+  ["oilLeak","Oil sump and seals (and fresh oil)",.025],["fuelLeak","Fuel tank and lines",.031],["elec","Electrical wiring",.0225],["steer","Steering and wheel alignment",.02],
+  ["ws","Windscreen",.02],["rw","Rear window",.01],["winL","Left window",.01],["winR","Right window",.01],
+  ["hlL","Left headlight",.01],["hlR","Right headlight",.01],["tlL","Left tail light",.01],["tlR","Right tail light",.01],
+  ["ty0","Front left wheel and tyre",.02],["ty1","Front right wheel and tyre",.02],["ty2","Rear left wheel and tyre",.02],["ty3","Rear right wheel and tyre",.02]]},
+"m_bike":{value:150000,parts:[["engine","Engine",.2455],["chassis","Frame",.143],["susp","Forks and rear shock",.095],["brakes","Brakes",.06],["radiator","Radiator",.05],
+  ["ty0","Front tyre",.05],["ty1","Rear tyre",.06],["steer","Handlebars and controls",.035],["mirrors","Mirrors",.012],["hl","Headlight",.02],["tl","Tail light",.012],
+  ["indicators","Indicators",.01],["tank","Fuel tank",.03],["exhaust","Exhaust",.03],["seat","Seat",.018],["sideL","Left side panel",.022],["sideR","Right side panel",.022],
+  ["chain","Chain and sprockets",.025],["elec","Battery and electrics",.025],["oilLeak","Oil leak and seals",.025],["fuelLeak","Fuel line and pump",.026]]}};
+function vehParts(id){const V=VEHICLES[id]||VEHICLES.m_sgt;return{value:V.value,parts:V.parts,sum:V.parts.reduce((s,p)=>s+p[2],0)}}
+/* Rule B price: 60% of the model's value, split by part weight, scaled by the part's damage, rounded to K500, floored at 0.33% of value */
+function vehPrice(id,w,dmg){const{value,sum}=vehParts(id);const floor=Math.max(500,Math.round(value*.0033/500)*500);return Math.max(floor,Math.round(value*.6*(w/sum)*dmg/500)*500)}
+/* Rule B time: 15 real minutes for a full restoration, split by part weight;
+   each damaged part takes at least 1 minute, so a full restoration is
+   max(15, number of damaged parts) minutes */
+function vehMins(id,w,dmg){const{sum}=vehParts(id);return Math.max(.1,+(15*(w/sum)*dmg).toFixed(1))}
+function repairItems(D){const id=D.model||"m_sgt";const L=[];for(const[k,name,w]of vehParts(id).parts){const v=D[k]||0;if(v<.03)continue;L.push({k,name,price:vehPrice(id,w,v),mins:vehMins(id,w,v)})}
   if(D.oil<.95&&!(D.oilLeak>=.03))L.push({k:"oil",name:"Engine oil top-up",price:4500,mins:1});
   if(D.burnt)L.unshift({k:"burnt",name:"Fire damage: rewiring, seats and trim",price:180000,mins:15});
   if(D.coolant<.97)L.push({k:"coolant",name:"Coolant refill",price:Math.max(1000,Math.round(4500*(1-D.coolant)/500)*500),mins:1});return L}
-const repairFull=L=>({price:Math.round(L.reduce((s,q)=>s+q.price,0)*.9/500)*500,mins:Math.max(1,Math.round(L.reduce((s,q)=>s+q.mins,0)*.7))});
+/* Rule B: no bundle discount — a full restoration at full damage equals 60% of the model's value */
+const repairFull=L=>({price:Math.round(L.reduce((s,q)=>s+q.price,0)/500)*500,mins:Math.max(1,Math.round(L.reduce((s,q)=>s+q.mins,0)))});
 function repairPanel(){const T=townOf(me.town),W=T.workshop,C=T.car;if(!W)return;if(C&&C.dmg&&C.dmg.fire>0){toast("The car is on fire. Nothing can be repaired until the fire is out.");return}choosing=true;const el=document.getElementById("choose");el.hidden=false;const D=C?carD(C):null;
   const inBay=C&&Math.hypot(C.x-W.x,C.z-W.z)<2.2&&Math.abs(C.v)<.3,shell=b=>`<div class="card rpcard"><h1>${esc(W.name)}</h1><p class="cdsub">Repair bay &middot; payments go to the ${esc(W.st)} State account</p>${b}<button class="go ghost" data-stay="1">Close</button></div>`;
   if(D&&D.job){const ms=mechState(W,D.job,Date.now());el.innerHTML=shell(`<p>Your car is being repaired: ${esc(D.job.names)}.</p><p>The mechanic is ${ms.walking?"going to":"working on"} the <b>${esc(JOBNAME(ms.k).toLowerCase())}</b> (part ${ms.step+1} of ${ms.steps}).</p><p class="cdhealth"><b>${mmss(D.job.until-Date.now())}</b><span>until it is ready</span></p><p>You cannot drive it until the work is finished. You can leave and come back; the time keeps running.</p>`);return}
   if(!inBay){el.innerHTML=shell(`<p>Drive your car into the bay, between the yellow lines, and stop. Then come to the mechanic here to choose repairs.</p>`);return}
   const L=repairItems(D);if(!L.length){el.innerHTML=shell(`<p>Your car needs no repairs.</p>`);return}const F=repairFull(L);
   el.innerHTML=shell(`<p>Choose the repairs you want. You pay only for those.</p><div class="rplist">${L.map(q=>`<label class="rprow"><input type="checkbox" data-rpi="${q.k}"><span>${esc(q.name)}</span><b>${kfmt(q.price)}</b><i>${q.mins} min</i></label>`).join("")}
-    <label class="rprow full"><input type="checkbox" data-rpi="full"><span>Full restoration: everything above, 10% off, done together</span><b>${kfmt(F.price)}</b><i>${F.mins} min</i></label></div>
+    <label class="rprow full"><input type="checkbox" data-rpi="full"><span>Full restoration: everything above, done together</span><b>${kfmt(F.price)}</b><i>${F.mins} min</i></label></div>
     <div class="rptot">Total <b id="rpTot">K0</b> &middot; ready in <span id="rpTime">0 min</span></div><p class="amsg" id="rpMsg"></p><button class="go" data-rp="pay" id="rpPay" disabled>Pay and start the repairs</button>`);repairTotal()}
 function repairChosen(){const T=townOf(me.town),D=carD(T.car),L=repairItems(D),box_=document.getElementById("choose"),full=box_.querySelector('[data-rpi="full"]');
   if(full&&full.checked){const F=repairFull(L);return{items:L.map(q=>q.k),names:"full restoration",price:F.price,mins:F.mins}}
@@ -4262,11 +4275,12 @@ const npcFor=(role,key)=>{const r=NPC_ROLES[role],name=Array.isArray(r)?r[Math.a
 const JOBSPOT={engine:[0,3],radiator:[.35,3],bonnet:[-.35,3],grille:[0,3],bumperF:[-.5,3],coolant:[.6,3],hlL:[.75,3],hlR:[-.75,3],
   bumperR:[0,-3],trunk:[.4,-3],tlL:[.75,-3],tlR:[-.75,-3],sideL:[1.75,.8],sideR:[-1.75,.8],ty0:[1.75,1.45],ty1:[-1.75,1.45],ty2:[1.75,-1.5],ty3:[-1.75,-1.5],
   susp:[1.75,-.3],chassis:[-1.75,-.3],under:[1.75,.3],
-  oilLeak:[1.75,.9],fuelLeak:[1.75,-1.1],steer:[-1.75,1.1],elec:[.55,3],oil:[.2,3],ws:[1.75,1.6],rw:[-.3,-3],winL:[1.75,0],winR:[-1.75,0],burnt:[-1.75,.4]};
-const JOBLIFT=new Set(["susp","chassis","under","ty0","ty1","ty2","ty3","oilLeak","fuelLeak","steer"]),JOBSPARK=new Set(["bumperF","bumperR","bonnet","grille","trunk","sideL","sideR","chassis","under"]);
-const JOBNAME=k=>(REPAIRS.find(r=>r[0]===k)||[0,{hlL:"Left headlight",hlR:"Right headlight",tlL:"Left tail light",tlR:"Right tail light",coolant:"Coolant",oil:"Oil top-up",burnt:"Fire damage"}[k]||(k.startsWith("ty")?"Tyre, "+TYRENAME[+k[2]]:k)])[1];
+  oilLeak:[1.75,.9],fuelLeak:[1.75,-1.1],steer:[-1.75,1.1],elec:[.55,3],oil:[.2,3],ws:[1.75,1.6],rw:[-.3,-3],winL:[1.75,0],winR:[-1.75,0],burnt:[-1.75,.4],
+  brakes:[.45,.95],mirrors:[-.45,.7],hl:[0,1.1],tl:[0,-1.1],indicators:[.45,.75],tank:[0,.5],exhaust:[.45,-1],seat:[0,-.2],chain:[.5,-.5]};
+const JOBLIFT=new Set(["susp","chassis","under","ty0","ty1","ty2","ty3","oilLeak","fuelLeak","steer","chain","exhaust","tank"]),JOBSPARK=new Set(["bumperF","bumperR","bonnet","grille","trunk","sideL","sideR","chassis","under","brakes","seat","tank","exhaust"]);
+const JOBNAME=k=>{const X={hlL:"Left headlight",hlR:"Right headlight",tlL:"Left tail light",tlR:"Right tail light",coolant:"Coolant",oil:"Oil top-up",burnt:"Fire damage"};if(X[k])return X[k];for(const id in VEHICLES){const p=VEHICLES[id].parts.find(q=>q[0]===k);if(p)return p[1]}return k.startsWith("ty")?"Tyre, "+TYRENAME[+k[2]]:k};
 // the plan: each part's share of the job's time, in the order the mechanic goes round the car (front, left, rear, right, then the lift)
-function jobPlan(J){if(J.plan)return J.plan;const order=["burnt","coolant","oil","radiator","engine","elec","bonnet","grille","bumperF","hlL","hlR","ws","sideL","winL","trunk","bumperR","tlL","tlR","rw","sideR","winR","ty0","ty2","ty3","ty1","steer","oilLeak","susp","fuelLeak","under","chassis"],
+function jobPlan(J){if(J.plan)return J.plan;const order=["burnt","coolant","oil","radiator","engine","elec","bonnet","grille","bumperF","hlL","hlR","ws","sideL","winL","trunk","bumperR","tlL","tlR","rw","sideR","winR","ty0","ty2","ty3","ty1","steer","oilLeak","susp","fuelLeak","under","chassis","brakes","mirrors","hl","tl","indicators","tank","exhaust","seat","chain"],
     ks=J.items.slice().sort((a,b)=>order.indexOf(a)-order.indexOf(b)),w=ks.map(k=>(J.mins&&J.mins[k])||1),sum=w.reduce((s,v)=>s+v,0),start=J.start||J.until-ks.length*60000;let t=start;
   J.plan=ks.map((k,i)=>{const t0=t;t+=(J.until-start)*w[i]/sum;return{k,t0,t1:i===ks.length-1?J.until:t}});return J.plan}
 // round the car: the mechanic keeps to a rectangle 3.5 m by 6 m around it, measured as a distance along its edge
