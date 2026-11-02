@@ -759,3 +759,24 @@ select count(*) from public.vehicles where model = 'motorbike';
 - The repair functions (`carHealth`, `repairItems`, `repairFull`, `jobPlan`, `JOBSPARK`/`JOBLIFT`, the repair panel)
   all read the vehicle's own part list now, so a new model only needs a `VEHICLES` entry.
 - **Not tested / unchanged:** the server still trusts the price the client sends; this change is client-side only.
+
+## Player inventory grid (PARTIAL — window CSS + HUD icons only; markup and JS not yet written)
+
+> **Status: incomplete.** This entry documents what is actually in the branch so the next helper does not
+> mistake a styled shell for a working feature. **Do not** describe the inventory grid as live.
+
+- **What is in the branch (`index.html`, one commit):** only the CSS for the inventory window
+  (`.invgrid`, `.ig-head`, `.ig-body`, `.ig-grid`, `.ig-tile`, `.ig-empty`, `.ig-det`, plus a `max-width:640px`
+  media query) and two new HUD icon glyphs (`key` and `bag`) added to the icon map.
+- **What is NOT in the branch (still to be built):**
+  - **Markup:** there is no `<div class="invgrid">` element, no tabs, no tile grid, and no detail panel in the DOM.
+  - **JS:** there is no logic to open the grid, render real items, switch tabs, select a tile, or wire the detail panel.
+  - **Vehicle Fob → Open Garage:** no code exists for the Fob to open the garage from anywhere, and no
+    read-only-away-from-a-park behaviour is implemented. This cannot be confirmed until the JS is written.
+  - **"Only real items are shown":** no rendering logic exists, so this is not yet true and cannot be verified.
+- **Unchanged / safe:** because the change is CSS + two icon glyphs only, it touches no existing code path. The
+  **E key** and the **P button** near a park are untouched and behave exactly as before.
+- **Next helper, in order:** (1) add the `invgrid` markup, (2) write the JS that lists only the player's real
+  items and drives the tabs/detail panel, (3) implement the Fob's "Open Garage" (open from anywhere; read-only
+  away from a park), (4) re-check the E key and P button still work near a park, (5) then and only then update
+  this entry to "live".
