@@ -4868,9 +4868,12 @@ async function adminPanel(msg){choosing=true;const el=document.getElementById("c
     <div class="cbrow"><input id="admQ" placeholder="Name or certificate number" value="${esc(q)}"><button class="btn2s" data-adm="find">Find</button></div><p class="amsg">${esc(msg||"")}</p><div id="admList"></div>
     <h3>Give a vehicle</h3><p>Find the citizen above, then press Give car on their row, or give one to yourself. The car is put in a free bay of the car park you choose.</p>
     <div class="cbrow"><select id="admPark">${PARKLIST.map(P=>`<option value="${P[0]}">${esc(P[1]+": "+P[2])}</option>`).join("")}</select><label class="admsp"><input type="checkbox" id="admSpecial"> Chief Admin special vehicle</label><button class="btn2s" data-adm="car:${AUTH.user?AUTH.user.id:""}">Give myself a car</button></div>
+    <h3>Put a vehicle back in its garage</h3><p>Pick a car that is out in the open — for example one that burned to a wreck on the road and keeps its hold. It goes into a free bay and its hold clears, so the next save frees the server lock. Ownership never changes.</p>
+    <div class="cbrow"><select id="admStore"><option value="">Loading vehicles…</option></select></div>
     <h3>Live server (Cloudflare free plan)</h3><div id="admLive"></div>
     <button class="go" data-stay="1">Close</button></div>`;
-  const inp=document.getElementById("admQ");inp.addEventListener("keydown",e=>{if(e.key==="Enter")adminAct("find")});if(q)adminAct("find");adminLive()}
+  const inp=document.getElementById("admQ");inp.addEventListener("keydown",e=>{if(e.key==="Enter")adminAct("find")});if(q)adminAct("find");adminLive();vehAdminStore()}
+async function vehAdminStore(){const sel=document.getElementById("admStore");if(!sel)return;sel.addEventListener("change",()=>{const v=sel.value;if(v)adminAct(v)});sel.innerHTML="<option value=\"\">Loading vehicles…</option>";try{const d=await cbCall("veh_admin_list");const vs=(d&&d.vehicles)||[];sel.innerHTML=vs.length?`<option value="">Choose a vehicle…</option>`+vs.map(v=>`<option value="store:${esc(v.plate)}">${esc(v.plate)} — ${esc(v.owner_name||"?")} (${v.status||"?"})</option>`).join(""):"<option value=\"\">No vehicles in the register.</option>"}catch(e){sel.innerHTML="<option value=\"\">The vehicle list could not be loaded.</option>"}}
 async function adminAct(what){const list=document.getElementById("admList");if(!list)return;
   if(typeof AUTH==="undefined"||!AUTH.user){list.innerHTML="<p>The role tool works on the live game while signed in.</p>";return}
   try{if(what==="find"){const rows=await cbCall("admin_find",{p_query:(document.getElementById("admQ").value||"").trim()});
@@ -4878,8 +4881,13 @@ async function adminAct(what){const list=document.getElementById("admList");if(!
     else if(what.startsWith("car:")){if(what.length<6)return;const sp=document.getElementById("admSpecial").checked,pk=document.getElementById("admPark").value,r=await cbCall("veh_admin_provision",{p_owner:what.slice(4),p_model:"sovereign",p_special:sp,p_park:pk});
       const m=document.querySelector("#choose .amsg");if(m){m.classList.remove("err");m.textContent="Gave "+r.name+" "+(sp?"the Chief Admin special vehicle":"a car")+": "+r.plate+", in bay "+(r.bay+1)+" of "+((garPark(r.park)||{}).name||r.park)+"."}garSync()}
     else if(what.startsWith("set:")){const owner=what.slice(4),sel=document.querySelector(`#admList select[data-owner="${owner}"]`);await cbCall("admin_set_role",{p_owner:owner,p_role:sel.value});
-      const row=sel.closest("tr");adminPanel((row?row.cells[0].textContent:"Citizen")+" is now "+((ROLES.find(r=>r[0]===sel.value)||[0,sel.value])[1])+".")}}
-  catch(e){const m=document.querySelector("#choose .amsg");if(m){m.textContent=what.startsWith("car:")?garWhy(e):e.message;m.classList.add("err")}}}
+      const row=sel.closest("tr");adminPanel((row?row.cells[0].textContent:"Citizen")+" is now "+((ROLES.find(r=>r[0]===sel.value)||[0,sel.value])[1])+".")}
+    else if(what.startsWith("store:")){const plate=what.slice(6).toUpperCase();if(!plate)return;const d=await cbCall("veh_admin_list"),vs=(d&&d.vehicles)||[],v=vs.find(x=>String(x.plate||"").toUpperCase()===plate),m=document.querySelector("#choose .amsg");
+      if(!v){if(m){m.textContent="No vehicle with plate "+plate+" in the register.";m.classList.add("err")}return}
+      const r=await cbCall("veh_admin_putaway",{p_vehicle:v.id});
+      if(m){m.classList.remove("err");m.textContent=plate+" is stored in space "+(r&&r.bay!=null?r.bay+1:"?")+" of "+((garPark(r&&r.park)||{}).name||(r&&r.park))+(r&&r.already?" (it was already there).":".")}
+      garSync();vehAdminStore()}}
+  catch(e){const m=document.querySelector("#choose .amsg");if(m){m.textContent=(what.startsWith("car:")||what.startsWith("store:"))?garWhy(e):e.message;m.classList.add("err")}}}
 // a role given while someone is playing reaches them within a minute
 setInterval(async()=>{if(typeof AUTH==="undefined"||!AUTH.char||!AUTH.user)return;try{await freshToken();const rows=await supa("/rest/v1/characters?select=role&owner=eq."+AUTH.user.id,{auth:true});const r=rows&&rows[0]&&rows[0].role;
   if(r&&r!==me.role){me.role=r;AUTH.char.role=r;ui();toast("Your role is now: "+((ROLES.find(x=>x[0]===r)||[0,r])[1])+".")}}catch(e){}},60000);
