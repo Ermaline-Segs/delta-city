@@ -195,6 +195,16 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 - **Home buildings:** see section 6 (`assets/buildings/homes/`, `homes.md`).
 
 ## 11. Updates since the first handover (newest first)
+- **2 November 2026, 12:02 UTC — bike crash tuning, bike-only wording, rider seat forward, helmet (PR #20, commit 7d3b9ee; open, not merged)** —
+  `index.html` + `docs/HANDOVER.md` only. Full detail is in the **"Rule C"** section at the end of this file:
+  per-model crash scale (`CRASH.BIKE = 0.22`) with crash zones remapped onto real bike parts (car math
+  byte-identical, verified in Node with the real `crashCar` logic); 14 bike-only wording strings (line
+  numbers listed under Rule C §2); `CARSIT.motorbike` rider anchor moved forward leaving the rear seat
+  free for a future passenger; helmet gameplay (bike only — button starts off, lamp + chime above
+  10 km/h unhelmeted, ×2 rider injury without helmet / reduced with it; cars keep the seatbelt
+  exactly as today). Untested items (lamp/chime in a live browser, real in-game crash, post-reload
+  helmet state) are listed under Rule C §5. Other helpers: do not merge PR #20 over a conflicting
+  `index.html` edit — it touches the same crash/wording lines.
 - **Admin: "put this vehicle back in its garage" (this PR)** — new `supabase_admin_putaway.sql` + `index.html` only.
   The admin panel (inside "Choose a citizen") now has a **"Put a vehicle back in its garage"** dropdown next to
   "Give car" and "Set". It calls the new `veh_admin_putaway` function.
