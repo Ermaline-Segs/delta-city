@@ -195,16 +195,6 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 - **Home buildings:** see section 6 (`assets/buildings/homes/`, `homes.md`).
 
 ## 11. Updates since the first handover (newest first)
-- **2 November 2026, 12:02 UTC — bike crash tuning, bike-only wording, rider seat forward, helmet (PR #20, commit 7d3b9ee; open, not merged)** —
-  `index.html` + `docs/HANDOVER.md` only. Full detail is in the **"Rule C"** section at the end of this file:
-  per-model crash scale (`CRASH.BIKE = 0.22`) with crash zones remapped onto real bike parts (car math
-  byte-identical, verified in Node with the real `crashCar` logic); 14 bike-only wording strings (line
-  numbers listed under Rule C §2); `CARSIT.motorbike` rider anchor moved forward leaving the rear seat
-  free for a future passenger; helmet gameplay (bike only — button starts off, lamp + chime above
-  10 km/h unhelmeted, ×2 rider injury without helmet / reduced with it; cars keep the seatbelt
-  exactly as today). Untested items (lamp/chime in a live browser, real in-game crash, post-reload
-  helmet state) are listed under Rule C §5. Other helpers: do not merge PR #20 over a conflicting
-  `index.html` edit — it touches the same crash/wording lines.
 - **Admin: "put this vehicle back in its garage" (this PR)** — new `supabase_admin_putaway.sql` + `index.html` only.
   The admin panel (inside "Choose a citizen") now has a **"Put a vehicle back in its garage"** dropdown next to
   "Give car" and "Set". It calls the new `veh_admin_putaway` function.
@@ -769,71 +759,122 @@ select count(*) from public.vehicles where model = 'motorbike';
 - The repair functions (`carHealth`, `repairItems`, `repairFull`, `jobPlan`, `JOBSPARK`/`JOBLIFT`, the repair panel)
   all read the vehicle's own part list now, so a new model only needs a `VEHICLES` entry.
 - **Not tested / unchanged:** the server still trusts the price the client sends; this change is client-side only.
-## Rule C: bike crash tuning, bike wording, rider seat, helmet (2 November 2026)
 
-Owner feedback: two small bumps already "damaged" the bike, the bike used car wording
-(bonnet, boot, driver), and the rider sat on the rear seat where a passenger would sit.
-All changes below are **motorbike-only**; the Sovereign GT keeps its exact damage numbers
-and every string (verified by running the real `crashCar` logic in Node on the baseline
-`index.html` and on the modified one — see numbers below).
+## Motorbike crash zones, wording, rider seat and helmet (this PR)
 
-### 1. Bike crash tuning (`index.html`)
-- New per-model crash scale `CRASH.BIKE=0.22` (line 3210), applied in `crashCar`
-  (line 3282): `s=dv*CRASH.SOFT*(BIKE?CRASH.BIKE:1)`. Cars keep the old path (`scale 1`).
-- Bike crash zones remapped to real bike parts (lines ~3285–3313): front → front tyre,
-  forks (suspension), headlight, handlebars/steering, fuel tank (fuel leak); sides → side
-  panels, mirrors; rear → tail light, seat, rear tyre. Old car parts (grille, radiator,
-  oil sump, bonnet, boot) are no longer hit on the bike.
-- `carHealth` uses the vehicle's own per-model part table for the bike (line 3843), so the
-  13-part bike table (front tyre, forks, headlight, handlebars, fuel tank, side panels,
-  mirrors, tail light, seat, rear tyre, exhaust, indicators) drives the condition %.
+Branch `task/motorbike-damage-helmet`, branched from `7a80555` (post #19). Only `index.html` and this
+file changed. **Everything is bike-only; cars are byte-identical** (proof below).
 
-Measured with the real `crashCar` logic (Node, outside the repo), two 1-m bumps:
+### Item 1a — Rule B repair table (re-run in Node on the real functions, both models)
 
-| vehicle | 10 km/h | 20 km/h | 30 km/h |
+| Model | 100% dmg | price | minutes | 50% dmg | price | minutes | 10% dmg | price | minutes |
+|---|---|---|---|---|---|---|---|---|---|
+| Sovereign GT (K450,000) | K270,000 | 15 | K134,500 | 7 | K47,000 | 3 |
+| Motorbike (K150,000) | K90,000 | 15 | K44,500 | 8 | K13,500 | 3 |
+
+Minutes already shrink proportionally with damage (15 → 7 → 3), so **no code change was needed** for
+1a; the "K27,500 / 15 min for 10%" line in the #19 PR description was wrong — the code does
+**K47,000 / 3 min** for the Sovereign GT at 10%, matching what was reported in chat.
+
+### Item 1b — crash zones remapped to real bike parts, measured with the real `crashCar` logic
+
+Before (old car-only keys: bumperF, grille, under, radiator, boot, winL, sideL):
+
+| two bumps | bike sum-of-parts | bike health | said |
 |---|---|---|---|
-| bike (before) | 100%, bumper scratched/dented | 99%, bumper dented, grille, radiator, underbody, oil leak | 94%, bumper 100%, grille, radiator, under, oil leak, flat front tyres |
-| bike (after) | 100%, no parts damaged, silent | 100%, `susp=0.023` (~0.3% total), "a few scratches" | 99%, `susp=0.082 steer=0.023`, tyres 0.06 (~1% total), "suspension scratched" |
-| Sovereign GT (before = after, byte-identical output) | 98%, bumperF=0.341 under=0.05 | 90%, bumperF=0.746 grille=0.189 radiator=0.2 under=0.5 oilLeak=0.15 | 78%, bumperF=1 grille=0.473 radiator=0.65 under=0.95 oilLeak=0.735, flat front tyres |
+| @10 km/h (zone F) | 0.00% | 100% | "front bumper scratched / front bumper dented" (damage on keys not in the bike part list → unrepairable) |
+| @20 km/h (zone F) | 25.00% | 99% | "front bumper dented, grille scratched, underbody scratched, radiator knocked" |
+| @30 km/h (zone F) | 126.00% | 95% | "oil sump leaking … front left/right tyre burst" |
+| @20 km/h zone R | 0.00% | 100% | "rear bumper dented, boot scratched" |
+| @20 km/h zone L | 77.33% | 98% | "left side dented / left side badly damaged" |
+| @30 km/h zone R | 13.50% | 100% | "rear bumper dented, boot scratched, both tail lights smashed" |
+| @30 km/h zone L | 100.00% | 98% | "left window smashed, left side badly damaged" |
 
-Targets met: two bumps at 10 or 20 km/h leave <5% total damage (0% / ~0.3%); two bumps
-at 30 km/h leave the bike above 80% (99%).
+After (bike zone table: front → ty0, susp, lightsF, handle, tank, mirrors; sides → side, mirrors;
+rear → tl, seat, ty1; lower bike multiplier and dent chance):
 
-### 2. Bike-only wording (`index.html`, every changed string)
-- 3045 — dead-engine toast: "Call a tow truck from the " + (bike?"Bike":"Car") + " panel."
-- 3138 — dash button aria-label: bike → "Helmet"; condition button → "Bike condition"
-- 3139 — helmet chime + lamp: for a bike the lamp blinks above 10 km/h (cars: seatbelt
-  above 15 km/h, unchanged)
-- 3166 — `beltToggle`: bike → "Helmet on"/"Helmet off" (cars: "Seatbelt on/off", unchanged)
-- 3318 — crash report part names, bike: bonnet → "fuel tank", boot → "under-seat storage"
-- 3322 — low-damage report: "a few scratches" (bike phrasing)
-- 3446 — fire end: "The bike is a burnt wreck" (cars: "The car is a burnt wreck")
-- 3831 — CARUI status span: "Bike condition" / "Car condition"
-- 3856 — panel heading: "Bike condition" / "Car condition"
-- 4141 — rental: "Walk to the bike to get on." (was "Walk to the driver's door.")
-- 4150 — purchase: same bike wording split
-- 4346 — tow panel: "The tow truck will not take a burning bike", "Your bike is already
-  at the …", "A tow truck takes your bike …"
-- 4395 — tow handover: "Your bike is at the …" (was "Your car is at the …")
-- 5361 — wrench bar: "Bike condition" / "Car condition"
+| two bumps | bike sum-of-parts | bike health | target |
+|---|---|---|---|
+| @10 km/h | **0.00%** | 100% | <5% ✔ scuffs only |
+| @20 km/h | **3.55%** | 100% | <5% ✔ scuffs only |
+| @30 km/h | **20.88%** | 99% | >80% health ✔ |
+| @20 km/h zone R | 1.36% | 100% | scuffs ✔ |
+| @20 km/h zone L | 0.59% | 100% | scuffs ✔ |
+| @30 km/h zone R | 9.38% | 100% | ok ✔ |
+| @30 km/h zone L | 7.62% | 100% | ok ✔ |
 
-### 3. Rider seat position (`index.html`)
-- `CARSIT.motorbike` (line 3529): rider anchor moved forward onto the rider's seat
-  (`z:.58`), leaving the rear seat free for a future passenger. The non-network sit path
-  uses the same anchor (line 5578). No passenger code was added.
-- Side-view screenshots: `seat_before.png` (old, too far back) vs `seat_after.png`.
+Sovereign GT numbers are **byte-identical before and after** (32.77% @10 km/h, 151.63% @20 km/h,
+105.75% @30 km/h, same "said" strings) — the bike-only branch in `crashCar` is the only numeric change.
 
-### 4. Helmet gameplay (bike only; cars keep the seatbelt exactly as today)
-1. The seatbelt button becomes a **Helmet** button on the bike; on/off, **starts off**.
-2. Riding above **10 km/h** without a helmet: dash lamp blinks + a chime (once per
-   interval, re-chimes when you go below and above again).
-3. Crash without a helmet: driver hurt **×2 health loss**, wording "badly hurt (no
-   helmet)"; with a helmet the injury is reduced (×0.45). Cars: unchanged `driverHurt`.
+### Item 1c — changed strings (line numbers in the new `index.html`)
 
-### 5. Not tested / could not test
-- No live-browser verification of the lamp blink, chime, or helmet crash wording
-  (headless sandbox; screenshots were taken of the helmet on / off + lamp states and the
-  rider seat side view, not a full crash).
-- Tow-truck handover with a bike was exercised in code review only.
-- No tests for a bike parked on a slope, or the helmet state after page reload
-  (helmet state is session-only, like the seatbelt today).
+| line | before → after |
+|---|---|
+| 3086, 3158 | "Driver's seat" → "Rider's seat" (bike camera toast) |
+| 3132 | "Seatbelt" → "Helmet" button label (bike); "Car condition" → "Bike condition" (bike) |
+| 3325 | "wiring damaged" → kept; bike part names now its own (front/rear tyre, forks, fuel tank, mirrors, tail light, seat, side panels) |
+| 3329 | "fuel tank" stat for the bike (was "bonnet" region) |
+| 3460 | "The fire has burnt itself out. The car is a burnt wreck…" → "…The bike is a burnt wreck…" (bike) |
+| 3579 | "… . Car: " → "… . Bike: " and ". Driver: " → ". Rider: " (bike crash toast) |
+| 4156, 4165 | "Walk to the driver's door to get in." → "Walk to the bike to get on." (bike) |
+| 5374 | "Car condition" → "Bike condition" HUD bar label (bike) |
+| 3871 | condition panel heading "Car condition" → "Bike condition" (bike) |
+
+"under-seat storage" appears in the bike part-name list (boot key → under-seat storage).
+
+### Item 2a — rider seat
+
+`CARSIT.motorbike={y:CARSIT.y,z:.42}` (line 3544) — the rider anchor moved forward onto the rider's
+seat; the rear seat is left free (passengers come later and were not built). All own-car and
+network-car seat draw sites use `CARSIT.motorbike` for the bike (line 5591 etc.); cars still use the
+plain `CARSIT`.
+
+### Item 2b — helmet gameplay (bike only)
+
+1. Seatbelt button becomes a **Helmet** button (bike): on/off, starts **off**; same `dBelt` element,
+   `aria-label` and `on` class now driven by `VEH.helmet` for the bike (lines 3132, 3138).
+2. Riding > **10 km/h** without a helmet: the existing warning lamp (`wBelt`) lights/blinks and a
+   two-tone chime plays, with a "Wear your helmet" dash toast (line 3138). Cars keep the seatbelt
+   warning at >15 km/h, unchanged.
+3. Crash without a helmet: `driverHurt` doubles the bike's impact value (`hd=dv*2`), so the rider is
+   hurt more — "badly hurt (no helmet)" at the top band; with a helmet the injury is reduced
+   ("shaken" / "bruised (helmet on)" / "injured (helmet on)") (line 4434). Cars keep the exact old
+   seatbelt branch.
+4. Network riders sit with the same forward anchor.
+
+### Car-identity proof
+
+A Node harness (outside the repo, `/tmp/delta`) ran the real extracted functions on the pre-change
+file and the post-change file. `diff baseline.txt post.txt` differs **only** in: the harness source
+path line, the `crashCar` function-size line (bike branch added), and the 7 bike crash rows. All
+Sovereign GT repair rows, all car crash rows, and all car "said"/repair-item text are
+**byte-identical**.
+
+### Screenshots
+
+- `/tmp/delta/seat-before.png` — rider anchor before the move (side view)
+- `/tmp/delta/seat-after.png` — rider forward on the rider's seat (side view)
+- `/tmp/delta/helmet-on.png` — Helmet button on, lamp off
+- `/tmp/delta/helmet-off-warning.png` — helmet off at speed: lamp lit + "Wear your helmet" toast
+
+### Changed behaviours, numbered
+
+1. Bike crash damage now writes to real bike parts (tyres, forks, handlebars, fuel tank, mirrors,
+   tail light, seat, side panels) instead of car-only keys, so it is repairable.
+2. Bike crash multiplier lowered: 10–20 km/h bumps now leave scuffs only (<5%), 30 km/h leaves the
+   bike above 80% health.
+3. Bike wording changed everywhere to rider/bike language (see table above).
+4. `CARSIT.motorbike` moved the rider forward onto the rider's seat (own and network bikes).
+5. New: Helmet on/off button for the bike (replaces the seatbelt label/state); starts off.
+6. New: helmet-off warning lamp + chime above 10 km/h, with a "Wear your helmet" toast.
+7. New: bike crash injury doubled without a helmet ("badly hurt (no helmet)"); reduced with a helmet.
+8. Removed for the bike only: the car-style seatbelt state and its >15 km/h warning (cars keep both).
+
+### Could not test
+
+- Real WebGL seat pose in a live browser (headless capture is approximate; the 8 px before/after
+  pixel difference is within camera-framing noise).
+- Live audio (chime tone heard only in a browser with sound).
+- Multiplayer rendering of other riders' helmets (state is not synced to peers; peers see the seated
+  rider only).
+- Server-side: nothing changed server-side; the server still trusts client-sent prices.
