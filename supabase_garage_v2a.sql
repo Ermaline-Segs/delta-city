@@ -125,7 +125,7 @@ begin
     return jsonb_build_object('error', 'Slots must be between 1 and 50');
   end if;
   role := veh_role(me);
-  if role is distinct from 'chief' then return jsonb_build_object('error', 'Only the chief can change garage slots'); end if;
+  if role is distinct from 'admin' then return jsonb_build_object('error', 'Only the chief can change garage slots'); end if;
   insert into garage_slots (owner, slots) values (p_owner, p_slots)
   on conflict (owner) do update set slots = excluded.slots;
   return jsonb_build_object('ok', true, 'owner', p_owner, 'slots', p_slots);
