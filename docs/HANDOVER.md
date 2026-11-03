@@ -806,6 +806,38 @@ rear → tl, seat, ty1; lower bike multiplier and dent chance):
 Sovereign GT numbers are **byte-identical before and after** (32.77% @10 km/h, 151.63% @20 km/h,
 105.75% @30 km/h, same "said" strings) — the bike-only branch in `crashCar` is the only numeric change.
 
+### Item AG3 — bike crash curve retune (this commit)
+
+Owner feedback: the AG2 tuning left the bike too crash-proof (two bumps @30 km/h ≈ 99% health).
+The bike's front-zone line in `crashCar` is now scaled by `SC = 1 + 16*max(0, s-2)` (smooth
+progressive ramp: no change at ≤2 km/h soft-speed, steepening above), plus `engine`/`chassis`
+entries so hard crashes can gut the bike. **Only the bike's `ct.zone==="F"` line changed; car
+constants, damage zones, repair logic, `driverHurt` and wording are untouched.**
+
+Measured with the real `crashCar`/`driverHurt`/repair functions (Node harness extracting the
+inline game code):
+
+| test | before | after | target |
+|---|---|---|---|
+| two bumps @10 km/h | 100% | 100% | ≥99% ✔ |
+| two bumps @20 km/h | 100% | 95% | 94–97% ✔ |
+| two bumps @30 km/h | 99% | 83% | 82–90% ✔ |
+| wall @40 km/h | 99% | 63% | 60–75% ✔ |
+| wall @50 km/h | 97% | 45% | 35–55% ✔ |
+| wall @60 km/h | 96% | 24% | <30% ✔ |
+
+Sovereign GT (same harness, before vs after): **bit-identical** on all 12 rows
+(two-bump + wall @10/20/30/40/50/60 km/h) — health, affected parts and per-part damage values
+all match (e.g. 98→95→86→74→58→39 two-bump, 99→97→92→85→75→62 wall, same part lists).
+
+Rider injury (real `driverHurt`, identical before and after this retune):
+30/50/60 km/h with helmet → "injured (helmet on)"; without helmet → "badly hurt (no helmet)"
+(doubled impact). No passenger system or helmet-logic change.
+
+Repair rows (real Rule B functions, unchanged by this commit): bike K90,000/15 min @100%,
+K44,500/8 min @50%, K13,500/3 min @10%; Sovereign GT K270,000/15 min @100%, K134,500/7 min @50%,
+K47,000/3 min @10%. Full repair stays 15 minutes.
+
 ### Item 1c — changed strings (line numbers in the new `index.html`)
 
 | line | before → after |
@@ -865,8 +897,8 @@ Sovereign GT repair rows, all car crash rows, and all car "said"/repair-item tex
 
 1. Bike crash damage now writes to real bike parts (tyres, forks, handlebars, fuel tank, mirrors,
    tail light, seat, side panels) instead of car-only keys, so it is repairable.
-2. Bike crash multiplier lowered: 10–20 km/h bumps now leave scuffs only (<5%), 30 km/h leaves the
-   bike above 80% health.
+2. Bike crash damage is progressive with speed (see the AG3 table in Item 1b): 10 km/h bumps leave
+   no damage, 30 km/h two bumps leave the bike at 83%, and 60 km/h into a wall leaves it at 24%.
 3. Bike wording changed everywhere to rider/bike language (see table above).
 4. `CARSIT.motorbike` moved the rider forward onto the rider's seat (own and network bikes).
 5. New: Helmet on/off button for the bike (replaces the seatbelt label/state); starts off.
