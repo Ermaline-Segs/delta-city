@@ -760,23 +760,47 @@ select count(*) from public.vehicles where model = 'motorbike';
   all read the vehicle's own part list now, so a new model only needs a `VEHICLES` entry.
 - **Not tested / unchanged:** the server still trusts the price the client sends; this change is client-side only.
 
-## Player inventory grid (PARTIAL — window CSS + HUD icons only; markup and JS not yet written)
+## Player inventory grid + Vehicle Fob → Garage (live)
 
-> **Status: incomplete.** This entry documents what is actually in the branch so the next helper does not
-> mistake a styled shell for a working feature. **Do not** describe the inventory grid as live.
-
-- **What is in the branch (`index.html`, one commit):** only the CSS for the inventory window
-  (`.invgrid`, `.ig-head`, `.ig-body`, `.ig-grid`, `.ig-tile`, `.ig-empty`, `.ig-det`, plus a `max-width:640px`
-  media query) and two new HUD icon glyphs (`key` and `bag`) added to the icon map.
-- **What is NOT in the branch (still to be built):**
-  - **Markup:** there is no `<div class="invgrid">` element, no tabs, no tile grid, and no detail panel in the DOM.
-  - **JS:** there is no logic to open the grid, render real items, switch tabs, select a tile, or wire the detail panel.
-  - **Vehicle Fob → Open Garage:** no code exists for the Fob to open the garage from anywhere, and no
-    read-only-away-from-a-park behaviour is implemented. This cannot be confirmed until the JS is written.
-  - **"Only real items are shown":** no rendering logic exists, so this is not yet true and cannot be verified.
-- **Unchanged / safe:** because the change is CSS + two icon glyphs only, it touches no existing code path. The
-  **E key** and the **P button** near a park are untouched and behave exactly as before.
-- **Next helper, in order:** (1) add the `invgrid` markup, (2) write the JS that lists only the player's real
-  items and drives the tabs/detail panel, (3) implement the Fob's "Open Garage" (open from anywhere; read-only
-  away from a park), (4) re-check the E key and P button still work near a park, (5) then and only then update
-  this entry to "live".
+- **What is in the branch (`index.html`):** a functional inventory window that replaces the old read-only
+  INVENTORY sheet. Dark navy semi-transparent window, cyan borders/highlights, white type, rounded panels;
+  item grid on the left, selected-item detail panel on the right; three-column at 1280×800, single stacked
+  column at 390×844 (media query, no scroll-locked controls).
+- **Header:** bag icon, `MY INVENTORY` / `Items, tools and more`, the player's **real cash** at the right
+  (`K` + `me.cash`, only when signed in), and a close button (×).
+- **Tabs:** `All Items (n)`, `Vehicles (n)`, `Tools (n)`, `Keys (n)`, `Misc (n)`. Counts are computed from the
+  actual item list, never hardcoded. Tiles show icon, name and a quantity badge; five columns on desktop.
+- **Detail panel:** name, category, large icon, description, restriction line (when any) and the contextual
+  action. Empty tabs show a clear empty-state message.
+- **Footer:** bag icon, real `x / 50 Items` count, progress bar sized from real data, short help text,
+  `ESC Close` hint.
+- **Only real items (v1):** the **Vehicle Fob** (Vehicles tab, category `Special Item`, `Opens your garage
+  from anywhere in the city.`, restriction `Cannot be dropped, sold or trade` — actually `...or traded`), the
+  **ID Card** (only when the player has a citizen certificate), **Wallet** (cash when signed in), and
+  **Vehicle Keys** (Keys tab) built from `GAR.list` — the vehicles the `veh_mine` RPC returned for the
+  player (and to which the player is a key holder). **No invented items, prices, stack limits or capacity
+  rules.** When the player is not signed in (no key data reaches the client) the Keys tab shows an honest
+  empty state ("Keys you are given to a vehicle will appear here. Sign in to your account..."). No food,
+  tools or fishing items exist yet, so the Tools tab is empty by design.
+- **Vehicle Fob action:** its detail panel has one button, `Open Garage` (`igOpenGarage`). It calls
+  `garNear(townOf(me.town))` — the same predicate the **E key** uses:
+  - **Near a car park:** the existing `garPanel(P)` opens. The E key and the P button are unchanged and
+    behave exactly as before; no second garage system was built.
+  - **Away from a car park:** the same garage panel shell opens **read-only** with the player's actual
+    vehicles from `GAR.list` (plate, model, park) and the instruction `Go to a car park to spawn`. There is
+    **no spawn button, no key actions, no drop/sell/trade** — those do not exist in v1 and none were added.
+    If signed out the away panel says the vehicle list is empty until sign-in.
+- **ESC:** the global keydown handler now closes the inventory sheet (added next to the existing HUD key
+  handling); the × button and outside-click close still work. The phone and settings sheets are unaffected.
+- **Unchanged:** vehicle spawning rules, ownership/key permissions, E/P car-park interaction code, garage
+  SQL/database functions, passenger functionality, and all unrelated HUD/vehicle/repair/multiplayer
+  systems. The branch touches only `index.html` and `docs/HANDOVER.md`.
+- **Tested (Playwright, real game at `http://localhost:8123/index.html`, 390×844 and 1280×800):** open/close,
+  ESC close, tab switching, tile selection, real tab counts and cash, Fob → Open Garage, away panel shows
+  the real vehicle list with no spawn control, E key near a park still opens the existing garage, both
+  responsive sizes render without clipped controls. Screenshot evidence: see the PR description.
+- **Known limitations:** the away-from-park panel reuses `garPanel`'s loading path and then swaps in the
+  read-only body, so a brief `Loading your vehicles...` flash is visible before the read-only list renders.
+  The `veh_mine` RPC is called with the real session token when signed in; in the sandbox tests the fetch
+  was stubbed at the `window.fetch` level (vehicle data injected), so live-server data flow of the list
+  itself was not exercised end-to-end. Cash shown is `me.cash` as held in memory after sign-in.
