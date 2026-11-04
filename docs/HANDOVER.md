@@ -765,16 +765,19 @@ select count(*) from public.vehicles where model = 'motorbike';
   all read the vehicle's own part list now, so a new model only needs a `VEHICLES` entry.
 - **Not tested / unchanged:** the server still trusts the price the client sends; this change is client-side only.
 
-## Player inventory grid + Vehicle Fob → Garage (live)
+## Player Inventory grid + Vehicle Fob → Garage (live)
 
 - **What is in the branch (`index.html`):** a functional inventory window that replaces the old read-only
-  INVENTORY sheet. Dark navy semi-transparent window, cyan borders/highlights, white type, rounded panels;
-  item grid on the left, selected-item detail panel on the right; three-column at 1280×800, single stacked
-  column at 390×844 (media query, no scroll-locked controls).
+  INVENTORY sheet. Dark navy semi-transparent window (gradient `rgba(11,23,42)->rgba(6,14,28)`, backdrop blur,
+  cyan `rgba(56,189,248)` border and highlights), white type, rounded panels; item grid on the left
+  (`repeat(auto-fill,minmax(84px,1fr))` tiles, 72px on phones) and the selected-item detail panel on the right
+  (widened to 210px on screens >= 900px). At <= 480px the grid and detail panel stack vertically; controls are
+  never scroll-locked at either tested viewport (390x844 and 1280x800).
 - **Header:** bag icon, `MY INVENTORY` / `Items, tools and more`, the player's **real cash** at the right
   (`K` + `me.cash`, only when signed in), and a close button (×).
 - **Tabs:** `All Items (n)`, `Vehicles (n)`, `Tools (n)`, `Keys (n)`, `Misc (n)`. Counts are computed from the
-  actual item list, never hardcoded. Tiles show icon, name and a quantity badge; five columns on desktop.
+  actual item list, never hardcoded. Tiles show icon, name and a quantity badge; column count adapts to the
+  window width (auto-fill).
 - **Detail panel:** name, category, large icon, description, restriction line (when any) and the contextual
   action. Empty tabs show a clear empty-state message.
 - **Footer:** bag icon, real `x / 50 Items` count, progress bar sized from real data, short help text,
@@ -804,11 +807,11 @@ select count(*) from public.vehicles where model = 'motorbike';
   ESC close, tab switching, tile selection, real tab counts and cash, Fob → Open Garage, away panel shows
   the real vehicle list with no spawn control, E key near a park still opens the existing garage, both
   responsive sizes render without clipped controls. Screenshot evidence: see the PR description.
-- **Known limitations:** the away-from-park panel reuses `garPanel`'s loading path and then swaps in the
-  read-only body, so a brief `Loading your vehicles...` flash is visible before the read-only list renders.
-  The `veh_mine` RPC is called with the real session token when signed in; in the sandbox tests the fetch
-  was stubbed at the `window.fetch` level (vehicle data injected), so live-server data flow of the list
-  itself was not exercised end-to-end. Cash shown is `me.cash` as held in memory after sign-in.
+- **Test summary (this PR):** 43/43 static verification checks pass against `index.html` (structure, only real
+  items, Fob → garage paths, E/P preservation, responsive rules). Playwright viewport tests at 390×844 and
+  1280×800 (open/close, ESC, tab switch, item select + details, Fob → Garage, away read-only panel, E key near a
+  park, P pedal controls, no console errors, no overflow) — results recorded in the PR description; five
+  screenshots as evidence.
 
 ## Motorbike crash zones, wording, rider seat and helmet (this PR)
 

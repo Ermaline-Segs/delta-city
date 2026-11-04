@@ -373,6 +373,10 @@ body.mapfold #hudMap .clockpill{left:40px}
 #hudSheet.invg .ig-det .dd{color:rgba(210,232,255,.75)}
 #hudSheet.invg .ig-det .dc{filter:none}
 #hudSheet.invg .ig-foot .cnt{color:#fff}
+/* the inventory on a phone: stack the details under the grid so the tiles keep a workable size */
+@media (max-width:480px){.ig-body{grid-template-columns:1fr;max-height:none}.ig-grid{grid-template-columns:repeat(auto-fill,minmax(72px,1fr));max-height:40vh}.ig-det{min-height:0}}
+/* the inventory on a wide screen: give the details panel more room */
+@media (min-width:900px){.ig-body{grid-template-columns:1fr 210px}}
 @media (max-width:640px){.ig-body{grid-template-columns:1fr}.ig-det{order:2}.ig-grid{max-height:220px}}
 /* the old performance box: only when asked for (Settings) */
 .hud{display:none}body.stats .hud{display:block;left:50%;transform:translateX(-50%);top:calc(14px + var(--st));background:var(--h-cream);border-color:var(--h-line);color:var(--h-ink);font-size:12px;padding:5px 10px}
