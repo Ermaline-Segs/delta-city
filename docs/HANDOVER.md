@@ -286,7 +286,12 @@ main is at `f44031f` (29 October 2026) as of this work; once this PR (#8) is mer
 history will include `36b5267` (the unowned-car fix) plus this handover commit, and main will
 point at the merge commit created at merge time. Everything below that is merged is live on
 main and at the Pages URL. The repo has no build, typecheck or lint; the only runnable check is
-`test/flags.mjs` (`node test/flags.mjs` from the repo root — it must pass before pushing).
+`test/flags.mjs` (`node test/flags.mjs` from the repo root — it must pass before pushing) and the
+vehicle-damage suite `test/vehicle-damage.mjs` (`node test/vehicle-damage.mjs` from the repo root —
+it extracts and executes the real damage functions from `index.html`, walks the real wall collision
+path with the 1.12 restitution factor, checks the six bike acceptance rows, all twelve Sovereign GT
+rows with per-part values, Rule B repair prices/times and helmet ON/OFF `driverHurt`, and exits
+non-zero on any failure — both must pass before pushing).
 
 - **Owner decisions, 29 October 2026 (after PR 8; recorded on merge commit `558afa8`):**
   1. **No practice car, and no new player gets a car.** Removed deliberately in PR 8 — not a bug. Do not re-add it.
