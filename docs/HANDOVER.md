@@ -195,6 +195,14 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 - **Home buildings:** see section 6 (`assets/buildings/homes/`, `homes.md`).
 
 ## 11. Updates since the first handover (newest first)
+- **`bike-fix` branch: merged `origin/main` (PR #21, inventory grid) into the bike branch — 2026-11-05.**
+  The bike-fix branch (PR #24) was based on `ff51220`, before the inventory grid landed on `main`
+  (`3457e2c`, PR #21). Merged `origin/main` into `bike-fix` with `git merge --no-edit origin/main`
+  (merge commit `3c94ecd`); auto-merge was clean, no conflict markers. The merged `index.html` contains
+  both: the bike fixes (BIKESCENE scenes, mount sequence, locked side-view camera, push-to-reverse)
+  and the inventory grid (full-window grid, HUD key/bag icons, Fob → garage). What the bike commits
+  still add on top of `main` is exactly the 24-line bike delta (seat, camera, reverse wording) — nothing
+  from unmerged branches (e.g. PR #26 garage-v2) was pulled in.
 - **Admin: "put this vehicle back in its garage" (this PR)** — new `supabase_admin_putaway.sql` + `index.html` only.
   The admin panel (inside "Choose a citizen") now has a **"Put a vehicle back in its garage"** dropdown next to
   "Give car" and "Set". It calls the new `veh_admin_putaway` function.
