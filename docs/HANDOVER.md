@@ -983,3 +983,22 @@ Sovereign GT repair rows, all car crash rows, and all car "said"/repair-item tex
 - Multiplayer rendering of other riders' helmets (state is not synced to peers; peers see the seated
   rider only).
 - Server-side: nothing changed server-side; the server still trusts client-sent prices.
+---
+
+## 2026-11-06 — main-merge verification (e2e, desktop + mobile)
+
+After merging `origin/main` (3457e2c) into `bike-fix`, the merged file was verified end-to-end
+with the Node/Playwright harness in `/workspace/.biketest` (served from the sandbox over
+`http://127.0.0.1:8000/index.html`; served file confirmed byte-identical to `git show
+bike-fix:index.html`):
+
+- **Desktop flow** (`play_flow.cjs`, `FLOW_MODE=desktop`): exit 0, `ERRS []`, `NET_BAD []`,
+  login + character pick OK, `MOVED true` (walked), in-game roster/HUD present.
+- **Mobile flow** (`play_flow.cjs`, `FLOW_MODE=mobile`): exit 0, `ERRS []`, `NET_BAD []`
+  (stops at the login screen by design; no credentials in that script).
+- **Real mobile login** (`mobile_flow.cjs`, `MODE=login`): exit 0, `authUser
+  helixbike0509@gmail.com`, `hasChar true`, `scene town`, stick move ran (diag shows
+  `vel.z = -0.469` while the character was still loading), all Supabase calls 200/204,
+  `ERRS []`, `NET_BAD []`.
+
+Preview at merge time: `https://8000-f6d43w5sh8yrg9cu.daytonaproxy01.net`.
