@@ -112,6 +112,7 @@ body.driving .hud{display:none}
 .g2card .gbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
 .g2empty{display:grid;place-items:center;min-height:150px;padding:12px;border-radius:14px;border:1px dashed var(--line);opacity:.55;font-size:13px;text-align:center}
 .g2foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:12.5px;opacity:.72;line-height:1.5}
+.grent .gspawn{white-space:normal}
 .g2{padding:4px 2px}
 .g2l{min-width:0}
 .g2ttl{margin:0;font-size:24px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;line-height:1.1}
@@ -4239,12 +4240,12 @@ function garDraw(note){const P=GAR.panel,el=document.getElementById("choose");if
     if(v.mine)btn+=`<button class="btn2s" data-vp="keys" data-v="${v.id}">Keys</button>`+`<button class="btn2s frz" data-vp="freeze" data-v="${v.id}" ${GAR.busyId?"disabled":""}>Freeze</button>`;
     const D=Object.assign(carDmg0(),v.damage||{}),hp=carHealth(D)/100,fuel=clamp01(D.fuel);
     return`<div class="g2card" data-vid="${v.id}">${garPic(v)}<div class="g2info"><div class="g2chead"><b>${esc((CARS[v.model]||CARS.sovereign).name)}</b>${v.special?` <span class="vtag">Chief Admin</span>`:""}${isBike(v)?'<span class="vtag bike">BIKE</span>':""}<span class="g2slot">SLOT ${i+1}</span><span class="g2state ${v.status==="stored"?"st":"out"}">${v.status==="stored"?"STORED":"ACTIVE"}</span></div><small>${esc(v.plate)} &middot; ${v.mine?"Owned by you":"Keys from "+esc(v.owner_name||"its owner")}</small>
-      ${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<small>${st}${rentChip(v)}</small>${note2}</div><div class="vbtns">${btn}</div></div>`};
+      ${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<small>${st}${rentChip(v)}</small>${note2?`<br>${note2}`:""}</div><div class="vbtns">${btn}</div></div>`};
   const cardF=v=>{const D=Object.assign(carDmg0(),v.damage||{}),hp=carHealth(D)/100,fuel=clamp01(D.fuel);
     return`<div class="g2card froz" data-vid="${v.id}">${garPic(v)}<div class="g2info"><div class="g2chead"><b>${esc((CARS[v.model]||CARS.sovereign).name)}</b><span class="g2froz">FROZEN</span></div><small>${esc(v.plate)} &middot; Owned by you</small>
       ${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<small>Frozen — still yours, uses no storage slot. Unfreeze to access it again.</small></div><div class="vbtns">${`<button class="btn2s unf" data-vp="unfreeze" data-v="${v.id}" ${GAR.busyId||full?"disabled":""}>Unfreeze</button>`}</div></div>`};
-  const actBody=actV.length?actV.map((v,i)=>cardA(v,i)).join(""):`<div class="g2empty">${othV.length?"No vehicles in active storage.": "Nothing in active storage yet."}</div>`;
-  const body=actBody+(full?`<div class="g2card noacc"><span class="g2slot">SLOT ${slots+1}</span><small class="gnote">Storage full — freeze a vehicle to access another slot.</small></div>`:"")+
+  const actBody=actV.length?`<div class="g2grid">${actV.map((v,i)=>cardA(v,i)).join("")}${full?`<div class="g2card noacc"><span class="g2slot">SLOT ${slots+1}</span><small class="gnote">Storage full — freeze a vehicle to access another slot.</small></div>`:""}</div>`:`<div class="g2empty">${othV.length?"No vehicles in active storage.": "Nothing in active storage yet."}</div>`;
+  const body=actBody+
     (froV.length?`<div class="g2sect"><h2>FROZEN VEHICLES</h2><span class="g2sub">${full?"NO FREE SLOT":"SLOT AVAILABLE"}</span></div><div class="g2grid">${froV.map(cardF).join("")}</div>`:"")+
     (othV.length?`<div class="g2sect"><h2>KEYS FROM OTHERS</h2><span class="g2sub">${othV.length} VEHICLE${othV.length>1?"S":""}</span></div><div class="g2grid">${othV.map((v,i)=>cardA(v,i)).join("")}</div>`:"");
   el.innerHTML=gshell(ghead(garFree(P).length)+`<div class="g2grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:6px"><div class="g2kv"><span class="g2kl">PLAYER</span><b>${esc(me.n||"citizen")}</b></div><div class="g2kv"><span class="g2kl">ACTIVE STORAGE</span><b>${actN} / ${slots} SLOTS</b></div><div class="g2kv"><span class="g2kl">STORED</span><b>${GAR.list.filter(v=>v.mine&&v.status==="stored"&&!v.frozen).length}</b></div><div class="g2kv"><span class="g2kl">FROZEN</span><b>${froV.length}</b></div></div><div class="g2sect"><h2>ACTIVE STORAGE</h2><span class="g2sub">${esc(P.name)} &middot; ${garFree(P).length} OF ${P.bays.length} SPACES FREE</span></div>${body}${garRent(P)}`+gfoot())}

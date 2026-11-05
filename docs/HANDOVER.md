@@ -1002,3 +1002,61 @@ Sovereign GT repair rows, all car crash rows, and all car "said"/repair-item tex
 - Multiplayer rendering of other riders' helmets (state is not synced to peers; peers see the seated
   rider only).
 - Server-side: nothing changed server-side; the server still trusts client-sent prices.
+- Server-side: nothing changed server-side; the server still trusts client-sent prices.
+
+## Garage grid correction — PR #26
+
+**Branch: `helix/garage-v2-client` (PR #26). Not merged, not deployed — owner to merge.**
+
+The Garage v2 panel (state car-park sheet) was rendering vehicle cards in stretched
+full-width rows. The card containers were re-pointed at the same grid rules as the
+live Inventory interface, so the garage now uses the exact same grid system.
+
+### Changed files
+
+- `index.html` (only file changed)
+  - `.g2grid` CSS now mirrors the Inventory grid: `display:grid` with
+    `grid-template-columns:repeat(3,minmax(0,1fr))`, `gap:12px`, collapsing to
+    `repeat(2,...)` under 900 px and `1fr` under 560 px (the Inventory breakpoint behaviour).
+  - `.g2card` sizing matches Inventory cards: `min-width:0`, top-aligned, equal-height rows
+    via the grid (`align-items:stretch`), same 14 px radius and `--line` border.
+  - Applied to BOTH garage sections: **ACTIVE STORAGE** and **FROZEN VEHICLES** (each section
+    keeps its own `.g2grid` container; the 4-up stat strip at the top of the sheet keeps its
+    inline 4-column override).
+  - Cosmetic fix: a `<br>` is inserted before the "Spawning it here..." note when present,
+    so it no longer runs into the "Out with someone who has its keys" status text
+    (two adjacent inline `<small>` elements). Note is only inserted when non-empty, so card
+    height is unchanged for cards without the note.
+  - `.grent .gspawn{white-space:normal}` — the rental offer's spawn note wraps inside its
+    card instead of being clipped by the `white-space:nowrap` inherited from the row.
+
+No other Garage behaviour changed: Freeze/Unfreeze, Keys, Spawn, vehicle information
+(plate, condition, fuel, slot, status), storage capacity counters, and the motorbike
+rental block all render and dispatch exactly as before. Inventory was not touched.
+
+### Grid selectors (verified in rendered DOM)
+
+- Inventory reference: `.inv-grid` (3 cols desktop / 1 col at 414 px)
+- Garage: `.g2grid` in ACTIVE STORAGE and FROZEN VEHICLES — computed `display:grid`
+  with the same `grid-template-columns` at both sizes.
+
+### Verification (real browser, seeded Supabase data, 2026-11-05)
+
+- Desktop **1280×720**: ACTIVE grid computes 3 columns, 3 cards per row
+  (x=353/548/742, w=185). FROZEN grid 3 columns, 1 card. No page errors.
+- Mobile **414×896**: ACTIVE grid computes 1 column, cards w=336 (no overflow,
+  no cramping). FROZEN grid 1 column. No page errors.
+- Freeze/Unfreeze, vehicle info, capacity ("3 / 8 SLOTS"), and the rental block all
+  present and enabled in both sizes.
+
+### Screenshots (in `screenshots/`)
+
+- `garage-full-desktop.png` / `garage-full-mobile-414.png` — whole sheet, active grid top
+- `garage-frozen-desktop.png` / `garage-frozen-mobile-414.png` — frozen section scrolled into view
+- `inventory-desktop.png` / `inventory-mobile-414.png` — Inventory reference for comparison
+- `garage-outcard-desktop.png` / `garage-outcard-mobile-414.png` — out-card close-up (line-break fix)
+
+### No merge / no deploy
+
+The branch is pushed to PR #26 only. Nothing was merged to `main` and the live
+GitHub Pages site was not touched.
