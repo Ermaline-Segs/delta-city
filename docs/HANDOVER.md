@@ -1049,7 +1049,7 @@ rental block all render and dispatch exactly as before. Inventory was not touche
 - Freeze/Unfreeze, vehicle info, capacity ("3 / 8 SLOTS"), and the rental block all
   present and enabled in both sizes.
 
-### Screenshots (in `screenshots/`)
+### Screenshots (in `screenshots/`, untracked — `screenshots/` is gitignored, same convention as the section-11 evidence)
 
 - `garage-full-desktop.png` / `garage-full-mobile-414.png` — whole sheet, active grid top
 - `garage-frozen-desktop.png` / `garage-frozen-mobile-414.png` — frozen section scrolled into view
