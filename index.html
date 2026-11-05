@@ -324,6 +324,60 @@ body.mapfold #hudMap .clockpill{left:40px}
 .inv{display:grid;gap:7px}.inv .ir{display:flex;align-items:center;gap:11px;padding:8px 10px;background:#fff;border:1px solid var(--h-line);border-radius:12px;font-size:13px}
 .inv .ir i{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--h-dk2);color:var(--h-on);flex:none}
 .inv .ir div{flex:1;min-width:0}.inv .ir b{display:block}.inv .ir small{display:block;color:var(--h-mut);font-size:11.5px}.inv p{color:var(--h-mut);font-size:12.5px;margin:4px 2px;text-align:center}
+/* the inventory grid: header with cash, tabs, tile grid + detail panel, bottom bar */
+.invgrid{--nv:#38bdf8;--nv-soft:rgba(56,189,248,.14);display:grid;grid-template-rows:auto auto 1fr auto;gap:8px;min-height:0}
+.ig-head{display:flex;align-items:center;gap:10px}
+.ig-head .bg{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--nv-soft);color:var(--nv);flex:none;border:1px solid rgba(56,189,248,.35)}
+.ig-head h4{flex:1;min-width:0;margin:0!important;text-align:left!important;font-size:14px;letter-spacing:.14em;color:var(--h-ink)!important}
+.ig-head h4 small{display:block;font-size:10.5px;letter-spacing:.06em;color:var(--h-mut);font-weight:600}
+.ig-head .cash{font:800 13px/1.1 var(--body);font-variant-numeric:tabular-nums;color:var(--h-ok);white-space:nowrap}
+.ig-head .x{all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:var(--h-mut);border:1px solid var(--h-line)}
+.ig-tabs{display:flex;gap:5px;flex-wrap:wrap}
+.ig-tabs button{all:unset;cursor:pointer;font:700 11.5px/1 var(--body);padding:7px 10px;border-radius:9px;border:1px solid var(--h-line);color:var(--h-mut);background:#fff;white-space:nowrap}
+.ig-tabs button.on{background:var(--nv-soft);border-color:var(--nv);color:#0c4a6e;box-shadow:0 0 0 1px var(--nv),0 0 10px rgba(56,189,248,.35)}
+.ig-body{display:grid;grid-template-columns:1fr 172px;gap:8px;min-height:120px;max-height:min(52vh,430px)}
+.ig-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:7px;align-content:start;overflow:auto;padding:2px}
+.ig-tile{position:relative;all:unset;cursor:pointer;display:grid;justify-items:center;gap:4px;padding:10px 6px 8px;background:#fff;border:1px solid var(--h-line);border-radius:12px;text-align:center;color:var(--h-ink);min-width:0}
+.ig-tile:hover{border-color:var(--nv)}
+.ig-tile.on{border-color:var(--nv);box-shadow:0 0 0 1px var(--nv),0 0 12px rgba(56,189,248,.4);background:var(--nv-soft)}
+.ig-tile .ti{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--h-dk2);color:var(--h-on)}
+.ig-tile .tn{font-size:10.5px;font-weight:700;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ig-tile .tc{position:absolute;top:5px;right:5px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--nv);color:#06283d;font:800 10px/17px var(--body);text-align:center}
+.ig-empty{grid-column:1/-1;color:var(--h-mut);font-size:12px;text-align:center;padding:18px 6px}
+.ig-det{background:#fff;border:1px solid var(--h-line);border-radius:12px;padding:10px;display:grid;gap:7px;align-content:start;min-width:0}
+.ig-det .dn{font-size:12.5px;font-weight:800;line-height:1.2}
+.ig-det .dc{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--nv);filter:brightness(.8)}
+.ig-det .di{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:var(--nv-soft);color:var(--nv);justify-self:center}
+.ig-det .dd{font-size:11.5px;color:var(--h-mut);line-height:1.35}
+.ig-det .dl{display:flex;gap:6px;align-items:center;font-size:11px;color:#16a34a;font-weight:700}
+.ig-det .db{all:unset;cursor:pointer;text-align:center;font:800 12px/1 var(--body);padding:9px;border-radius:10px;background:var(--nv);color:#06283d;box-shadow:0 0 10px rgba(56,189,248,.45)}
+.ig-foot{display:flex;align-items:center;gap:8px;padding:7px 9px;background:var(--h-dk2);border-radius:12px;color:var(--h-on);font:700 11px/1.2 var(--body)}
+.ig-foot .fbg{color:var(--nv);flex:none}
+.ig-foot .cnt{white-space:nowrap;font-variant-numeric:tabular-nums}
+.ig-foot .bar{flex:1;height:6px;border-radius:4px;background:rgba(255,255,255,.2);overflow:hidden}
+.ig-foot .bar i{display:block;height:100%;background:var(--nv);box-shadow:0 0 8px rgba(56,189,248,.8)}
+.ig-foot .esc{opacity:.65;white-space:nowrap}
+/* the inventory window: dark navy semi-transparent, cyan accents, white text */
+#hudSheet.invg{background:linear-gradient(180deg,rgba(11,23,42,.94),rgba(6,14,28,.96));border-color:rgba(56,189,248,.4);color:#eaf4ff;box-shadow:0 12px 34px rgba(0,8,22,.55);backdrop-filter:blur(10px)}
+#hudSheet.invg .ig-head h4{color:#fff}
+#hudSheet.invg .ig-head h4 small{color:rgba(210,232,255,.6)}
+#hudSheet.invg .ig-head .x{color:rgba(210,232,255,.8);border-color:rgba(148,197,233,.3)}
+#hudSheet.invg .ig-head .cash{color:#4ade80}
+#hudSheet.invg .ig-tabs button{background:rgba(255,255,255,.06);border-color:rgba(148,197,233,.25);color:rgba(210,232,255,.75)}
+#hudSheet.invg .ig-tabs button.on{background:rgba(56,189,248,.22);border-color:var(--nv);color:#fff;box-shadow:0 0 0 1px var(--nv),0 0 10px rgba(56,189,248,.35)}
+#hudSheet.invg .ig-tile{background:rgba(255,255,255,.05);border-color:rgba(148,197,233,.28);color:#f2f8ff}
+#hudSheet.invg .ig-tile.on{background:rgba(56,189,248,.22);border-color:var(--nv);color:#fff;box-shadow:0 0 0 1px var(--nv),0 0 12px rgba(56,189,248,.4)}
+#hudSheet.invg .ig-tile .ti{background:rgba(56,189,248,.18);color:#7dd3fc}
+#hudSheet.invg .ig-empty{color:rgba(210,232,255,.7)}
+#hudSheet.invg .ig-det{background:rgba(255,255,255,.05);border-color:rgba(148,197,233,.28);color:#f2f8ff}
+#hudSheet.invg .ig-det .dd{color:rgba(210,232,255,.75)}
+#hudSheet.invg .ig-det .dc{filter:none}
+#hudSheet.invg .ig-foot .cnt{color:#fff}
+/* the inventory on a phone: stack the details under the grid so the tiles keep a workable size */
+@media (max-width:480px){.ig-body{grid-template-columns:1fr;max-height:none}.ig-grid{grid-template-columns:repeat(auto-fill,minmax(72px,1fr));max-height:40vh}.ig-det{min-height:0}}
+/* the inventory on a wide screen: give the details panel more room */
+@media (min-width:900px){.ig-body{grid-template-columns:1fr 210px}}
+@media (max-width:640px){.ig-body{grid-template-columns:1fr}.ig-det{order:2}.ig-grid{max-height:220px}}
 /* the old performance box: only when asked for (Settings) */
 .hud{display:none}body.stats .hud{display:block;left:50%;transform:translateX(-50%);top:calc(14px + var(--st));background:var(--h-cream);border-color:var(--h-line);color:var(--h-ink);font-size:12px;padding:5px 10px}
 body.stats .hud b{font-size:14px}
@@ -5237,7 +5291,7 @@ function followRoute(t){if(Math.hypot(cam.x-route.place.x,cam.z-route.place.z)<9
 /* ================================ controls ================================ */
 let touch=matchMedia("(pointer:coarse)").matches;document.body.classList.toggle("touch",touch);
 const typing=e=>e.target&&(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.tagName==="SELECT");
-addEventListener("keydown",e=>{if(typing(e))return;const k=e.key.toLowerCase();keys[k]=true;if(driving&&!busy&&driveKey(k,true)){e.preventDefault();return}if(driving&&k==="e"){carExit();return}if(k==="e"&&!actNow()&&CARUI.near&&!talking&&!busy){carEnter();return}if(k==="e"&&!driving&&!actNow()&&!talking&&!busy&&!choosing&&scene==="town"){const P=garNear(townOf(me.town));if(P){garPanel(P);return}}if(k===" "){e.preventDefault();doJump()}if(/^[wasd]$|^arrow/.test(k))setTouchMode(false);if(k==="m"&&scene==="town"&&!choosing&&!mapOpen&&!talking)openMap();if((k==="e"||k==="enter"||k==="f")&&actNow()&&!talking&&!busy)doAct();else if(k==="enter"&&NET.state==="on"&&!driving&&!choosing&&!mapOpen&&!talking){e.preventDefault();chatOpen()}if(k==="v"&&!talking){view3=!view3;ui()}if(k==="escape"&&talking)closeTalk()});addEventListener("keyup",e=>{const k=e.key.toLowerCase();keys[k]=false;driveKey(k,false)});
+addEventListener("keydown",e=>{if(typing(e))return;const k=e.key.toLowerCase();keys[k]=true;if(k==="escape"&&HUD.open==="inv"){HUD.open=null;hudNav();return}if(driving&&!busy&&driveKey(k,true)){e.preventDefault();return}if(driving&&k==="e"){carExit();return}if(k==="e"&&!actNow()&&CARUI.near&&!talking&&!busy){carEnter();return}if(k==="e"&&!driving&&!actNow()&&!talking&&!busy&&!choosing&&scene==="town"){const P=garNear(townOf(me.town));if(P){garPanel(P);return}}if(k===" "){e.preventDefault();doJump()}if(/^[wasd]$|^arrow/.test(k))setTouchMode(false);if(k==="m"&&scene==="town"&&!choosing&&!mapOpen&&!talking)openMap();if((k==="e"||k==="enter"||k==="f")&&actNow()&&!talking&&!busy)doAct();else if(k==="enter"&&NET.state==="on"&&!driving&&!choosing&&!mapOpen&&!talking){e.preventDefault();chatOpen()}if(k==="v"&&!talking){view3=!view3;ui()}if(k==="escape"&&talking)closeTalk()});addEventListener("keyup",e=>{const k=e.key.toLowerCase();keys[k]=false;driveKey(k,false)});
 const stick=document.getElementById("stick"),knob=document.getElementById("knob");let stickId=null,lookId=null,lx=0,ly=0;
 function stickMove(e){const r=stick.getBoundingClientRect();let dx=(e.clientX-r.left-r.width/2)/(r.width/2),dy=(e.clientY-r.top-r.height/2)/(r.height/2);const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}const L=Math.min(1,l),dz=CAMCFG.deadZone,g=L<dz?0:(L-dz)/(1-dz)/(L||1);input.x=dx*g;input.y=-dy*g;knob.style.transform=`translate(${dx*37}px,${dy*37}px)`}
 function grabPointer(el,e){try{el.setPointerCapture(e.pointerId)}catch(_){}}       // a pointer already lifted cannot be held: no matter
@@ -5287,7 +5341,8 @@ const HUDI={chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 1
   info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',car:'<path d="M3 16v-3l2-5h14l2 5v3H3z"/><circle cx="7.5" cy="16.5" r="1.8"/><circle cx="16.5" cy="16.5" r="1.8"/>',
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',id:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M14 10h4M14 14h4M6 16c.7-1.4 1.8-2 3-2s2.3.6 3 2"/>',
   fuel:'<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8l3 2v8a1.5 1.5 0 0 0 3 0v-7l-3-3"/>',
-  wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>',heart:'<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>'};
+  wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>',heart:'<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>',
+  key:'<circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 8.8-8.8M15 6l3 3M18 3l3 3"/>',bag:'<path d="M8 8V6a4 4 0 0 1 8 0v2"/><rect x="4" y="8" width="16" height="13" rx="3"/><path d="M4 13h4M16 13h4"/>'};
 const hico=(n,s)=>`<svg viewBox="0 0 24 24" width="${s||18}" height="${s||18}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${HUDI[n]}</svg>`;
 Object.assign(HUDI,{phone:'<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M11 18.5h2"/>',bag:'<path d="M6 8h12l1 12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M9 13h6"/>',
   walk:'<circle cx="13" cy="4" r="1.8"/><path d="M11 21l2-6-2-3 1-5 3 3 3 1M12 7l-3 2-1 4M13 15l3 6"/>',run:'<circle cx="15" cy="4" r="1.8"/><path d="M5 12l3-3 5 1 3 3 3 0M10 10l-2 5-4 1M13 10l-1 5 4 2-1 4"/>',
@@ -5332,7 +5387,7 @@ function hudNav(){if(!HUD.el.nav)return;const B=[["phone","Phone","phone"],["bag
     b.addEventListener("click",e=>{e.stopPropagation();HUD.open=HUD.open===k?null:k;HUD.histOpen=false;hudNotesDraw();hudNav()});nav.appendChild(b)}
   for(const b of nav.children)b.setAttribute("aria-pressed",HUD.open===b.dataset.k?"true":"false");
   document.getElementById("picks").classList.toggle("open",HUD.open==="set");document.body.classList.toggle("sheet",!!HUD.open);hudSheet()}
-function hudSheet(){const el=HUD.el.sheet;if(!el)return;const k=HUD.open;el.hidden=k!=="phone"&&k!=="inv";if(el.hidden){el.innerHTML="";return}
+function hudSheet(){const el=HUD.el.sheet;if(!el)return;const k=HUD.open;el.hidden=k!=="phone"&&k!=="inv";el.classList.toggle("invg",k==="inv");if(el.hidden){el.innerHTML="";return}
   const signed=typeof AUTH!=="undefined"&&AUTH.user,go=fn=>()=>{HUD.open=null;hudNav();fn()};
   if(k==="phone"){const A=[];
     if(scene==="town")A.push(["map","Map",go(()=>{if(!mapOpen)openMap()})]);else if(fpPlan())A.push(["map","Floor plan",go(()=>openPlan())]);
@@ -5341,15 +5396,59 @@ function hudSheet(){const el=HUD.el.sheet;if(!el)return;const k=HUD.open;el.hidd
     if(signed)A.push(["chat","Chat",go(()=>chatOpen())]);
     if(me.role==="admin"&&signed)A.push(["shield","Admin",go(()=>adminPanel())]);
     A.push(["bell","Notifications",()=>{HUD.open=null;hudNav();HUD.histOpen=true;HUD.unread=0;hudNotesDraw()}]);
-    el.innerHTML='<h4>PHONE</h4><div class="apps"></div>';const box=el.querySelector(".apps");
-    for(const[ic,label,fn]of A){const b=document.createElement("button");b.type="button";b.innerHTML=`<i>${hico(ic,22)}</i>${label}`;b.addEventListener("click",e=>{e.stopPropagation();fn()});box.appendChild(b)}
+    const ph='<h4>PHONE</h4><div class="apps"></div>';
+    if(el.innerHTML!==ph){el.innerHTML=ph;const box=el.querySelector(".apps");
+    for(const[ic,label,fn]of A){const b=document.createElement("button");b.type="button";b.innerHTML=`<i>${hico(ic,22)}</i>${label}`;b.addEventListener("click",e=>{e.stopPropagation();fn()});box.appendChild(b)}}
     return}
-  // what you hold: your money, your identity card and your vehicles, as the game has them
-  const R=[];const row=(ic,b,s)=>R.push(`<div class="ir"><i>${hico(ic,18)}</i><div><b>${esc(b)}</b><small>${esc(s||"")}</small></div></div>`);
-  if(typeof AUTH!=="undefined"&&AUTH.char)row("wallet","K"+Number(me.cash||0).toLocaleString("en-GB"),"Cash in your wallet");
-  if(me.cert)row("id","Identity card",[me.cert.name,me.cert.state&&"Citizen of "+me.cert.state,me.cert.no].filter(Boolean).join(" · "));
-  if(garOn())for(const v of GAR.list){const P=v.park&&garPark(v.park);row("car",v.plate||"Vehicle",v.status==="stored"?"Stored at "+(P?P.name:"a car park"):v.out_by_me?"Out with you"+(v.state?" in "+v.state:""):"Out with someone who has its keys")}
-  el.innerHTML='<h4>INVENTORY</h4><div class="inv">'+(R.join("")||"<p>Nothing here yet.</p>")+(garOn()?"<p>Open a garage at any car park (P on the map) to take out a vehicle or give keys.</p>":"")+"</div>"}
+  // the inventory grid: the Vehicle Fob (given to every player), your wallet,
+  // your identity card and the vehicle keys you hold, exactly as the game has
+  // them. Every count, the cash and the bar below are computed from that real
+  // data; empty tabs (Tools in v1) say so instead of showing invented items.
+  if(HUD.igTab===undefined)HUD.igTab="all";
+  const IT=[{t:"vehicles",ic:"key",n:"Vehicle Fob",cat:"Special Item",q:1,d:"Opens your garage from anywhere in the city.",l:"Cannot be dropped, sold or traded",act:"garage"}];
+  if(typeof AUTH!=="undefined"&&AUTH.char)IT.push({t:"misc",ic:"wallet",n:"Wallet",cat:"Item",q:1,d:"Cash in your wallet: K"+Number(me.cash||0).toLocaleString("en-GB")});
+  if(me.cert)IT.push({t:"misc",ic:"id",n:"Identity Card",cat:"Document",q:1,d:[me.cert.name,me.cert.state&&"Citizen of "+me.cert.state,me.cert.no].filter(Boolean).join(" · ")});
+  if(garOn())for(const v of GAR.list)IT.push({t:"keys",ic:"key",n:"Keys to "+(v.plate||"a vehicle"),cat:"Vehicle Key",q:1,
+    d:v.mine?"You own this vehicle — keys let anyone they are given to spawn it at a car park.":"Keys from "+(v.owner_name||"the owner")+" — you can spawn this vehicle at a car park."});
+  const TABS=[["all","All Items"],["vehicles","Vehicles"],["tools","Tools"],["keys","Keys"],["misc","Misc"]];
+  const cnt=t=>t==="all"?IT.length:IT.filter(i=>i.t===t).length;
+  const L=TABS.find(t=>t[0]===HUD.igTab)?IT.filter(i=>HUD.igTab==="all"||i.t===HUD.igTab):IT;
+  const sel=IT[HUD.igSel]&&L.indexOf(IT[HUD.igSel])>=0?IT[HUD.igSel]:L[0];
+  const cash=typeof AUTH!=="undefined"&&AUTH.char?"K"+Number(me.cash||0).toLocaleString("en-GB"):"";
+  const html=`<div class="invgrid">
+    <div class="ig-head"><span class="bg">${hico("bag",20)}</span><h4>MY INVENTORY<small>Items, tools and more</small></h4><span class="cash">${esc(cash)}</span><button type="button" class="x" data-ig="x" aria-label="Close inventory">${hico("chev",14)}</button></div>
+    <div class="ig-tabs">${TABS.map(t=>`<button type="button" data-ig="tab" data-t="${t[0]}" class="${t[0]===HUD.igTab?"on":""}">${t[1]} (${cnt(t[0])})</button>`).join("")}</div>
+    <div class="ig-body">
+      <div class="ig-grid">${L.length?L.map(it=>`<button type="button" class="ig-tile${sel&&it===sel?" on":""}" data-ig="tile" data-n="${IT.indexOf(it)}"><span class="ti">${hico(it.ic,22)}</span><span class="tn">${esc(it.n)}</span><span class="tc">${it.q}</span></button>`).join(""):`<p class="ig-empty">${HUD.igTab==="tools"?"No tools yet. Tools will appear here when the game has them.":HUD.igTab==="keys"?(garOn()?"No vehicle keys yet. Your own vehicles and the keys you are given will appear here.":"Keys you are given to a vehicle will appear here. Sign in to your account to own and hold keys."):HUD.igTab==="vehicles"?"No vehicles here yet. The Vehicle Fob is always with you.":"Nothing here yet."}</p>`}</div>
+      <div class="ig-det">${sel?`<span class="dc">${esc(sel.cat)}</span><span class="di">${hico(sel.ic,28)}</span><span class="dn">${esc(sel.n)}</span><span class="dd">${esc(sel.d)}</span>${sel.l?`<span class="dl">${hico("warn",13)} ${esc(sel.l)}</span>`:""}${sel.act==="garage"?`<button type="button" class="db" data-ig="garage">Open Garage</button>`:""}`:`<p class="ig-empty">Select an item to see its details.</p>`}</div>
+    </div>
+    <div class="ig-foot"><span class="fbg">${hico("bag",15)}</span><span class="cnt">${IT.length} / 50 Items</span><span class="bar"><i style="width:${Math.min(100,IT.length/50*100).toFixed(1)}%"></i></span><span class="esc">ESC Close</span></div>
+  </div>`;
+  // compare against the PARSED serialization: the SVG icons contain
+  // self-closing tags (<path .../>) which the HTML parser normalizes,
+  // so a raw string compare would never match and the whole grid would
+  // be rebuilt every tick, detaching buttons mid-click.
+  const igNorm=document.createElement("div");igNorm.innerHTML=html;
+  if(el.innerHTML!==igNorm.innerHTML)el.innerHTML=igNorm.innerHTML;
+  el.onkeydown=e=>{if(e.key==="Escape"){e.stopPropagation();HUD.open=null;hudNav()}};
+  el.onclick=e=>{const b=e.target.closest("[data-ig]");if(!b)return;e.stopPropagation();
+    if(b.dataset.ig==="x"){HUD.open=null;hudNav();return}
+    if(b.dataset.ig==="tab"){HUD.igTab=b.dataset.t;HUD.igSel=L0indexOf();hudSheet();return}
+    if(b.dataset.ig==="tile"){HUD.igSel=+b.dataset.n;hudSheet();return}
+    if(b.dataset.ig==="garage"){HUD.open=null;hudNav();igOpenGarage();return}};
+  function L0indexOf(){const i=IT.findIndex(q=>q===IT[HUD.igSel]);return i}
+}
+// the Vehicle Fob: open the existing garage panel — the same one E and the P
+// button use — or, away from any car park, that same panel's shell with your
+// actual vehicles listed read-only and no way to spawn.
+function igOpenGarage(){if(scene!=="town"){igGarAway();return}
+  const P=garNear(townOf(me.town));if(P){garPanel(P);return}igGarAway()}
+function igGarAway(){const el=document.getElementById("choose");
+  const P={id:"away",st:me.town,name:"Garage",bays:[]};
+  GAR.panel=P;GAR.keysFor=null;choosing=true;el.hidden=false;
+  const cards=garOn()&&GAR.list.length?GAR.list.map(v=>`<div class="gveh">${garPic(v)}<div class="ginfo"><b>${esc((CARS[v.model]||CARS.sovereign).name)}</b><small>${esc(v.plate)} · ${v.mine?"Owned by you":"Keys from "+esc(v.owner_name||"its owner")}</small></div></div>`).join(""):"<p>No vehicles yet. Buy or rent a car to start your garage.</p>";
+  el.innerHTML=`<div class="card rpcard gcard"><h1>Garage</h1><p class="cdsub">Away from a car park</p><div class="glist">${cards}</div><p class="amsg">Go to a car park to spawn.</p><button class="go" data-ig-close>Close</button></div>`;
+  el.onclick=e=>{if(e.target.closest("[data-ig-close]")){choosing=false;el.hidden=true;el.onclick=null;GAR.panel=null}}}
 /* ---- notifications: every toast becomes a card for a few seconds, and stays in the history behind the bell */
 function hudKind(t){return/(cannot|can't|not |no room|refus|fail|error|only |blocked|fire|burst|too far|taken back|you do not|occupied|wait)/i.test(t)?"warn":/(paid|ready|done|stored|spawn|clocked|welcome|complete|arrived|repaired|refuelled|given|now has|added|saved)/i.test(t)?"ok":"info"}
 // the first sentence is the heading, the rest the line under it

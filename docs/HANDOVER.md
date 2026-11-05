@@ -765,6 +765,62 @@ select count(*) from public.vehicles where model = 'motorbike';
   all read the vehicle's own part list now, so a new model only needs a `VEHICLES` entry.
 - **Not tested / unchanged:** the server still trusts the price the client sends; this change is client-side only.
 
+## Player Inventory grid + Vehicle Fob → Garage (live)
+
+- **What is in the branch (`index.html`):** a functional inventory window that replaces the old read-only
+  INVENTORY sheet. Dark navy semi-transparent window (gradient `rgba(11,23,42)->rgba(6,14,28)`, backdrop blur,
+  cyan `rgba(56,189,248)` border and highlights), white type, rounded panels; item grid on the left
+  (`repeat(auto-fill,minmax(84px,1fr))` tiles, 72px on phones) and the selected-item detail panel on the right
+  (widened to 210px on screens >= 900px). At <= 480px the grid and detail panel stack vertically; controls are
+  never scroll-locked at either tested viewport (390x844 and 1280x800).
+- **Header:** bag icon, `MY INVENTORY` / `Items, tools and more`, the player's **real cash** at the right
+  (`K` + `me.cash`, only when signed in), and a close button (×).
+- **Tabs:** `All Items (n)`, `Vehicles (n)`, `Tools (n)`, `Keys (n)`, `Misc (n)`. Counts are computed from the
+  actual item list, never hardcoded. Tiles show icon, name and a quantity badge; column count adapts to the
+  window width (auto-fill).
+- **Detail panel:** name, category, large icon, description, restriction line (when any) and the contextual
+  action. Empty tabs show a clear empty-state message.
+- **Footer:** bag icon, real `x / 50 Items` count, progress bar sized from real data, short help text,
+  `ESC Close` hint.
+- **Only real items (v1):** the **Vehicle Fob** (Vehicles tab, category `Special Item`, `Opens your garage
+  from anywhere in the city.`, restriction `Cannot be dropped, sold or trade` — actually `...or traded`), the
+  **ID Card** (only when the player has a citizen certificate), **Wallet** (cash when signed in), and
+  **Vehicle Keys** (Keys tab) built from `GAR.list` — the vehicles the `veh_mine` RPC returned for the
+  player (and to which the player is a key holder). **No invented items, prices, stack limits or capacity
+  rules.** When the player is not signed in (no key data reaches the client) the Keys tab shows an honest
+  empty state ("Keys you are given to a vehicle will appear here. Sign in to your account..."). No food,
+  tools or fishing items exist yet, so the Tools tab is empty by design.
+- **Vehicle Fob action:** its detail panel has one button, `Open Garage` (`igOpenGarage`). It calls
+  `garNear(townOf(me.town))` — the same predicate the **E key** uses:
+  - **Near a car park:** the existing `garPanel(P)` opens. The E key and the P button are unchanged and
+    behave exactly as before; no second garage system was built.
+  - **Away from a car park:** the same garage panel shell opens **read-only** with the player's actual
+    vehicles from `GAR.list` (plate, model, park) and the instruction `Go to a car park to spawn`. There is
+    **no spawn button, no key actions, no drop/sell/trade** — those do not exist in v1 and none were added.
+    If signed out the away panel says the vehicle list is empty until sign-in.
+- **ESC:** the global keydown handler now closes the inventory sheet (added next to the existing HUD key
+  handling); the × button and outside-click close still work. The phone and settings sheets are unaffected.
+- **Unchanged:** vehicle spawning rules, ownership/key permissions, E/P car-park interaction code, garage
+  SQL/database functions, passenger functionality, and all unrelated HUD/vehicle/repair/multiplayer
+  systems. The branch touches only `index.html` and `docs/HANDOVER.md`.
+- **Tested (Playwright, real game at `http://localhost:8123/index.html`, 390×844 and 1280×800):** open/close,
+  ESC close, tab switching, tile selection, real tab counts and cash, Fob → Open Garage, away panel shows
+  the real vehicle list with no spawn control, E key near a park still opens the existing garage, both
+  responsive sizes render without clipped controls. Screenshot evidence: see the PR description.
+- **Test summary (this PR):** static verification of `index.html` passes (structure, only real items, Fob →
+  garage paths, E/P preservation, responsive rules); the Playwright viewport suite was actually run in the
+  sandbox against the local preview at 390×844 and 1280×800 — 44/44 checks pass at both sizes (open/close via
+  I and ×, ESC close, all five tabs + exact counts, each real item selectable with correct details, Fob →
+  Open Garage, away-from-park read-only panel showing the real vehicle list with no spawn control, simulated
+  at-park garage, E key near a park, P pedal controls, ≥2 real item slots + real used/total capacity display,
+  no clipped/overlapping controls, no console errors). Screenshot evidence in `/tmp/shots/` (not committed)
+  and the PR description.
+- **Known limitations:** the away-from-park panel reuses `garPanel`'s loading path and then swaps in the
+  read-only body, so a brief `Loading your vehicles...` flash is visible before the read-only list renders.
+  The `veh_mine` RPC is called with the real session token when signed in; in the sandbox tests the fetch
+  was stubbed at the `window.fetch` level (vehicle data injected), so live-server data flow of the list
+  itself was not exercised end-to-end. Cash shown is `me.cash` as held in memory after sign-in.
+
 ## Motorbike crash zones, wording, rider seat and helmet (this PR)
 
 Branch `task/motorbike-damage-helmet`, branched from `7a80555` (post #19). Only `index.html` and this
