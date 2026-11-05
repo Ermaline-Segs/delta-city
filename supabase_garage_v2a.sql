@@ -82,17 +82,22 @@ begin
   if not found then return jsonb_build_object('error', 'That vehicle does not exist'); end if;
   if v.owner is distinct from me then return jsonb_build_object('error', 'Only the owner can freeze a vehicle'); end if;
   if v.rents_until is not null then return jsonb_build_object('error', 'A rented bike cannot be frozen'); end if;
-  if v.frozen then return jsonb_build_object('now', now(), 'frozen', true, 'already', true); end if;
+  if v.frozen then
+    perform veh_log(me, v.id, 'freeze refused', jsonb_build_object('why', 'already frozen', 'status', v.status, 'park', v.park_id));
+    return jsonb_build_object('now', now(), 'frozen', true, 'already', true);
+  end if;
   if v.status <> 'stored' then return jsonb_build_object('error', 'Only a stored vehicle can be frozen. Put it in the garage first.'); end if;
   if v.hold is not null then return jsonb_build_object('error', 'It is being ' || v.hold || ' right now. Wait.'); end if;
-  -- in a repair queue or bay, if the repair tables exist (they are an optional add-on; the exists is nested
-  -- so it is only planned when the table is actually there)
-  if to_regclass('public.vehicle_repairs') is not null then
-    if exists (select 1 from vehicle_repairs r where r.vehicle_id = v.id and r.status in ('queued', 'in_progress', 'repair')) then
+  -- in a repair queue or bay, if the repair tables exist (they are an optional add-on from
+  -- supabase_repair_bays.sql; the nested exists is only planned when the table is actually there,
+  -- so this file still runs on a database without the repair feature)
+  if to_regclass('public.repair_queue') is not null then
+    if exists (select 1 from repair_queue r where r.vehicle_id = v.id and r.status in ('waiting', 'in_bay')) then
       return jsonb_build_object('error', 'It is in the repair queue. Wait for the repair.');
     end if;
   end if;
   update vehicles set frozen = true where id = v.id;
+  perform veh_log(me, v.id, 'freeze', jsonb_build_object('status', v.status, 'park', v.park_id, 'bay', v.bay));
   return jsonb_build_object('now', now(), 'frozen', true);
 end $$;
 
@@ -111,6 +116,7 @@ begin
     return jsonb_build_object('error', 'No free slot. Freeze a vehicle first or buy another garage.');
   end if;
   update vehicles set frozen = false where id = v.id;
+  perform veh_log(me, v.id, 'unfreeze', jsonb_build_object('status', v.status, 'park', v.park_id, 'bay', v.bay));
   return jsonb_build_object('now', now(), 'frozen', false);
 end $$;
 
