@@ -324,6 +324,60 @@ body.mapfold #hudMap .clockpill{left:40px}
 .inv{display:grid;gap:7px}.inv .ir{display:flex;align-items:center;gap:11px;padding:8px 10px;background:#fff;border:1px solid var(--h-line);border-radius:12px;font-size:13px}
 .inv .ir i{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--h-dk2);color:var(--h-on);flex:none}
 .inv .ir div{flex:1;min-width:0}.inv .ir b{display:block}.inv .ir small{display:block;color:var(--h-mut);font-size:11.5px}.inv p{color:var(--h-mut);font-size:12.5px;margin:4px 2px;text-align:center}
+/* the inventory grid: header with cash, tabs, tile grid + detail panel, bottom bar */
+.invgrid{--nv:#38bdf8;--nv-soft:rgba(56,189,248,.14);display:grid;grid-template-rows:auto auto 1fr auto;gap:8px;min-height:0}
+.ig-head{display:flex;align-items:center;gap:10px}
+.ig-head .bg{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--nv-soft);color:var(--nv);flex:none;border:1px solid rgba(56,189,248,.35)}
+.ig-head h4{flex:1;min-width:0;margin:0!important;text-align:left!important;font-size:14px;letter-spacing:.14em;color:var(--h-ink)!important}
+.ig-head h4 small{display:block;font-size:10.5px;letter-spacing:.06em;color:var(--h-mut);font-weight:600}
+.ig-head .cash{font:800 13px/1.1 var(--body);font-variant-numeric:tabular-nums;color:var(--h-ok);white-space:nowrap}
+.ig-head .x{all:unset;cursor:pointer;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:var(--h-mut);border:1px solid var(--h-line)}
+.ig-tabs{display:flex;gap:5px;flex-wrap:wrap}
+.ig-tabs button{all:unset;cursor:pointer;font:700 11.5px/1 var(--body);padding:7px 10px;border-radius:9px;border:1px solid var(--h-line);color:var(--h-mut);background:#fff;white-space:nowrap}
+.ig-tabs button.on{background:var(--nv-soft);border-color:var(--nv);color:#0c4a6e;box-shadow:0 0 0 1px var(--nv),0 0 10px rgba(56,189,248,.35)}
+.ig-body{display:grid;grid-template-columns:1fr 172px;gap:8px;min-height:120px;max-height:min(52vh,430px)}
+.ig-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:7px;align-content:start;overflow:auto;padding:2px}
+.ig-tile{position:relative;all:unset;cursor:pointer;display:grid;justify-items:center;gap:4px;padding:10px 6px 8px;background:#fff;border:1px solid var(--h-line);border-radius:12px;text-align:center;color:var(--h-ink);min-width:0}
+.ig-tile:hover{border-color:var(--nv)}
+.ig-tile.on{border-color:var(--nv);box-shadow:0 0 0 1px var(--nv),0 0 12px rgba(56,189,248,.4);background:var(--nv-soft)}
+.ig-tile .ti{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--h-dk2);color:var(--h-on)}
+.ig-tile .tn{font-size:10.5px;font-weight:700;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ig-tile .tc{position:absolute;top:5px;right:5px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--nv);color:#06283d;font:800 10px/17px var(--body);text-align:center}
+.ig-empty{grid-column:1/-1;color:var(--h-mut);font-size:12px;text-align:center;padding:18px 6px}
+.ig-det{background:#fff;border:1px solid var(--h-line);border-radius:12px;padding:10px;display:grid;gap:7px;align-content:start;min-width:0}
+.ig-det .dn{font-size:12.5px;font-weight:800;line-height:1.2}
+.ig-det .dc{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--nv);filter:brightness(.8)}
+.ig-det .di{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:var(--nv-soft);color:var(--nv);justify-self:center}
+.ig-det .dd{font-size:11.5px;color:var(--h-mut);line-height:1.35}
+.ig-det .dl{display:flex;gap:6px;align-items:center;font-size:11px;color:#16a34a;font-weight:700}
+.ig-det .db{all:unset;cursor:pointer;text-align:center;font:800 12px/1 var(--body);padding:9px;border-radius:10px;background:var(--nv);color:#06283d;box-shadow:0 0 10px rgba(56,189,248,.45)}
+.ig-foot{display:flex;align-items:center;gap:8px;padding:7px 9px;background:var(--h-dk2);border-radius:12px;color:var(--h-on);font:700 11px/1.2 var(--body)}
+.ig-foot .fbg{color:var(--nv);flex:none}
+.ig-foot .cnt{white-space:nowrap;font-variant-numeric:tabular-nums}
+.ig-foot .bar{flex:1;height:6px;border-radius:4px;background:rgba(255,255,255,.2);overflow:hidden}
+.ig-foot .bar i{display:block;height:100%;background:var(--nv);box-shadow:0 0 8px rgba(56,189,248,.8)}
+.ig-foot .esc{opacity:.65;white-space:nowrap}
+/* the inventory window: dark navy semi-transparent, cyan accents, white text */
+#hudSheet.invg{background:linear-gradient(180deg,rgba(11,23,42,.94),rgba(6,14,28,.96));border-color:rgba(56,189,248,.4);color:#eaf4ff;box-shadow:0 12px 34px rgba(0,8,22,.55);backdrop-filter:blur(10px)}
+#hudSheet.invg .ig-head h4{color:#fff}
+#hudSheet.invg .ig-head h4 small{color:rgba(210,232,255,.6)}
+#hudSheet.invg .ig-head .x{color:rgba(210,232,255,.8);border-color:rgba(148,197,233,.3)}
+#hudSheet.invg .ig-head .cash{color:#4ade80}
+#hudSheet.invg .ig-tabs button{background:rgba(255,255,255,.06);border-color:rgba(148,197,233,.25);color:rgba(210,232,255,.75)}
+#hudSheet.invg .ig-tabs button.on{background:rgba(56,189,248,.22);border-color:var(--nv);color:#fff;box-shadow:0 0 0 1px var(--nv),0 0 10px rgba(56,189,248,.35)}
+#hudSheet.invg .ig-tile{background:rgba(255,255,255,.05);border-color:rgba(148,197,233,.28);color:#f2f8ff}
+#hudSheet.invg .ig-tile.on{background:rgba(56,189,248,.22);border-color:var(--nv);color:#fff;box-shadow:0 0 0 1px var(--nv),0 0 12px rgba(56,189,248,.4)}
+#hudSheet.invg .ig-tile .ti{background:rgba(56,189,248,.18);color:#7dd3fc}
+#hudSheet.invg .ig-empty{color:rgba(210,232,255,.7)}
+#hudSheet.invg .ig-det{background:rgba(255,255,255,.05);border-color:rgba(148,197,233,.28);color:#f2f8ff}
+#hudSheet.invg .ig-det .dd{color:rgba(210,232,255,.75)}
+#hudSheet.invg .ig-det .dc{filter:none}
+#hudSheet.invg .ig-foot .cnt{color:#fff}
+/* the inventory on a phone: stack the details under the grid so the tiles keep a workable size */
+@media (max-width:480px){.ig-body{grid-template-columns:1fr;max-height:none}.ig-grid{grid-template-columns:repeat(auto-fill,minmax(72px,1fr));max-height:40vh}.ig-det{min-height:0}}
+/* the inventory on a wide screen: give the details panel more room */
+@media (min-width:900px){.ig-body{grid-template-columns:1fr 210px}}
+@media (max-width:640px){.ig-body{grid-template-columns:1fr}.ig-det{order:2}.ig-grid{max-height:220px}}
 /* the old performance box: only when asked for (Settings) */
 .hud{display:none}body.stats .hud{display:block;left:50%;transform:translateX(-50%);top:calc(14px + var(--st));background:var(--h-cream);border-color:var(--h-line);color:var(--h-ink);font-size:12px;padding:5px 10px}
 body.stats .hud b{font-size:14px}
@@ -3083,7 +3137,7 @@ function indicate(k){VEH.ind=VEH.ind===k?"off":k;VEH.indTurn=0;VEH.blink=0;dashU
 function cycleLights(){VEH.lights=(VEH.lights+1)%3;dashToast(["Lights off","Low beam","High beam"][VEH.lights])}
 function driveKey(k,down){if(!driving)return false;if(!down){if(k==="f")VEH.horn=false;return k==="f"}
   if(k==="q"){indicate("left");return true}if(k==="r"){indicate("right");return true}if(k==="g"){indicate("hazard");return true}if(k==="h"){cycleLights();return true}if(k==="t"){towCar();return true}if(k==="b"){beltToggle();return true}if(k==="i"){engineToggle();return true}
-  if(k==="c"){VEH.cam=(VEH.cam+1)%3;VEH.orbit=0;dashToast(["Chase camera","Close camera","Driver's seat"][VEH.cam]);return true}if(k==="f"){VEH.horn=true;return true}
+  if(k==="c"){VEH.cam=(VEH.cam+1)%3;VEH.orbit=0;dashToast((isBike({model:VEH.model})?["Chase camera","Close camera","Rider's seat"]:["Chase camera","Close camera","Driver's seat"])[VEH.cam]);return true}if(k==="f"){VEH.horn=true;return true}
   const G={"1":"P","2":"R","3":"N","4":"D"}[k];if(G){const Cb=townOf(me.town).car;if(!(Cb&&isBike(Cb)&&(G==="P"||G==="N"))){setGear(G);return true}}return false}
 /* ---- the driving screen. Left: camera, horn, seatbelt and condition buttons, and the condition card (engine, body,
    tyres, fuel). Right: indicators, hazards, headlights and warning lamps; the gear selector; handbrake and exit.
@@ -3129,13 +3183,13 @@ let dashMsgT=0;function dashToast(t,dur){const m=document.getElementById("dMsg")
 const dashSet=(id,f)=>{const e=document.getElementById(id);if(e)f(e)},dashOn=(id,c,on)=>dashSet(id,e=>{if(e.classList.contains(c)!==!!on)e.classList.toggle(c,!!on)});
 // one condition chip: its number, and a colour from green through amber to red (red flashing when nearly gone)
 function dashBar(id,v){const p=Math.round(clamp(v,0,1)*100);dashSet(id+"V",e=>{const t=String(p);if(e.textContent!==t)e.textContent=t});dashSet(id,e=>{const c=p>70?"ok":p>40?"warn":p>15?"bad":"dead";if(e.dataset.c!==c){e.dataset.c=c;e.className="dchip "+c}})}
-function dashUpdate(){if(!driving){dash.hidden=true;return}const C=townOf(me.town).car;if(!C)return;dash.hidden=false;const D=carD(C),kmh=Math.abs(C.v)*3.6,bl=VEH.blinkOn;const bK=isBike(C);const dg=dash.querySelector(".dgears");if(dg)dg.style.display=bK?"none":"";dashSet("dHandL",e=>{const tx=bK?"Brake":"Handbrake";if(e.textContent!==tx)e.textContent=tx});
+function dashUpdate(){if(!driving){dash.hidden=true;return}const C=townOf(me.town).car;if(!C)return;dash.hidden=false;const D=carD(C),kmh=Math.abs(C.v)*3.6,bl=VEH.blinkOn;const bK=isBike(C);const dg=dash.querySelector(".dgears");if(dg)dg.style.display=bK?"none":"";dashSet("dHandL",e=>{const tx=bK?"Brake":"Handbrake";if(e.textContent!==tx)e.textContent=tx});dashSet("dBelt",e=>{const tx=bK?"Helmet":"Seatbelt";if(e.getAttribute("aria-label")!==tx)e.setAttribute("aria-label",tx)});dashSet("dCar",e=>{const tx=bK?"Bike condition":"Car condition";if(e.getAttribute("aria-label")!==tx)e.setAttribute("aria-label",tx)});
   dashSet("dSpd",e=>{const t=String(Math.round(VEH.mph?kmh*.6214:kmh));if(e.textContent!==t)e.textContent=t});dashSet("dUnit",e=>{const t=VEH.mph?"MPH":"KM/H";if(e.textContent!==t)e.textContent=t});
   dashSet("dGear",e=>{if(e.textContent!==VEH.gear)e.textContent=VEH.gear});dashSet("dNeedle",e=>e.setAttribute("transform",`rotate(${(-135+270*clamp(VEH.rpm,0,1)).toFixed(1)} 100 100)`));
   for(const s of dash.querySelectorAll(".dgears button"))s.classList.toggle("on",s.dataset.dg===VEH.gear);
   const L=bl&&(VEH.ind==="left"||VEH.ind==="hazard"),R=bl&&(VEH.ind==="right"||VEH.ind==="hazard");dashOn("dIL","on",L);dashOn("dIR","on",R);dashOn("dAL","on",L);dashOn("dAR","on",R);dashOn("wInd","on",L||R);
   dashOn("dHz","on",VEH.ind==="hazard");dashOn("dLo","on",VEH.lights===1);dashOn("dHi","on",VEH.lights===2);dashOn("wLt","on",VEH.lights===1);dashOn("wLt","hi",VEH.lights===2);
-  dashOn("dEngB","run",!!VEH.engine);const hand=VEH.hand||!!keys[" "];dashOn("dHand","on",hand);dashOn("wPark","on",hand);dashOn("dBelt","on",VEH.belt);dashOn("wBelt","on",!VEH.belt);dashOn("wBelt","blink",!VEH.belt&&kmh>15&&bl);
+  dashOn("dEngB","run",!!VEH.engine);const hand=VEH.hand||!!keys[" "];dashOn("dHand","on",hand);dashOn("wPark","on",hand);dashOn("dBelt","on",isBike({model:VEH.model})?VEH.helmet:VEH.belt);dashOn("wBelt","on",isBike({model:VEH.model})?!VEH.helmet:!VEH.belt);dashOn("wBelt","blink",isBike({model:VEH.model})?!VEH.helmet&&kmh>10&&bl:!VEH.belt&&kmh>15&&bl);if(isBike({model:VEH.model})&&!VEH.helmet&&kmh>10&&!VEH._hWarn){VEH._hWarn=1;sndBeep(880,.15);sndBeep(660,.15);dashToast("Wear your helmet",2.5)}else if((VEH.helmet||kmh<=10)&&VEH._hWarn)VEH._hWarn=0;
   const engBad=D.dead||D.engine>.4||D.oil<.25,engWarn=engBad||D.engine>.15;dashOn("wEng","on",engWarn&&!engBad);dashOn("wEng","bad",engBad);
   dashOn("wTemp","bad",D.temp>112);dashOn("wOil","bad",D.oil<.35||D.oilLeak>.15);dashOn("wBat","bad",D.elec>.35);dashOn("wFire","bad",D.fire>0&&bl);dashOn("wFire","on",D.fire>0&&!bl);
   dashSet("dFuel",e=>{e.style.width=Math.round(D.fuel*100)+"%";e.style.background=D.fuel<.15?"#ef4444":"#38bdf8"});
@@ -3155,14 +3209,14 @@ const dpad=document.createElement("div");dpad.id="dpad";dpad.hidden=true;dpad.in
   dash.addEventListener("pointerdown",e=>{if(e.target.closest("button"))e.stopPropagation()});
   dash.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;e.stopPropagation();if(b.dataset.dg){setGear(b.dataset.dg);return}const k=b.dataset.dk;if(!k)return;
     if(k==="hand")VEH.hand=!VEH.hand;if(k==="left"||k==="right"||k==="hazard")indicate(k);if(k==="low"||k==="high"){const want=k==="low"?1:2;VEH.lights=VEH.lights===want?0:want;dashToast(["Lights off","Low beam","High beam"][VEH.lights])}
-    if(k==="cam"){VEH.cam=(VEH.cam+1)%3;VEH.orbit=0;dashToast(["Chase camera","Close camera","Driver's seat"][VEH.cam])}if(k==="belt")beltToggle();if(k==="engine")engineToggle();if(k==="car")carPanel();if(k==="exit")carExit();dashUpdate(true)})}
+    if(k==="cam"){VEH.cam=(VEH.cam+1)%3;VEH.orbit=0;dashToast((isBike({model:VEH.model})?["Chase camera","Close camera","Rider's seat"]:["Chase camera","Close camera","Driver's seat"])[VEH.cam])}if(k==="belt")beltToggle();if(k==="engine")engineToggle();if(k==="car")carPanel();if(k==="exit")carExit();dashUpdate(true)})}
 function vehicleLetGo(){VEH.touch.steer=VEH.touch.thr=VEH.touch.brk=0;VEH.horn=false;for(const b of dpad.querySelectorAll(".on"))b.classList.remove("on");const h=document.getElementById("dHorn");if(h)h.classList.remove("on")}
 // the seatbelt: off when you get in; a lamp and a chime remind you while moving without it
 function engineToggle(){const C=townOf(me.town).car;if(!C)return;const D=carD(C);
   if(VEH.engine){VEH.engine=false;dashToast("Engine off");sndBeep(300,.12);return}
-  const why=D.fire>0?"The car is on fire! Get out.":D.elec>=.92?"The engine won't start: an electrical fault.":D.dead?"The engine won't start: it is too badly damaged. Call the tow truck.":D.fuel<=0?"The engine won't start: the tank is empty.":D.refuel?"Wait until the refuelling is finished.":"";
+  const why=D.fire>0?(isBike(C)?"The bike is on fire! Get off.":"The car is on fire! Get out."):D.elec>=.92?"The engine won't start: an electrical fault.":D.dead?"The engine won't start: it is too badly damaged. Call the tow truck.":D.fuel<=0?"The engine won't start: the tank is empty.":D.refuel?"Wait until the refuelling is finished.":"";
   if(why){dashToast(why,2.6);sndBeep(180,.25);return}VEH.engine=true;VEH.rpm=.35;dashToast("Engine started");sndBeep(520,.08)}
-function beltToggle(){VEH.belt=!VEH.belt;dashToast(VEH.belt?"Seatbelt on":"Seatbelt off");sndBeep(VEH.belt?1200:600,.06)}
+function beltToggle(){if(isBike({model:VEH.model})){VEH.helmet=!VEH.helmet;dashToast(VEH.helmet?"Helmet on":"Helmet off");sndBeep(VEH.helmet?1200:600,.06);return}VEH.belt=!VEH.belt;dashToast(VEH.belt?"Seatbelt on":"Seatbelt off");sndBeep(VEH.belt?1200:600,.06)}
 // the clock beside the cash, in Nigerian time, while in town
 // with the weather: sunny by day, clear at night; the temperature follows the hour, coolest at dawn and warmest mid-afternoon
 const WX_SUN=SVG('<circle cx="12" cy="12" r="4.5" fill="#facc15" stroke="#facc15"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="#facc15"/>'),
@@ -3280,6 +3334,7 @@ const clamp01=v=>v<0?0:v>1?1:v;
    Returns what was damaged, in words. */
 function crashCar(C,dv,ct){const D=carD(C),was=JSON.stringify(D),s=dv*CRASH.SOFT,add=(k,v)=>{D[k]=clamp01(D[k]+Math.max(0,v))},narrow=ct.w<.6?1.35:ct.w<1.3?1:.8,said=[];
   if(s<.6)return"";
+  if(isBike(C))return bikeCrash(C,D,s,ct,narrow,was);
   if(ct.zone==="F"){add("bumperF",.04+(s-.8)*.09);add("grille",(s-3)*.09*(ct.low?.7:1));add(ct.low?"under":"bonnet",ct.low?(s-2)*.1:(s-3.5)*.08);if(ct.low)add("bonnet",(s-7)*.05);
     for(const[k,side]of[["hlL",1],["hlR",-1]])if(!D[k]&&s>(ct.low?7:4.5)&&(ct.x*side>.2||s>(ct.w>1?6:8.5)))D[k]=1;
     add("radiator",(s-(ct.low?3.5:5.5))*.1);add("engine",(s-9.5)*.09)}
@@ -3312,6 +3367,27 @@ function crashCar(C,dv,ct){const D=carD(C),was=JSON.stringify(D),s=dv*CRASH.SOFT
   for(const[k,t]of[["hlL","left headlight"],["hlR","right headlight"],["tlL","left tail light"],["tlR","right tail light"]])if(D[k]&&!P[k])said.push(t+" smashed");
   if(D.dead&&!P.dead)said.push("the car cannot drive on");
   if(said.length||dep>.015)D.ver++;crashSave();if(D.fireNext){delete D.fireNext;setTimeout(()=>fireStart(C,"The engine caught fire in the crash"),600)}return said.length?said.slice(0,4).join(", "):s<1.5?"a few scratches":""}
+  /* the bike takes the same impact, but only through its own parts: tyre, fork, tank and rider's skin — so a light bump is
+     scuffs, and a 30 km/h knock still leaves it rideable (no car keys like bumpers, grille, bonnet or boot are ever written) */
+  function bikeCrash(C,D,s,ct,narrow,was){const P=JSON.parse(was),pre={susp:D.susp||0,radiator:D.radiator||0,steer:D.steer||0,oilLeak:D.oilLeak||0,ty0:D.ty0||0,ty1:D.ty1||0,brakes:D.brakes||0,sideL:D.sideL||0,sideR:D.sideR||0,tank:D.tank||0,hl:D.hl||0,tl:D.tl||0,seat:D.seat||0,exhaust:D.exhaust||0,chain:D.chain||0,elec:D.elec||0,mirrors:D.mirrors||0,fuelLeak:D.fuelLeak||0,dents:D.dents?D.dents.length:0},add=(k,v)=>{D[k]=clamp01((D[k]||0)+Math.max(0,v))},said=[];
+  if(ct.zone==="F"){const m=ct.hard?Math.max(0,0.005166791*Math.pow(Math.max(0,s-(1.0000)),2.160000)):Math.max(0,0.43440704*Math.pow(1-Math.exp(-Math.max(0,s-(1.5000))/(7.2500)),2));add("engine",m*.9);add("chassis",m*.72);add("ty0",m*.45);add("susp",m*.85);add("steer",m*.6);add("radiator",m*.7);add("brakes",m*.75);add("tank",m*.5);add("hl",m);add("tl",m*.35);add("mirrors",m);add("fuelLeak",m*1.5);add("elec",m*1.6);add("indicators",m*1.7)}
+  else if(ct.zone==="R"){add("ty1",(s-3.6)*.012);add("tl",(s-7)*.05);add("seat",(s-5.2)*.012);add("exhaust",(s-6)*.01);add("brakes",(s-7.5)*.02);add("fuelLeak",(s-8)*.03)}
+  else{const Lt=ct.zone==="L";add(Lt?"sideL":"sideR",(s-4.4)*.01);add("mirrors",(s-3.8)*.008);add("chain",(s-6.5)*.012)}
+  if(ct.low)add("oilLeak",(s-4.2)*.015);
+  if(D.steer>pre.steer+.01)D.steerDir=ct.zone==="L"||(ct.zone!=="Rs"&&(ct.x||0)>0)?-1:1;
+  const dep=clamp01((s-1.2)*.045*narrow)*.75;if(dep>.015){D.dents=D.dents||[];D.dents.push({zone:ct.zone,x:ct.x||0,z:ct.z||0,d:+dep.toFixed(3),w:Math.max(.25,ct.w*.5)});if(D.dents.length>12)D.dents.splice(0,D.dents.length-12)}
+  for(const[k,t,lim]of[["oilLeak","oil sump leaking",.15],["fuelLeak","fuel tank leaking",.15],["elec","wiring damaged",.4],["steer","handlebars knocked out of line",.25]])if((D[k]||0)>=lim&&pre[k]<lim)said.push(t);
+  if(!D.dead&&((D.engine||0)>=.85||(D.chassis||0)>=.9||(D.susp||0)>=.95)){D.dead=true}
+  for(const[k,t]of[["ty0","front tyre"],["ty1","rear tyre"]])if((D[k]||0)>=.7&&pre[k]<.7)said.push(t+" flat");
+  const stat=(k,t0)=>{const b=D[k]||0;if(b-pre[k]<.04)return;const st=b<.25?"scratched":b<.6?"dented":"badly damaged";said.push(t0+" "+st)};
+  stat("ty0","front tyre");stat("ty1","rear tyre");stat("susp","forks");stat("radiator","radiator");stat("tank","fuel tank");
+  stat("sideL","left side panel");stat("sideR","right side panel");stat("exhaust","exhaust");stat("seat","seat");stat("brakes","brakes");stat("chain","chain");
+  if((D.hl||0)&&!pre.hl)said.push("headlight smashed");
+  if((D.tl||0)&&!pre.tl)said.push("tail light smashed");
+  if((D.mirrors||0)>.15&&pre.mirrors<=.15)said.push("mirror broken");
+  if(D.dead&&!P.dead)said.push("the bike cannot be ridden on");
+  if(ct.hard&&s>2.5&&ct.px!=null){const fx0=-Math.sin(C.yaw),fz0=-Math.cos(C.yaw),sg=Math.sign(C.v||1);fxSparks([ct.px,.35+.3*Math.random(),ct.pz],[-fx0*sg*.6,.5,-fz0*sg*.6],Math.min(50,Math.round(6+s*3)),2+s*.25)}
+  if((said.length||dep>.015)&&D!==JSON.parse(was))D.ver=(D.ver||0)+1;crashSave();return said.length?said.slice(0,4).join(", "):s<1.5?"a few scratches":""}
 /* ---------------------------------------- what a damaged car does ----------------------------------------
    Everything here follows the car's one damage record (carD): the same numbers drive the smoke, steam, sparks, fire,
    drips and puddles, the way the car drives, the warning lamps, the condition chips and the workshop's repair list.
@@ -3432,10 +3508,10 @@ function carSim(T,dt){const C=T.car;DMG.rough=0;DMG.flick=false;if(!C||!C.dmg)re
 // the fire's own light at night, flickering, among the lamps that light the road
 function fireLamps(T){const C=T&&T.car,D=C&&C.dmg;if(!D||!(D.fire>0))return[];const p=carWorld(C,[0,1.5,CARFX.engine[2]]);return[[p[0],p[1],p[2],(.8+.6*D.fire)*(.85+.15*Math.sin(NOW*23)+.1*Math.sin(NOW*7))]]}
 // a fire starts on the car (from a crash, or leaking fuel meeting sparks)
-function fireStart(C,why){const D=carD(C);if(D.fire>0||D.burnt)return;D.fire=.06;D.fireT=0;D.fireAt=Date.now();D.ver++;crashSave(true);if(driving)VEH.engine=false;dashToast((why||"The engine is on fire")+". Get out of the car!",4);sndBeep(260,.4)}
+function fireStart(C,why){const D=carD(C);if(D.fire>0||D.burnt)return;D.fire=.06;D.fireT=0;D.fireAt=Date.now();D.ver++;crashSave(true);if(driving)VEH.engine=false;dashToast((why||"The engine is on fire")+(isBike(C)?" Get off the bike!":" Get out of the car!"),4);sndBeep(260,.4)}
 // the whole burn runs on the real clock: ~180 s from ignition, even if the tab is closed
 const FIRERUN=180;
-function fireFinish(D){D.fire=0;D.fireT=0;D.fireAt=0;D.burnt=1;D.dead=true;D.elec=1;D.ver++;toast("The fire has burnt itself out. The car is a burnt wreck: it needs the workshop.")}
+function fireFinish(D){D.fire=0;D.fireT=0;D.fireAt=0;D.burnt=1;D.dead=true;D.elec=1;D.ver++;toast("The fire has burnt itself out. The "+(D.model==="m_bike"?"bike":"car")+" is a burnt wreck: it needs the workshop.")}
 // a saved or resumed car whose real-clock burn is already over comes back a wreck
 function fireCheckD(D){if(D&&D.fire>0&&D.fireAt&&Date.now()-D.fireAt>=FIRERUN*1000){fireFinish(D);crashSave(true)}}
 
@@ -3518,7 +3594,9 @@ function carDraw(VP,eye,clear,inside){for(const S of CARSCENE.parts){if(inside&&
 function carDriver(C,VP,t){const PM=PLAYERS[me.gender]||PLAYERS.Female,R=carRig(C),h=R.seats&&R.seats.driver;if(!PM||!h)return;const p=carPt(C,[h[0],0,h[2]+carSit(C).z]);
   WALKER.draw(PM,VP,p[0],h[1]+CARSIT.y,p[2],C.yaw,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"",isBike(C)?VEH.lean:0)}
 const CARSIT={y:-.72,z:.11};
-const carSit=C=>isBike(C)?{y:CARSIT.y,z:0}:{y:CARSIT.y,z:CARSIT.z};
+/* bike rider sits on the rider's seat ahead of the (free) rear seat: the rig's seat anchor is the rear seat, so shift the rider forward onto the rider's seat */
+CARSIT.motorbike={y:CARSIT.y,z:.42};
+const carSit=C=>isBike(C)?CARSIT.motorbike:{y:CARSIT.y,z:CARSIT.z};
        // the bike's saddle is higher in the world, but the seated clip is fixed to the seat node, so the same vertical offset
 /* ---- short recorded sounds (the car doors): loaded once, played through the sound system; if a phone cannot read the
    recording, a short made-up knock is played instead ---- */
@@ -3552,7 +3630,7 @@ function carZone(C,px,pz,cfg){const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),rx=-
   return{zone:sd<0?"L":"Rs",x:0,z:al,n:[rx*Math.sign(sd),rz*Math.sign(sd)]}}
 // say what happened, unless it was only a nudge, or the same thing was just said (a row of shrubs)
 let crashLast="",crashLastT=-9;
-function crashSay(dv,lvl,obj,car){const lv=Math.max(sevOf(dv),lvl);if(lv===0&&!car&&dv<1.2)return;const hurt=driverHurt(dv),t=SEVN[lv]+" collision: "+obj+(car?". Car: "+car:"")+(hurt?". Driver: "+hurt:"");if(t===crashLast&&NOW-crashLastT<2.5)return;crashLast=t;crashLastT=NOW;dashToast(t,3.2)}
+function crashSay(dv,lvl,obj,car){const lv=Math.max(sevOf(dv),lvl);if(lv===0&&!car&&dv<1.2)return;const hurt=driverHurt(dv),bk=isBike({model:VEH.model}),t=SEVN[lv]+" collision: "+obj+(car?(bk?". Bike: ":". Car: ")+car:"")+(hurt?(bk?". Rider: ":". Driver: ")+hurt:"");if(t===crashLast&&NOW-crashLastT<2.5)return;crashLast=t;crashLastT=NOW;dashToast(t,3.2)}
 /* the car's outline touched solid block b at (px, pz). Work out both outcomes and change the car's motion.
    Returns true if the object gave way and the car carries on through the space it held. */
 function crashAt(T,C,b,px,pz,cfg){const o=DYNOF.get(b),Z=carZone(C,px,pz,cfg),tag=b[4]==="v"?"fallen":BTAG.get(b),tree=tag&&tag.k==="tree";let n=Z.n;
@@ -3834,7 +3912,7 @@ const CARPARTS=[["engine","Engine",.2],["chassis","Chassis",.15],["susp","Suspen
 function carHealth(D){if(D.burnt)return 0;let s=0;if((D.model||"m_sgt")==="m_bike"){const{parts,sum}=vehParts("m_bike");for(const[k,,w]of parts)s+=w*(D[k]||0);return Math.round(100*(1-Math.min(1,s/(sum||1))))}
   for(const[k,,w]of CARPARTS)s+=w*(D[k]||0);for(const k of["hlL","hlR","tlL","tlR"])s+=.0075*(D[k]?1:0);
   s+=.05*(D.oilLeak||0)+.05*(D.fuelLeak||0)+.06*(D.elec||0)+.03*(D.steer||0)+.02*(D.ws||0)+.01*((D.rw||0)+(D.winL||0)+(D.winR||0))+.015*(D.rim||[0]).reduce((a,v)=>a+v,0)+(D.fire||0)*.3;return Math.round(100*(1-Math.min(1,s)))}
-function carWarnings(D){const W=[];if(D.fire>0)W.push("FIRE: the car is burning. Keep away.");if(D.burnt)W.push("Burnt out: the car needs the workshop");if(D.dead)W.push("Vehicle too damaged to drive");
+function carWarnings(D){const W=[],bk=(D.model||"m_sgt")==="m_bike";if(D.fire>0)W.push("FIRE: the "+(bk?"bike":"car")+" is burning. Keep away.");if(D.burnt)W.push("Burnt out: the "+(bk?"bike":"car")+" needs the workshop");if(D.dead)W.push("Vehicle too damaged to drive");
   if(D.oilLeak>.15)W.push("Oil leaking: oil "+Math.round(D.oil*100)+"%");else if(D.oil<.5)W.push("Oil low");if(D.fuelLeak>.15)W.push("Fuel leaking: risk of fire");
   if(D.elec>=.92)W.push("Electrical failure: the engine will not start");else if(D.elec>.35)W.push("Electrical fault: lights and engine may cut out");if(D.steer>.25)W.push("Wheels out of line: the car pulls to the "+(D.steerDir<0?"left":"right"));
   if(D.ws>=.8)W.push("Windscreen shattered");else if(D.ws>=.3)W.push("Windscreen cracked");if((D.rim||[]).some(v=>v>.3))W.push("Bent wheel rim: vibration");if(D.engine>=.3&&!D.dead)W.push("Engine requires repair");if(D.temp>115)W.push("Engine overheating");
@@ -3844,12 +3922,12 @@ function carWarnings(D){const W=[];if(D.fire>0)W.push("FIRE: the car is burning.
 function carPanel(){const T=townOf(me.town),C=T.car;if(!C)return;const D=carD(C),hp=carHealth(D),col=v=>v<.25?"#16a34a":v<.6?"#d97706":"#dc2626",bar=(label,v,txt)=>`<div class="cdrow"><span>${label}</span><i class="cdbar"><em style="width:${Math.round(100*(1-v))}%;background:${col(v)}"></em></i><b>${txt||Math.round(100*(1-v))+"%"}</b></div>`;
   const W=carWarnings(D),job=D.job,shop=T.workshop,tow=shop&&!job&&!(D.fire>0)&&(D.ver||D.fuel<=.02)&&!(Math.hypot(C.x-shop.x,C.z-shop.z)<3);
   choosing=true;const el=document.getElementById("choose");el.hidden=false;
-  el.innerHTML=`<div class="card cdcard"><h1>Car condition</h1><p class="cdsub">${esc(carCfg(C).name)}${job?" &middot; in the workshop, ready in "+mmss(job.until-Date.now()):""}</p><p class="cdsub">${garLine(C)}</p>
+  el.innerHTML=`<div class="card cdcard"><h1>${isBike(C)?"Bike condition":"Car condition"}</h1><p class="cdsub">${esc(carCfg(C).name)}${job?" &middot; in the workshop, ready in "+mmss(job.until-Date.now()):""}</p><p class="cdsub">${garLine(C)}</p>
     <div class="cdhealth"><b style="color:${col(1-hp/100)}">${hp}%</b><span>overall health</span></div>
     ${W.length?`<ul class="cdwarn">${W.map(w=>`<li>${esc(w)}</li>`).join("")}</ul>`:`<p class="cdok">No warnings.</p>`}
-    ${D.fire>0?`<p class="cdfire">The car is on fire. Get away from it; it can be repaired only once the fire is out.</p>`:""}
+    ${D.fire>0?`<p class="cdfire">The ${isBike(C)?"bike":"car"} is on fire. Get away from it; it can be repaired only once the fire is out.</p>`:""}
     ${bar("Engine",D.burnt?1:D.engine)}${bar("Cooling",1-carCooling(D))}${bar("Electrical",D.elec)}${bar("Oil",1-D.oil,Math.round(D.oil*100)+"%"+(D.oilLeak>.15?" (leaking)":""))}${bar("Fuel system",D.fuelLeak,D.fuelLeak>.15?"leaking":"")}${bar("Steering",D.steer)}${bar("Windscreen",D.ws,D.ws>=.8?"shattered":D.ws>=.3?"cracked":"")}${bar("Wheels",Math.max(...(D.rim||[0])),(D.rim||[]).some(v=>v>.3)?"bent":"")}<div class="cdrow"><span>Temperature</span><i class="cdbar"><em style="width:${Math.round(Math.min(100,Math.max(0,(D.temp-30)/1.2)))}%;background:${D.temp>125?"#dc2626":D.temp>108?"#d97706":"#16a34a"}"></em></i><b>${Math.round(D.temp)}&deg;C</b></div>
-    ${bar("Fuel",1-D.fuel,Math.round(D.fuel*tankOf(C))+" L")}${bar("Tyres",carTyres(D),D.flat.some(f=>f)?D.flat.map((f,i)=>f?TYRENAME[i]:"").filter(Boolean).join(", ")+" burst":"")}${bar("Coolant",1-D.coolant)}${bar("Front bumper",D.bumperF)}${bar("Rear bumper",D.bumperR)}${bar("Left side",D.sideL)}${bar("Right side",D.sideR)}${bar("Bonnet",D.bonnet)}${bar("Radiator",D.radiator)}${bar("Suspension",D.susp)}${bar("Chassis",D.chassis)}
+    ${bar("Fuel",1-D.fuel,Math.round(D.fuel*tankOf(C))+" L")}${bar("Tyres",carTyres(D),D.flat.some(f=>f)?D.flat.map((f,i)=>f?TYRENAME[i]:"").filter(Boolean).join(", ")+" burst":"")}${bar("Coolant",1-D.coolant)}${bar("Front bumper",D.bumperF)}${bar("Rear bumper",D.bumperR)}${bar("Left side",D.sideL)}${bar("Right side",D.sideR)}${isBike(C)?bar("Fuel tank",D.tank):bar("Bonnet",D.bonnet)}${bar("Radiator",D.radiator)}${bar("Suspension",D.susp)}${bar("Chassis",D.chassis)}
     <div class="cdrow"><span>Headlights</span><i></i><b>${D.hlL&&D.hlR?"both broken":D.hlL?"left broken":D.hlR?"right broken":"working"}</b></div><div class="cdrow"><span>Tail lights</span><i></i><b>${D.tlL&&D.tlR?"both broken":D.tlL?"left broken":D.tlR?"right broken":"working"}</b></div>
     ${tow?`<button class="go" data-rp="towask">Call a tow truck to the ${esc(shop.name)}</button>`:""}<button class="go ghost" data-stay="1">Close</button></div>`}
 
@@ -4138,7 +4216,7 @@ async function garAct(what,arg,bay){const P=GAR.panel,msg=()=>document.getElemen
       if(!(r.already&&garMine()))garPlace(T,v,B.x,B.z,B.yaw,v.damage&&Object.keys(v.damage).length?v.damage:null);
       GAR.beatT=NOW;await garSync();choosing=false;document.getElementById("choose").hidden=true;
       const from=r.moved_from,moved=from&&(from.status==="active"||from.park!==P.id)?" It was moved here from "+(from.status==="active"?"the road"+(from.state?" in "+from.state:""):(garPark(from.park)||{}).name||"another car park")+".":"";
-      return toast(v.plate+" is ready in space "+(B.i+1)+"."+moved+" Walk to the driver's door to get in.")}
+      return toast(v.plate+" is ready in space "+(B.i+1)+"."+moved+" "+(isBike(v)?"Walk to the bike to get on.":"Walk to the driver's door to get in."))}
     if(what==="store"){const M=garMine();if(!M||M.C.vid!==+arg)return say("Drive the car into this car park first.",true);const C=M.C;if(Math.abs(C.v)>.3)return say("Stop the car first.",true);say("Storing...");
       const b=+bay,B=P.bays[b];await garCall("veh_store",{p_vehicle:C.vid,p_token:C.token,p_park:P.id,p_bay:b,p_pos:{x:+C.x.toFixed(2),z:+C.z.toFixed(2)},p_damage:garDmg(carD(C))});
       const wasIn=driving;garGone(M.T,C,"");if(wasIn){cam.x=P.term[0];cam.z=P.term[1];cam.yaw=Math.atan2(P.f[0],P.f[1])}await garSync();choosing=false;document.getElementById("choose").hidden=true;
@@ -4176,7 +4254,7 @@ function repairItems(D){const id=D.model||"m_sgt";const L=[];for(const[k,name,w]
   if(D.coolant<.97)L.push({k:"coolant",name:"Coolant refill",price:Math.max(1000,Math.round(4500*(1-D.coolant)/500)*500),mins:1});return L}
 /* Rule B: no bundle discount — a full restoration at full damage equals 60% of the model's value */
 const repairFull=L=>({price:Math.round(L.reduce((s,q)=>s+q.price,0)/500)*500,mins:Math.max(1,Math.round(L.reduce((s,q)=>s+q.mins,0)))});
-function repairPanel(){const T=townOf(me.town),W=T.workshop,C=T.car;if(!W)return;if(C&&C.dmg&&C.dmg.fire>0){toast("The car is on fire. Nothing can be repaired until the fire is out.");return}choosing=true;const el=document.getElementById("choose");el.hidden=false;const D=C?carD(C):null;
+function repairPanel(){const T=townOf(me.town),W=T.workshop,C=T.car;if(!W)return;if(C&&C.dmg&&C.dmg.fire>0){toast((isBike(C)?"The bike":"The car")+" is on fire. Nothing can be repaired until the fire is out.");return}choosing=true;const el=document.getElementById("choose");el.hidden=false;const D=C?carD(C):null;
   const inBay=C&&Math.hypot(C.x-W.x,C.z-W.z)<2.2&&Math.abs(C.v)<.3,shell=b=>`<div class="card rpcard"><h1>${esc(W.name)}</h1><p class="cdsub">Repair bay &middot; payments go to the ${esc(W.st)} State account</p>${b}<button class="go ghost" data-stay="1">Close</button></div>`;
   if(D&&D.job){const ms=mechState(W,D.job,Date.now());el.innerHTML=shell(`<p>Your car is being repaired: ${esc(D.job.names)}.</p><p>The mechanic is ${ms.walking?"going to":"working on"} the <b>${esc(JOBNAME(ms.k).toLowerCase())}</b> (part ${ms.step+1} of ${ms.steps}).</p><p class="cdhealth"><b>${mmss(D.job.until-Date.now())}</b><span>until it is ready</span></p><p>You cannot drive it until the work is finished. You can leave and come back; the time keeps running.</p>`);return}
   if(!inBay){el.innerHTML=shell(`<p>Drive your car into the bay, between the yellow lines, and stop. Then come to the mechanic here to choose repairs.</p>`);return}
@@ -4200,7 +4278,7 @@ function repairFinish(C){const D=carD(C),J=D.job;if(!J)return;for(const k of J.i
   if(J.items.includes("radiator")&&D.coolant>=.97)D.temp=90;D.dead=D.engine>=.85||D.chassis>=.9||D.susp>=.95||!!D.burnt||D.elec>=.92;D.hot=0;D.job=null;D.lastJob=J.id;D.ver++;crashSave(true);return J}
 let jobT=0;function repairTick(){if(NOW-jobT<1)return;jobT=NOW;const now=Date.now();for(const[st,T]of Object.entries(TOWNS)){const C=T.car;if(!C||!C.dmg||!C.dmg.job)continue;const D=C.dmg,J=D.job,here=st===me.town&&scene==="town";J.done=J.done||[];let changed=false;
     for(const q of jobPlan(J))if(now>=q.t1&&now<J.until&&!J.done.includes(q.k)){jobApply(D,q.k);J.done.push(q.k);changed=true;if(here)toast("Mechanic: "+JOBNAME(q.k).toLowerCase()+" done.")}
-    if(now>=J.until){const F=repairFinish(C);if(here)toast("Your car is ready at the "+((T.workshop||{}).name||"workshop")+": "+F.names+".")}else if(changed)crashSave(true)}}
+    if(now>=J.until){const F=repairFinish(C);if(here)toast("Your "+(isBike(C)?"bike":"car")+" is ready at the "+((T.workshop||{}).name||"workshop")+": "+F.names+".")}else if(changed)crashSave(true)}}
 /* ---- characters loaded from assets/characters (Rocketbox, "Bip01" skeleton), only when first needed. Each file is read,
    its body is set in the rest pose in metres facing +z, its skeleton is cut down to the bones the recorded movements use
    (fingers, face and eyes follow their hand or head) under the names the movements know, and a toe is added in front of
@@ -4333,8 +4411,8 @@ function jobApply(D,k){if(k==="coolant"){D.coolant=1;D.temp=90;D.hot=0}else if(k
 /* ---- the tow truck: paid, and it takes the car to the state's workshop (it does not repair it) ---- */
 const towPrice=(C,W)=>Math.round((6000+15*Math.hypot(C.x-W.x,C.z-W.z))/500)*500;
 function towCar(){towPanel()}
-function towPanel(){const T=townOf(me.town),C=T.car,W=T.workshop;if(!C||!W||TOW)return;if(C.dmg&&C.dmg.fire>0){toast("The tow truck will not take a burning car. Wait until the fire is out.");return}choosing=true;const el=document.getElementById("choose");el.hidden=false;
-  const there=Math.hypot(C.x-W.x,C.z-W.z)<3;el.innerHTML=`<div class="card rpcard"><h1>Tow truck</h1>${there?`<p>Your car is already at the ${esc(W.name)}.</p>`:`<p>A tow truck takes your car to the ${esc(W.name)}, where you can choose repairs. It does not repair the car.</p>
+function towPanel(){const T=townOf(me.town),C=T.car,W=T.workshop;if(!C||!W||TOW)return;if(C.dmg&&C.dmg.fire>0){toast("The tow truck will not take a burning "+(isBike(C)?"bike":"car")+". Wait until the fire is out.");return}choosing=true;const el=document.getElementById("choose");el.hidden=false;
+  const there=Math.hypot(C.x-W.x,C.z-W.z)<3;el.innerHTML=`<div class="card rpcard"><h1>Tow truck</h1>${there?`<p>Your ${isBike(C)?"bike":"car"} is already at the ${esc(W.name)}.</p>`:`<p>A tow truck takes your ${isBike(C)?"bike":"car"} to the ${esc(W.name)}, where you can choose repairs. It does not repair the ${isBike(C)?"bike":"car"}.</p>
     <div class="rptot">Price <b>${kfmt(towPrice(C,W))}</b> &middot; paid to the ${esc(W.st)} State account</div><p class="amsg" id="rpMsg"></p><button class="go" data-rp="tow" id="rpPay">Pay and call the tow truck</button>`}<button class="go ghost" data-stay="1">Close</button></div>`}
 async function towGo(){const T=townOf(me.town),C=T.car,W=T.workshop,msg=document.getElementById("rpMsg"),btn=document.getElementById("rpPay");if(!C||!W)return;const price=towPrice(C,W);btn.disabled=true;msg.classList.remove("err");msg.textContent="Paying "+kfmt(price)+"...";
   try{await payService(price,W.st,"Tow truck to "+W.name)}catch(e){msg.textContent=e.message;msg.classList.add("err");btn.disabled=false;return}
@@ -4382,7 +4460,7 @@ function towPose(){const R=TOW,C=R.C,f=[-Math.sin(R.yaw),-Math.cos(R.yaw)],hx=R.
 // the car is handed over at the workshop (just after any fade that is still running)
 function towEnd(){const R=TOW;if(!R||R.done)return;if(busy){setTimeout(towEnd,400);return}R.done=true;document.getElementById("towSkip").hidden=true;const{C,W}=R;
   fadeTo(W.name,()=>{TOW=null;C.x=W.x;C.z=W.z;C.yaw=W.yaw;C.v=0;VEH.spin=0;carD(C).shop=true;crashSave(true);cam.x=W.x+W.fx*8.5;cam.z=W.z+W.fz*8.5;cam.yaw=Math.atan2(W.fx,W.fz);VIEW.yaw=cam.yaw;SNAPCAM=true;
-    toast("Your car is at the "+W.name+". Go to the repair bay to choose repairs.")})}
+    toast("Your "+(isBike(C)?"bike":"car")+" is at the "+W.name+". Go to the repair bay to choose repairs.")})}
 // the camera rides alongside on the passenger side, a little ahead, looking back along the truck to the car
 function towCam(dt){const R=TOW,f=[-Math.sin(R.yaw),-Math.cos(R.yaw)],r=[f[1],-f[0]],want=[R.x+f[0]*3-r[0]*8.5,3.4,R.z+f[1]*3-r[1]*8.5],to=[R.x-f[0]*2.2,1.3,R.z-f[1]*2.2];
   if(!R.cam)R.cam=want.slice();else for(let i=0;i<3;i++)R.cam[i]+=(want[i]-R.cam[i])*Math.min(1,dt*2.5);return[R.cam.slice(),to]}
@@ -4407,7 +4485,7 @@ function carUse(C,dt){const D=carD(C),v=Math.abs(C.v);
   if(NOW-fuelSaveT>15&&v>.5){fuelSaveT=NOW;crashSave()}
   const flats=D.flat.reduce((s,f)=>s+f,0),rims=D.rim.reduce((s,v)=>s+v,0);return{grip:1-.35*D.tyre.reduce((s,v)=>s+v,0)/4-.22*flats-.05*rims-.18*Math.max(0,D.susp-.3),pull:((D.flat[1]+D.flat[3])-(D.flat[0]+D.flat[2]))*.07+D.steer*D.steerDir*.045+((D.rim[1]+D.rim[3])-(D.rim[0]+D.rim[2]))*.03+(D.susp>.4?(D.susp-.4)*.06*(D.steerDir||1):0),vmax:flats?.55:1}}
 // the driver, after a crash: the seatbelt makes the difference (the game has no injuries yet; this is reported only)
-function driverHurt(dv){if(dv<1.2)return"";if(VEH.belt)return dv<6?"":dv<11?"shaken":dv<16?"bruised by the seatbelt":"injured";return dv<3?"shaken":dv<6?"bruised (no seatbelt)":dv<10?"hurt, thrown against the wheel (no seatbelt)":"badly hurt (no seatbelt)"}
+function driverHurt(dv){if(isBike({model:VEH.model})){const hd=dv*2;if(hd<1.2)return"";if(VEH.helmet)return hd<6?"":hd<11?"shaken":hd<16?"bruised (helmet on)":"injured (helmet on)";return hd<3?"shaken":hd<6?"bruised (no helmet)":hd<10?"hurt, thrown from the bike (no helmet)":"badly hurt (no helmet)"}if(dv<1.2)return"";if(VEH.belt)return dv<6?"":dv<11?"shaken":dv<16?"bruised by the seatbelt":"injured";return dv<3?"shaken":dv<6?"bruised (no seatbelt)":dv<10?"hurt, thrown against the wheel (no seatbelt)":"badly hurt (no seatbelt)"}
 
 /* roads that stop short: a road whose end points at another road close by is carried on to meet it, and two roads that stop
    short of a corner are both carried on to it; each new meeting gets a patch of tarmac over the kerbs. Roads that simply
@@ -5198,7 +5276,7 @@ function followRoute(t){if(Math.hypot(cam.x-route.place.x,cam.z-route.place.z)<9
 /* ================================ controls ================================ */
 let touch=matchMedia("(pointer:coarse)").matches;document.body.classList.toggle("touch",touch);
 const typing=e=>e.target&&(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.target.tagName==="SELECT");
-addEventListener("keydown",e=>{if(typing(e))return;const k=e.key.toLowerCase();keys[k]=true;if(driving&&!busy&&driveKey(k,true)){e.preventDefault();return}if(driving&&k==="e"){carExit();return}if(k==="e"&&!actNow()&&CARUI.near&&!talking&&!busy){carEnter();return}if(k==="e"&&!driving&&!actNow()&&!talking&&!busy&&!choosing&&scene==="town"){const P=garNear(townOf(me.town));if(P){garPanel(P);return}}if(k===" "){e.preventDefault();doJump()}if(/^[wasd]$|^arrow/.test(k))setTouchMode(false);if(k==="m"&&scene==="town"&&!choosing&&!mapOpen&&!talking)openMap();if((k==="e"||k==="enter"||k==="f")&&actNow()&&!talking&&!busy)doAct();else if(k==="enter"&&NET.state==="on"&&!driving&&!choosing&&!mapOpen&&!talking){e.preventDefault();chatOpen()}if(k==="v"&&!talking){view3=!view3;ui()}if(k==="escape"&&talking)closeTalk()});addEventListener("keyup",e=>{const k=e.key.toLowerCase();keys[k]=false;driveKey(k,false)});
+addEventListener("keydown",e=>{if(typing(e))return;const k=e.key.toLowerCase();keys[k]=true;if(k==="escape"&&HUD.open==="inv"){HUD.open=null;hudNav();return}if(driving&&!busy&&driveKey(k,true)){e.preventDefault();return}if(driving&&k==="e"){carExit();return}if(k==="e"&&!actNow()&&CARUI.near&&!talking&&!busy){carEnter();return}if(k==="e"&&!driving&&!actNow()&&!talking&&!busy&&!choosing&&scene==="town"){const P=garNear(townOf(me.town));if(P){garPanel(P);return}}if(k===" "){e.preventDefault();doJump()}if(/^[wasd]$|^arrow/.test(k))setTouchMode(false);if(k==="m"&&scene==="town"&&!choosing&&!mapOpen&&!talking)openMap();if((k==="e"||k==="enter"||k==="f")&&actNow()&&!talking&&!busy)doAct();else if(k==="enter"&&NET.state==="on"&&!driving&&!choosing&&!mapOpen&&!talking){e.preventDefault();chatOpen()}if(k==="v"&&!talking){view3=!view3;ui()}if(k==="escape"&&talking)closeTalk()});addEventListener("keyup",e=>{const k=e.key.toLowerCase();keys[k]=false;driveKey(k,false)});
 const stick=document.getElementById("stick"),knob=document.getElementById("knob");let stickId=null,lookId=null,lx=0,ly=0;
 function stickMove(e){const r=stick.getBoundingClientRect();let dx=(e.clientX-r.left-r.width/2)/(r.width/2),dy=(e.clientY-r.top-r.height/2)/(r.height/2);const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}const L=Math.min(1,l),dz=CAMCFG.deadZone,g=L<dz?0:(L-dz)/(1-dz)/(L||1);input.x=dx*g;input.y=-dy*g;knob.style.transform=`translate(${dx*37}px,${dy*37}px)`}
 function grabPointer(el,e){try{el.setPointerCapture(e.pointerId)}catch(_){}}       // a pointer already lifted cannot be held: no matter
@@ -5248,7 +5326,8 @@ const HUDI={chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 1
   info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',car:'<path d="M3 16v-3l2-5h14l2 5v3H3z"/><circle cx="7.5" cy="16.5" r="1.8"/><circle cx="16.5" cy="16.5" r="1.8"/>',
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',id:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M14 10h4M14 14h4M6 16c.7-1.4 1.8-2 3-2s2.3.6 3 2"/>',
   fuel:'<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8l3 2v8a1.5 1.5 0 0 0 3 0v-7l-3-3"/>',
-  wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>',heart:'<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>'};
+  wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>',heart:'<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>',
+  key:'<circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 8.8-8.8M15 6l3 3M18 3l3 3"/>',bag:'<path d="M8 8V6a4 4 0 0 1 8 0v2"/><rect x="4" y="8" width="16" height="13" rx="3"/><path d="M4 13h4M16 13h4"/>'};
 const hico=(n,s)=>`<svg viewBox="0 0 24 24" width="${s||18}" height="${s||18}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${HUDI[n]}</svg>`;
 Object.assign(HUDI,{phone:'<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M11 18.5h2"/>',bag:'<path d="M6 8h12l1 12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M9 13h6"/>',
   walk:'<circle cx="13" cy="4" r="1.8"/><path d="M11 21l2-6-2-3 1-5 3 3 3 1M12 7l-3 2-1 4M13 15l3 6"/>',run:'<circle cx="15" cy="4" r="1.8"/><path d="M5 12l3-3 5 1 3 3 3 0M10 10l-2 5-4 1M13 10l-1 5 4 2-1 4"/>',
@@ -5293,7 +5372,7 @@ function hudNav(){if(!HUD.el.nav)return;const B=[["phone","Phone","phone"],["bag
     b.addEventListener("click",e=>{e.stopPropagation();HUD.open=HUD.open===k?null:k;HUD.histOpen=false;hudNotesDraw();hudNav()});nav.appendChild(b)}
   for(const b of nav.children)b.setAttribute("aria-pressed",HUD.open===b.dataset.k?"true":"false");
   document.getElementById("picks").classList.toggle("open",HUD.open==="set");document.body.classList.toggle("sheet",!!HUD.open);hudSheet()}
-function hudSheet(){const el=HUD.el.sheet;if(!el)return;const k=HUD.open;el.hidden=k!=="phone"&&k!=="inv";if(el.hidden){el.innerHTML="";return}
+function hudSheet(){const el=HUD.el.sheet;if(!el)return;const k=HUD.open;el.hidden=k!=="phone"&&k!=="inv";el.classList.toggle("invg",k==="inv");if(el.hidden){el.innerHTML="";return}
   const signed=typeof AUTH!=="undefined"&&AUTH.user,go=fn=>()=>{HUD.open=null;hudNav();fn()};
   if(k==="phone"){const A=[];
     if(scene==="town")A.push(["map","Map",go(()=>{if(!mapOpen)openMap()})]);else if(fpPlan())A.push(["map","Floor plan",go(()=>openPlan())]);
@@ -5302,15 +5381,59 @@ function hudSheet(){const el=HUD.el.sheet;if(!el)return;const k=HUD.open;el.hidd
     if(signed)A.push(["chat","Chat",go(()=>chatOpen())]);
     if(me.role==="admin"&&signed)A.push(["shield","Admin",go(()=>adminPanel())]);
     A.push(["bell","Notifications",()=>{HUD.open=null;hudNav();HUD.histOpen=true;HUD.unread=0;hudNotesDraw()}]);
-    el.innerHTML='<h4>PHONE</h4><div class="apps"></div>';const box=el.querySelector(".apps");
-    for(const[ic,label,fn]of A){const b=document.createElement("button");b.type="button";b.innerHTML=`<i>${hico(ic,22)}</i>${label}`;b.addEventListener("click",e=>{e.stopPropagation();fn()});box.appendChild(b)}
+    const ph='<h4>PHONE</h4><div class="apps"></div>';
+    if(el.innerHTML!==ph){el.innerHTML=ph;const box=el.querySelector(".apps");
+    for(const[ic,label,fn]of A){const b=document.createElement("button");b.type="button";b.innerHTML=`<i>${hico(ic,22)}</i>${label}`;b.addEventListener("click",e=>{e.stopPropagation();fn()});box.appendChild(b)}}
     return}
-  // what you hold: your money, your identity card and your vehicles, as the game has them
-  const R=[];const row=(ic,b,s)=>R.push(`<div class="ir"><i>${hico(ic,18)}</i><div><b>${esc(b)}</b><small>${esc(s||"")}</small></div></div>`);
-  if(typeof AUTH!=="undefined"&&AUTH.char)row("wallet","K"+Number(me.cash||0).toLocaleString("en-GB"),"Cash in your wallet");
-  if(me.cert)row("id","Identity card",[me.cert.name,me.cert.state&&"Citizen of "+me.cert.state,me.cert.no].filter(Boolean).join(" · "));
-  if(garOn())for(const v of GAR.list){const P=v.park&&garPark(v.park);row("car",v.plate||"Vehicle",v.status==="stored"?"Stored at "+(P?P.name:"a car park"):v.out_by_me?"Out with you"+(v.state?" in "+v.state:""):"Out with someone who has its keys")}
-  el.innerHTML='<h4>INVENTORY</h4><div class="inv">'+(R.join("")||"<p>Nothing here yet.</p>")+(garOn()?"<p>Open a garage at any car park (P on the map) to take out a vehicle or give keys.</p>":"")+"</div>"}
+  // the inventory grid: the Vehicle Fob (given to every player), your wallet,
+  // your identity card and the vehicle keys you hold, exactly as the game has
+  // them. Every count, the cash and the bar below are computed from that real
+  // data; empty tabs (Tools in v1) say so instead of showing invented items.
+  if(HUD.igTab===undefined)HUD.igTab="all";
+  const IT=[{t:"vehicles",ic:"key",n:"Vehicle Fob",cat:"Special Item",q:1,d:"Opens your garage from anywhere in the city.",l:"Cannot be dropped, sold or traded",act:"garage"}];
+  if(typeof AUTH!=="undefined"&&AUTH.char)IT.push({t:"misc",ic:"wallet",n:"Wallet",cat:"Item",q:1,d:"Cash in your wallet: K"+Number(me.cash||0).toLocaleString("en-GB")});
+  if(me.cert)IT.push({t:"misc",ic:"id",n:"Identity Card",cat:"Document",q:1,d:[me.cert.name,me.cert.state&&"Citizen of "+me.cert.state,me.cert.no].filter(Boolean).join(" · ")});
+  if(garOn())for(const v of GAR.list)IT.push({t:"keys",ic:"key",n:"Keys to "+(v.plate||"a vehicle"),cat:"Vehicle Key",q:1,
+    d:v.mine?"You own this vehicle — keys let anyone they are given to spawn it at a car park.":"Keys from "+(v.owner_name||"the owner")+" — you can spawn this vehicle at a car park."});
+  const TABS=[["all","All Items"],["vehicles","Vehicles"],["tools","Tools"],["keys","Keys"],["misc","Misc"]];
+  const cnt=t=>t==="all"?IT.length:IT.filter(i=>i.t===t).length;
+  const L=TABS.find(t=>t[0]===HUD.igTab)?IT.filter(i=>HUD.igTab==="all"||i.t===HUD.igTab):IT;
+  const sel=IT[HUD.igSel]&&L.indexOf(IT[HUD.igSel])>=0?IT[HUD.igSel]:L[0];
+  const cash=typeof AUTH!=="undefined"&&AUTH.char?"K"+Number(me.cash||0).toLocaleString("en-GB"):"";
+  const html=`<div class="invgrid">
+    <div class="ig-head"><span class="bg">${hico("bag",20)}</span><h4>MY INVENTORY<small>Items, tools and more</small></h4><span class="cash">${esc(cash)}</span><button type="button" class="x" data-ig="x" aria-label="Close inventory">${hico("chev",14)}</button></div>
+    <div class="ig-tabs">${TABS.map(t=>`<button type="button" data-ig="tab" data-t="${t[0]}" class="${t[0]===HUD.igTab?"on":""}">${t[1]} (${cnt(t[0])})</button>`).join("")}</div>
+    <div class="ig-body">
+      <div class="ig-grid">${L.length?L.map(it=>`<button type="button" class="ig-tile${sel&&it===sel?" on":""}" data-ig="tile" data-n="${IT.indexOf(it)}"><span class="ti">${hico(it.ic,22)}</span><span class="tn">${esc(it.n)}</span><span class="tc">${it.q}</span></button>`).join(""):`<p class="ig-empty">${HUD.igTab==="tools"?"No tools yet. Tools will appear here when the game has them.":HUD.igTab==="keys"?(garOn()?"No vehicle keys yet. Your own vehicles and the keys you are given will appear here.":"Keys you are given to a vehicle will appear here. Sign in to your account to own and hold keys."):HUD.igTab==="vehicles"?"No vehicles here yet. The Vehicle Fob is always with you.":"Nothing here yet."}</p>`}</div>
+      <div class="ig-det">${sel?`<span class="dc">${esc(sel.cat)}</span><span class="di">${hico(sel.ic,28)}</span><span class="dn">${esc(sel.n)}</span><span class="dd">${esc(sel.d)}</span>${sel.l?`<span class="dl">${hico("warn",13)} ${esc(sel.l)}</span>`:""}${sel.act==="garage"?`<button type="button" class="db" data-ig="garage">Open Garage</button>`:""}`:`<p class="ig-empty">Select an item to see its details.</p>`}</div>
+    </div>
+    <div class="ig-foot"><span class="fbg">${hico("bag",15)}</span><span class="cnt">${IT.length} / 50 Items</span><span class="bar"><i style="width:${Math.min(100,IT.length/50*100).toFixed(1)}%"></i></span><span class="esc">ESC Close</span></div>
+  </div>`;
+  // compare against the PARSED serialization: the SVG icons contain
+  // self-closing tags (<path .../>) which the HTML parser normalizes,
+  // so a raw string compare would never match and the whole grid would
+  // be rebuilt every tick, detaching buttons mid-click.
+  const igNorm=document.createElement("div");igNorm.innerHTML=html;
+  if(el.innerHTML!==igNorm.innerHTML)el.innerHTML=igNorm.innerHTML;
+  el.onkeydown=e=>{if(e.key==="Escape"){e.stopPropagation();HUD.open=null;hudNav()}};
+  el.onclick=e=>{const b=e.target.closest("[data-ig]");if(!b)return;e.stopPropagation();
+    if(b.dataset.ig==="x"){HUD.open=null;hudNav();return}
+    if(b.dataset.ig==="tab"){HUD.igTab=b.dataset.t;HUD.igSel=L0indexOf();hudSheet();return}
+    if(b.dataset.ig==="tile"){HUD.igSel=+b.dataset.n;hudSheet();return}
+    if(b.dataset.ig==="garage"){HUD.open=null;hudNav();igOpenGarage();return}};
+  function L0indexOf(){const i=IT.findIndex(q=>q===IT[HUD.igSel]);return i}
+}
+// the Vehicle Fob: open the existing garage panel — the same one E and the P
+// button use — or, away from any car park, that same panel's shell with your
+// actual vehicles listed read-only and no way to spawn.
+function igOpenGarage(){if(scene!=="town"){igGarAway();return}
+  const P=garNear(townOf(me.town));if(P){garPanel(P);return}igGarAway()}
+function igGarAway(){const el=document.getElementById("choose");
+  const P={id:"away",st:me.town,name:"Garage",bays:[]};
+  GAR.panel=P;GAR.keysFor=null;choosing=true;el.hidden=false;
+  const cards=garOn()&&GAR.list.length?GAR.list.map(v=>`<div class="gveh">${garPic(v)}<div class="ginfo"><b>${esc((CARS[v.model]||CARS.sovereign).name)}</b><small>${esc(v.plate)} · ${v.mine?"Owned by you":"Keys from "+esc(v.owner_name||"its owner")}</small></div></div>`).join(""):"<p>No vehicles yet. Buy or rent a car to start your garage.</p>";
+  el.innerHTML=`<div class="card rpcard gcard"><h1>Garage</h1><p class="cdsub">Away from a car park</p><div class="glist">${cards}</div><p class="amsg">Go to a car park to spawn.</p><button class="go" data-ig-close>Close</button></div>`;
+  el.onclick=e=>{if(e.target.closest("[data-ig-close]")){choosing=false;el.hidden=true;el.onclick=null;GAR.panel=null}}}
 /* ---- notifications: every toast becomes a card for a few seconds, and stays in the history behind the bell */
 function hudKind(t){return/(cannot|can't|not |no room|refus|fail|error|only |blocked|fire|burst|too far|taken back|you do not|occupied|wait)/i.test(t)?"warn":/(paid|ready|done|stored|spawn|clocked|welcome|complete|arrived|repaired|refuelled|given|now has|added|saved)/i.test(t)?"ok":"info"}
 // the first sentence is the heading, the rest the line under it
@@ -5347,7 +5470,7 @@ function hudCard(){const el=HUD.el.card;if(!el)return;const signed=typeof AUTH!=
   if(me.cert)rows.push(`<div class="srow t">${hico("id",14)}<span>${esc((me.cert.state?"Citizen of "+me.cert.state:"")+(me.cert.no?" · "+me.cert.no:""))}</span></div>`);
   if(GOVME&&GOVME.today&&(GOVME.posts||[]).length){const sec=GOVME.today.seconds||0;bar("clock",GOVME.today.clocked_in?"On shift":"Shift",Math.min(1,sec/18000),"#2b8bbf",(sec/3600).toFixed(1)+" / 5 h")}
   const M=typeof garMine==="function"&&garMine(),C=M&&M.C||(TOWNS[me.town]&&TOWNS[me.town].car);
-  if(C&&C.dmg){const D=carD(C),h=carHealth(D)/100;bar("wrench","Car condition",h,good(h),Math.round(h*100)+"%");bar("fuel","Fuel",D.fuel,good(D.fuel),Math.round(D.fuel*100)+"%")}
+  if(C&&C.dmg){const D=carD(C),h=carHealth(D)/100;bar("wrench",(isBike(C)?"Bike condition":"Car condition"),h,good(h),Math.round(h*100)+"%");bar("fuel","Fuel",D.fuel,good(D.fuel),Math.round(D.fuel*100)+"%")}
   rows.push(`<div class="pnote">Needs (health, hunger, thirst...) arrive with life needs.</div>`);
   const hb=el.querySelector(".hb"),html=rows.join("");if(hb.dataset.h!==html){hb.innerHTML=html;hb.dataset.h=html}}
 /* ---- the map's own markers: your car, the nearest car parks, workshops, filling stations and markets, and your workplace; upright as the map turns */
@@ -5564,7 +5687,7 @@ function netCarPose(p){const c=p.car,R=carRig(c.md==="motorbike"?{model:"motorbi
 function netDraw(VP,eye,t,T){if(NET.state!=="on"||!NET.peers.size)return;try{const town=scene==="town";let cars=false;
     if(NET_EXTRAS_CARS&&town&&(CARSCENE||BIKESCENE)){const keep=CARSCENE;if(CARSCENE0)CARSCENE=CARSCENE0;
       for(const p of NET.peers.values()){if(!p.car||Math.hypot(p.car.x-eye[0],p.car.z-eye[2])>160)continue;const S=p.car.md==="motorbike"?BIKESCENE:CARSCENE;if(!S)continue;CARSCENE=S;cars=true;netCarPose(p);carDraw(VP,eye,false,false);carDraw(VP,eye,true,false);
-        const M=netModel(p),R=carRig(p.car.md==="motorbike"?{model:"motorbike"}:null),h=R.seats&&R.seats.driver,sit=p.car.md==="motorbike"?{y:CARSIT.y,z:0}:CARSIT;if(p.car.d&&M&&h){const q=carPt({x:p.car.x,z:p.car.z,yaw:p.car.a},[h[0],0,h[2]+sit.z]);WALKER.draw(M,VP,q[0],h[1]+sit.y,q[2],p.car.a,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"")}}
+        const M=netModel(p),R=carRig(p.car.md==="motorbike"?{model:"motorbike"}:null),h=R.seats&&R.seats.driver,sit=p.car.md==="motorbike"?CARSIT.motorbike:CARSIT;if(p.car.d&&M&&h){const q=carPt({x:p.car.x,z:p.car.z,yaw:p.car.a},[h[0],0,h[2]+sit.z]);WALKER.draw(M,VP,q[0],h[1]+sit.y,q[2],p.car.a,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"")}}
       CARSCENE=keep;if(cars&&T&&T.car)carPose(T.car,0)}
     for(const p of NET.peers.values()){if(!NET_EXTRAS_INDOORS&&!town||p.car&&p.car.d||p.m==="d")continue;if(Math.hypot(p.x-eye[0],p.z-eye[2])>120)continue;const M=netModel(p);if(!M)continue;
       FEET=town?(x,z,from)=>groundTop(T,x,z,from):null;WALKER.draw(M,VP,p.x,p.y,p.z,p.a,p.gait,t,null,"");FEET=null}
