@@ -807,11 +807,19 @@ select count(*) from public.vehicles where model = 'motorbike';
   ESC close, tab switching, tile selection, real tab counts and cash, Fob → Open Garage, away panel shows
   the real vehicle list with no spawn control, E key near a park still opens the existing garage, both
   responsive sizes render without clipped controls. Screenshot evidence: see the PR description.
-- **Test summary (this PR):** 43/43 static verification checks pass against `index.html` (structure, only real
-  items, Fob → garage paths, E/P preservation, responsive rules). Playwright viewport tests at 390×844 and
-  1280×800 (open/close, ESC, tab switch, item select + details, Fob → Garage, away read-only panel, E key near a
-  park, P pedal controls, no console errors, no overflow) — results recorded in the PR description; five
-  screenshots as evidence.
+- **Test summary (this PR):** static verification of `index.html` passes (structure, only real items, Fob →
+  garage paths, E/P preservation, responsive rules); the Playwright viewport suite was actually run in the
+  sandbox against the local preview at 390×844 and 1280×800 — 44/44 checks pass at both sizes (open/close via
+  I and ×, ESC close, all five tabs + exact counts, each real item selectable with correct details, Fob →
+  Open Garage, away-from-park read-only panel showing the real vehicle list with no spawn control, simulated
+  at-park garage, E key near a park, P pedal controls, ≥2 real item slots + real used/total capacity display,
+  no clipped/overlapping controls, no console errors). Screenshot evidence in `/tmp/shots/` (not committed)
+  and the PR description.
+- **Known limitations:** the away-from-park panel reuses `garPanel`'s loading path and then swaps in the
+  read-only body, so a brief `Loading your vehicles...` flash is visible before the read-only list renders.
+  The `veh_mine` RPC is called with the real session token when signed in; in the sandbox tests the fetch
+  was stubbed at the `window.fetch` level (vehicle data injected), so live-server data flow of the list
+  itself was not exercised end-to-end. Cash shown is `me.cash` as held in memory after sign-in.
 
 ## Motorbike crash zones, wording, rider seat and helmet (this PR)
 
