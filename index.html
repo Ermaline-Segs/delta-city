@@ -3783,6 +3783,8 @@ function carSeqStep(){const S=CARSEQ;if(!S)return null;const C=S.C;
     if(d<.22||stuck){if(stuck){cam.x=w[0];cam.z=w[2]}S.i++;S.stuck=NOW;S.best=1e9;if(S.i>=S.pts.length){S.stage="turn";S.t0=NOW;S.yaw0=cam.yaw}return null}      // held up by something for over a second: past it
     if(d<S.best-.05){S.best=d;S.stuck=NOW}return[dx/d,dz/d]}
   if(S.stage==="turn"){const h=carPt(C,isBike(C)?[0,0,S.door.stand[2]+.6]:S.door.handle),want=Math.atan2(-(h[0]-cam.x),-(h[2]-cam.z)),k=Math.min(1,(NOW-S.t0)/.35);cam.yaw=S.yaw0+angTo(want,S.yaw0)*k;if(!view3)VIEW.yaw=cam.yaw;
+    if(isBike(C)&&!S.camEye){const sw=carPt(C,S.door.stand),dx=sw[0]-C.x,dz=sw[2]-C.z,dl=Math.hypot(dx,dz)||1,nx=dx/dl,nz=dz/dl;       // lock the view on rider and bike for the whole mount
+      S.camEye=[sw[0]+nx*2.6,1.7,sw[2]+nz*2.6];const st=carPt(C,[0,1.05,carSit(C).z]);S.camTo=[st[0],st[1],st[2]];CAMBL={from:LASTCAM,t0:NOW,dur:.4}}
     if(k>=1){S.stage="open";S.next="in";S.t0=NOW;S.from=[cam.x,cam.z];carDoorTo(C,S.door.part.slice(5),true)}return null}
   if(S.stage==="open"){if(NOW-S.t0>=.5){S.stage=S.next;S.t0=NOW}S.sit=S.next==="out"?1:0;return null}       // the door swings open on its hinge (the bike has no door: a held beat to step up)
   if(S.stage==="in"&&isBike(C)){       // mounting a bike: step up beside the saddle, swing across onto it, settle down
@@ -4995,6 +4997,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     else{const dist=driving?7.6:3.5,up=driving?2.7:1.55,lift=clamp(.32-cam.pitch,0,1.2);let k=1;for(let q=.15;q<=1;q+=.15)if(hitT(cam.x-fx*dist*q,cam.z-fz*dist*q,.25)){k=Math.max(.15,q-.15);break}       // the camera stays this side of any wall behind you
       eye=[cam.x-fx*dist*k,up+lift*dist*.55*k,cam.z-fz*dist*k];to=[cam.x+fx*4,up-.15,cam.z+fz*4]}}
     else[eye,to]=followCam(cam.x,TGY,cam.z,(x,z)=>hitT(x,z,.25),99)}
+  if(scene==="town"&&CARSEQ&&CARSEQ.camEye)[eye,to]=[CARSEQ.camEye,CARSEQ.camTo];       // a locked side view on the rider and bike while she mounts
   else{MEY=Math.abs(me.y-MEY)>.6?me.y:MEY+(me.y-MEY)*Math.min(1,dt*14);      // the drawn height eases from step to step
     if(sx||sz){if(!blocked(me.x+sx,me.z))me.x+=sx;else VEL.x=0;if(!blocked(me.x,me.z+sz))me.z+=sz;else VEL.z=0;me.y=floorAt(me.x,me.z,me.y);
       if(scene==="border"){if(Math.abs(me.x)<1.5&&me.z<12.4&&me.z>11)toImm(false)}
