@@ -195,6 +195,33 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 - **Home buildings:** see section 6 (`assets/buildings/homes/`, `homes.md`).
 
 ## 11. Updates since the first handover (newest first)
+- **Garage v2, part 2 — client panel, freeze/unfreeze buttons, panel refresh (this PR)** — `index.html` only.
+  Depends on part 1: the garage v2 SQL (`supabase_garage_v2a.sql` + audit rows, branch `helix/garage-v2-complete`)
+  must be live first, because this reads `frozen`/`slots`/`active_count` from `veh_mine` and calls
+  `veh_freeze` / `veh_unfreeze`.
+  1. **v2 panel layout (`g2*` classes, `gshell`/`ghead` helpers):** header with free-space count, then a
+     4-tile stat row — PLAYER, ACTIVE STORAGE (`activeCount / slots SLOTS`, `slots` defaulting to 5),
+     STORED (own non-frozen stored vehicles), FROZEN — then the ACTIVE STORAGE section (park name ·
+     N OF M SPACES FREE), the vehicle cards, the frozen section, and the rent block.
+  2. **Per-vehicle Freeze / Unfreeze buttons** (`garAct("freeze")` / `garAct("unfreeze")`): busy spinner on
+     the clicked card while the RPC runs, server errors shown in the panel message, and on success a short
+     message ("Frozen — it stays parked outside and no longer uses a storage slot." / "Unfrozen — it is back
+     in your storage.") followed by a re-sync.
+  3. **Frozen vehicles section:** own frozen vehicles get their own `FROZEN VEHICLES` section with a
+     SLOT AVAILABLE / NO FREE SLOT pill and an Unfreeze button on each card; when storage is full a
+     "SLOT N — Storage full — freeze a vehicle to access another slot." card appears in place of a new slot.
+  4. **Panel refresh after actions (the redraw fix):** `garSync` now also picks up `slots` / `active_count`
+     from `veh_mine` and, when the panel is open and no action is in flight, re-draws it
+     (`if(GAR.panel&&GAR.busyId===0)garDraw()`). Before this, the counts and cards went stale after a
+     freeze/unfreeze/give until the panel was closed and reopened.
+  5. **Verification:** headless e2e harness (playwright, `e2e/garage.shot.js` — kept out of the repo per the
+     `.nettest/` convention, both ignored in `.gitignore`) drove the real app at `localhost:3000` against
+     seeded Supabase data: all six panel controls (Keys, Back, Freeze, Unfreeze, Rent, Close) dispatch the
+     correct RPCs and the panel redraws with updated counts after each action. Frames captured at
+     desktop 1440 px and mobile 414 px (in `screenshots/`, also uncommitted). `node test/flags.mjs` — the
+     repo's only runnable check — passes.
+  - **Could not test:** multiplayer redraw when another player's freeze action changes your slot count
+    (the redraw fires on your own `garSync`); real WebGL framing of the new cards in a live browser.
 - **Admin: "put this vehicle back in its garage" (this PR)** — new `supabase_admin_putaway.sql` + `index.html` only.
   The admin panel (inside "Choose a citizen") now has a **"Put a vehicle back in its garage"** dropdown next to
   "Give car" and "Set". It calls the new `veh_admin_putaway` function.

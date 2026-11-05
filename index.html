@@ -96,7 +96,54 @@ body.driving .hud{display:none}
 .wtag .tpc{font-size:12px;font-variant-numeric:tabular-nums;color:#FBBF24;flex:none}.wtag .tpc:empty{display:none}.wtag.tin{opacity:0!important;transform:translate(-50%,-90%)}.wtag.chg .tt{animation:tagchg .35s}@keyframes tagchg{from{opacity:.2}to{opacity:1}}
 .wbtn:not(#doorBtn){border:1px solid rgba(255,255,255,.3);background:rgba(12,22,38,.82);box-shadow:0 4px 14px rgba(0,0,0,.28);font-weight:600}
 @media (max-width:520px){.wtag{max-width:70vw;padding:4px 8px 4px 4px}.wtag .ti{width:22px;height:22px;font-size:14px}}
-.cdsub{margin:-4px 0 10px;opacity:.75;font-size:14px}.vlist{margin:8px 0;text-align:left}.vrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:14px}.vrow small{display:block;opacity:.75;font-size:12.5px;margin-top:2px}.vbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.glist{display:grid;gap:10px;margin:8px 0;max-height:52vh;overflow:auto;text-align:left}.gveh{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line)}.vpic{width:96px;height:42px}.ginfo{display:grid;gap:3px;min-width:0;font-size:14px}.ginfo small{opacity:.78;font-size:12.5px}.gnote{color:#fbbf24;opacity:1!important}.gbar{display:grid;grid-template-columns:64px 1fr 36px;gap:6px;align-items:center;font-size:12px}.gbar i{height:6px;border-radius:3px;background:rgba(255,255,255,.15);overflow:hidden}.gbar em{display:block;height:100%}.gbar b{font-size:12px;text-align:right}.gspawn{padding:9px 14px;font-size:14px;white-space:nowrap;width:auto;margin:0}.gspawn:disabled{opacity:.6}.spin{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:gspin .7s linear infinite;vertical-align:-1px}@keyframes gspin{to{transform:rotate(360deg)}}.gnone{padding:14px;border-radius:12px;background:rgba(255,255,255,.06)}@media (max-width:520px){.gveh{grid-template-columns:72px 1fr}.gveh .vbtns{grid-column:1/-1;justify-content:stretch}.gveh .vbtns .go{flex:1}.vpic{width:72px;height:32px}}
+.cdsub{margin:-4px 0 10px;opacity:.75;font-size:14px}.vlist{margin:8px 0;text-align:left}.vrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:14px}.vrow small{display:block;opacity:.75;font-size:12.5px;margin-top:2px}.vbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.glist{display:grid;gap:10px;margin:8px 0;max-height:52vh;overflow:auto;text-align:left}.gveh{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line)}.vpic{width:96px;height:42px}.ginfo{display:grid;gap:3px;min-width:0;font-size:14px}.ginfo small{opacity:.78;font-size:12.5px}.gnote{color:#fbbf24;opacity:1!important}.gbar{display:grid;grid-template-columns:64px 1fr 36px;gap:6px;align-items:center;font-size:12px}.gbar i{height:6px;border-radius:3px;background:rgba(255,255,255,.15);overflow:hidden}.gbar em{display:block;height:100%}.gbar b{font-size:12px;text-align:right}.gspawn{padding:9px 14px;font-size:14px;white-space:nowrap;width:auto;margin:0}.gspawn:disabled{opacity:.6}.spin{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:gspin .7s linear infinite;vertical-align:-1px}@keyframes gspin{to{transform:rotate(360deg)}}.gnone{padding:14px;border-radius:12px;background:rgba(255,255,255,.06)}
+/* MY GARAGE (v2 design): header + slot counter, a grid of vehicle cards, a frozen section, footer */
+.g2hdr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:2px}
+.g2hdr h1{font-size:24px;letter-spacing:.04em;text-transform:uppercase}
+.g2count{font-size:13px;opacity:.75;font-variant-numeric:tabular-nums}
+.g2sub{margin:0 0 14px;font-size:13.5px;opacity:.7}
+.g2sec{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85;margin:16px 0 8px}
+.g2grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:left}
+.g2card{position:relative;display:grid;grid-template-rows:auto auto auto 1fr auto;gap:5px;padding:12px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid var(--line);min-height:150px}
+.g2card .vpic{width:100%;height:44px}
+.g2card b{font-size:14.5px;line-height:1.2}
+.g2card small{opacity:.78;font-size:12px;line-height:1.35}
+.g2card .frozenflag{color:#7dd3fc;font-size:12px;font-weight:700}
+.g2card .gbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.g2empty{display:grid;place-items:center;min-height:150px;padding:12px;border-radius:14px;border:1px dashed var(--line);opacity:.55;font-size:13px;text-align:center}
+.g2foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:12.5px;opacity:.72;line-height:1.5}
+.g2{padding:4px 2px}
+.g2l{min-width:0}
+.g2ttl{margin:0;font-size:24px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;line-height:1.1}
+.g2meta{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;margin-top:5px}
+.g2meta-sub{font-size:11.5px;letter-spacing:.14em;opacity:.55;text-transform:uppercase}
+.g2stat{font-size:11.5px;font-weight:700;letter-spacing:.12em;padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
+.g2stat.ok{color:#4ade80;border-color:rgba(74,222,128,.45);background:rgba(74,222,128,.08)}
+.g2stat.off{color:#f87171;border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08)}
+.g2close{flex:none;align-self:center}
+.g2kv{display:flex;flex-direction:column;gap:3px;padding:9px 11px;border-radius:11px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.g2kl{font-size:10.5px;letter-spacing:.14em;opacity:.55;text-transform:uppercase}
+.g2kv b{font-size:13.5px;letter-spacing:.04em}
+.g2card-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px;font-weight:700;letter-spacing:.1em;opacity:.85}
+.g2card-h span:last-child{font-weight:600;opacity:.65;letter-spacing:.06em}
+.g2krow{display:flex;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid var(--line);font-size:13px}
+.g2krow span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.g2knone{padding:16px 4px;text-align:center;opacity:.55;font-size:13px}
+.g2chdr{margin:12px 0 4px;font-size:11px;font-weight:700;letter-spacing:.14em;opacity:.5}
+.g2krows .go{flex:1;text-align:center;padding:7px 10px;font-size:12.5px}
+.g2back{margin-top:14px}
+.g2sect{margin:18px 0 8px;display:flex;align-items:baseline;gap:10px}
+.g2sect h2{margin:0;font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.g2chead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px}
+.g2slot{margin-left:auto;font-size:10.5px;font-weight:800;letter-spacing:.14em;color:#7dd3fc}
+.g2state{font-size:10px;font-weight:800;letter-spacing:.12em;padding:2px 7px;border-radius:999px}
+.g2state.st{color:#4ade80;background:rgba(74,222,128,.12)}
+.g2state.out{color:#fbbf24;background:rgba(251,191,36,.12)}
+.g2froz{margin-left:auto;font-size:10px;font-weight:800;letter-spacing:.12em;color:#7dd3fc;background:rgba(125,211,252,.12);padding:2px 7px;border-radius:999px}
+.g2card.froz{opacity:.88;background:rgba(125,211,252,.06)}
+.g2card.noacc{border-style:dashed;display:grid;place-items:center;gap:6px;text-align:center;opacity:.8}
+@media (max-width:520px){.g2grid{grid-template-columns:1fr}.g2hdr{flex-direction:column;align-items:flex-start;gap:10px}.g2close{align-self:flex-end}.g2ttl{font-size:20px}.g2chead{gap:4px 6px}}
+@media (max-width:520px){.gveh{grid-template-columns:72px 1fr}.gveh .vbtns{grid-column:1/-1;justify-content:stretch}.gveh .vbtns .go{flex:1}.vpic{width:72px;height:32px}}
 #parkBtn{left:auto!important;top:auto!important;right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(104px + env(safe-area-inset-bottom,0px));transform:none}.touch #parkBtn{bottom:calc(286px + env(safe-area-inset-bottom,0px))}
 .vtag{background:#b8860b;color:#fff;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700}.admsp{display:flex;align-items:center;gap:6px;font-size:13px}.cdhealth{display:flex;align-items:baseline;gap:8px;margin:6px 0 8px}.cdhealth b{font-size:34px;font-variant-numeric:tabular-nums}.cdhealth span{opacity:.75}
 .cdwarn{margin:4px 0 12px;padding-left:20px;color:#b42318;font-weight:700;font-size:14px;text-align:left}.cdok{color:#15803d;font-weight:700;margin:4px 0 10px}
@@ -4091,7 +4138,7 @@ const garPark=id=>{for(const T of Object.values(TOWNS))for(const P of T.parks||[
 const garHold=C=>TOW&&TOW.C===C?"tow":C.dmg&&C.dmg.job?"repair":C.dmg&&C.dmg.refuel?"refuel":C.dmg&&C.dmg.fire>0?"fire":null;
 // how far the driver is from the car: in another state, as far as can be; inside a building, from where they went in
 function garDist(st,C){if(st!==me.town)return 1e6;if(scene==="town")return Math.hypot(cam.x-C.x,cam.z-C.z);return GAR.out&&GAR.out[2]===st?Math.hypot(GAR.out[0]-C.x,GAR.out[1]-C.z):1e6}
-async function garSync(){if(!garOn())return;try{const d=await garCall("veh_mine");garTake(d);GAR.list=d.vehicles||[];GAR.parks=d.parks||[];if(d.cfg)GAR.cfg=d.cfg;GAR.syncT=NOW;GAR.err="";garResume()}catch(e){GAR.syncT=NOW;if(!e.offline)GAR.err=garWhy(e)}}
+async function garSync(){if(!garOn())return;try{const d=await garCall("veh_mine");garTake(d);GAR.list=d.vehicles||[];GAR.parks=d.parks||[];if(d.cfg)GAR.cfg=d.cfg;if(d.slots!=null)GAR.slots=+d.slots;if(d.active_count!=null)GAR.activeCount=+d.active_count;GAR.syncT=NOW;GAR.err="";garResume();if(GAR.panel&&GAR.busyId===0)garDraw()}catch(e){GAR.syncT=NOW;if(!e.offline)GAR.err=garWhy(e)}}
 // a server error, said plainly: most often the vehicle part of the database has not been set up yet
 const garWhy=e=>(e.status===404||/could not find the function|schema cache|function [\w.]+\(.*\) does not exist/i.test(e.message))?"Car parks are not switched on in the database yet. The owner needs to run supabase_vehicles.sql in the Supabase SQL editor once.":e.message;
 // a car of mine that the server says is out with me: put it back in the world (after a reload, or on another phone)
@@ -4163,20 +4210,25 @@ const garRent=P=>{if(!garOn()||!me.town||me.town!==P.st)return"";const busy=GAR.
 const garPic=v=>{if(v.model==="motorbike")return`<svg class="vpic" viewBox="0 0 120 52" aria-hidden="true"><circle cx="30" cy="38" r="10" fill="#15181d"/><circle cx="30" cy="38" r="4" fill="#9aa3ad"/><circle cx="90" cy="38" r="10" fill="#15181d"/><circle cx="90" cy="38" r="4" fill="#9aa3ad"/><path d="M30 38 46 22h16l12 14h6" fill="none" stroke="#d61f26" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M42 22h22" stroke="#94a3b8" stroke-width="6" stroke-linecap="round"/></svg>`;
 const c=v.special?"#c9a227":"#d61f26";return`<svg class="vpic" viewBox="0 0 120 52" aria-hidden="true"><path d="M8 36c0-6 4-9 10-10l16-3 14-10c4-2 8-3 13-3h18c6 0 11 2 15 6l9 8 9 2c4 1 6 4 6 8v4H8z" fill="${c}"/><path d="M50 15h12v10H40zM66 15h12c3 0 6 2 8 4l5 6H66z" fill="#cfe3f0"/><circle cx="32" cy="40" r="8" fill="#15181d"/><circle cx="32" cy="40" r="3.4" fill="#9aa3ad"/><circle cx="92" cy="40" r="8" fill="#15181d"/><circle cx="92" cy="40" r="3.4" fill="#9aa3ad"/><rect x="104" y="29" width="7" height="3" rx="1.5" fill="#fff3b0"/></svg>`};
 function garDraw(note){const P=GAR.panel,el=document.getElementById("choose");if(!P)return;const T=townOf(P.st),M=garMine();
-  const shell=b=>`<div class="card rpcard gcard"><h1>${esc(P.name)}</h1><p class="cdsub">${garOn()?garFree(P).length+" of "+P.bays.length+" spaces free":"Garage"}</p>${b}<p class="amsg" id="gpMsg" role="status">${esc(note||"")}</p><button class="go ghost" data-stay="1">Close Garage</button></div>`;
-  if(!garOn()){el.innerHTML=shell(`<p>Sign in to your account to keep vehicles in a garage.</p>`);return}
-  if(GAR.err&&!GAR.list.length){el.innerHTML=shell(`<p class="amsg err">${esc(GAR.err)}</p>`);return}
+  const gshell=b=>`<div class="card rpcard gcard"><div class="g2">${b}</div></div>`,
+    ghead=bays=>`<div class="g2hdr"><div class="g2l"><h1 class="g2ttl">MY GARAGE</h1><div class="g2meta"><span class="g2meta-sub">VEHICLE STORAGE &middot; MANAGEMENT</span><span class="g2stat ${garOn()?"ok":"off"}">${garOn()?bays+" OF "+P.bays.length+" SPACES FREE AT THIS PARK":"OFFLINE"}</span></div></div><p class="amsg" id="gpMsg" role="status">${esc(note||"")}</p><button class="go ghost g2close" data-stay="1">CLOSE</button></div>`,
+    gfoot=()=>`<div class="g2foot"><span class="g2foot-l">AUTHENTIC &nbsp;&middot;&nbsp; DELTA CITY PRIVATE PARKING</span><span class="g2foot-r">SECURE PARKING</span></div>`;
+  if(!garOn()){el.innerHTML=gshell(ghead(0)+`<p>Sign in to your account to keep vehicles in a garage.</p>`+gfoot());return}
+  if(GAR.err&&!GAR.list.length){el.innerHTML=gshell(ghead(0)+`<p class="amsg err">${esc(GAR.err)}</p>`+gfoot());return}
   if(GAR.keysFor){const v=GAR.list.find(q=>q.id===GAR.keysFor);if(!v){GAR.keysFor=null;return garDraw()}
-    el.innerHTML=shell(`<p><b>Keys to ${esc(v.plate)}</b></p><p>People holding keys can spawn the car at a car park and drive it. You can take them back at any time; if they have the car out, it goes back to the car park.</p>
-      <div class="vlist">${(v.keys||[]).length?(v.keys||[]).map(k=>`<div class="vrow"><div><b>${esc(k.name||"Citizen")}</b><small>Has keys</small></div><button class="btn2s" data-vp="revoke" data-v="${esc(k.holder)}">Take back</button></div>`).join(""):`<p>Nobody else has keys.</p>`}</div>
-      <div class="cbrow"><input id="gpQ" placeholder="Name of the citizen"><button class="btn2s" data-vp="find">Find</button></div>
-      <div class="vlist">${GAR.found.map(f=>`<div class="vrow"><div><b>${esc(f.name)}</b></div><button class="btn2s" data-vp="give" data-v="${esc(f.owner)}">Give keys</button></div>`).join("")}</div>
-      <button class="go ghost" data-vp="back">Back to my vehicles</button>`);
+    el.innerHTML=gshell(ghead(garFree(P).length)+`<div class="g2card"><div class="g2card-h"><span>KEYS &middot; ${esc(v.plate)}</span><span>${(v.keys||[]).length} HOLDER${(v.keys||[]).length===1?"":"S"}</span></div>
+      ${(v.keys||[]).length?(v.keys||[]).map(k=>`<div class="g2krow"><div class="g2kl"><b>${esc(k.name||"Citizen")}</b><small>Has keys</small></div><button class="btn2s" data-vp="revoke" data-v="${esc(k.holder)}">TAKE BACK</button></div>`).join(""):`<p class="g2knone">Nobody else has keys.</p>`}
+      <div class="g2chdr"><span>GIVE KEYS</span><span>CITIZEN</span></div>
+      <div class="cbrow"><input id="gpQ" placeholder="Name of the citizen"><button class="btn2s" data-vp="find">FIND</button></div>
+      <div class="g2krows">${GAR.found.map(f=>`<div class="g2krow"><div class="g2kl"><b>${esc(f.name)}</b><small>Citizen</small></div><button class="btn2s" data-vp="give" data-v="${esc(f.owner)}">GIVE KEYS</button></div>`).join("")}</div>
+      <div class="g2back"><button class="btn2s" data-vp="back">BACK TO MY VEHICLES</button></div></div>`+gfoot());
     const q=document.getElementById("gpQ");q.addEventListener("keydown",e=>{if(e.key==="Enter")garAct("find")});return}
-  if(!GAR.list.length){el.innerHTML=shell(`<p class="gnone">You do not own a vehicle yet. New citizens do not get one; for now the Chief Admin gives them out.</p>${garRent(P)}`);return}
+  if(!GAR.list.length){el.innerHTML=gshell(ghead(garFree(P).length)+`<p class="g2empty">No vehicles in storage yet. New citizens do not get one; for now the Chief Admin gives them out.</p>${garRent(P)}`+gfoot());return}
   const bar=(lab,v,col)=>`<div class="gbar"><span>${lab}</span><i><em style="width:${Math.round(v*100)}%;background:${col(v)}"></em></i><b>${Math.round(v*100)}%</b></div>`,
     good=v=>v>.6?"#16a34a":v>.3?"#d97706":"#dc2626";
-  const cards=GAR.list.map(v=>{let st="",btn="",note2="";const here=M&&M.C.vid===v.id&&M.T===T?parkWhere(T,M.C):null,inHere=here&&here.P===P;
+  const slots=GAR.slots||5,actV=GAR.list.filter(v=>v.mine&&!v.frozen),froV=GAR.list.filter(v=>v.mine&&v.frozen),othV=GAR.list.filter(v=>!v.mine),
+    actN=GAR.activeCount!=null?GAR.activeCount:actV.length,full=actN>=slots;
+  const cardA=(v,i)=>{let st="",btn="",note2="";const here=M&&M.C.vid===v.id&&M.T===T?parkWhere(T,M.C):null,inHere=here&&here.P===P;
     if(v.status==="stored")st=v.park===P.id?(v.bay!=null?"Stored here, space "+(v.bay+1):"Waiting here for a free space"):"Stored at "+((garPark(v.park)||{}).name||"another car park");
     else if(v.out_by_me)st=inHere?(here.bay!=null?"Here, in space "+(here.bay+1):"Here in the car park"):"Out with you"+(v.state?" in "+esc(v.state):"");
     else st="Out with someone who has its keys";
@@ -4184,13 +4236,28 @@ function garDraw(note){const P=GAR.panel,el=document.getElementById("choose");if
       btn=bay!=null?`<button class="btn2s" data-vp="store" data-v="${v.id}" data-b="${bay}">Store in space ${bay+1}</button>`:"<small>No free space to store it</small>"}
     else{const busy=GAR.busyId===v.id;btn=`<button class="go gspawn" data-vp="spawn" data-v="${v.id}" ${GAR.busyId?"disabled":""}>${busy?'<span class="spin"></span> Spawning...':"Spawn Vehicle"}</button>`;
       if(v.status==="active")note2=`<small class="gnote">Spawning it here moves it from where it is now.</small>`;else if(v.park!==P.id)note2=`<small class="gnote">Spawning it here brings it over from that car park.</small>`}
-    if(v.mine)btn+=`<button class="btn2s" data-vp="keys" data-v="${v.id}">Keys</button>`;
+    if(v.mine)btn+=`<button class="btn2s" data-vp="keys" data-v="${v.id}">Keys</button>`+`<button class="btn2s frz" data-vp="freeze" data-v="${v.id}" ${GAR.busyId?"disabled":""}>Freeze</button>`;
     const D=Object.assign(carDmg0(),v.damage||{}),hp=carHealth(D)/100,fuel=clamp01(D.fuel);
-    return`<div class="gveh">${garPic(v)}<div class="ginfo"><b>${esc((CARS[v.model]||CARS.sovereign).name)}</b>${v.special?` <span class="vtag">Chief Admin</span>`:""}<small>${esc(v.plate)} &middot; ${v.mine?"Owned by you":"Keys from "+esc(v.owner_name||"its owner")}</small>
-      ${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<small>${st}${rentChip(v)}</small>${note2}</div><div class="vbtns">${btn}</div></div>`}).join("");
-  el.innerHTML=shell(`<div class="glist">${cards}</div>${garRent(P)}`)}
+    return`<div class="g2card" data-vid="${v.id}">${garPic(v)}<div class="g2info"><div class="g2chead"><b>${esc((CARS[v.model]||CARS.sovereign).name)}</b>${v.special?` <span class="vtag">Chief Admin</span>`:""}${isBike(v)?'<span class="vtag bike">BIKE</span>':""}<span class="g2slot">SLOT ${i+1}</span><span class="g2state ${v.status==="stored"?"st":"out"}">${v.status==="stored"?"STORED":"ACTIVE"}</span></div><small>${esc(v.plate)} &middot; ${v.mine?"Owned by you":"Keys from "+esc(v.owner_name||"its owner")}</small>
+      ${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<small>${st}${rentChip(v)}</small>${note2}</div><div class="vbtns">${btn}</div></div>`};
+  const cardF=v=>{const D=Object.assign(carDmg0(),v.damage||{}),hp=carHealth(D)/100,fuel=clamp01(D.fuel);
+    return`<div class="g2card froz" data-vid="${v.id}">${garPic(v)}<div class="g2info"><div class="g2chead"><b>${esc((CARS[v.model]||CARS.sovereign).name)}</b><span class="g2froz">FROZEN</span></div><small>${esc(v.plate)} &middot; Owned by you</small>
+      ${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<small>Frozen — still yours, uses no storage slot. Unfreeze to access it again.</small></div><div class="vbtns">${`<button class="btn2s unf" data-vp="unfreeze" data-v="${v.id}" ${GAR.busyId||full?"disabled":""}>Unfreeze</button>`}</div></div>`};
+  const actBody=actV.length?actV.map((v,i)=>cardA(v,i)).join(""):`<div class="g2empty">${othV.length?"No vehicles in active storage.": "Nothing in active storage yet."}</div>`;
+  const body=actBody+(full?`<div class="g2card noacc"><span class="g2slot">SLOT ${slots+1}</span><small class="gnote">Storage full — freeze a vehicle to access another slot.</small></div>`:"")+
+    (froV.length?`<div class="g2sect"><h2>FROZEN VEHICLES</h2><span class="g2sub">${full?"NO FREE SLOT":"SLOT AVAILABLE"}</span></div><div class="g2grid">${froV.map(cardF).join("")}</div>`:"")+
+    (othV.length?`<div class="g2sect"><h2>KEYS FROM OTHERS</h2><span class="g2sub">${othV.length} VEHICLE${othV.length>1?"S":""}</span></div><div class="g2grid">${othV.map((v,i)=>cardA(v,i)).join("")}</div>`:"");
+  el.innerHTML=gshell(ghead(garFree(P).length)+`<div class="g2grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:6px"><div class="g2kv"><span class="g2kl">PLAYER</span><b>${esc(me.n||"citizen")}</b></div><div class="g2kv"><span class="g2kl">ACTIVE STORAGE</span><b>${actN} / ${slots} SLOTS</b></div><div class="g2kv"><span class="g2kl">STORED</span><b>${GAR.list.filter(v=>v.mine&&v.status==="stored"&&!v.frozen).length}</b></div><div class="g2kv"><span class="g2kl">FROZEN</span><b>${froV.length}</b></div></div><div class="g2sect"><h2>ACTIVE STORAGE</h2><span class="g2sub">${esc(P.name)} &middot; ${garFree(P).length} OF ${P.bays.length} SPACES FREE</span></div>${body}${garRent(P)}`+gfoot())}
 async function garAct(what,arg,bay){const P=GAR.panel,msg=()=>document.getElementById("gpMsg"),say=(t,err)=>{const m=msg();if(m){m.textContent=t;m.classList.toggle("err",!!err)}};if(!P||!garOn())return;
   try{if(what==="keys"){GAR.keysFor=+arg;GAR.found=[];return garDraw()}
+    if(what==="freeze"){if(GAR.busyId)return;GAR.busyId=+arg;garDraw("Freezing the vehicle...");let r;
+      try{r=await garCall("veh_freeze",{p_vehicle:+arg})}finally{GAR.busyId=0}garTake(r);
+      if(r&&r.error){garDraw();return say(r.error,true)}
+      await garSync();return say("Frozen — it stays parked outside and no longer uses a storage slot.")}
+    if(what==="unfreeze"){if(GAR.busyId)return;GAR.busyId=+arg;garDraw("Unfreezing the vehicle...");let r;
+      try{r=await garCall("veh_unfreeze",{p_vehicle:+arg})}finally{GAR.busyId=0}garTake(r);
+      if(r&&r.error){garDraw();return say(r.error,true)}
+      await garSync();return say("Unfrozen — it is back in your storage.")}
     if(what==="back"){GAR.keysFor=null;return garDraw()}
     if(what==="find"){const r=await garCall("veh_find_citizen",{p_query:(document.getElementById("gpQ").value||"").trim()});GAR.found=r||[];return garDraw(GAR.found.length?"":"No citizen found by that name.")}
     if(what==="give"){const r=await garCall("veh_key_give",{p_vehicle:GAR.keysFor,p_holder:arg});GAR.found=[];await garSync();return garDraw((r&&r.name||"They")+" now has keys.")}
