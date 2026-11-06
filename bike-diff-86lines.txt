@@ -1,0 +1,86 @@
+diff --git a/index.html b/index.html
+index 6440062..1ce819e 100644
+--- a/index.html
++++ b/index.html
+@@ -3095,11 +3095,16 @@ function vehicleStep(C,T,dt){const cfg=carPhys(C),pw=carEngine(C,dt),ty=carUse(C
+   VEH.thr=Math.max(keys.w||keys.arrowup?1:0,VEH.touch.thr);if(!VEH.engine&&VEH.thr>0&&NOW>VEH.engHint){VEH.engHint=NOW+4;dashToast(touch?"The engine is off. Tap Engine to start it.":"The engine is off. Press I (or the Engine button) to start it.",2.4)}VEH.brk=Math.max(keys.s||keys.arrowdown?1:0,VEH.touch.brk);const steerIn=clamp((keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+VEH.touch.steer,-1,1),hand=VEH.hand||!!keys[" "];
+   const v0=C.v,still=Math.abs(C.v)<.3;
+   if(VEH.gear==="P"&&VEH.thr>0&&still&&!VEH.brk){VEH.gear="D";dashToast("Drive")}
+-  if(VEH.brk&&still&&VEH.gear==="D"&&!VEH.revHint){VEH.revHint=true;dashToast(touch?"Stopped. Press R to reverse.":"Stopped. Press 2 (or R on screen) to reverse.")}if(!still)VEH.revHint=false;
++  if(VEH.brk&&still&&VEH.gear==="D"&&!isBike(C)&&!VEH.revHint){VEH.revHint=true;dashToast(touch?"Stopped. Press R to reverse.":"Stopped. Press 2 (or R on screen) to reverse.")}if(!still)VEH.revHint=false;
++  if(isBike(C)){if(!VEH.pushHold&&VEH.brk>0&&VEH.gear==="D"&&C.v>=-.05&&C.v<.15)VEH.pushHold=true;if(VEH.brk<=0||VEH.gear!=="D"||C.v>.15)VEH.pushHold=false;       // arms only from a standstill; stays pushed while ↓ is held, stops dead when the key is let go or the bike rolls forward
++    if(VEH.brk&&still&&VEH.gear==="D"&&!VEH.revHint){VEH.revHint=true;dashToast(touch?"Stopped — keep holding to push it back.":"Stopped — hold ↓ to push it back.")}}
+   if(!pw&&VEH.engine&&VEH.thr&&NOW>(VEH.deadMsg||0)){const D=carD(C);VEH.deadMsg=NOW+4;dashToast(D.refuel?"Refuelling: wait until the tank is filled.":D.fuel<=0?"Out of fuel. Call a tow truck from the Car panel.":"The engine won't run. Call a tow truck from the Car panel.",3)}
+-  let a=0;if(VEH.gear==="D"){const evm=cfg.vmax*ty.vmax;const F=isBike(C)?(Math.max(0,C.v)<cfg.torq*ty.vmax?1:Math.max(0,(evm-Math.max(0,C.v))/((cfg.vmax-cfg.torq)*ty.vmax))):Math.max(0,1-Math.max(0,C.v)/evm);a+=VEH.thr*cfg.accel*pw*F;if(!VEH.thr&&!VEH.brk&&!hand&&C.v<cfg.creep&&pw)a+=1.1}
++  let a=0;if(VEH.gear==="D"){const evm=cfg.vmax*ty.vmax;const F=isBike(C)?(Math.max(0,C.v)<cfg.torq*ty.vmax?1:Math.max(0,(evm-Math.max(0,C.v))/((cfg.vmax-cfg.torq)*ty.vmax))):Math.max(0,1-Math.max(0,C.v)/evm);a+=VEH.thr*cfg.accel*pw*F;if(!VEH.thr&&!VEH.brk&&!hand&&C.v<cfg.creep&&pw&&!isBike(C))a+=1.1}       // cars creep at idle; a bike with its clutch pulled stands still
+   if(VEH.gear==="R"){a-=VEH.thr*cfg.accel*pw*.75*Math.max(0,1-Math.max(0,-C.v)/cfg.rev);if(!VEH.thr&&!VEH.brk&&!hand&&-C.v<cfg.creep*.7&&pw)a-=.8}
+-  C.v+=a*dt;if(isBike(C)&&C.v<-1.4)C.v=-1.4;const dec=VEH.brk*cfg.brake*(1-.35*wet)*(.55+.45*ty.grip)+(hand?5.5:0)+(VEH.gear==="P"?14:0)+.3+.0024*C.v*C.v+(VEH.gear==="N"?.2:0);if(C.v){const s=Math.sign(C.v);C.v-=s*Math.min(Math.abs(C.v),dec*dt)}
++  C.v+=a*dt;if(isBike(C)&&C.v<-1.4)C.v=-1.4;const bikePush=VEH.pushHold;const dec=(bikePush?0:VEH.brk)*cfg.brake*(1-.35*wet)*(.55+.45*ty.grip)+(hand?5.5:0)+(VEH.gear==="P"?14:0)+.3+.0024*C.v*C.v+(VEH.gear==="N"?.2:0);if(C.v){const s=Math.sign(C.v);C.v-=s*Math.min(Math.abs(C.v),dec*dt)}
++  // foot-push reverse: once the rider pushes (only ever from a standstill), the bike stays in reverse until the down key is let go — engine-independent, slow, and it stops dead when the foot comes up
++  if(bikePush){C.v-=1.5*dt;if(C.v<-.9)C.v=-.9}
++  VEH.pushRev=isBike(C)&&bikePush;
+   // steering: full lock at walking pace, less as speed rises; it returns to centre when let go (a burst tyre pulls it towards its side)
+   const sv=Math.abs(C.v);const target=(steerIn+ty.pull*Math.min(1,sv/5))*(isBike(C)?cfg.steerMax/(1+sv/10+Math.pow(sv/16.7,2)):cfg.steerMax/(1+sv/14));VEH.steer+=(target-VEH.steer)*Math.min(1,dt*(steerIn?5:6.5));
+   let yr=C.v*Math.tan(VEH.steer)/cfg.base;const maxYr=cfg.grip*(1-.45*wet)*ty.grip/Math.max(2,Math.abs(C.v))*(hand&&Math.abs(C.v)>6?1.7:1);VEH.slip=Math.max(0,Math.abs(yr)-maxYr)/(maxYr||1);yr=clamp(yr,-maxYr,maxYr);C.yaw-=yr*dt;if(VEH.spin){C.yaw+=VEH.spin*dt;VEH.spin*=Math.max(0,1-dt*3.2);if(Math.abs(VEH.spin)<.01)VEH.spin=0}       // the turn an off-centre blow gave the car dies away as the tyres grip
+@@ -3574,13 +3579,13 @@ function carMesh(C){const D=C&&C.dmg;if(!CARSCENE0)CARSCENE0=CARSCENE;if(isBike(
+ const CARANIM=new WeakMap();
+ const carRig=C=>modelData(carModelId(C)).rig||{doors:{},wheels:{},seats:{}};
+ function carAnim(C){let A=CARANIM.get(C);if(!A){A={door:{},want:{},from:{},at:{},spin:{},steer:0};CARANIM.set(C,A)}return A}
+-function carDoorTo(C,side,open){const A=carAnim(C),was=A.want[side]||0;if(was===(open?1:0))return;A.want[side]=open?1:0;A.from[side]=A.door[side]||0;A.at[side]=NOW;if(open)sfx("car_door_open")}
++function carDoorTo(C,side,open){const A=carAnim(C),was=A.want[side]||0;if(was===(open?1:0))return;A.want[side]=open?1:0;A.from[side]=A.door[side]||0;A.at[side]=NOW;if(open&&side!=="")sfx("car_door_open")}       // the bike has no door: no door sound when mounting or dismounting it
+ // a turn of `a` about the axis k (a unit vector), through the point c
+ function mrotAbout(c,k,a){const x=k[0],y=k[1],z=k[2],co=Math.cos(a),si=Math.sin(a),t=1-co,R=new Float32Array([t*x*x+co,t*x*y+si*z,t*x*z-si*y,0,t*x*y-si*z,t*y*y+co,t*y*z+si*x,0,t*x*z+si*y,t*y*z-si*x,t*z*z+co,0,0,0,0,1]);
+   return mul(trans(c[0],c[1],c[2]),mul(R,trans(-c[0],-c[1],-c[2])))}
+ // each frame: the parts move on, and each part's place for drawing
+ function carPose(C,dt){const A=carAnim(C),R=carRig(C),base=carModel(C);
+-  for(const k in A.want){const w=A.want[k],d=A.door[k]||0,n=Math.max(0,Math.min(1,A.from[k]+(w?1:-1)*(NOW-A.at[k])/.45));A.door[k]=n;if(d>0&&n===0)sfx("car_door_close")}       // the slam when it shuts
++  for(const k in A.want){const w=A.want[k],d=A.door[k]||0,n=Math.max(0,Math.min(1,A.from[k]+(w?1:-1)*(NOW-A.at[k])/.45));A.door[k]=n;if(d>0&&n===0&&k!=="")sfx("car_door_close")}       // the slam when it shuts (the bike has no door: no sound)
+   if(driving&&townOf(me.town).car===C)A.steer=-VEH.steer;
+   for(const k in R.wheels)A.spin[k]=((A.spin[k]||0)+(C.v||0)*dt/(R.wheels[k].r||.38))%6.2832;
+   for(const S of CARSCENE.parts){const n=S.part;let M=base;
+@@ -3591,7 +3596,9 @@ function carPose(C,dt){const A=carAnim(C),R=carRig(C),base=carModel(C);
+     S.model=M}}
+ function carDraw(VP,eye,clear,inside){for(const S of CARSCENE.parts){if(inside&&S.part.startsWith("wheel_"))continue;S.fogFar=flying?1500:150;if(clear)drawSceneClear(S,VP,eye,NOW);else drawScene(S,VP,eye,false)}}
+ // the driver in the seat, hands on the wheel: drawn whenever someone is driving (and not from the driver's own eyes)
+-function carDriver(C,VP,t){const PM=PLAYERS[me.gender]||PLAYERS.Female,R=carRig(C),h=R.seats&&R.seats.driver;if(!PM||!h)return;const p=carPt(C,[h[0],0,h[2]+carSit(C).z]);
++function carDriver(C,VP,t){const PM=PLAYERS[me.gender]||PLAYERS.Female,R=carRig(C),h=R.seats&&R.seats.driver;if(!PM||!h)return;
++  if(isBike(C)&&VEH.pushRev){const p=carPt(C,[h[0]+.38,0,h[2]+carSit(C).z]);WALKER.draw(PM,VP,p[0],0,p[2],C.yaw,{p:0,run:0,amt:0,sit:0,sitClip:"idle"},t,null,"");return}       // foot-push reverse: the rider stands beside the bike with a foot down, not settled in the saddle
++  const p=carPt(C,[h[0],0,h[2]+carSit(C).z]);
+   WALKER.draw(PM,VP,p[0],h[1]+CARSIT.y,p[2],C.yaw,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"",isBike(C)?VEH.lean:0)}
+ const CARSIT={y:-.72,z:.11};
+ /* bike rider sits on the rider's seat ahead of the (free) rear seat: the rig's seat anchor is the rear seat, so shift the rider forward onto the rider's seat */
+@@ -3822,16 +3829,23 @@ function carExit(){if(CARSEQ||busy)return;const T=townOf(me.town),C=T.car;if(!C|
+   CAMBL={from:LASTCAM,t0:NOW,dur:.9};cam.x=seat[0];cam.z=seat[2];cam.yaw=Math.atan2(-(p[0]-seat[0]),-(p[2]-seat[2]));VIEW.yaw=C.yaw;SNAPCAM=false;
+   const left=garLeft(C);CARSEQ={stage:"open",next:"out",C,door,t0:NOW,from:[seat[0],seat[2]],to:[p[0],p[2]],msg:msg?msg+(left?" "+left:""):left};carDoorTo(C,door.part.slice(5),true)}
+ function carSeated(C){driving=true;VEH.belt=false;setTimeout(carBase,600);cam.pitch=0;Object.assign(VEH,{gear:"P",orbit:0,lastVY:VIEW.yaw,camPos:null,hand:false,ind:"off",engine:false,engHint:0});sndStart();if(!CARL.low)buildCarLights();CAMBL={from:LASTCAM,t0:NOW,dur:.9};
+-  const D=carD(C);if(D.shop){D.shop=false;crashSave()}GAR.beatT=-1e9;
++  const D=carD(C);if(D.shop){D.shop=false;crashSave()}VEH.pushRev=false;GAR.beatT=-1e9;
+   toast(touch?"Driving: hold GO to drive and BRAKE to stop; drag the wheel to steer. Tap R to reverse. Stop, then tap the door to get out.":"Driving: W go, S brake, A and D steer, Space handbrake. Gears 1 to 4: P R N D. Q and R indicators, G hazards, H lights, C camera, F horn. Stop, then E or the door to get out.")}
+ // each frame of the sequence: the way to walk (a direction), or null while standing, turning or stepping in or out
+ function carSeqStep(){const S=CARSEQ;if(!S)return null;const C=S.C;
+   if(S.stage==="walk"){const p=S.pts[S.i],w=carPt(C,[p[0],0,p[1]]),dx=w[0]-cam.x,dz=w[2]-cam.z,d=Math.hypot(dx,dz),stuck=NOW-S.stuck>1.2;
+     if(d<.22||stuck){if(stuck){cam.x=w[0];cam.z=w[2]}S.i++;S.stuck=NOW;S.best=1e9;if(S.i>=S.pts.length){S.stage="turn";S.t0=NOW;S.yaw0=cam.yaw}return null}      // held up by something for over a second: past it
+     if(d<S.best-.05){S.best=d;S.stuck=NOW}return[dx/d,dz/d]}
+-  if(S.stage==="turn"){const h=carPt(C,S.door.handle),want=Math.atan2(-(h[0]-cam.x),-(h[2]-cam.z)),k=Math.min(1,(NOW-S.t0)/.35);cam.yaw=S.yaw0+angTo(want,S.yaw0)*k;if(!view3)VIEW.yaw=cam.yaw;
++  if(S.stage==="turn"){const h=carPt(C,isBike(C)?[0,0,S.door.stand[2]+.6]:S.door.handle),want=Math.atan2(-(h[0]-cam.x),-(h[2]-cam.z)),k=Math.min(1,(NOW-S.t0)/.35);cam.yaw=S.yaw0+angTo(want,S.yaw0)*k;if(!view3)VIEW.yaw=cam.yaw;
++    if(isBike(C)&&!S.camEye){const sw=carPt(C,S.door.stand),dx=sw[0]-C.x,dz=sw[2]-C.z,dl=Math.hypot(dx,dz)||1,nx=dx/dl,nz=dz/dl;       // lock the view on rider and bike for the whole mount
++      S.camEye=[sw[0]+nx*2.6,1.7,sw[2]+nz*2.6];const st=carPt(C,[0,1.05,carSit(C).z]);S.camTo=[st[0],st[1],st[2]];CAMBL={from:LASTCAM,t0:NOW,dur:.4}}
+     if(k>=1){S.stage="open";S.next="in";S.t0=NOW;S.from=[cam.x,cam.z];carDoorTo(C,S.door.part.slice(5),true)}return null}
+-  if(S.stage==="open"){if(NOW-S.t0>=.5){S.stage=S.next;S.t0=NOW}S.sit=S.next==="out"?1:0;return null}       // the door swings open on its hinge
++  if(S.stage==="open"){if(NOW-S.t0>=.5){S.stage=S.next;S.t0=NOW}S.sit=S.next==="out"?1:0;return null}       // the door swings open on its hinge (the bike has no door: a held beat to step up)
++  if(S.stage==="in"&&isBike(C)){       // mounting a bike: step up beside the saddle, swing across onto it, settle down
++    const k=Math.min(1,(NOW-S.t0)/.9),seat=[...carPt(C,[0,0,carSit(C).z]).slice(0,2)],beside=[...carPt(C,[.5,0,carSit(C).z]).slice(0,2)];
++    if(k<.45){const u=k/.45,c=u*u*(3-2*u);cam.x=S.from[0]+(beside[0]-S.from[0])*c;cam.z=S.from[1]+(beside[1]-S.from[1])*c;S.sit=0}
++    else{const u=(k-.45)/.55,c=u*u*(3-2*u);cam.x=beside[0]+(seat[0]-beside[0])*c;cam.z=beside[1]+(seat[1]-beside[1])*c;S.sit=c}
++    if(k>=1){CARSEQ=null;carDoorTo(C,S.door.part.slice(5),false);carSeated(C)}return null}
+   const k=Math.min(1,(NOW-S.t0)/.8),a=S.from,b=S.stage==="in"?(()=>{const q=carPt(C,S.door.seat);return[q[0],q[2]]})():S.to;cam.x=a[0]+(b[0]-a[0])*k;cam.z=a[1]+(b[1]-a[1])*k;
+   S.sit=S.stage==="in"?k:1-k;       // sitting down into the seat, or getting up out of it
+   if(k>=1){CARSEQ=null;carDoorTo(C,S.door.part.slice(5),false);if(S.stage==="in")carSeated(C);else if(S.msg)toast(S.msg)}return null}       // then the door shuts
+@@ -5037,6 +5051,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
+     else{const dist=driving?7.6:3.5,up=driving?2.7:1.55,lift=clamp(.32-cam.pitch,0,1.2);let k=1;for(let q=.15;q<=1;q+=.15)if(hitT(cam.x-fx*dist*q,cam.z-fz*dist*q,.25)){k=Math.max(.15,q-.15);break}       // the camera stays this side of any wall behind you
+       eye=[cam.x-fx*dist*k,up+lift*dist*.55*k,cam.z-fz*dist*k];to=[cam.x+fx*4,up-.15,cam.z+fz*4]}}
+     else[eye,to]=followCam(cam.x,TGY,cam.z,(x,z)=>hitT(x,z,.25),99)}
++  if(scene==="town"&&CARSEQ&&CARSEQ.camEye)[eye,to]=[CARSEQ.camEye,CARSEQ.camTo];       // a locked side view on the rider and bike while she mounts
+   else{MEY=Math.abs(me.y-MEY)>.6?me.y:MEY+(me.y-MEY)*Math.min(1,dt*14);      // the drawn height eases from step to step
+     if(sx||sz){if(!blocked(me.x+sx,me.z))me.x+=sx;else VEL.x=0;if(!blocked(me.x,me.z+sz))me.z+=sz;else VEL.z=0;me.y=floorAt(me.x,me.z,me.y);
+       if(scene==="border"){if(Math.abs(me.x)<1.5&&me.z<12.4&&me.z>11)toImm(false)}
