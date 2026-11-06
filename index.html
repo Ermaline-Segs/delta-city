@@ -103,14 +103,15 @@ body.driving .hud{display:none}
 .g2count{font-size:13px;opacity:.75;font-variant-numeric:tabular-nums}
 .g2sub{margin:0 0 14px;font-size:13.5px;opacity:.7}
 .g2sec{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85;margin:16px 0 8px}
-.g2grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:left}
-.g2card{position:relative;display:grid;grid-template-rows:auto auto auto 1fr auto;gap:5px;padding:12px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid var(--line);min-height:150px}
+.g2grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px;text-align:left}
+.g2card{position:relative;display:grid;grid-template-rows:auto auto auto 1fr auto;gap:5px;padding:12px;border-radius:14px;background:rgba(56,189,248,.06);border:1px solid rgba(148,197,233,.28);min-height:150px}
+.g2card:hover{border-color:rgba(125,211,252,.55)}
 .g2card .vpic{width:100%;height:44px}
 .g2card b{font-size:14.5px;line-height:1.2}
 .g2card small{opacity:.78;font-size:12px;line-height:1.35}
 .g2card .frozenflag{color:#7dd3fc;font-size:12px;font-weight:700}
 .g2card .gbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
-.g2empty{display:grid;place-items:center;min-height:150px;padding:12px;border-radius:14px;border:1px dashed var(--line);opacity:.55;font-size:13px;text-align:center}
+.g2empty{display:grid;place-items:center;min-height:150px;padding:12px;border-radius:14px;border:1px dashed rgba(148,197,233,.35);opacity:.55;font-size:13px;text-align:center}
 .g2foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:12.5px;opacity:.72;line-height:1.5}
 .grent .gspawn{white-space:normal}
 .g2{padding:4px 2px}
@@ -119,10 +120,10 @@ body.driving .hud{display:none}
 .g2meta{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;margin-top:5px}
 .g2meta-sub{font-size:11.5px;letter-spacing:.14em;opacity:.55;text-transform:uppercase}
 .g2stat{font-size:11.5px;font-weight:700;letter-spacing:.12em;padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
-.g2stat.ok{color:#4ade80;border-color:rgba(74,222,128,.45);background:rgba(74,222,128,.08)}
+.g2stat.ok{color:#7dd3fc;border-color:rgba(125,211,252,.45);background:rgba(125,211,252,.1)}
 .g2stat.off{color:#f87171;border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08)}
 .g2close{flex:none;align-self:center}
-.g2kv{display:flex;flex-direction:column;gap:3px;padding:9px 11px;border-radius:11px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.g2kv{display:flex;flex-direction:column;gap:3px;padding:9px 11px;border-radius:11px;background:rgba(56,189,248,.06);border:1px solid rgba(148,197,233,.22)}
 .g2kl{font-size:10.5px;letter-spacing:.14em;opacity:.55;text-transform:uppercase}
 .g2kv b{font-size:13.5px;letter-spacing:.04em}
 .g2card-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px;font-weight:700;letter-spacing:.1em;opacity:.85}
@@ -138,12 +139,29 @@ body.driving .hud{display:none}
 .g2chead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px}
 .g2slot{margin-left:auto;font-size:10.5px;font-weight:800;letter-spacing:.14em;color:#7dd3fc}
 .g2state{font-size:10px;font-weight:800;letter-spacing:.12em;padding:2px 7px;border-radius:999px}
-.g2state.st{color:#4ade80;background:rgba(74,222,128,.12)}
-.g2state.out{color:#fbbf24;background:rgba(251,191,36,.12)}
+.g2state.st{color:#7dd3fc;background:rgba(125,211,252,.14)}
+.g2state.out{color:#38bdf8;background:rgba(56,189,248,.16)}
 .g2froz{margin-left:auto;font-size:10px;font-weight:800;letter-spacing:.12em;color:#7dd3fc;background:rgba(125,211,252,.12);padding:2px 7px;border-radius:999px}
 .g2card.froz{opacity:.88;background:rgba(125,211,252,.06)}
 .g2card.noacc{border-style:dashed;display:grid;place-items:center;gap:6px;text-align:center;opacity:.8}
-@media (max-width:520px){.g2grid{grid-template-columns:1fr}.g2hdr{flex-direction:column;align-items:flex-start;gap:10px}.g2close{align-self:flex-end}.g2ttl{font-size:20px}.g2chead{gap:4px 6px}}
+.choose .card.g2panel{background:#0f1b30;color:#e8f1fb;border-color:rgba(125,211,252,.35);box-shadow:0 8px 28px rgba(8,20,40,.55)}
+.g2panel .gnote{color:#7dd3fc}
+.g2panel .vtag{background:#155e75;color:#e0f2fe;border:1px solid rgba(125,211,252,.35)}
+.g2panel .vtag.bike{background:#0e7490}
+.g2panel .g2foot{border-top-color:rgba(148,197,233,.25);color:#9fb6d4}
+.g2panel .g2close{background:transparent;color:#9fb6d4;border:1px solid rgba(148,197,233,.3);border-radius:12px;font-size:14px;padding:10px 18px}
+.g2panel .g2close:hover{color:#e8f1fb;border-color:rgba(125,211,252,.6)}
+.g2panel .go.gspawn{background:#0e7490;border-color:#0e7490;color:#f0f9ff}
+.g2panel .go.gspawn:hover{background:#0891b2;border-color:#0891b2}
+.g2panel .btn2s{background:#123a5e;color:#cfe8ff;border:1px solid rgba(125,211,252,.4)}
+.g2panel .btn2s:hover{background:#155e75;color:#f0f9ff}
+.gib{flex:none;width:34px;height:34px;display:inline-grid;place-items:center;border-radius:9px;border:1px solid rgba(125,211,252,.4);background:rgba(56,189,248,.08);color:#7dd3fc;cursor:pointer;padding:0}
+.gib svg{width:17px;height:17px}
+.gib:hover{background:rgba(56,189,248,.2);border-color:#7dd3fc;color:#e0f2fe}
+.gib:disabled{opacity:.45;cursor:default}
+.gib.on{background:#0e7490;color:#f0f9ff;border-color:#0e7490}
+.g2act{display:flex;gap:6px;align-items:center}
+@media (max-width:520px){.g2grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.g2hdr{flex-direction:column;align-items:flex-start;gap:10px}.g2close{align-self:flex-end}.g2ttl{font-size:20px}.g2chead{gap:4px 6px}}
 @media (max-width:520px){.gveh{grid-template-columns:72px 1fr}.gveh .vbtns{grid-column:1/-1;justify-content:stretch}.gveh .vbtns .go{flex:1}.vpic{width:72px;height:32px}}
 #parkBtn{left:auto!important;top:auto!important;right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(104px + env(safe-area-inset-bottom,0px));transform:none}.touch #parkBtn{bottom:calc(286px + env(safe-area-inset-bottom,0px))}
 .vtag{background:#b8860b;color:#fff;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700}.admsp{display:flex;align-items:center;gap:6px;font-size:13px}.cdhealth{display:flex;align-items:baseline;gap:8px;margin:6px 0 8px}.cdhealth b{font-size:34px;font-variant-numeric:tabular-nums}.cdhealth span{opacity:.75}
@@ -4211,7 +4229,7 @@ const garRent=P=>{if(!garOn()||!me.town||me.town!==P.st)return"";const busy=GAR.
 const garPic=v=>{if(v.model==="motorbike")return`<svg class="vpic" viewBox="0 0 120 52" aria-hidden="true"><circle cx="30" cy="38" r="10" fill="#15181d"/><circle cx="30" cy="38" r="4" fill="#9aa3ad"/><circle cx="90" cy="38" r="10" fill="#15181d"/><circle cx="90" cy="38" r="4" fill="#9aa3ad"/><path d="M30 38 46 22h16l12 14h6" fill="none" stroke="#d61f26" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M42 22h22" stroke="#94a3b8" stroke-width="6" stroke-linecap="round"/></svg>`;
 const c=v.special?"#c9a227":"#d61f26";return`<svg class="vpic" viewBox="0 0 120 52" aria-hidden="true"><path d="M8 36c0-6 4-9 10-10l16-3 14-10c4-2 8-3 13-3h18c6 0 11 2 15 6l9 8 9 2c4 1 6 4 6 8v4H8z" fill="${c}"/><path d="M50 15h12v10H40zM66 15h12c3 0 6 2 8 4l5 6H66z" fill="#cfe3f0"/><circle cx="32" cy="40" r="8" fill="#15181d"/><circle cx="32" cy="40" r="3.4" fill="#9aa3ad"/><circle cx="92" cy="40" r="8" fill="#15181d"/><circle cx="92" cy="40" r="3.4" fill="#9aa3ad"/><rect x="104" y="29" width="7" height="3" rx="1.5" fill="#fff3b0"/></svg>`};
 function garDraw(note){const P=GAR.panel,el=document.getElementById("choose");if(!P)return;const T=townOf(P.st),M=garMine();
-  const gshell=b=>`<div class="card rpcard gcard"><div class="g2">${b}</div></div>`,
+  const gshell=b=>`<div class="card rpcard gcard g2panel"><div class="g2">${b}</div></div>`,
     ghead=bays=>`<div class="g2hdr"><div class="g2l"><h1 class="g2ttl">MY GARAGE</h1><div class="g2meta"><span class="g2meta-sub">VEHICLE STORAGE &middot; MANAGEMENT</span><span class="g2stat ${garOn()?"ok":"off"}">${garOn()?bays+" OF "+P.bays.length+" SPACES FREE AT THIS PARK":"OFFLINE"}</span></div></div><p class="amsg" id="gpMsg" role="status">${esc(note||"")}</p><button class="go ghost g2close" data-stay="1">CLOSE</button></div>`,
     gfoot=()=>`<div class="g2foot"><span class="g2foot-l">AUTHENTIC &nbsp;&middot;&nbsp; DELTA CITY PRIVATE PARKING</span><span class="g2foot-r">SECURE PARKING</span></div>`;
   if(!garOn()){el.innerHTML=gshell(ghead(0)+`<p>Sign in to your account to keep vehicles in a garage.</p>`+gfoot());return}
@@ -4234,21 +4252,21 @@ function garDraw(note){const P=GAR.panel,el=document.getElementById("choose");if
     else if(v.out_by_me)st=inHere?(here.bay!=null?"Here, in space "+(here.bay+1):"Here in the car park"):"Out with you"+(v.state?" in "+esc(v.state):"");
     else st="Out with someone who has its keys";
     if(inHere){const free=garFree(P,v),bay=here.bay!=null&&free.some(B=>B.i===here.bay)?here.bay:(free[0]||{}).i;
-      btn=bay!=null?`<button class="btn2s" data-vp="store" data-v="${v.id}" data-b="${bay}">Store in space ${bay+1}</button>`:"<small>No free space to store it</small>"}
-    else{const busy=GAR.busyId===v.id;btn=`<button class="go gspawn" data-vp="spawn" data-v="${v.id}" ${GAR.busyId?"disabled":""}>${busy?'<span class="spin"></span> Spawning...':"Spawn Vehicle"}</button>`;
+      btn=bay!=null?`<button class="gib" data-vp="store" data-v="${v.id}" data-b="${bay}" title="Store in space ${bay+1}" aria-label="Store in space ${bay+1}">${hico("bag",17)}</button>`:"<small>No free space to store it</small>"}
+    else{const busy=GAR.busyId===v.id;btn=`<button class="gib on" data-vp="spawn" data-v="${v.id}" ${GAR.busyId?"disabled":""} title="${busy?"Spawning...":"Spawn vehicle"}" aria-label="${busy?"Spawning":"Spawn vehicle"}">${busy?'<span class="spin"></span>':hico("car",17)}</button>`;
       if(v.status==="active")note2=`<small class="gnote">Spawning it here moves it from where it is now.</small>`;else if(v.park!==P.id)note2=`<small class="gnote">Spawning it here brings it over from that car park.</small>`}
-    if(v.mine)btn+=`<button class="btn2s" data-vp="keys" data-v="${v.id}">Keys</button>`+`<button class="btn2s frz" data-vp="freeze" data-v="${v.id}" ${GAR.busyId?"disabled":""}>Freeze</button>`;
+    if(v.mine)btn+=`<button class="gib" data-vp="keys" data-v="${v.id}" title="Keys" aria-label="Keys">${hico("key",17)}</button>`+`<button class="gib" data-vp="freeze" data-v="${v.id}" ${GAR.busyId?"disabled":""} title="Freeze" aria-label="Freeze">${hico("snow",17)}</button>`;
     const D=Object.assign(carDmg0(),v.damage||{}),hp=carHealth(D)/100,fuel=clamp01(D.fuel);
     return`<div class="g2card" data-vid="${v.id}">${garPic(v)}<div class="g2info"><div class="g2chead"><b>${esc((CARS[v.model]||CARS.sovereign).name)}</b>${v.special?` <span class="vtag">Chief Admin</span>`:""}${isBike(v)?'<span class="vtag bike">BIKE</span>':""}<span class="g2slot">SLOT ${i+1}</span><span class="g2state ${v.status==="stored"?"st":"out"}">${v.status==="stored"?"STORED":"ACTIVE"}</span></div><small>${esc(v.plate)} &middot; ${v.mine?"Owned by you":"Keys from "+esc(v.owner_name||"its owner")}</small>
-      ${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<small>${st}${rentChip(v)}</small>${note2?`<br>${note2}`:""}</div><div class="vbtns">${btn}</div></div>`};
+      ${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<small>${st}${rentChip(v)}</small>${note2?`<br>${note2}`:""}</div><div class="vbtns g2act">${btn}</div></div>`};
   const cardF=v=>{const D=Object.assign(carDmg0(),v.damage||{}),hp=carHealth(D)/100,fuel=clamp01(D.fuel);
     return`<div class="g2card froz" data-vid="${v.id}">${garPic(v)}<div class="g2info"><div class="g2chead"><b>${esc((CARS[v.model]||CARS.sovereign).name)}</b><span class="g2froz">FROZEN</span></div><small>${esc(v.plate)} &middot; Owned by you</small>
-      ${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<small>Frozen — still yours, uses no storage slot. Unfreeze to access it again.</small></div><div class="vbtns">${`<button class="btn2s unf" data-vp="unfreeze" data-v="${v.id}" ${GAR.busyId||full?"disabled":""}>Unfreeze</button>`}</div></div>`};
+      ${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<small>Frozen &middot; uses no slot</small></div><div class="vbtns g2act">${`<button class="gib" data-vp="unfreeze" data-v="${v.id}" ${GAR.busyId||full?"disabled":""} title="${full?"Unfreeze (needs a free slot)":"Unfreeze"}" aria-label="Unfreeze">${hico("thaw",17)}</button>`}</div></div>`};
   const actBody=actV.length?`<div class="g2grid">${actV.map((v,i)=>cardA(v,i)).join("")}${full?`<div class="g2card noacc"><span class="g2slot">SLOT ${slots+1}</span><small class="gnote">Storage full — freeze a vehicle to access another slot.</small></div>`:""}</div>`:`<div class="g2empty">${othV.length?"No vehicles in active storage.": "Nothing in active storage yet."}</div>`;
   const body=actBody+
     (froV.length?`<div class="g2sect"><h2>FROZEN VEHICLES</h2><span class="g2sub">${full?"NO FREE SLOT":"SLOT AVAILABLE"}</span></div><div class="g2grid">${froV.map(cardF).join("")}</div>`:"")+
     (othV.length?`<div class="g2sect"><h2>KEYS FROM OTHERS</h2><span class="g2sub">${othV.length} VEHICLE${othV.length>1?"S":""}</span></div><div class="g2grid">${othV.map((v,i)=>cardA(v,i)).join("")}</div>`:"");
-  el.innerHTML=gshell(ghead(garFree(P).length)+`<div class="g2grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:6px"><div class="g2kv"><span class="g2kl">PLAYER</span><b>${esc(me.n||"citizen")}</b></div><div class="g2kv"><span class="g2kl">ACTIVE STORAGE</span><b>${actN} / ${slots} SLOTS</b></div><div class="g2kv"><span class="g2kl">STORED</span><b>${GAR.list.filter(v=>v.mine&&v.status==="stored"&&!v.frozen).length}</b></div><div class="g2kv"><span class="g2kl">FROZEN</span><b>${froV.length}</b></div></div><div class="g2sect"><h2>ACTIVE STORAGE</h2><span class="g2sub">${esc(P.name)} &middot; ${garFree(P).length} OF ${P.bays.length} SPACES FREE</span></div>${body}${garRent(P)}`+gfoot())}
+  el.innerHTML=gshell(ghead(garFree(P).length)+`<div class="g2grid" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr));margin-bottom:6px"><div class="g2kv"><span class="g2kl">PLAYER</span><b>${esc(me.n||"citizen")}</b></div><div class="g2kv"><span class="g2kl">ACTIVE STORAGE</span><b>${actN} / ${slots} SLOTS</b></div><div class="g2kv"><span class="g2kl">STORED</span><b>${GAR.list.filter(v=>v.mine&&v.status==="stored"&&!v.frozen).length}</b></div><div class="g2kv"><span class="g2kl">FROZEN</span><b>${froV.length}</b></div></div><div class="g2sect"><h2>ACTIVE STORAGE</h2><span class="g2sub">${esc(P.name)} &middot; ${garFree(P).length} OF ${P.bays.length} SPACES FREE</span></div>${body}${garRent(P)}`+gfoot())}
 async function garAct(what,arg,bay){const P=GAR.panel,msg=()=>document.getElementById("gpMsg"),say=(t,err)=>{const m=msg();if(m){m.textContent=t;m.classList.toggle("err",!!err)}};if(!P||!garOn())return;
   try{if(what==="keys"){GAR.keysFor=+arg;GAR.found=[];return garDraw()}
     if(what==="freeze"){if(GAR.busyId)return;GAR.busyId=+arg;garDraw("Freezing the vehicle...");let r;
@@ -5395,7 +5413,9 @@ const HUDI={chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 1
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',id:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M14 10h4M14 14h4M6 16c.7-1.4 1.8-2 3-2s2.3.6 3 2"/>',
   fuel:'<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8l3 2v8a1.5 1.5 0 0 0 3 0v-7l-3-3"/>',
   wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>',heart:'<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>',
-  key:'<circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 8.8-8.8M15 6l3 3M18 3l3 3"/>',bag:'<path d="M8 8V6a4 4 0 0 1 8 0v2"/><rect x="4" y="8" width="16" height="13" rx="3"/><path d="M4 13h4M16 13h4"/>'};
+  key:'<circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 8.8-8.8M15 6l3 3M18 3l3 3"/>',bag:'<path d="M8 8V6a4 4 0 0 1 8 0v2"/><rect x="4" y="8" width="16" height="13" rx="3"/><path d="M4 13h4M16 13h4"/>',
+  snow:'<path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/>',
+  thaw:'<path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/><path d="M9 21.5h6"/>'};
 const hico=(n,s)=>`<svg viewBox="0 0 24 24" width="${s||18}" height="${s||18}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${HUDI[n]}</svg>`;
 Object.assign(HUDI,{phone:'<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M11 18.5h2"/>',bag:'<path d="M6 8h12l1 12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M9 13h6"/>',
   walk:'<circle cx="13" cy="4" r="1.8"/><path d="M11 21l2-6-2-3 1-5 3 3 3 1M12 7l-3 2-1 4M13 15l3 6"/>',run:'<circle cx="15" cy="4" r="1.8"/><path d="M5 12l3-3 5 1 3 3 3 0M10 10l-2 5-4 1M13 10l-1 5 4 2-1 4"/>',

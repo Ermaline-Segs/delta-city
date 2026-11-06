@@ -1,0 +1,166 @@
+{
+  "p0": "agbor-gov",
+  "steps": [
+    {
+      "step": "spawn-icon-v11",
+      "expected": "veh_spawn",
+      "got": {
+        "fn": "veh_spawn",
+        "body": {
+          "p_vehicle": 11,
+          "p_park": "agbor-gov"
+        }
+      },
+      "ok": true
+    },
+    {
+      "step": "store-icon-v11",
+      "expected": "veh_store",
+      "got": {
+        "fn": "veh_store",
+        "body": {
+          "p_vehicle": 11,
+          "p_token": "tok-11",
+          "p_park": "agbor-gov",
+          "p_bay": 0,
+          "p_pos": {
+            "x": 6.7,
+            "z": -134.35
+          },
+          "p_damage": {
+            "bumperF": 0,
+            "bumperR": 0,
+            "bonnet": 0,
+            "grille": 0,
+            "trunk": 0,
+            "sideL": 0,
+            "sideR": 0,
+            "hlL": 0,
+            "hlR": 0,
+            "tlL": 0,
+            "tlR": 0,
+            "radiator": 0,
+            "engine": 0,
+            "susp": 0,
+            "chassis": 0,
+            "under": 0,
+            "coolant": 1,
+            "temp": 90,
+            "hot": 0,
+            "dead": false,
+            "dents": [],
+            "ver": 1,
+            "fuel": 1,
+            "tyre": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "flat": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "oil": 1,
+            "oilLeak": 0,
+            "fuelLeak": 0,
+            "elec": 0,
+            "steer": 0,
+            "steerDir": 0,
+            "rim": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "ws": 0,
+            "rw": 0,
+            "winL": 0,
+            "winR": 0,
+            "fire": 0,
+            "fireT": 0,
+            "burnt": 0,
+            "brakes": 0,
+            "mirrors": 0,
+            "indicators": 0,
+            "tank": 0,
+            "exhaust": 0,
+            "seat": 0,
+            "chain": 0,
+            "hl": 0,
+            "tl": 0,
+            "hang": {},
+            "model": "m_sgt"
+          }
+        }
+      },
+      "ok": true
+    },
+    {
+      "step": "keys-icon-v12-opens-ui",
+      "expected": "keys panel visible",
+      "got": "visible",
+      "ok": true
+    },
+    {
+      "step": "revoke-ada-keys-v11",
+      "expected": "veh_key_revoke",
+      "got": {
+        "fn": "veh_key_revoke",
+        "body": {
+          "p_vehicle": 11,
+          "p_holder": "Ada"
+        }
+      },
+      "ok": true
+    },
+    {
+      "step": "give-keys-noah-v11",
+      "expected": "veh_key_give",
+      "got": {
+        "fn": "veh_key_give",
+        "body": {
+          "p_vehicle": 11,
+          "p_holder": "Noah"
+        }
+      },
+      "ok": true
+    },
+    {
+      "step": "freeze-icon-v12",
+      "expected": "veh_freeze",
+      "got": {
+        "fn": "veh_freeze",
+        "body": {
+          "p_vehicle": 12
+        }
+      },
+      "ok": true
+    },
+    {
+      "step": "unfreeze-icon-v13",
+      "expected": "veh_unfreeze",
+      "got": {
+        "fn": "veh_unfreeze",
+        "body": {
+          "p_vehicle": 13
+        }
+      },
+      "ok": true
+    },
+    {
+      "step": "rent-icon",
+      "expected": "veh_rent_bike",
+      "got": {
+        "fn": "veh_rent_bike",
+        "body": {
+          "p_park": "agbor-gov"
+        }
+      },
+      "ok": true
+    }
+  ],
+  "pass": true
+}

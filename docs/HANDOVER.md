@@ -1060,3 +1060,100 @@ rental block all render and dispatch exactly as before. Inventory was not touche
 
 The branch is pushed to PR #26 only. Nothing was merged to `main` and the live
 GitHub Pages site was not touched.
+
+## Garage visual polish — colours, icons and mobile grid (PR #26, 2026-11-06)
+
+Second pass on the same PR. The grid structure from the first pass was already
+correct; this pass replaced the white/yellow look with the Inventory's dark
+blue / light blue design language, swapped the wordy buttons for icon buttons,
+and compacted the cards.
+
+### 1. Colour scheme (matches Inventory, no new palette)
+
+- Card backgrounds: `rgba(255,255,255,.07)` → `rgba(56,189,248,.06)` (light-blue
+  tint, same family as the Inventory panel).
+- Card borders: `var(--line)` → `rgba(148,197,233,.28)`, hover
+  `rgba(125,211,252,.55)`.
+- `.g2kv` info boxes: white tint → `rgba(56,189,248,.06)` /
+  `rgba(148,197,233,.22)`.
+- Status pills: `.g2state.st` (STORED) `#4ade80` → `#7dd3fc`; `.g2state.out`
+  (ACTIVE) yellow `#fbbf24` → cyan `#38bdf8`. No yellow remains in the Garage
+  CSS.
+- Offline status pill (`.g2stat.off`) keeps its red — it is an error state,
+  consistent with Inventory's red error styling.
+- Applied to **both** ACTIVE STORAGE and FROZEN VEHICLES (shared `.g2card`/
+  `.g2grid`/`.g2kv`/`.g2state` classes).
+
+### 2. Icons instead of bulky wording (project's own SVG icon system)
+
+Added two icons to the existing `HUDI` table and used `hico()` (the same
+renderer the HUD uses) — no new dependencies:
+
+- `snow` (three crossed lines) for **Freeze**, `thaw` (snowflake + base bar)
+  for **Unfreeze**.
+- Reused existing icons: `car` for **Spawn**, `bag` for **Store**, `key` for
+  **Keys**.
+- Buttons became compact square `.gib` icon buttons with `title` +
+  `aria-label` tooltips (accessible labels kept on every control). The wordy
+  "Spawn Vehicle" / "Store" / "Keys" / "Freeze" text buttons are gone.
+
+### 3. Card cleanup
+
+- Button row now uses a consistent icon size (17 px) and flex alignment
+  (`.vbtns.g2act`).
+- Vehicle name keeps visual priority (14.5 px bold in `.g2chead`); plate and
+  ownership stay as the single `small` line; condition/fuel bars unchanged.
+
+### 4. Mobile grid (matches Inventory behaviour)
+
+- `.g2grid` changed from fixed `repeat(3,1fr)` to
+  `repeat(auto-fill,minmax(168px,1fr))`, so the grid fills available width with
+  the Inventory's card proportions instead of collapsing to one full-width
+  column on phones.
+
+### Verification
+
+**Desktop 1280×720 (real browser, seeded Supabase data):**
+- ACTIVE grid computes 3 columns (3 cards per row); FROZEN grid 3 columns.
+- Panel visible, `hOverflowPx: 0`. All icon buttons render as SVG with
+  correct `aria-label`s (spawn, store, keys, freeze, unfreeze, rent).
+
+**Mobile 414×896 (same harness):**
+- ACTIVE grid keeps multiple columns in a row (auto-fill → 2+ columns),
+  no horizontal overflow, cards readable, all icon controls present.
+
+**Functional test (mocked Supabase — RPC calls intercepted, no live writes):**
+`docs/garage-evidence/click-test.json` — **pass: true**, 8/8 steps:
+
+| step | invokes |
+|---|---|
+| spawn-icon-v11 | `veh_spawn` |
+| store-icon-v11 | `veh_store` |
+| keys-icon-v12-opens-ui | keys screen visible |
+| revoke-ada-keys-v11 | `veh_key_revoke` |
+| give-keys-noah-v11 | `veh_key_give` |
+| freeze-icon-v12 | `veh_freeze` |
+| unfreeze-icon-v13 | `veh_unfreeze` |
+| rent-icon | `veh_rent_bike` |
+
+`docs/garage-evidence/evidence.json` additionally records the earlier **live
+Supabase** click evidence (real RPC round-trips: `veh_freeze` +
+"it stays parked outside…", `veh_unfreeze` + "it is back in your storage",
+keys give/revoke, spawn/rent calls) — noted there as live, not mocked.
+
+### Screenshots (fresh, in `docs/garage-evidence/`, committed)
+
+- `inv-desktop.png` / `inv-mobile-414.png` — Inventory reference (1280×720 /
+  414×896).
+- `garage-active-desktop.png` / `garage-active-mobile-414.png` — Garage ACTIVE
+  STORAGE at both sizes.
+- `garage-frozen-desktop.png` / `garage-frozen-mobile-414.png` — FROZEN
+  VEHICLES at both sizes.
+- `evidence.json` (grid/icon/overflow measurements), `click-test.json`
+  (mocked functional test).
+
+### Preserved, unchanged
+
+Freeze/unfreeze, spawn, store, keys, ownership lines, capacity/slot counts,
+rental restrictions, loading/error/success feedback, all backend RPC calls, and
+the Inventory implementation itself. No merge, no deploy — PR #26 stays open.
