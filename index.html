@@ -5049,9 +5049,9 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     if(driving)[eye,to]=vehicleCam(T.car,(x,z)=>hitT(x,z,.25),dt);
     else if(flying||!view3){const ey=driving?1.12:cam.y;eye=[cam.x+(driving?fx*.1:0),ey,cam.z+(driving?fz*.1:0)];to=[eye[0]+fx*cp,ey+Math.sin(cam.pitch),eye[2]+fz*cp]}
     else{const dist=driving?7.6:3.5,up=driving?2.7:1.55,lift=clamp(.32-cam.pitch,0,1.2);let k=1;for(let q=.15;q<=1;q+=.15)if(hitT(cam.x-fx*dist*q,cam.z-fz*dist*q,.25)){k=Math.max(.15,q-.15);break}       // the camera stays this side of any wall behind you
-      eye=[cam.x-fx*dist*k,up+lift*dist*.55*k,cam.z-fz*dist*k];to=[cam.x+fx*4,up-.15,cam.z+fz*4]}}
-    else[eye,to]=followCam(cam.x,TGY,cam.z,(x,z)=>hitT(x,z,.25),99)}
-  if(scene==="town"&&CARSEQ&&CARSEQ.camEye)[eye,to]=[CARSEQ.camEye,CARSEQ.camTo];       // a locked side view on the rider and bike while she mounts
+      eye=[cam.x-fx*dist*k,up+lift*dist*.55*k,cam.z-fz*dist*k];to=[cam.x+fx*4,up-.15,cam.z+fz*4]}
+  } else{[eye,to]=followCam(cam.x,TGY,cam.z,(x,z)=>hitT(x,z,.25),99);if(scene==="town"&&CARSEQ&&CARSEQ.camEye)[eye,to]=[CARSEQ.camEye,CARSEQ.camTo];}
+}
   else{MEY=Math.abs(me.y-MEY)>.6?me.y:MEY+(me.y-MEY)*Math.min(1,dt*14);      // the drawn height eases from step to step
     if(sx||sz){if(!blocked(me.x+sx,me.z))me.x+=sx;else VEL.x=0;if(!blocked(me.x,me.z+sz))me.z+=sz;else VEL.z=0;me.y=floorAt(me.x,me.z,me.y);
       if(scene==="border"){if(Math.abs(me.x)<1.5&&me.z<12.4&&me.z>11)toImm(false)}
