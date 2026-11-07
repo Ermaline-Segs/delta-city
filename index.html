@@ -3611,11 +3611,11 @@ function carBase(){if(CARBASE)return;CARBASE=[];carBuild(n=>{const pi=CARBASE.le
   chunks.forEach((c,ci)=>CARBASE.push(Object.assign(cp(c),{pi,list:"bufs",ci})));chunksT.forEach((c,ci)=>CARBASE.push(Object.assign(cp(c),{pi,list:"clear",ci})));if(!chunks.length&&!chunksT.length)CARBASE.push({pi,list:"none",p:new Float32Array(0),i:[]})})}
 /* the dented car is worked out one piece per frame (so a crash never stalls the game), and shown once it is complete;
    only the pieces that changed are sent to the graphics chip again, the rest are the undamaged car's own */
-let CARJOB=null;
-function carMesh(C){const D=C&&C.dmg;if(!CARSCENE0)CARSCENE0=CARSCENE;if(isBike(C)){CARJOB=null;if(CARSCENE!==BIKESCENE)CARSCENE=BIKESCENE;return}if(!D||!D.ver){CARJOB=null;if(CARSCENE!==CARSCENE0){freeScene(CARSCENE);CARSCENE=CARSCENE0}return}if(CARSCENE.ver===D.ver&&CARSCENE.car===C)return;
+let CARJOB=null;const DMGS=new Map()
+function carMesh(C){const D=C&&C.dmg;if(!CARSCENE0)CARSCENE0=CARSCENE;if(isBike(C)){CARJOB=null;const bk=DMGS.get(C);if(bk){freeScene(bk.S);DMGS.delete(C)}if(CARSCENE!==BIKESCENE)CARSCENE=BIKESCENE;return 1}if(!D||!D.ver){const bk=DMGS.get(C);if(bk){freeScene(bk.S);DMGS.delete(C)}CARJOB=null;if(CARSCENE!==CARSCENE0){freeScene(CARSCENE);CARSCENE=CARSCENE0}return 1}const bk=DMGS.get(C);if(bk&&bk.ver===D.ver){if(CARSCENE!==bk.S)CARSCENE=bk.S;return 1}
   if(!CARBASE){carBase();return}
-  if(!CARJOB||CARJOB.ver!==D.ver||CARJOB.car!==C){if(CARJOB)freeScene({bufs:CARJOB.own});CARJOB={ver:D.ver,car:C,ci:0,parts:CARSCENE0.parts.map(()=>({bufs:[],clear:[]})),own:[]}}
-  const J=CARJOB,c=CARBASE[J.ci],L=carPhys(C).len,Wd=carPhys(C).wid,dents=D.dents;let changed=false;
+  CARJOB={ver:D.ver,car:C,ci:0,parts:CARSCENE0.parts.map(()=>({bufs:[],clear:[]})),own:[]};let DVER=D.ver;
+  for(;;){const J=CARJOB,c=CARBASE[J.ci],L=carPhys(C).len,Wd=carPhys(C).wid,dents=D.dents;let changed=false;
   if(c.list!=="none"){
   const p=c.p.slice(),col=c.c.slice(),moved=new Uint8Array(p.length/3);
     for(let v=0;v<p.length/3;v++){let x=p[v*3],y=p[v*3+1],z=p[v*3+2],hit=0;
@@ -3645,8 +3645,8 @@ function carMesh(C){const D=C&&C.dmg;if(!CARSCENE0)CARSCENE0=CARSCENE;if(isBike(
       if(c.list==="clear"){const solid=[];for(let t=0;t<c.i.length;t+=3)(Math.abs(col[c.i[t]*4+3]-K.glass)<1e-4?keep:solid).push(c.i[t],c.i[t+1],c.i[t+2]);       // cracked glass turns white: it is drawn solid
         if(solid.length){chunks.push({p,n:nn,c:col,i:solid});const U=upload();out.bufs.push(U.bufs[0]);J.own.push(U.bufs[0]);reset()}}else keep.push(...c.i);
       if(keep.length){chunks.push({p,n:nn,c:col,i:keep});const U=upload();out[c.list].push(U.bufs[0]);J.own.push(U.bufs[0])}reset()}}
-  if(++J.ci<CARBASE.length)return;
-  const S={parts:CARSCENE0.parts.map((P,i)=>Object.assign({},P,{bufs:J.parts[i].bufs,clear:J.parts[i].clear,own:[]})),ver:D.ver,car:C,own:J.own};S.parts[0].own=J.own;if(CARSCENE!==CARSCENE0)freeScene(CARSCENE);CARSCENE=S;CARJOB=null}
+  if(++J.ci<CARBASE.length)continue;
+  const S={parts:CARSCENE0.parts.map((P,i)=>Object.assign({},P,{bufs:J.parts[i].bufs,clear:J.parts[i].clear,own:[]})),ver:DVER,car:C,own:J.own};S.parts[0].own=J.own;DMGS.set(C,{ver:DVER,S});if(CARSCENE!==CARSCENE0&&CARSCENE!==S)freeScene(CARSCENE);CARSCENE=S;CARJOB=null;break}return 1}
 /* ---- the moving parts. Each door opens to its own angle on its hinge (or slides, on the bus); the wheels roll with
    the car's speed and the front ones steer; the steering wheel turns with them. Door sounds from assets/sounds/. ---- */
 const CARANIM=new WeakMap();
@@ -5151,8 +5151,8 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   const w=cv.clientWidth,h=cv.clientHeight,dpr=Math.min(window.devicePixelRatio||1,quality);if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
   const fly=scene==="town",indoor=scene==="bank"||scene==="imm"||scene==="gov"||scene==="hosp"||scene==="trs",fovNow=fly?(w>h?.85:1.05):(w>h?1.05:1.25),PMs=PLAYERS[me.gender]||PLAYERS.Female;
   // the sun's picture first: the town near you, the car, and your own character all cast shadows
-  if(scene==="town"&&T.car&&CARSCENE)carPose(T.car,dt);       // the doors, wheels and steering wheel move on
-  if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE){for(const P of CARSCENE.parts)lists.push([P.bufs,P.model])}dynShadows(T,lists,cam.x,cam.z);
+  if(scene==="town"&&T.cars){for(const C of T.cars)if(CARSCENE)carPose(C,dt)}       // the doors, wheels and steering wheel move on
+  if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.cars){for(const C of T.cars){if(CARSCENE&&carMesh(C)){for(const P of CARSCENE.parts)lists.push([P.bufs,P.model])}}}dynShadows(T,lists,cam.x,cam.z);
     shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing&&!TOW&&!FOLLOW){gl.colorMask(true,true,true,true);FEET=jump.y>0?null:feetFn();WALKER.draw(PMs,lvp,cam.x,TGY+jump.y,cam.z,cam.yaw,gait,t,null,"");FEET=null;gl.colorMask(false,false,false,false)}})}
   if(scene==="town"){[eye,to]=carCamBlend(eye,to);LASTCAM=[eye.slice(),to.slice()]}if(TOW&&scene==="town"){towStep(dt);[eye,to]=towCam(dt)}if(FOLLOW&&scene==="town"){const c=vanCam(dt);if(c)[eye,to]=c}else{CAMBL=null;LASTCAM=null}
   netTick(dtNow);gl.viewport(0,0,cv.width,cv.height);const VP=mul(persp(fovNow,w/h,fly?.25:.08,800),look(eye,to,[0,1,0]));if(scene==="town")carUI(T,VP,w,h);else if(CARUI.door)carUI(T,VP,w,h);if(T)pumpTags(T,VP,w,h);else pumpTags({},VP,w,h);
@@ -5162,10 +5162,9 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   if(scene==="imm"&&me.cert&&me.role==="citizen"&&!me.entered)parts.push(GUIDE);
   for(const S of parts)drawScene(S,VP,eye,indoor);if(scene==="imm"&&CAST.violet)WALKER.draw(CAST.violet,VP,VIOLET.x,0,VIOLET.z,Math.PI,{p:0,run:0,amt:0,idle:talking?"f_talk":"f_idle"},t,null,"");
   if(scene==="town"&&T.trees)drawTrees(T.trees,VP,eye,flying?null:c=>TREEVIS(c)&&Math.hypot(c.cx-cam.x,c.cz-cam.z)<125,flying?1500:150);       // beyond about 125 m the haze has swallowed the trees
-  if(scene==="town"&&T.car&&CARSCENE)carMesh(T.car);
-  if(scene==="town"&&T.car&&CARSCENE){const own=driving&&VEH.cam===2;       /* from the driver's own eyes: the inside of the car, without the wheels, lamps or the driver */
-    carDraw(VP,eye,false,own);if(!own){const bm=carModel(T.car);for(const L of carLamps(driving)){L.model=bm;L.fogFar=flying?1500:150;drawScene(L,VP,eye,false)}}
-    if(driving&&!own)carDriver(T.car,VP,t)}
+  if(scene==="town"&&T.cars)for(const C of T.cars)if(carMesh(C)){const own=C===T.car&&driving&&VEH.cam===2;       /* from the driver's own eyes: the inside of the car, without the wheels, lamps or the driver */
+    carDraw(VP,eye,false,own);if(!own){const bm=carModel(C);for(const L of carLamps(C===T.car&&driving)){L.model=bm;L.fogFar=flying?1500:150;drawScene(L,VP,eye,false)}}
+    if(C===T.car&&driving&&!own)carDriver(C,VP,t)}
     if(scene==="town")dynDraw(T,VP,eye);
     if(scene==="town"){mechDraw(T,VP,eye,t);vansDraw(VP,eye,t,false);attDraw(T,VP,eye,t)}
     if(TOW&&TOW.truckM&&scene==="town"){TOWTRUCK.model=TOW.truckM;TOWTRUCK.fogFar=150;drawScene(TOWTRUCK,VP,eye,false);towPeople(VP,t)}
@@ -5173,7 +5172,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     if(show&&scene==="town"&&CARSEQ&&CARSEQ.sit>.5){const C=CARSEQ.C,h=carRig(C).seats.driver||[0,.6,0];WALKER.draw(PM,VP,cam.x,h[1]+carSit(C).y,cam.z,C.yaw,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"",isBike(C)?VEH.lean:0)}       // half in: seated
     else if(show){const town=scene==="town";FEET=jump.y>0?null:feetFn();WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:MEY)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"");FEET=null}}
   netDraw(VP,eye,t,T);
-  for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE)carDraw(VP,eye,true,driving&&VEH.cam===2);if(TOW&&TOW.truckM&&scene==="town")drawSceneClear(TOWTRUCK,VP,eye,t);if(scene==="town")vansDraw(VP,eye,t,true);if(scene==="town")fxDraw(VP,eye,to);
+  for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.cars)for(const C of T.cars)if(CARSCENE&&carMesh(C))carDraw(VP,eye,true,C===T.car&&driving&&VEH.cam===2);if(TOW&&TOW.truckM&&scene==="town")drawSceneClear(TOWTRUCK,VP,eye,t);if(scene==="town")vansDraw(VP,eye,t,true);if(scene==="town")fxDraw(VP,eye,to);
   const fpOn=scene!=="town"&&!!fpPlan();if(frames%3===0){if(scene==="town")drawMini(T);else if(fpOn)drawPlanMini()}document.getElementById("mini").hidden=!(scene==="town"||fpOn)||choosing;
   frames++;acc+=real;if(acc>=.5){const fps=frames/acc;document.getElementById("fps").textContent=Math.round(fps);frames=0;acc=0;let tris2=0;const tris=scene==="town"?0:parts.reduce((s,S)=>s+S.tris,0)+(scene==="imm"?15450:0);
     if(scene==="town")tris2=parts.reduce((s,S)=>s+S.bufs.concat(S.clear).reduce((q,x)=>q+x.n/3,0),0);const info=document.getElementById("info");info.textContent=({town:me.town,border:"The border gate",bank:"Inside "+STATES[me.town].bank,imm:"Inside Immigration",gov:GV?GV.title:"",hosp:HV?HV.title:"",trs:"Inside the National Treasury"})[scene]+", "+Math.round((scene==="town"?tris2:tris)/1000)+"k triangles, "+cv.width+"x"+cv.height;info.appendChild(document.createElement("br"));info.appendChild(document.createTextNode(GPU));
