@@ -16,9 +16,13 @@
      {t:"room", room}                            I went into another room
      {t:"st", ch:{id: state|null}}               street objects I damaged (null: put right again)
      {t:"chat", text}
+     {t:"v", a:"spawn", vid, x, z, yaw, md}       one of my cars is out in the street (md: "motorbike" or null)
+     {t:"v", a:"store", vid}                      I put one of my cars back in the car park
+     {t:"v", a:"sync", vs:[...]}                  my full out roster (sent when I reconnect)
    To players:
      {t:"welcome", id, room, peers, street, usage}   {t:"roomok", room, peers, street}
      {t:"join", ...peer}  {t:"p", id, ...}  {t:"leave", id}  {t:"st", ch}  {t:"chat", id, name, text}  {t:"err", msg}
+     {t:"v", id, a:"spawn"|"store"|"sync", vid?, x?, z?, yaw?, md?, vs?}   the same vehicle news, about someone else
 
    Each player is sent only the players near them: inside a building, everyone in that room; in a town, players
    within 60 m at every update, players 60 to 250 m away at most once every 2 s, and nobody further away.
@@ -137,7 +141,7 @@ export class Live extends DurableObject {
 
   socks() { return this.ctx.getWebSockets().map(ws => ({ ws, a: ws.deserializeAttachment() || {} })) }
   send(ws, o) { try { ws.send(JSON.stringify(o)) } catch (e) { } }
-  peer(a) { return { id: a.id, name: a.name, g: a.g, look: a.look, x: a.x, z: a.z, y: a.y, a: a.a, m: a.m, sp: a.sp, car: a.car || null } }
+  peer(a) { return { id: a.id, name: a.name, g: a.g, look: a.look, x: a.x, z: a.z, y: a.y, a: a.a, m: a.m, sp: a.sp, car: a.car || null, vs: a.vs || [] } }
   roomPeers(room, except) { return this.socks().filter(s => s.a.auth && s.a.room === room && s.a.id !== except).map(s => this.peer(s.a)) }
   street(room) {
     if (!room.startsWith("town:")) return {};
@@ -159,7 +163,7 @@ export class Live extends DurableObject {
       for (const s of this.socks()) if (s.a.uid === uid && s.ws !== ws) { this.send(s.ws, { t: "err", code: "replaced", msg: "You are playing in another window." }); try { s.ws.close(4002, "replaced") } catch (e) { } }
       const c = await this.citizen(m.tok, uid);
       const room = ROOM_RE.test(m.room || "") ? m.room : "border";
-      Object.assign(a, { auth: true, uid, name: (c && c.name) || "New arrival", g: (c && c.gender) || "Female", look: (c && c.look) || "", role: (c && c.role) || "newcomer", room, x: 0, z: 0, y: 0, a: 0, m: "s", sp: 0, car: null, farAt: 0, lastP: 0, lastChat: 0 });
+      Object.assign(a, { auth: true, uid, name: (c && c.name) || "New arrival", g: (c && c.gender) || "Female", look: (c && c.look) || "", role: (c && c.role) || "newcomer", room, x: 0, z: 0, y: 0, a: 0, m: "s", sp: 0, car: null, vs: [], farAt: 0, lastP: 0, lastChat: 0 });
       ws.serializeAttachment(a);
       const live = this.socks().filter(s => s.a.auth).length; if (live > this.u.peak) this.u.peak = live;
       this.send(ws, { t: "welcome", id: a.id, room, peers: this.roomPeers(room, a.id), street: this.street(room), usage: { requests: this.requests(), limit: +(this.env.DAILY_REQUEST_LIMIT || 100000) } });
@@ -187,7 +191,7 @@ export class Live extends DurableObject {
     if (m.t === "room") {
       if (!ROOM_RE.test(m.room || "") || m.room === a.room) return;
       this.toRoom(a.room, { t: "leave", id: a.id }, a.id);
-      a.room = m.room; a.car = null; if (typeof m.x === "number") { a.x = m.x; a.z = m.z }
+      a.room = m.room; a.car = null; a.vs = []; if (typeof m.x === "number") { a.x = m.x; a.z = m.z }
       ws.serializeAttachment(a);
       this.send(ws, { t: "roomok", room: a.room, peers: this.roomPeers(a.room, a.id), street: this.street(a.room) });
       this.toRoom(a.room, Object.assign({ t: "join" }, this.peer(a)), a.id); return;
@@ -203,6 +207,24 @@ export class Live extends DurableObject {
         ch[id] = v;
       }
       this.toRoom(a.room, { t: "st", ch, by: a.id }, a.id); return;
+    }
+    if (m.t === "v") {
+      if (!a.room.startsWith("town:")) return;
+      // a parked-car roster the other players see: at most 12, one entry per vehicle id
+      const put = (vid, x, z, yaw, md) => ({ vid, x: Math.round((+x || 0) * 100) / 100, z: Math.round((+z || 0) * 100) / 100, yaw: Math.round((+yaw || 0) * 100) / 100, md: md === "motorbike" ? "motorbike" : null });
+      if (m.a === "spawn" && typeof m.vid === "string" && m.vid.length <= 36) {
+        a.vs = (a.vs || []).filter(q => q.vid !== m.vid);
+        a.vs.push(put(m.vid, m.x, m.z, m.yaw, m.md));
+        if (a.vs.length > 12) a.vs = a.vs.slice(-12);
+        this.toRoom(a.room, { t: "v", id: a.id, a: "spawn", vid: m.vid, x: a.vs[a.vs.length - 1].x, z: a.vs[a.vs.length - 1].z, yaw: a.vs[a.vs.length - 1].yaw, md: a.vs[a.vs.length - 1].md }, a.id);
+      } else if (m.a === "store" && typeof m.vid === "string" && m.vid.length <= 36) {
+        a.vs = (a.vs || []).filter(q => q.vid !== m.vid);
+        this.toRoom(a.room, { t: "v", id: a.id, a: "store", vid: m.vid }, a.id);
+      } else if (m.a === "sync" && Array.isArray(m.vs)) {
+        a.vs = m.vs.filter(q => q && typeof q.vid === "string" && q.vid.length <= 36).slice(0, 12).map(q => put(q.vid, q.x, q.z, q.yaw, q.md));
+        this.toRoom(a.room, { t: "v", id: a.id, a: "sync", vs: a.vs }, a.id);
+      }
+      ws.serializeAttachment(a); return;
     }
     if (m.t === "chat") {
       const text = String(m.text || "").replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, MAX_CHAT);

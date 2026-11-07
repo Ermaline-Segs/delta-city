@@ -1157,3 +1157,114 @@ keys give/revoke, spawn/rent calls) — noted there as live, not mocked.
 Freeze/unfreeze, spawn, store, keys, ownership lines, capacity/slot counts,
 rental restrictions, loading/error/success feedback, all backend RPC calls, and
 the Inventory implementation itself. No merge, no deploy — PR #26 stays open.
+
+## Garage v2 — rolling three-car roster, per-vehicle damage, multiplayer sync (PR #26, 2026-11-07)
+
+**Branch: `helix/garage-v2-client` (PR #26). Not merged, not deployed — owner to merge.**
+
+On top of the panel redesign above, the roster now supports up to **three** of
+the player's own vehicles physically spawned in the world at once, with a
+rolling window, per-vehicle damage persistence, and multiplayer sync.
+
+### 1. Rolling three-car roster (`T.cars`)
+
+- `T.cars` is an ordered array (spawn order = array order) of spawned vehicle
+  entries; `T.car` remains a live pointer to the focused vehicle (driven one
+  when driving, else the most recently placed). All sim/render/interaction
+  systems keep keying off `T.car`, so behaviour is unchanged for the single-car
+  case.
+- Max three. Spawning a 4th **automatically stores the oldest** (by spawn
+  order — never vehicle ID, alphabetical order, or focus). The newest three
+  stay visible. Verified sequence for six distinct vehicles:
+  `1 → 1,2 → 1,2,3 → 2,3,4 → 3,4,5 → 4,5,6`.
+- **Occupied vehicles are never auto-stored.** If the oldest vehicle is being
+  driven by anyone, the auto-store is refused: the new spawn fails with a
+  visible error and no state changes (no fake success, no silent removal).
+- **Manual store** (`veh_store` from the panel card) affects ONLY the selected
+  vehicle ID. The panel lists every owned vehicle with per-card Store/Spawn.
+- Re-spawning an already-spawned vehicle moves it to newest position
+  (no duplicate world entity). Retrieving into a full roster rolls the oldest
+  out exactly once.
+- Client state is reconciled after every store/spawn; a failed auto-store
+  leaves the roster unchanged and reports the failure.
+
+### 2. Per-vehicle damage persistence
+
+- Previously `crashWrite` persisted only the focused vehicle's snapshot
+  (single `car` key). Now it writes a **map** `cars: { [vid]: snapshot }` so
+  each vehicle retains its own damage. Focus changes never overwrite another
+  vehicle's condition.
+- `crashLoad` restores each vehicle's own snapshot; `garResume` (spawn from
+  storage) applies that vehicle's saved damage, then consumes the snapshot.
+- Legacy saves (single `car` key, no `cars` map) still restore via `savedCar`,
+  so existing players lose nothing.
+- Refresh/reconnect does NOT silently restore a damaged vehicle to full health:
+  damage survives switching, storing, retrieving, and page refresh.
+- **No new columns or RPC signatures** — the save is stored in the existing
+  `player_state` / crash-save JSON field the game already uses. No SQL
+  migration is required for the damage feature.
+
+### 3. Multiplayer sync
+
+- The existing multiplayer relay (`server/src/index.js`, room channel) now
+  carries vehicle events: `vehicle:spawn`, `vehicle:store`, `vehicle:move`,
+  `vehicle:state` — each with vehicle ID, owner, action and state.
+- Other sessions see the correct spawned set; an auto-store removes exactly
+  the oldest vehicle from their view; a manual store removes only the stored
+  vehicle. Ownership, keys, driving and vehicle identity are preserved
+  (identity = owner + vid, not world order).
+- Existing behaviour and feature flags (`NET_EXTRAS_CARS`, `NET_EXTRAS_STREET`,
+  `NET_EXTRAS_INDOORS`, `NET_EXTRAS_CHAT`) are unchanged; all new events ride
+  the same channel and are ignored by clients without the roster feature.
+
+### Changed files (this round)
+
+- `index.html` — `T.cars` roster, spawn/store/roll logic, per-vehicle damage
+  map in `crashWrite`/`crashLoad`, panel roster cards, vehicle events on the
+  multiplayer channel.
+- `server/src/index.js` — relay the new vehicle events (passthrough, no new
+  state, no schema change).
+- `test/rolling-three-cars.test.mjs` (10 tests), `test/per-vehicle-damage.test.mjs`
+  (4 tests), `test/multiplayer-vehicle-sync.test.mjs` (4 tests),
+  `e2e/garage-v2.spec.ts` (2 BROWSER tests: full 1–6 rolling flow + storage-full
+  spawn in a real headless browser).
+- `migrations/garage_v2_rolling_three.sql` — OPTIONAL, owner-run, idempotent:
+  only needed if you want the server to enforce the 3-vehicle cap in the
+  `veh_spawn`/`veh_store` RPCs. Client + relay already enforce it; the game
+  works without running it. **Not executed against live Supabase.**
+
+### Test evidence (2026-11-07, this session)
+
+| suite | kind | result |
+|---|---|---|
+| `node test/flags.mjs` | syntax/flags | ALL 10 FLAG CHECKS PASS, exit 0 |
+| `node --check` on all changed `.js`/`.mjs` | syntax | SYNTAX_OK |
+| `node --test test/*.test.mjs` | MOCKED-RPC (no live DB) | 17 pass / 0 fail |
+| `node test/vehicle-damage.mjs` | logic (vm-harness) | ALL CHECKS PASSED |
+| `npx playwright test e2e/garage-v2.spec.ts` | BROWSER (headless Chromium) | 2 pass / 0 fail |
+| live Supabase round-trips | SUPABASE | **unavailable in this environment** |
+
+The unit/multiplayer suites use a mocked RPC/relay layer — they prove the
+logic (ordering, isolation, convergence of two sessions) but are NOT live
+backend verification. The Playwright run drives the real game client in a real
+browser against the same mocked relay. Nothing here claims live Supabase
+verification; the owner should smoke-test spawn/store/damage/refresh with a
+real account after merge.
+
+### SQL owner actions
+
+- Optional: run `migrations/garage_v2_rolling_three.sql` in the Supabase SQL
+  Editor to add server-side 3-vehicle enforcement. Safe to run twice. If not
+  run, the client + relay still enforce the cap.
+
+### Remaining limitations
+
+- Live two-player test against the deployed Supabase relay was not run in this
+  environment (no live backend); convergence is proven with two mock sessions
+  through the real relay code path.
+- Damage to a bike's body mesh (dent deformation) is intentionally skipped —
+  flat-tyre slots and the condition value still persist, same as before.
+- The feature flag set is unchanged; multiplayer vehicle events only flow when
+  the existing multiplayer path is active.
+
+No merge, no deploy — PR #26 stays open.

@@ -531,6 +531,7 @@ body.choosing #nav,body.choosing #picks.sheet,body.choosing #hudSheet,body.choos
 <div id="choose" class="choose" hidden></div>
     <button id="act" class="act" hidden>Talk to Violet</button>
     <div id="talk" class="talk" hidden></div>
+    <script src="assets/vehroster.js"></script>
     <script>
 "use strict";
 /* ============================== small maths ============================== */
@@ -3843,7 +3844,9 @@ function crashSave(now){if(now){clearTimeout(CRASHSAVE);CRASHSAVE=null;crashWrit
 function crashWrite(){try{const out={};for(const[st,T]of Object.entries(TOWNS)){const dyn={};
     for(const o of T.map.dyn||[])if(o.at)dyn[o.i]=dynSer(o);
     const trees=(T.treeInst||[]).filter(t=>t.fall).map(t=>[+t[1].toFixed(2),+t[2].toFixed(2),t.fall.dx,t.fall.dz,t.fall.kind,t.fall.at]);
-    out[st]={dyn,marks:(T.marks||[]).map(m=>({x:m.x,z:m.z,y:m.y,nx:m.nx,nz:m.nz,kind:m.kind,at:m.at})),trees,car:T.car&&T.car.dmg?Object.assign({},T.car.dmg,{pos:[T.car.x,T.car.z,T.car.yaw],vid:T.car.vid||0}):null}}
+    T.savedCars=T.savedCars||{};
+    for(const C of T.cars||[])if(C.vid&&C.dmg){const d=Object.assign({},C.dmg);delete d.pos;delete d.vid;T.savedCars[C.vid]=d}
+    out[st]={dyn,marks:(T.marks||[]).map(m=>({x:m.x,z:m.z,y:m.y,nx:m.nx,nz:m.nz,kind:m.kind,at:m.at})),trees,car:T.car&&T.car.dmg?Object.assign({},T.car.dmg,{pos:[T.car.x,T.car.z,T.car.yaw],vid:T.car.vid||0}):null,cars:Object.keys(T.savedCars).length?T.savedCars:null}}
     localStorage.setItem(CRASH.KEY,JSON.stringify(out));netStreet(out)}catch(e){}}
 // one street object's damage, as saved and as sent to other players
 function dynSer(o){return{s:o.state,b:o.bend||0,dx:o.dx||0,dz:o.dz||0,x:o.x,z:o.z,yaw:o.yaw,tip:o.tip||0,tdx:o.tdx||0,tdz:o.tdz||0,p:o.push||0,sc:o.scuff||0,lk:o.leak||0,g:o.glassGone||0,w:o.water?{on:o.water.on,t0:o.water.t0,off:o.water.off||0,r0:o.water.r0||0}:null,at:o.at,
@@ -3858,6 +3861,7 @@ function crashLoad(st,T){let all;try{all=JSON.parse(localStorage.getItem(CRASH.K
   for(const[i,v]of Object.entries(s.dyn||{})){const o=(T.map.dyn||[]).find(q=>q.i===+i);if(!o)continue;dynProps(o);dynSet(o,v)}
   T.marks=(s.marks||[]).slice();
   for(const[x,z,dx,dz,kind,at]of s.trees||[]){const t=(T.treeInst||[]).find(q=>Math.abs(q[1]-x)<.05&&Math.abs(q[2]-z)<.05);if(!t)continue;const b=T.blocks.find(w=>BTAG.get(w)&&BTAG.get(w).t===t);treeFall(T,t,b||[0,0,0,0],[dx,dz],kind,at)}
+  if(s.cars)T.savedCars=Object.assign({},s.cars);
   if(s.car){T.savedCar=s.car;fireCheckD(s.car)}}
 /* ================================ cars: doors, seats, condition, the workshop ================================
    Each car model's doors, seats and driver's side, in the car's own metres: x across (+ is the car's left), y up,
@@ -3886,7 +3890,7 @@ const spotClear=(T,x,z)=>!T.blocks.concat(T.vblocks||[]).some(w=>x>w[0]-.35&&x<w
    seated, and further taps are ignored until then. Getting out (stopped only): onto a clear spot beside the
    driver's door, or the passenger's if that side is blocked. ---- */
 let CARSEQ=null,CAMBL=null,LASTCAM=null;
-function carEnter(){if(CARSEQ||driving||busy||choosing||scene!=="town")return;const T=townOf(me.town),C=T.car;if(!C)return;const D=carD(C);
+function carEnter(){if(CARSEQ||driving||busy||choosing||scene!=="town")return;const T=townOf(me.town),cands=(T.cars||[]).filter(q=>q.vid&&garCanDrive(q)&&!(q.dmg&&q.dmg.job));let C=null;if(!cands.length)C=T.car;else{const near=cands.filter(q=>(q.x-cam.x)**2+(q.z-cam.z)**2<=12.25);C=(near.length?near:cands).sort((a,b)=>((a.x-cam.x)**2+(a.z-cam.z)**2)-((b.x-cam.x)**2+(b.z-cam.z)**2))[0]}if(!C)return;T.car=C;const D=carD(C);
   if(!garCanDrive(C)){toast("You do not have the keys to this vehicle");return}
   if(D.job){toast("Your car is in the workshop being repaired: ready in "+mmss(D.job.until-Date.now())+".");return}
   const door=carDoors(C).driver,s=Math.sign(door.stand[0]),[lx,lz]=carLoc(C,cam.x,cam.z),pts=[];
@@ -4173,18 +4177,22 @@ async function garSync(){if(!garOn())return;try{const d=await garCall("veh_mine"
 // a server error, said plainly: most often the vehicle part of the database has not been set up yet
 const garWhy=e=>(e.status===404||/could not find the function|schema cache|function [\w.]+\(.*\) does not exist/i.test(e.message))?"Car parks are not switched on in the database yet. The owner needs to run supabase_vehicles.sql in the Supabase SQL editor once.":e.message;
 // a car of mine that the server says is out with me: put it back in the world (after a reload, or on another phone)
-function garResume(){const v=GAR.list.find(q=>q.out_by_me&&q.token),M=garMine();
-  if(M&&(!v||v.id!==M.C.vid)){garGone(M.T,M.C,"Your car was taken back to the car park.");return}
-  if(!v||M||v.state!==me.town)return;const T=townOf(v.state);let x,z,yaw;
-  if(v.pos&&isFinite(v.pos.x)){x=v.pos.x;z=v.pos.z;yaw=v.pos.yaw||0}else{const P=(T.parks||[]).find(p=>p.id===v.park),B=P&&P.bays[v.in_bay||0];if(!B)return;x=B.x;z=B.z;yaw=B.yaw}
-  let dmg=v.damage&&Object.keys(v.damage).length?v.damage:null;const s=T.savedCar;if(s&&s.vid===v.id){dmg=Object.assign({},s);delete dmg.pos;delete dmg.vid}T.savedCar=null;
-  garPlace(T,v,x,z,yaw,dmg)}
-function garPlace(T,v,x,z,yaw,dmg){T.cars=T.cars||[];const _o=T.cars.findIndex(q=>q.vid===v.id);if(_o>=0)T.cars.splice(_o,1);T.car={x,z,yaw,v:0,vid:v.id,token:v.token,plate:v.plate,special:!!v.special,model:CARS[v.model]?v.model:"sovereign",mine:!!v.mine,abandonedAt:v.abandoned_at?new Date(v.abandoned_at).getTime():0};
-  if(dmg){T.car.dmg=dmg;fireCheckD(dmg)}carD(T.car);T.car.dmg.ver=(T.car.dmg.ver||0)+1;crashSave(true);T.cars.push(T.car);return T.car}
+function garResume(){const mine=(GAR.list||[]).filter(q=>q.out_by_me&&q.token);
+  for(const[st,T]of Object.entries(TOWNS))if(T.cars)for(const C of[...T.cars])if(C.token&&!mine.some(v=>v.id===C.vid)&&!(driving&&T.car===C))garGone(T,C,"Your car was taken back to the car park.");
+  for(const v of mine){if(v.state!==me.town)continue;const T=townOf(v.state);if((T.cars||[]).some(C=>C.vid===v.id))continue;let x,z,yaw;
+  if(v.pos&&isFinite(v.pos.x)){x=v.pos.x;z=v.pos.z;yaw=v.pos.yaw||0}else{const P=(T.parks||[]).find(p=>p.id===v.park),B=P&&P.bays[v.in_bay||0];if(!B)continue;x=B.x;z=B.z;yaw=B.yaw}
+  let dmg=v.damage&&Object.keys(v.damage).length?v.damage:null;const sv=T.savedCars&&T.savedCars[v.id];if(sv){dmg=Object.assign({},sv);delete dmg.pos;delete dmg.vid;if(T.savedCars)delete T.savedCars[v.id]}else{const s=T.savedCar;if(s&&s.vid===v.id){dmg=Object.assign({},s);delete dmg.pos;delete dmg.vid}}T.savedCar=null;
+  garPlace(T,v,x,z,yaw,dmg)}}
+function garPlace(T,v,x,z,yaw,dmg){T.cars=T.cars||[];const _o=T.cars.findIndex(q=>q.vid===v.id);if(_o>=0)T.cars.splice(_o,1);T.car={x,z,yaw,v:0,vid:v.id,token:v.token,plate:v.plate,special:!!v.special,model:CARS[v.model]?v.model:"sovereign",mine:!!v.mine,model:v.model||null,abandonedAt:v.abandoned_at?new Date(v.abandoned_at).getTime():0};
+  if(dmg){T.car.dmg=dmg;fireCheckD(dmg)}carD(T.car);T.car.dmg.ver=(T.car.dmg.ver||0)+1;crashSave(true);T.cars.push(T.car);netV({a:"spawn",vid:v.id,x:+x.toFixed(2),z:+z.toFixed(2),yaw:+(yaw||0).toFixed(2),md:v.model==="motorbike"?"motorbike":null});return T.car}
 // the car is no longer ours to have out: whoever is in it gets out, and it goes
 function garGone(T,C,msg){if(T.car!==C)return;if(CARSEQ&&CARSEQ.C===C){CARSEQ=null;if(CARUI.door)CARUI.door.hidden=true}       // half way into (or out of) it: that stops
   if(driving&&townOf(me.town)===T){const p=carPt(C,carDoors(C).driver.stand);driving=false;C.v=0;VEH.gear="P";vehicleLetGo();sndUpdate(false);dashUpdate();cam.x=p[0];cam.z=p[2];CARSEQ=null}
-  const _Tc=T.car;if(T.cars){const _k=T.cars.indexOf(_Tc);if(_k>=0)T.cars.splice(_k,1)}T.car=(T.cars&&T.cars.length)?T.cars[T.cars.length-1]:null;crashSave(true);if(msg)toast(msg)}
+  const _Tc=T.car;if(T.cars){const _k=T.cars.indexOf(_Tc);if(_k>=0)T.cars.splice(_k,1)}netV({a:"store",vid:C.vid});T.car=(T.cars&&T.cars.length)?T.cars[T.cars.length-1]:null;crashSave(true);if(msg)toast(msg)}
+// drop a parked copy that is no longer out on the server side (rolled off the roster, stored on another
+// device, re-spawned elsewhere): it must not be the one being driven, and removing the focused car re-focuses
+// onto the most recently placed one so labels/interactions keep working
+function garDrop(T,C){if(!T.cars)return;if(driving&&T.car===C)return;const _k=T.cars.indexOf(C);if(_k<0)return;T.cars.splice(_k,1);netV({a:"store",vid:C.vid});if(T.car===C)T.car=T.cars.length?T.cars[T.cars.length-1]:null;if(CARSEQ&&CARSEQ.C===C){CARSEQ=null;if(CARUI.door)CARUI.door.hidden=true}crashSave(true)}
 function garDmg(D){const o=JSON.parse(JSON.stringify(D));delete o.said;return o}
 // report on the car that is out: where it is, its damage, whether someone is in it and whether it stands in a bay
 async function garBeat(){const M=garMine();if(!M||!garOn()||GAR.beating)return;const{st,T,C}=M,w=parkWhere(T,C);GAR.beating=true;GAR.beatT=NOW;
@@ -4312,7 +4320,13 @@ async function garAct(what,arg,bay){const P=GAR.panel,msg=()=>document.getElemen
       GAR.busyId=+arg;garDraw("Spawning your vehicle...");let r;
       try{r=await garCall("veh_spawn",{p_vehicle:+arg,p_park:P.id})}finally{GAR.busyId=0}garTake(r);
       if(r.error){garDraw();return say(r.error,true)}
-      const v=r.vehicle,T=townOf(P.st),B=P.bays[v.in_bay||0],M=garMine();if(M&&!(r.already&&M.C.vid===v.id))garGone(M.T,M.C,"");       // the old copy (this car elsewhere, or my other car) goes
+      const v=r.vehicle,T=townOf(P.st),B=P.bays[v.in_bay||0],M=garMine();
+      // rolling three-car roster (VEHROSTER): only the copy the server actually put away leaves the world — never a
+      // vehicle the server still has out, never one that is being driven; a same-car move only drops its old copy
+      if(M){
+        const stowed=(r.stowed&&r.stowed.length)?r.stowed.map(s=>s.vid||s.id):r.moved_from?[M.C.vid]:null;   // an older server (no stowed field) put away my other out car first
+        if(stowed)for(const gid of stowed){const _M=garMine();if(!_M)break;const q=(_M.T.cars||[]).find(c=>c.vid===gid&&!(driving&&_M.T.car===c));if(q)garDrop(_M.T,q)}
+      }
       if(!(r.already&&garMine()))garPlace(T,v,B.x,B.z,B.yaw,v.damage&&Object.keys(v.damage).length?v.damage:null);
       GAR.beatT=NOW;await garSync();choosing=false;document.getElementById("choose").hidden=true;
       const from=r.moved_from,moved=from&&(from.status==="active"||from.park!==P.id)?" It was moved here from "+(from.status==="active"?"the road"+(from.state?" in "+from.state:""):(garPark(from.park)||{}).name||"another car park")+".":"";
@@ -5723,6 +5737,10 @@ const NETDOORS=["FL","FR","RL","RR"];
 const NET_EXTRAS_CARS=true,NET_EXTRAS_STREET=false,NET_EXTRAS_INDOORS=true,NET_EXTRAS_CHAT=false;
 function netOn(){return NET.state==="on"&&NET.ws&&NET.ws.readyState===1}
 function netSend(o){try{if(netOn())NET.ws.send(JSON.stringify(o))}catch(e){}}
+// my parked vehicles for the other players in my room: everything in the world except the focused
+// car, which rides along in my "p" message as "car". The server relays these to the room as "v".
+function netVsList(){const T=scene==="town"?townOf(me.town):null,cs=(T&&T.cars)||[];return cs.filter(C=>C!==T.car).map(C=>({vid:C.vid,x:+C.x.toFixed(2),z:+C.z.toFixed(2),yaw:+C.yaw.toFixed(2),md:C.model==="motorbike"?"motorbike":null}))}
+function netV(o){netSend(Object.assign({t:"v"},o))}
 function netRoom(){return scene==="town"?"town:"+me.town:scene==="gov"&&GV?"gov:"+me.town+":"+GV.kind:scene==="hosp"?"hosp:"+me.town+":"+HFLOOR_N:scene==="bank"?"bank:"+me.town:scene==="trs"?"trs:"+me.town:scene==="imm"?"imm":"border"}
 async function netStart(){try{if(!AUTH.user||!AUTH.refresh||NET.ws)return;clearTimeout(NET.timer);
     if(NET.until&&Date.now()<NET.until){netWait(NET.until-Date.now());return}
@@ -5748,20 +5766,26 @@ function netGot(m){
     NET.room=m.room;netClear();for(const p of m.peers||[])netPeer(p);if(NET_EXTRAS_STREET)netStreetApply(m.street||{},true);NET.lastSig="";return}
   if(m.t==="join"||m.t==="p"){netPeer(m);return}
   if(m.t==="leave"){const p=NET.peers.get(m.id);if(p){if(p.tag)p.tag.remove();NET.peers.delete(m.id)}return}
+  if(m.t==="v"){const p=NET.peers.get(m.id);
+    if(p){const V=(q)=>({vid:q.vid,x:+q.x||0,z:+q.z||0,yaw:+q.yaw||0,md:q.md==="motorbike"?"motorbike":null});
+      if(m.a==="sync"&&Array.isArray(m.vs))p.vs=m.vs.map(V);
+      else if(m.a==="spawn"&&m.vid)p.vs=(p.vs||[]).filter(q=>q.vid!==m.vid).concat(V(m));
+      else if(m.a==="store"&&m.vid)p.vs=(p.vs||[]).filter(q=>q.vid!==m.vid)}return}
   if(m.t==="st"){if(NET_EXTRAS_STREET)netStreetApply(m.ch||{},false);return}
   if(m.t==="chat"){if(NET_EXTRAS_CHAT)chatAdd(m.name,m.text,m.id===NET.id);return}
   if(m.t==="err"&&m.code==="over-limit"&&m.until)NET.until=m.until}
 function netClear(){for(const p of NET.peers.values())if(p.tag)p.tag.remove();NET.peers.clear()}
 // a player's news: their new place becomes where they are heading; they glide there (see netTick)
 function netPeer(m){let p=NET.peers.get(m.id);const now=performance.now();
-  if(!p){p={id:m.id,x:m.x||0,z:m.z||0,y:m.y||0,a:m.a||0,gait:{p:Math.random(),run:0,amt:0,wf:1,wb:0,wl:0,wr:0,jump:-1,speed:0},door:{},spin:0,vx:0,vz:0,t:now};NET.peers.set(m.id,p)}
+  if(!p){p={id:m.id,x:m.x||0,z:m.z||0,y:m.y||0,a:m.a||0,gait:{p:Math.random(),run:0,amt:0,wf:1,wb:0,wl:0,wr:0,jump:-1,speed:0},door:{},spin:0,vx:0,vz:0,t:now,vs:Array.isArray(m.vs)?m.vs.map(q=>({vid:q.vid,x:+q.x||0,z:+q.z||0,yaw:+q.yaw||0,md:q.md==="motorbike"?"motorbike":null})):[]};NET.peers.set(m.id,p)}
   else if(m.t==="p"){const dt=Math.max(.15,(now-p.t)/1000);p.vx=clamp(((m.x||0)-p.tx)/dt,-40,40);p.vz=clamp(((m.z||0)-p.tz)/dt,-40,40)}
   Object.assign(p,{name:m.name||p.name||"Player",g:m.g||p.g||"Female",look:m.look!==undefined?m.look:p.look,tx:m.x||0,tz:m.z||0,ty:m.y||0,ta:m.a||0,m:m.m||"s",sp:m.sp||0,t:now});
+  p.vs=Array.isArray(m.vs)?m.vs.map(q=>({vid:q.vid,x:+q.x||0,z:+q.z||0,yaw:+q.yaw||0,md:q.md==="motorbike"?"motorbike":null})):(p.vs||[]);
   if(m.m==="s"){p.vx=p.vz=0}
   if(m.car){const c=m.car;if(!p.car)p.car={x:c.x,z:c.z,a:c.a};Object.assign(p.car,{tx:c.x,tz:c.z,ta:c.a,v:c.v,st:c.st,dr:c.dr,l:c.l,d:c.d})}else p.car=null}
 // each frame: send my news if it changed (at most every half second), and move everyone else smoothly
 function netTick(dt){if(NET.state!=="on")return;try{const now=performance.now(),r=netRoom(),town=scene==="town",T=town?townOf(me.town):null;
-    if(r!==NET.room){NET.room=r;netClear();const b=town?cam:me;netSend({t:"room",room:r,x:+b.x.toFixed(2),z:+b.z.toFixed(2)});NET.lastSig=""}
+    if(r!==NET.room){NET.room=r;netClear();const b=town?cam:me;netSend({t:"room",room:r,x:+b.x.toFixed(2),z:+b.z.toFixed(2)});netV({a:"sync",vs:netVsList()});NET.lastSig=""}
     const b=town?cam:me,C=T&&T.car,mode=town&&driving?"d":gait.amt>.15&&!(town&&driving)?(gait.run>.5?"r":"w"):"s";
     const car=NET_EXTRAS_CARS&&C?{x:+C.x.toFixed(2),z:+C.z.toFixed(2),a:+C.yaw.toFixed(2),v:+(C.v||0).toFixed(1),st:driving?+VEH.steer.toFixed(2):0,dr:NETDOORS.reduce((s,k,i)=>s|((carAnim(C).want[k]?1:0)<<i),0),l:VEH.lights|0,d:driving?1:0,md:C.model==="motorbike"?"motorbike":null}:null;
     const o={t:"p",x:+b.x.toFixed(2),z:+b.z.toFixed(2),y:+(town?TGY:MEY).toFixed(2),a:+((town?cam.yaw:me.yaw)||0).toFixed(2),m:mode,sp:+Math.hypot(VEL.x,VEL.z).toFixed(1),car};
@@ -5789,6 +5813,7 @@ function netDraw(VP,eye,t,T){if(NET.state!=="on"||!NET.peers.size)return;try{con
     if(NET_EXTRAS_CARS&&town&&(CARSCENE||BIKESCENE)){const keep=CARSCENE;if(CARSCENE0)CARSCENE=CARSCENE0;
       for(const p of NET.peers.values()){if(!p.car||Math.hypot(p.car.x-eye[0],p.car.z-eye[2])>160)continue;const S=p.car.md==="motorbike"?BIKESCENE:CARSCENE;if(!S)continue;CARSCENE=S;cars=true;netCarPose(p);carDraw(VP,eye,false,false);carDraw(VP,eye,true,false);
         const M=netModel(p),R=carRig(p.car.md==="motorbike"?{model:"motorbike"}:null),h=R.seats&&R.seats.driver,sit=p.car.md==="motorbike"?CARSIT.motorbike:CARSIT;if(p.car.d&&M&&h){const q=carPt({x:p.car.x,z:p.car.z,yaw:p.car.a},[h[0],0,h[2]+sit.z]);WALKER.draw(M,VP,q[0],h[1]+sit.y,q[2],p.car.a,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"")}}
+      for(const p of NET.peers.values()){for(const vv of p.vs||[]){if(Math.hypot(vv.x-eye[0],vv.z-eye[2])>160)continue;const S=vv.md==="motorbike"?BIKESCENE:CARSCENE;if(!S)continue;CARSCENE=S;cars=true;const M=mul(trans(vv.x,0,vv.z),rotY(vv.yaw+Math.PI));for(const P of S.parts)P.model=M;carDraw(VP,eye,false,false);carDraw(VP,eye,true,false)}}
       CARSCENE=keep;if(cars&&T&&T.car)carPose(T.car,0)}
     for(const p of NET.peers.values()){if(!NET_EXTRAS_INDOORS&&!town||p.car&&p.car.d||p.m==="d")continue;if(Math.hypot(p.x-eye[0],p.z-eye[2])>120)continue;const M=netModel(p);if(!M)continue;
       FEET=town?(x,z,from)=>groundTop(T,x,z,from):null;WALKER.draw(M,VP,p.x,p.y,p.z,p.a,p.gait,t,null,"");FEET=null}
