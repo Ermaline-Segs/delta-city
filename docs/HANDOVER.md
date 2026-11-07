@@ -195,6 +195,33 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
 - **Home buildings:** see section 6 (`assets/buildings/homes/`, `homes.md`).
 
 ## 11. Updates since the first handover (newest first)
+- **Garage v2, part 2 — client panel, freeze/unfreeze buttons, panel refresh (this PR)** — `index.html` only.
+  Depends on part 1: the garage v2 SQL (`supabase_garage_v2a.sql` + audit rows, branch `helix/garage-v2-complete`)
+  must be live first, because this reads `frozen`/`slots`/`active_count` from `veh_mine` and calls
+  `veh_freeze` / `veh_unfreeze`.
+  1. **v2 panel layout (`g2*` classes, `gshell`/`ghead` helpers):** header with free-space count, then a
+     4-tile stat row — PLAYER, ACTIVE STORAGE (`activeCount / slots SLOTS`, `slots` defaulting to 5),
+     STORED (own non-frozen stored vehicles), FROZEN — then the ACTIVE STORAGE section (park name ·
+     N OF M SPACES FREE), the vehicle cards, the frozen section, and the rent block.
+  2. **Per-vehicle Freeze / Unfreeze buttons** (`garAct("freeze")` / `garAct("unfreeze")`): busy spinner on
+     the clicked card while the RPC runs, server errors shown in the panel message, and on success a short
+     message ("Frozen — it stays parked outside and no longer uses a storage slot." / "Unfrozen — it is back
+     in your storage.") followed by a re-sync.
+  3. **Frozen vehicles section:** own frozen vehicles get their own `FROZEN VEHICLES` section with a
+     SLOT AVAILABLE / NO FREE SLOT pill and an Unfreeze button on each card; when storage is full a
+     "SLOT N — Storage full — freeze a vehicle to access another slot." card appears in place of a new slot.
+  4. **Panel refresh after actions (the redraw fix):** `garSync` now also picks up `slots` / `active_count`
+     from `veh_mine` and, when the panel is open and no action is in flight, re-draws it
+     (`if(GAR.panel&&GAR.busyId===0)garDraw()`). Before this, the counts and cards went stale after a
+     freeze/unfreeze/give until the panel was closed and reopened.
+  5. **Verification:** headless e2e harness (playwright, `e2e/garage.shot.js` — kept out of the repo per the
+     `.nettest/` convention, both ignored in `.gitignore`) drove the real app at `localhost:3000` against
+     seeded Supabase data: all six panel controls (Keys, Back, Freeze, Unfreeze, Rent, Close) dispatch the
+     correct RPCs and the panel redraws with updated counts after each action. Frames captured at
+     desktop 1440 px and mobile 414 px (in `screenshots/`, also uncommitted). `node test/flags.mjs` — the
+     repo's only runnable check — passes.
+  - **Could not test:** multiplayer redraw when another player's freeze action changes your slot count
+    (the redraw fires on your own `garSync`); real WebGL framing of the new cards in a live browser.
 - **Admin: "put this vehicle back in its garage" (this PR)** — new `supabase_admin_putaway.sql` + `index.html` only.
   The admin panel (inside "Choose a citizen") now has a **"Put a vehicle back in its garage"** dropdown next to
   "Give car" and "Set". It calls the new `veh_admin_putaway` function.
@@ -975,3 +1002,158 @@ Sovereign GT repair rows, all car crash rows, and all car "said"/repair-item tex
 - Multiplayer rendering of other riders' helmets (state is not synced to peers; peers see the seated
   rider only).
 - Server-side: nothing changed server-side; the server still trusts client-sent prices.
+- Server-side: nothing changed server-side; the server still trusts client-sent prices.
+
+## Garage grid correction — PR #26
+
+**Branch: `helix/garage-v2-client` (PR #26). Not merged, not deployed — owner to merge.**
+
+The Garage v2 panel (state car-park sheet) was rendering vehicle cards in stretched
+full-width rows. The card containers were re-pointed at the same grid rules as the
+live Inventory interface, so the garage now uses the exact same grid system.
+
+### Changed files
+
+- `index.html` (only file changed)
+  - `.g2grid` CSS now mirrors the Inventory grid: `display:grid` with
+    `grid-template-columns:repeat(3,minmax(0,1fr))`, `gap:12px`, collapsing to
+    `repeat(2,...)` under 900 px and `1fr` under 560 px (the Inventory breakpoint behaviour).
+  - `.g2card` sizing matches Inventory cards: `min-width:0`, top-aligned, equal-height rows
+    via the grid (`align-items:stretch`), same 14 px radius and `--line` border.
+  - Applied to BOTH garage sections: **ACTIVE STORAGE** and **FROZEN VEHICLES** (each section
+    keeps its own `.g2grid` container; the 4-up stat strip at the top of the sheet keeps its
+    inline 4-column override).
+  - Cosmetic fix: a `<br>` is inserted before the "Spawning it here..." note when present,
+    so it no longer runs into the "Out with someone who has its keys" status text
+    (two adjacent inline `<small>` elements). Note is only inserted when non-empty, so card
+    height is unchanged for cards without the note.
+  - `.grent .gspawn{white-space:normal}` — the rental offer's spawn note wraps inside its
+    card instead of being clipped by the `white-space:nowrap` inherited from the row.
+
+No other Garage behaviour changed: Freeze/Unfreeze, Keys, Spawn, vehicle information
+(plate, condition, fuel, slot, status), storage capacity counters, and the motorbike
+rental block all render and dispatch exactly as before. Inventory was not touched.
+
+### Grid selectors (verified in rendered DOM)
+
+- Inventory reference: `.inv-grid` (3 cols desktop / 1 col at 414 px)
+- Garage: `.g2grid` in ACTIVE STORAGE and FROZEN VEHICLES — computed `display:grid`
+  with the same `grid-template-columns` at both sizes.
+
+### Verification (real browser, seeded Supabase data, 2026-11-05)
+
+- Desktop **1280×720**: ACTIVE grid computes 3 columns, 3 cards per row
+  (x=353/548/742, w=185). FROZEN grid 3 columns, 1 card. No page errors.
+- Mobile **414×896**: ACTIVE grid computes 1 column, cards w=336 (no overflow,
+  no cramping). FROZEN grid 1 column. No page errors.
+- Freeze/Unfreeze, vehicle info, capacity ("3 / 8 SLOTS"), and the rental block all
+  present and enabled in both sizes.
+
+### Screenshots (in `screenshots/`, untracked — `screenshots/` is gitignored, same convention as the section-11 evidence)
+
+- `garage-full-desktop.png` / `garage-full-mobile-414.png` — whole sheet, active grid top
+- `garage-frozen-desktop.png` / `garage-frozen-mobile-414.png` — frozen section scrolled into view
+- `inventory-desktop.png` / `inventory-mobile-414.png` — Inventory reference for comparison
+- `garage-outcard-desktop.png` / `garage-outcard-mobile-414.png` — out-card close-up (line-break fix)
+
+### No merge / no deploy
+
+The branch is pushed to PR #26 only. Nothing was merged to `main` and the live
+GitHub Pages site was not touched.
+
+## Garage visual polish — colours, icons and mobile grid (PR #26, 2026-11-06)
+
+Second pass on the same PR. The grid structure from the first pass was already
+correct; this pass replaced the white/yellow look with the Inventory's dark
+blue / light blue design language, swapped the wordy buttons for icon buttons,
+and compacted the cards.
+
+### 1. Colour scheme (matches Inventory, no new palette)
+
+- Card backgrounds: `rgba(255,255,255,.07)` → `rgba(56,189,248,.06)` (light-blue
+  tint, same family as the Inventory panel).
+- Card borders: `var(--line)` → `rgba(148,197,233,.28)`, hover
+  `rgba(125,211,252,.55)`.
+- `.g2kv` info boxes: white tint → `rgba(56,189,248,.06)` /
+  `rgba(148,197,233,.22)`.
+- Status pills: `.g2state.st` (STORED) `#4ade80` → `#7dd3fc`; `.g2state.out`
+  (ACTIVE) yellow `#fbbf24` → cyan `#38bdf8`. No yellow remains in the Garage
+  CSS.
+- Offline status pill (`.g2stat.off`) keeps its red — it is an error state,
+  consistent with Inventory's red error styling.
+- Applied to **both** ACTIVE STORAGE and FROZEN VEHICLES (shared `.g2card`/
+  `.g2grid`/`.g2kv`/`.g2state` classes).
+
+### 2. Icons instead of bulky wording (project's own SVG icon system)
+
+Added two icons to the existing `HUDI` table and used `hico()` (the same
+renderer the HUD uses) — no new dependencies:
+
+- `snow` (three crossed lines) for **Freeze**, `thaw` (snowflake + base bar)
+  for **Unfreeze**.
+- Reused existing icons: `car` for **Spawn**, `bag` for **Store**, `key` for
+  **Keys**.
+- Buttons became compact square `.gib` icon buttons with `title` +
+  `aria-label` tooltips (accessible labels kept on every control). The wordy
+  "Spawn Vehicle" / "Store" / "Keys" / "Freeze" text buttons are gone.
+
+### 3. Card cleanup
+
+- Button row now uses a consistent icon size (17 px) and flex alignment
+  (`.vbtns.g2act`).
+- Vehicle name keeps visual priority (14.5 px bold in `.g2chead`); plate and
+  ownership stay as the single `small` line; condition/fuel bars unchanged.
+
+### 4. Mobile grid (matches Inventory behaviour)
+
+- `.g2grid` changed from fixed `repeat(3,1fr)` to
+  `repeat(auto-fill,minmax(168px,1fr))`, so the grid fills available width with
+  the Inventory's card proportions instead of collapsing to one full-width
+  column on phones.
+
+### Verification
+
+**Desktop 1280×720 (real browser, seeded Supabase data):**
+- ACTIVE grid computes 3 columns (3 cards per row); FROZEN grid 3 columns.
+- Panel visible, `hOverflowPx: 0`. All icon buttons render as SVG with
+  correct `aria-label`s (spawn, store, keys, freeze, unfreeze, rent).
+
+**Mobile 414×896 (same harness):**
+- ACTIVE grid keeps multiple columns in a row (auto-fill → 2+ columns),
+  no horizontal overflow, cards readable, all icon controls present.
+
+**Functional test (mocked Supabase — RPC calls intercepted, no live writes):**
+`docs/garage-evidence/click-test.json` — **pass: true**, 8/8 steps:
+
+| step | invokes |
+|---|---|
+| spawn-icon-v11 | `veh_spawn` |
+| store-icon-v11 | `veh_store` |
+| keys-icon-v12-opens-ui | keys screen visible |
+| revoke-ada-keys-v11 | `veh_key_revoke` |
+| give-keys-noah-v11 | `veh_key_give` |
+| freeze-icon-v12 | `veh_freeze` |
+| unfreeze-icon-v13 | `veh_unfreeze` |
+| rent-icon | `veh_rent_bike` |
+
+`docs/garage-evidence/evidence.json` additionally records the earlier **live
+Supabase** click evidence (real RPC round-trips: `veh_freeze` +
+"it stays parked outside…", `veh_unfreeze` + "it is back in your storage",
+keys give/revoke, spawn/rent calls) — noted there as live, not mocked.
+
+### Screenshots (fresh, in `docs/garage-evidence/`, committed)
+
+- `inv-desktop.png` / `inv-mobile-414.png` — Inventory reference (1280×720 /
+  414×896).
+- `garage-active-desktop.png` / `garage-active-mobile-414.png` — Garage ACTIVE
+  STORAGE at both sizes.
+- `garage-frozen-desktop.png` / `garage-frozen-mobile-414.png` — FROZEN
+  VEHICLES at both sizes.
+- `evidence.json` (grid/icon/overflow measurements), `click-test.json`
+  (mocked functional test).
+
+### Preserved, unchanged
+
+Freeze/unfreeze, spawn, store, keys, ownership lines, capacity/slot counts,
+rental restrictions, loading/error/success feedback, all backend RPC calls, and
+the Inventory implementation itself. No merge, no deploy — PR #26 stays open.

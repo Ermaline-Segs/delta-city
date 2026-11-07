@@ -12,3 +12,10 @@ __pycache__/
 
 # Playwright/E2E test harness for NET_EXTRAS live tests
 .nettest/
+
+# Garage v2 e2e harness (playwright) + its screenshot evidence — see docs/HANDOVER.md section 11
+e2e/
+screenshots/
+
+# Playwright test harness local deps (symlinked from /workspace/tmp/e2e-deps)
+node_modules

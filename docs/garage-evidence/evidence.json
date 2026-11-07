@@ -1,0 +1,380 @@
+{
+  "invDesktop": {
+    "invGrid": {
+      "cols": 3,
+      "kids": 2,
+      "w": 276
+    }
+  },
+  "invMobile": {
+    "invGrid": {
+      "cols": 4,
+      "kids": 2,
+      "w": 363
+    }
+  },
+  "garActiveDesktop": {
+    "ctrl": [
+      "veh_mine"
+    ],
+    "ui": {
+      "panelVisible": true,
+      "hOverflowPx": 0,
+      "grids": [
+        {
+          "cols": 4,
+          "cards": 0
+        },
+        {
+          "cols": 3,
+          "cards": 3
+        },
+        {
+          "cols": 3,
+          "cards": 1
+        }
+      ],
+      "sections": [
+        "ACTIVE STORAGE\nState Government House Ca",
+        "FROZEN VEHICLES\nSLOT AVAILABLE"
+      ],
+      "icons": [
+        {
+          "vp": "spawn",
+          "label": "Spawn vehicle",
+          "svg": true
+        },
+        {
+          "vp": "keys",
+          "label": "Keys",
+          "svg": true
+        },
+        {
+          "vp": "freeze",
+          "label": "Freeze",
+          "svg": true
+        },
+        {
+          "vp": "spawn",
+          "label": "Spawn vehicle",
+          "svg": true
+        },
+        {
+          "vp": "keys",
+          "label": "Keys",
+          "svg": true
+        },
+        {
+          "vp": "freeze",
+          "label": "Freeze",
+          "svg": true
+        },
+        {
+          "vp": "spawn",
+          "label": "Spawn vehicle",
+          "svg": true
+        },
+        {
+          "vp": "keys",
+          "label": "Keys",
+          "svg": true
+        },
+        {
+          "vp": "freeze",
+          "label": "Freeze",
+          "svg": true
+        },
+        {
+          "vp": "unfreeze",
+          "label": "Unfreeze",
+          "svg": true
+        }
+      ]
+    }
+  },
+  "garActiveMobile": {
+    "ctrl": [
+      "veh_mine"
+    ],
+    "ui": {
+      "panelVisible": true,
+      "hOverflowPx": 0,
+      "grids": [
+        {
+          "cols": 2,
+          "cards": 0
+        },
+        {
+          "cols": 2,
+          "cards": 3
+        },
+        {
+          "cols": 2,
+          "cards": 1
+        }
+      ],
+      "sections": [
+        "ACTIVE STORAGE\nState Government House Ca",
+        "FROZEN VEHICLES\nSLOT AVAILABLE"
+      ],
+      "icons": [
+        {
+          "vp": "spawn",
+          "label": "Spawn vehicle",
+          "svg": true
+        },
+        {
+          "vp": "keys",
+          "label": "Keys",
+          "svg": true
+        },
+        {
+          "vp": "freeze",
+          "label": "Freeze",
+          "svg": true
+        },
+        {
+          "vp": "spawn",
+          "label": "Spawn vehicle",
+          "svg": true
+        },
+        {
+          "vp": "keys",
+          "label": "Keys",
+          "svg": true
+        },
+        {
+          "vp": "freeze",
+          "label": "Freeze",
+          "svg": true
+        },
+        {
+          "vp": "spawn",
+          "label": "Spawn vehicle",
+          "svg": true
+        },
+        {
+          "vp": "keys",
+          "label": "Keys",
+          "svg": true
+        },
+        {
+          "vp": "freeze",
+          "label": "Freeze",
+          "svg": true
+        },
+        {
+          "vp": "unfreeze",
+          "label": "Unfreeze",
+          "svg": true
+        }
+      ]
+    }
+  },
+  "garFrozenDesktop": {
+    "ctrl": [
+      "veh_mine"
+    ],
+    "ui": {
+      "panelVisible": true,
+      "hOverflowPx": 0,
+      "grids": [
+        {
+          "cols": 4,
+          "cards": 0
+        },
+        {
+          "cols": 3,
+          "cards": 3
+        },
+        {
+          "cols": 3,
+          "cards": 1
+        }
+      ],
+      "sections": [
+        "ACTIVE STORAGE\nState Government House Ca",
+        "FROZEN VEHICLES\nSLOT AVAILABLE"
+      ],
+      "icons": [
+        {
+          "vp": "spawn",
+          "label": "Spawn vehicle",
+          "svg": true
+        },
+        {
+          "vp": "keys",
+          "label": "Keys",
+          "svg": true
+        },
+        {
+          "vp": "freeze",
+          "label": "Freeze",
+          "svg": true
+        },
+        {
+          "vp": "spawn",
+          "label": "Spawn vehicle",
+          "svg": true
+        },
+        {
+          "vp": "keys",
+          "label": "Keys",
+          "svg": true
+        },
+        {
+          "vp": "freeze",
+          "label": "Freeze",
+          "svg": true
+        },
+        {
+          "vp": "spawn",
+          "label": "Spawn vehicle",
+          "svg": true
+        },
+        {
+          "vp": "keys",
+          "label": "Keys",
+          "svg": true
+        },
+        {
+          "vp": "freeze",
+          "label": "Freeze",
+          "svg": true
+        },
+        {
+          "vp": "unfreeze",
+          "label": "Unfreeze",
+          "svg": true
+        }
+      ]
+    }
+  },
+  "garFrozenMobile": {
+    "ctrl": [
+      "veh_mine"
+    ],
+    "ui": {
+      "panelVisible": true,
+      "hOverflowPx": 0,
+      "grids": [
+        {
+          "cols": 2,
+          "cards": 0
+        },
+        {
+          "cols": 2,
+          "cards": 3
+        },
+        {
+          "cols": 2,
+          "cards": 1
+        }
+      ],
+      "sections": [
+        "ACTIVE STORAGE\nState Government House Ca",
+        "FROZEN VEHICLES\nSLOT AVAILABLE"
+      ],
+      "icons": [
+        {
+          "vp": "spawn",
+          "label": "Spawn vehicle",
+          "svg": true
+        },
+        {
+          "vp": "keys",
+          "label": "Keys",
+          "svg": true
+        },
+        {
+          "vp": "freeze",
+          "label": "Freeze",
+          "svg": true
+        },
+        {
+          "vp": "spawn",
+          "label": "Spawn vehicle",
+          "svg": true
+        },
+        {
+          "vp": "keys",
+          "label": "Keys",
+          "svg": true
+        },
+        {
+          "vp": "freeze",
+          "label": "Freeze",
+          "svg": true
+        },
+        {
+          "vp": "spawn",
+          "label": "Spawn vehicle",
+          "svg": true
+        },
+        {
+          "vp": "keys",
+          "label": "Keys",
+          "svg": true
+        },
+        {
+          "vp": "freeze",
+          "label": "Freeze",
+          "svg": true
+        },
+        {
+          "vp": "unfreeze",
+          "label": "Unfreeze",
+          "svg": true
+        }
+      ]
+    }
+  },
+  "controls": {
+    "clicks": [
+      {
+        "vp": "spawn",
+        "calls": [
+          "veh_mine",
+          "veh_spawn"
+        ],
+        "msg": "Cannot read properties of undefined (reading 'in_bay')"
+      },
+      {
+        "vp": "store",
+        "missing": true
+      },
+      {
+        "vp": "keys",
+        "keysScreen": true,
+        "calls": []
+      },
+      {
+        "vp": "rent",
+        "calls": [
+          "veh_rent_bike"
+        ],
+        "msg": "Cannot read properties of undefined (reading 'pos')"
+      },
+      {
+        "vp": "unfreeze",
+        "calls": [
+          "veh_rent_bike",
+          "veh_unfreeze",
+          "veh_mine"
+        ],
+        "msg": "Unfrozen — it is back in your storage."
+      },
+      {
+        "vp": "freeze",
+        "calls": [
+          "veh_rent_bike",
+          "veh_unfreeze",
+          "veh_mine",
+          "veh_freeze",
+          "veh_mine"
+        ],
+        "msg": "Frozen — it stays parked outside and no longer uses a storage slot."
+      }
+    ]
+  }
+}
