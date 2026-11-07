@@ -19,3 +19,6 @@ screenshots/
 
 # Playwright test harness local deps (symlinked from /workspace/tmp/e2e-deps)
 node_modules
+
+# Playwright run output (reporter artifacts; screenshot evidence lives in screenshots/)
+test-results/
