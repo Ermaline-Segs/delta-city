@@ -184,7 +184,8 @@ update vehicles set model = 'sovereign' where model = 'audi';
 create index if not exists vehicles_owner on vehicles (owner);
 create index if not exists vehicles_active on vehicles (status) where status = 'active';
 create unique index if not exists vehicles_one_per_bay on vehicles (park_id, bay) where status = 'stored' and bay is not null;
-create unique index if not exists vehicles_one_out_each on vehicles (active_by) where status = 'active';
+-- (no more one-out-each unique index: the rolling three-vehicle roster lets a citizen have up to three out,
+-- enforced inside veh_spawn under a per-citizen advisory lock — see migrations/garage_v2_rolling_three.sql)
 
 create table if not exists vehicle_keys (
   id          bigserial primary key,
@@ -386,15 +387,19 @@ $$;
 -- spawn one of my vehicles (or one I hold keys to) in a free bay of this car park. Wherever the vehicle is - stored in
 -- another car park, or out on the road - it is moved here: the old copy is put away first (its token stops working, so
 -- it disappears from the game that had it) and its damage, fuel and the rest come with it. All of this happens under
--- the vehicle's row lock, so two requests at once (two taps, two phones) can never make two copies. A second request
--- for a car already standing in this car park just returns it. Each citizen has one vehicle out: another of theirs
--- that is out is put away first. Refused (with the reason) when someone is driving the car, it is being towed,
--- repaired or refuelled, or it is burning. Returns {vehicle, moved_from} or {error}.
+-- the vehicle's row lock, so two requests at once (two taps, two phones) can never make two copies. A second
+-- request for a car already standing in this car park just returns it. A citizen can have up to three vehicles out
+-- at once (the rolling three-vehicle roster): when a fourth is spawned, the OLDEST by spawn order goes back
+-- to its bay automatically and is reported to the client in `stowed`. A vehicle that is busy (driven, towed,
+-- repaired, refuelled, burning) is never put away. Refused (with the reason) when someone is driving the car,
+-- it is being towed, repaired or refuelled, or it is burning. Returns {vehicle, moved_from, stowed} or {error}.
 create or replace function public.veh_spawn(p_vehicle bigint, p_park text)
 returns jsonb language plpgsql security definer set search_path = public as $$
-declare me uuid := auth.uid(); v vehicles; o vehicles; b int; pk car_parks; why text; was jsonb;
+declare me uuid := auth.uid(); v vehicles; o vehicles; b int; pk car_parks; why text; was jsonb; stowed jsonb := '[]'::jsonb;
 begin
   if me is null then raise exception 'Sign in to use your vehicles'; end if;
+  -- one spawn at a time per citizen, across tabs/phones, so the three-out cap is never raced
+  perform pg_advisory_xact_lock(hashtext('vehroster:' || me::text));
   perform veh_sweep();
   select * into pk from car_parks where id = p_park;
   if pk.id is null then return jsonb_build_object('error', 'That is not a car park'); end if;
@@ -414,12 +419,19 @@ begin
     perform veh_log(me, v.id, 'spawn refused', jsonb_build_object('why', why, 'park', p_park));
     return jsonb_build_object('error', 'You cannot spawn this car right now: ' || why || '.');
   end if;
-  -- my other vehicle that is out goes back to its car park first (one out at a time), if that is safe
-  for o in select * from vehicles where status = 'active' and active_by = me and id <> v.id for update loop
+  -- the rolling three-vehicle roster: put my oldest out cars (by spawn order) away until at most three of mine
+  -- are out. A car that is busy (driven, towed, repaired, refuelled, burning) is never put away — the spawn is
+  -- refused (and the whole transaction undone, so nothing changes) instead of silently removing a live vehicle.
+  for o in select * from vehicles where status = 'active' and active_by = me and id <> v.id
+           order by coalesce(spawned_at, last_seen) asc, id asc for update loop
+    if (select count(*) from vehicles where active_by = me and status = 'active') <= 3 then
+      exit;
+    end if;
     why := veh_busy(o);
     if why is not null then
       return jsonb_build_object('error', 'Your other car (' || o.plate || ') cannot be put away right now: ' || why || '. Store it first.');
     end if;
+    stowed := stowed || jsonb_build_object('id', o.id, 'plate', o.plate);
     perform veh_put_away(o.id, me, 'another vehicle spawned');
   end loop;
   -- where it was before: out on the road (that copy is put away), or stored in a bay somewhere
@@ -440,7 +452,7 @@ begin
    where id = v.id returning * into v;
   perform veh_log(me, v.id, case when was->>'status' = 'active' or was->>'park' is distinct from p_park then 'transfer' else 'spawn' end,
                   jsonb_build_object('park', p_park, 'bay', b, 'from', was));
-  return jsonb_build_object('now', now(), 'vehicle', veh_row(v, me), 'moved_from', was);
+  return jsonb_build_object('now', now(), 'vehicle', veh_row(v, me), 'moved_from', was, 'stowed', stowed);
 end $$;
 
 -- the game reports on a vehicle that is out (every few seconds while it is, and when something happens). Returns
