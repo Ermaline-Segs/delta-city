@@ -222,6 +222,35 @@ market), `assets/home/`, `assets/modular/` (character creator, 420 MB), `assets/
      repo's only runnable check — passes.
   - **Could not test:** multiplayer redraw when another player's freeze action changes your slot count
     (the redraw fires on your own `garSync`); real WebGL framing of the new cards in a live browser.
+- **Garage v2, part 1: frozen vehicles and per-player garage slots (this PR)** — new `supabase_garage_v2a.sql` only; no
+  `index.html` changes in this branch.
+  1. **SQL the owner must run by hand, once, in the Supabase SQL editor** (safe to run twice — every statement is
+     `IF NOT EXISTS` / `CREATE OR REPLACE`; the column add and the backfill are guarded, so a second run changes nothing):
+     - `vehicles.frozen` — `boolean not null default false` (new column; every existing vehicle backfilled `false`).
+     - `garage_slots` — one row per owner with the slot count (default 5, check between 1 and 50); backfilled once for
+       every existing vehicle owner.
+     - `veh_slots(owner)` / `veh_active_count(owner)` — helper lookups; a player with no `garage_slots` row is treated
+       as having the default 5.
+     - `veh_freeze(p_vehicle)` / `veh_unfreeze(p_vehicle)` — owner only. Freeze is free and only works on a stored
+       vehicle that is not held (tow/repair/refuel/fire) and not in a repair queue/bay; a rented bike can never be
+       frozen. Unfreeze costs a free slot (non-frozen count must be below the slot count).
+     - `veh_admin_set_slots(p_owner, p_slots)` — admin only (`veh_role` = 'admin'), sets a player's slots, 1 to 50.
+     - `veh_spawn` — byte-identical to the latest definition except one added refusal: a frozen vehicle cannot be
+       spawned, with the exact message "This vehicle is frozen in your garage" (key holders included).
+     - `veh_row` / `veh_mine` — the latest definitions with ONLY json fields added (`frozen`, `slots`,
+       `active_count`); the current client keeps working because it ignores unknown keys.
+     - `veh_rent_bike` — the definition from `supabase_bike_rental.sql` with ONLY three changes: a player who already
+       owns four or more vehicles (frozen counted, the rented bike not) cannot rent another bike; a player with no
+       free slot cannot rent at all ("freeze a vehicle first"); a rented bike gets no `vehicle_keys` row (it cannot
+       be gifted, given keys to, or left behind).
+     - Permissions match `supabase_vehicles.sql`: revoke from `public`/`anon`/`authenticated` as needed, grant the
+       player-facing functions to `authenticated`, the admin slot setter to `authenticated` only after the in-function
+       role check.
+  2. **Owner rules encoded:** each player has a number of garage slots (default 5; only an admin may change it,
+     between 1 and 50). A slot is used by EVERY non-frozen vehicle the player owns — stored or out on the road, and
+     including a rented bike. Frozen = owned but unusable, parked outside the garage: it uses no slot and nobody can
+     spawn it. Freezing costs nothing; unfreezing costs a slot. The existing one-out rule (one vehicle of a player's
+     out at a time) is UNCHANGED — the client is not ready for more.
 - **Admin: "put this vehicle back in its garage" (this PR)** — new `supabase_admin_putaway.sql` + `index.html` only.
   The admin panel (inside "Choose a citizen") now has a **"Put a vehicle back in its garage"** dropdown next to
   "Give car" and "Set". It calls the new `veh_admin_putaway` function.
