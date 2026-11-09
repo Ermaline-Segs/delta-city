@@ -1296,4 +1296,71 @@ real account after merge.
 - The feature flag set is unchanged; multiplayer vehicle events only flow when
   the existing multiplayer path is active.
 
-No merge, no deploy — PR #26 stays open.
+### 2026-11-09 — Garage v2b: rolling three-active roster is now LIVE (follow-up to PR #25/#26)
+
+**Root cause of the reported symptom.** PR #25 (`supabase_garage_v2a.sql`)
+redefined `public.veh_spawn` with the OLD one-vehicle-out behaviour: a loop
+that puts EVERY other active vehicle of the citizen away before the new one is
+shown. That was the last garage SQL executed on the live Supabase project, so
+the live database kept enforcing one-out-each — the client (merged in PR #26)
+was already correct, but the server overrode it on every spawn. The optional
+file from PR #26 (`migrations/garage_v2_rolling_three.sql`) had never been run,
+and on top of that its `veh_spawn` was copied from the pre-#25 base and is
+missing the frozen-vehicle rejection, so running it alone would have silently
+re-allowed frozen vehicles to be spawned (regression of the PR #25 freeze rule).
+
+**Fix.** New migration `migrations/garage_v2b_three_active_rolling.sql`
+(idempotent, safe to run twice):
+1. drops the `vehicles_one_out_each` unique index (one-out-each is no longer the rule);
+2. replaces `public.veh_spawn` with the rolling three-vehicle version that also
+   keeps the PR #25 frozen rejection: per-citizen advisory lock, frozen vehicle
+   refused (key holders included), and the OLDEST out vehicle (by `spawned_at`,
+   never by id or plate) is put away when a fourth is spawned — the stowed id is
+   reported to the client in `stowed`;
+3. adds `public.veh_put_away_elsewhere(p_vehicle, p_actor, p_reason, p_avoid_park)`
+   so the auto-store never leaves the new car without a bay in the destination
+   car park (falls back to a free bay in another car park of the same state, or
+   the car-park office, bay = null);
+4. busy vehicles (driven, towed, repaired, refuelled, burning) are never put
+   away; a vehicle the actor is currently driving can never be auto-stowed — the
+   spawn of a fourth is refused with the reason instead;
+5. `veh_store` (manual store) is unchanged in effect: it still affects only the
+   selected vehicle id passed by the client.
+
+**Files changed (this round):** `migrations/garage_v2b_three_active_rolling.sql`
+(new, untracked before this commit) and `docs/HANDOVER.md` (this section).
+No client code changed: `index.html` already consumes `r.stowed` from
+`veh_spawn` (only a vehicle the server actually put away leaves the world, and
+never one being driven) and `veh_store` is already called with the selected
+vehicle's id only. `assets/vehroster.js` + `test/rolling-three-cars.test.mjs`
+remain the pure-logic mirror of the server behaviour, all still committed from
+PR #26.
+
+**Test evidence (2026-11-09, this session — all actually run):**
+
+| command | kind | result |
+|---|---|---|
+| `psql -v ON_ERROR_STOP=1 -f migrations/garage_v2b_three_active_rolling.sql` (fresh scratch DB, run twice) | SQL migration | PASS (exit 0), idempotent — second run also exit 0 |
+| SQL harness against the migrated DB: spawn 1→6, manual store of the middle vehicle, re-spawn same car, occupied-vehicle spawn, frozen-vehicle regression guard, storage-full spawn | MOCKED-DB (real Postgres, real RPCs) | all assertions passed |
+| `node --test test/rolling-three-cars.test.mjs test/per-vehicle-damage.test.mjs test/multiplayer-vehicle-sync.test.mjs` | unit (node:test) | 17 pass / 0 fail |
+| `npx playwright test e2e/garage-v2.spec.ts` | BROWSER (headless Chromium, real client code, faithful server stub) | 2 pass / 0 fail |
+
+The browser e2e covers the exact required rotation — spawn 1–6 yields
+`[1]`, `[1,2]`, `[1,2,3]`, `[2,3,4]`, `[3,4,5]`, `[4,5,6]` — plus manual store
+of the selected (middle) vehicle, retrieval, per-vehicle damage, drive/freeze
+and panel refresh.
+
+**Supabase action still required (owner).** Run
+`migrations/garage_v2b_three_active_rolling.sql` once in the Supabase SQL
+Editor of project `jowcbkdesdrggkaivgbv`. Until then the live site will keep
+showing the one-vehicle-at-a-time behaviour even though the merged client code
+is correct. Do NOT run `migrations/garage_v2_rolling_three.sql` (PR #26)
+instead: it is superseded by v2b and would drop the frozen-vehicle rejection.
+
+**Preserved behaviour.** Garage UI, ownership, keys, damage persistence,
+rental, freeze/unfreeze, tow/repair/fuel locks, and the freeze rejection of PR
+#25 are all unchanged or explicitly kept; the only behavioural change is the
+rolling three-active roster on spawn and the `stowed` field it reports.
+
+PR #25 and #26 are merged; this follow-up ships as a new PR (branch
+`fix/garage-three-active-vehicles`).
