@@ -96,7 +96,85 @@ body.driving .hud{display:none}
 .wtag .tpc{font-size:12px;font-variant-numeric:tabular-nums;color:#FBBF24;flex:none}.wtag .tpc:empty{display:none}.wtag.tin{opacity:0!important;transform:translate(-50%,-90%)}.wtag.chg .tt{animation:tagchg .35s}@keyframes tagchg{from{opacity:.2}to{opacity:1}}
 .wbtn:not(#doorBtn){border:1px solid rgba(255,255,255,.3);background:rgba(12,22,38,.82);box-shadow:0 4px 14px rgba(0,0,0,.28);font-weight:600}
 @media (max-width:520px){.wtag{max-width:70vw;padding:4px 8px 4px 4px}.wtag .ti{width:22px;height:22px;font-size:14px}}
-.cdsub{margin:-4px 0 10px;opacity:.75;font-size:14px}.vlist{margin:8px 0;text-align:left}.vrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:14px}.vrow small{display:block;opacity:.75;font-size:12.5px;margin-top:2px}.vbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.glist{display:grid;gap:10px;margin:8px 0;max-height:52vh;overflow:auto;text-align:left}.gveh{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line)}.vpic{width:96px;height:42px}.ginfo{display:grid;gap:3px;min-width:0;font-size:14px}.ginfo small{opacity:.78;font-size:12.5px}.gnote{color:#fbbf24;opacity:1!important}.gbar{display:grid;grid-template-columns:64px 1fr 36px;gap:6px;align-items:center;font-size:12px}.gbar i{height:6px;border-radius:3px;background:rgba(255,255,255,.15);overflow:hidden}.gbar em{display:block;height:100%}.gbar b{font-size:12px;text-align:right}.gspawn{padding:9px 14px;font-size:14px;white-space:nowrap;width:auto;margin:0}.gspawn:disabled{opacity:.6}.spin{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:gspin .7s linear infinite;vertical-align:-1px}@keyframes gspin{to{transform:rotate(360deg)}}.gnone{padding:14px;border-radius:12px;background:rgba(255,255,255,.06)}@media (max-width:520px){.gveh{grid-template-columns:72px 1fr}.gveh .vbtns{grid-column:1/-1;justify-content:stretch}.gveh .vbtns .go{flex:1}.vpic{width:72px;height:32px}}
+.cdsub{margin:-4px 0 10px;opacity:.75;font-size:14px}.vlist{margin:8px 0;text-align:left}.vrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:14px}.vrow small{display:block;opacity:.75;font-size:12.5px;margin-top:2px}.vbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.glist{display:grid;gap:10px;margin:8px 0;max-height:52vh;overflow:auto;text-align:left}.gveh{display:grid;grid-template-columns:96px 1fr auto;gap:10px;align-items:center;padding:10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line)}.vpic{width:96px;height:42px}.ginfo{display:grid;gap:3px;min-width:0;font-size:14px}.ginfo small{opacity:.78;font-size:12.5px}.gnote{color:#fbbf24;opacity:1!important}.gbar{display:grid;grid-template-columns:64px 1fr 36px;gap:6px;align-items:center;font-size:12px}.gbar i{height:6px;border-radius:3px;background:rgba(255,255,255,.15);overflow:hidden}.gbar em{display:block;height:100%}.gbar b{font-size:12px;text-align:right}.gspawn{padding:9px 14px;font-size:14px;white-space:nowrap;width:auto;margin:0}.gspawn:disabled{opacity:.6}.spin{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:gspin .7s linear infinite;vertical-align:-1px}@keyframes gspin{to{transform:rotate(360deg)}}.gnone{padding:14px;border-radius:12px;background:rgba(255,255,255,.06)}
+/* MY GARAGE (v2 design): header + slot counter, a grid of vehicle cards, a frozen section, footer */
+.g2hdr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:2px}
+.g2hdr h1{font-size:24px;letter-spacing:.04em;text-transform:uppercase}
+.g2count{font-size:13px;opacity:.75;font-variant-numeric:tabular-nums}
+.g2sub{margin:0 0 14px;font-size:13.5px;opacity:.7}
+.g2sec{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85;margin:16px 0 8px}
+.g2grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px;text-align:left}
+.g2card{position:relative;display:grid;grid-template-rows:auto auto auto 1fr auto;gap:5px;padding:12px;border-radius:14px;background:rgba(56,189,248,.06);border:1px solid rgba(148,197,233,.28);min-height:150px}
+.g2card:hover{border-color:rgba(125,211,252,.55)}
+.g2card .vpic{width:100%;height:44px}
+.g2card b{font-size:14.5px;line-height:1.2}
+.g2card small{opacity:.78;font-size:12px;line-height:1.35}
+.g2card .frozenflag{color:#7dd3fc;font-size:12px;font-weight:700}
+.g2card .gbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.g2empty{display:grid;place-items:center;min-height:150px;padding:12px;border-radius:14px;border:1px dashed rgba(148,197,233,.35);opacity:.55;font-size:13px;text-align:center}
+.g2foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:12.5px;opacity:.72;line-height:1.5}
+.grent .gspawn{white-space:normal}
+.g2{padding:4px 2px}
+.g2l{min-width:0}
+.g2ttl{margin:0;font-size:24px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;line-height:1.1}
+.g2meta{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;margin-top:5px}
+.g2meta-sub{font-size:11.5px;letter-spacing:.14em;opacity:.55;text-transform:uppercase}
+.g2stat{font-size:11.5px;font-weight:700;letter-spacing:.12em;padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
+.g2stat.ok{color:#7dd3fc;border-color:rgba(125,211,252,.45);background:rgba(125,211,252,.1)}
+.g2stat.off{color:#f87171;border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08)}
+.g2close{flex:none;align-self:center}
+.g2kv{display:flex;flex-direction:column;gap:3px;padding:9px 11px;border-radius:11px;background:rgba(56,189,248,.06);border:1px solid rgba(148,197,233,.22)}
+.g2kl{font-size:10.5px;letter-spacing:.14em;opacity:.55;text-transform:uppercase}
+.g2kv b{font-size:13.5px;letter-spacing:.04em}
+.g2card-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px;font-weight:700;letter-spacing:.1em;opacity:.85}
+.g2card-h span:last-child{font-weight:600;opacity:.65;letter-spacing:.06em}
+.g2krow{display:flex;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid var(--line);font-size:13px}
+.g2krow span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.g2knone{padding:16px 4px;text-align:center;opacity:.55;font-size:13px}
+.g2chdr{margin:12px 0 4px;font-size:11px;font-weight:700;letter-spacing:.14em;opacity:.5}
+.g2krows .go{flex:1;text-align:center;padding:7px 10px;font-size:12.5px}
+.g2back{margin-top:14px}
+.g2sect{margin:18px 0 8px;display:flex;align-items:baseline;gap:10px}
+.g2sect h2{margin:0;font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.g2chead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px}
+.g2slot{margin-left:auto;font-size:10.5px;font-weight:800;letter-spacing:.14em;color:#7dd3fc}
+.g2state{font-size:10px;font-weight:800;letter-spacing:.12em;padding:2px 7px;border-radius:999px}
+.g2state.st{color:#7dd3fc;background:rgba(125,211,252,.14)}
+.g2state.out{color:#38bdf8;background:rgba(56,189,248,.16)}
+.g2froz{margin-left:auto;font-size:10px;font-weight:800;letter-spacing:.12em;color:#7dd3fc;background:rgba(125,211,252,.12);padding:2px 7px;border-radius:999px}
+.g2infoBtn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;margin-left:4px;border:1px solid rgba(125,211,252,.35);border-radius:6px;background:rgba(125,211,252,.10);color:#7dd3fc;cursor:pointer;padding:0}
+.g2infoBtn:hover,.g2infoBtn:focus-visible{background:rgba(125,211,252,.24);outline:none}
+.g2infoBtn.on{background:rgba(125,211,252,.30)}
+.g2pop{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);width:212px;max-width:72vw;background:#0b1626;border:1px solid rgba(125,211,252,.42);border-radius:10px;padding:10px 12px;z-index:60;box-shadow:0 10px 30px rgba(4,10,24,.65);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s ease,visibility .12s}
+.g2card.g2popopen .g2pop,.g2card:has(.g2infoBtn:focus-visible) .g2pop{opacity:1;visibility:visible;pointer-events:auto}
+@media (hover:hover){.g2card:has(.g2infoBtn:hover) .g2pop{opacity:1;visibility:visible;pointer-events:auto}}
+.g2card.g2popopen,.g2card:has(.g2infoBtn:focus-visible){z-index:70}
+.g2pop p{margin:0;font-size:11.5px;line-height:1.45}
+.g2pop .gprow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:7px;font-size:11px}
+.g2pop .gprow span{color:#7dd3fc;letter-spacing:.1em;font-size:10px}
+.g2pop .gprow b{font-weight:700;text-align:right}
+.g2pop .gbar{margin-top:7px}
+.g2card.froz{opacity:.88;background:rgba(125,211,252,.06)}
+.g2card.noacc{border-style:dashed;display:grid;place-items:center;gap:6px;text-align:center;opacity:.8}
+.choose .card.g2panel{background:#0f1b30;color:#e8f1fb;border-color:rgba(125,211,252,.35);box-shadow:0 8px 28px rgba(8,20,40,.55)}
+.g2panel .gnote{color:#7dd3fc}
+.g2panel .vtag{background:#155e75;color:#e0f2fe;border:1px solid rgba(125,211,252,.35)}
+.g2panel .vtag.bike{background:#0e7490}
+.g2panel .g2foot{border-top-color:rgba(148,197,233,.25);color:#9fb6d4}
+.g2panel .g2close{background:transparent;color:#9fb6d4;border:1px solid rgba(148,197,233,.3);border-radius:12px;font-size:14px;padding:10px 18px}
+.g2panel .g2close:hover{color:#e8f1fb;border-color:rgba(125,211,252,.6)}
+.g2panel .go.gspawn{background:#0e7490;border-color:#0e7490;color:#f0f9ff}
+.g2panel .go.gspawn:hover{background:#0891b2;border-color:#0891b2}
+.g2panel .btn2s{background:#123a5e;color:#cfe8ff;border:1px solid rgba(125,211,252,.4)}
+.g2panel .btn2s:hover{background:#155e75;color:#f0f9ff}
+.gib{flex:none;width:34px;height:34px;display:inline-grid;place-items:center;border-radius:9px;border:1px solid rgba(125,211,252,.4);background:rgba(56,189,248,.08);color:#7dd3fc;cursor:pointer;padding:0}
+.gib svg{width:17px;height:17px}
+.gib:hover{background:rgba(56,189,248,.2);border-color:#7dd3fc;color:#e0f2fe}
+.gib:disabled{opacity:.45;cursor:default}
+.gib.on{background:#0e7490;color:#f0f9ff;border-color:#0e7490}
+.g2act{display:flex;gap:6px;align-items:center}
+@media (max-width:520px){.g2grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.g2hdr{flex-direction:column;align-items:flex-start;gap:10px}.g2close{align-self:flex-end}.g2ttl{font-size:20px}.g2chead{gap:4px 6px}}
+@media (max-width:520px){.gveh{grid-template-columns:72px 1fr}.gveh .vbtns{grid-column:1/-1;justify-content:stretch}.gveh .vbtns .go{flex:1}.vpic{width:72px;height:32px}}
 #parkBtn{left:auto!important;top:auto!important;right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(104px + env(safe-area-inset-bottom,0px));transform:none}.touch #parkBtn{bottom:calc(286px + env(safe-area-inset-bottom,0px))}
 .vtag{background:#b8860b;color:#fff;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700}.admsp{display:flex;align-items:center;gap:6px;font-size:13px}.cdhealth{display:flex;align-items:baseline;gap:8px;margin:6px 0 8px}.cdhealth b{font-size:34px;font-variant-numeric:tabular-nums}.cdhealth span{opacity:.75}
 .cdwarn{margin:4px 0 12px;padding-left:20px;color:#b42318;font-weight:700;font-size:14px;text-align:left}.cdok{color:#15803d;font-weight:700;margin:4px 0 10px}
@@ -453,6 +531,7 @@ body.choosing #nav,body.choosing #picks.sheet,body.choosing #hudSheet,body.choos
 <div id="choose" class="choose" hidden></div>
     <button id="act" class="act" hidden>Talk to Violet</button>
     <div id="talk" class="talk" hidden></div>
+    <script src="assets/vehroster.js"></script>
     <script>
 "use strict";
 /* ============================== small maths ============================== */
@@ -3538,11 +3617,11 @@ function carBase(){if(CARBASE)return;CARBASE=[];carBuild(n=>{const pi=CARBASE.le
   chunks.forEach((c,ci)=>CARBASE.push(Object.assign(cp(c),{pi,list:"bufs",ci})));chunksT.forEach((c,ci)=>CARBASE.push(Object.assign(cp(c),{pi,list:"clear",ci})));if(!chunks.length&&!chunksT.length)CARBASE.push({pi,list:"none",p:new Float32Array(0),i:[]})})}
 /* the dented car is worked out one piece per frame (so a crash never stalls the game), and shown once it is complete;
    only the pieces that changed are sent to the graphics chip again, the rest are the undamaged car's own */
-let CARJOB=null;
-function carMesh(C){const D=C&&C.dmg;if(!CARSCENE0)CARSCENE0=CARSCENE;if(isBike(C)){CARJOB=null;if(CARSCENE!==BIKESCENE)CARSCENE=BIKESCENE;return}if(!D||!D.ver){CARJOB=null;if(CARSCENE!==CARSCENE0){freeScene(CARSCENE);CARSCENE=CARSCENE0}return}if(CARSCENE.ver===D.ver&&CARSCENE.car===C)return;
+let CARJOB=null;const DMGS=new Map()
+function carMesh(C){const D=C&&C.dmg;if(!CARSCENE0)CARSCENE0=CARSCENE;if(isBike(C)){CARJOB=null;const bk=DMGS.get(C);if(bk){freeScene(bk.S);DMGS.delete(C)}if(CARSCENE!==BIKESCENE)CARSCENE=BIKESCENE;return 1}if(!D||!D.ver){const bk=DMGS.get(C);if(bk){freeScene(bk.S);DMGS.delete(C)}CARJOB=null;if(CARSCENE!==CARSCENE0){freeScene(CARSCENE);CARSCENE=CARSCENE0}return 1}const bk=DMGS.get(C);if(bk&&bk.ver===D.ver){if(CARSCENE!==bk.S)CARSCENE=bk.S;return 1}
   if(!CARBASE){carBase();return}
-  if(!CARJOB||CARJOB.ver!==D.ver||CARJOB.car!==C){if(CARJOB)freeScene({bufs:CARJOB.own});CARJOB={ver:D.ver,car:C,ci:0,parts:CARSCENE0.parts.map(()=>({bufs:[],clear:[]})),own:[]}}
-  const J=CARJOB,c=CARBASE[J.ci],L=carPhys(C).len,Wd=carPhys(C).wid,dents=D.dents;let changed=false;
+  CARJOB={ver:D.ver,car:C,ci:0,parts:CARSCENE0.parts.map(()=>({bufs:[],clear:[]})),own:[]};let DVER=D.ver;
+  for(;;){const J=CARJOB,c=CARBASE[J.ci],L=carPhys(C).len,Wd=carPhys(C).wid,dents=D.dents;let changed=false;
   if(c.list!=="none"){
   const p=c.p.slice(),col=c.c.slice(),moved=new Uint8Array(p.length/3);
     for(let v=0;v<p.length/3;v++){let x=p[v*3],y=p[v*3+1],z=p[v*3+2],hit=0;
@@ -3572,8 +3651,8 @@ function carMesh(C){const D=C&&C.dmg;if(!CARSCENE0)CARSCENE0=CARSCENE;if(isBike(
       if(c.list==="clear"){const solid=[];for(let t=0;t<c.i.length;t+=3)(Math.abs(col[c.i[t]*4+3]-K.glass)<1e-4?keep:solid).push(c.i[t],c.i[t+1],c.i[t+2]);       // cracked glass turns white: it is drawn solid
         if(solid.length){chunks.push({p,n:nn,c:col,i:solid});const U=upload();out.bufs.push(U.bufs[0]);J.own.push(U.bufs[0]);reset()}}else keep.push(...c.i);
       if(keep.length){chunks.push({p,n:nn,c:col,i:keep});const U=upload();out[c.list].push(U.bufs[0]);J.own.push(U.bufs[0])}reset()}}
-  if(++J.ci<CARBASE.length)return;
-  const S={parts:CARSCENE0.parts.map((P,i)=>Object.assign({},P,{bufs:J.parts[i].bufs,clear:J.parts[i].clear,own:[]})),ver:D.ver,car:C,own:J.own};S.parts[0].own=J.own;if(CARSCENE!==CARSCENE0)freeScene(CARSCENE);CARSCENE=S;CARJOB=null}
+  if(++J.ci<CARBASE.length)continue;
+  const S={parts:CARSCENE0.parts.map((P,i)=>Object.assign({},P,{bufs:J.parts[i].bufs,clear:J.parts[i].clear,own:[]})),ver:DVER,car:C,own:J.own};S.parts[0].own=J.own;DMGS.set(C,{ver:DVER,S});if(CARSCENE!==CARSCENE0&&CARSCENE!==S)freeScene(CARSCENE);CARSCENE=S;CARJOB=null;break}return 1}
 /* ---- the moving parts. Each door opens to its own angle on its hinge (or slides, on the bus); the wheels roll with
    the car's speed and the front ones steer; the steering wheel turns with them. Door sounds from assets/sounds/. ---- */
 const CARANIM=new WeakMap();
@@ -3772,7 +3851,9 @@ function crashSave(now){if(now){clearTimeout(CRASHSAVE);CRASHSAVE=null;crashWrit
 function crashWrite(){try{const out={};for(const[st,T]of Object.entries(TOWNS)){const dyn={};
     for(const o of T.map.dyn||[])if(o.at)dyn[o.i]=dynSer(o);
     const trees=(T.treeInst||[]).filter(t=>t.fall).map(t=>[+t[1].toFixed(2),+t[2].toFixed(2),t.fall.dx,t.fall.dz,t.fall.kind,t.fall.at]);
-    out[st]={dyn,marks:(T.marks||[]).map(m=>({x:m.x,z:m.z,y:m.y,nx:m.nx,nz:m.nz,kind:m.kind,at:m.at})),trees,car:T.car&&T.car.dmg?Object.assign({},T.car.dmg,{pos:[T.car.x,T.car.z,T.car.yaw],vid:T.car.vid||0}):null}}
+    T.savedCars=T.savedCars||{};
+    for(const C of T.cars||[])if(C.vid&&C.dmg){const d=Object.assign({},C.dmg);delete d.pos;delete d.vid;T.savedCars[C.vid]=d}
+    out[st]={dyn,marks:(T.marks||[]).map(m=>({x:m.x,z:m.z,y:m.y,nx:m.nx,nz:m.nz,kind:m.kind,at:m.at})),trees,car:T.car&&T.car.dmg?Object.assign({},T.car.dmg,{pos:[T.car.x,T.car.z,T.car.yaw],vid:T.car.vid||0}):null,cars:Object.keys(T.savedCars).length?T.savedCars:null}}
     localStorage.setItem(CRASH.KEY,JSON.stringify(out));netStreet(out)}catch(e){}}
 // one street object's damage, as saved and as sent to other players
 function dynSer(o){return{s:o.state,b:o.bend||0,dx:o.dx||0,dz:o.dz||0,x:o.x,z:o.z,yaw:o.yaw,tip:o.tip||0,tdx:o.tdx||0,tdz:o.tdz||0,p:o.push||0,sc:o.scuff||0,lk:o.leak||0,g:o.glassGone||0,w:o.water?{on:o.water.on,t0:o.water.t0,off:o.water.off||0,r0:o.water.r0||0}:null,at:o.at,
@@ -3787,6 +3868,7 @@ function crashLoad(st,T){let all;try{all=JSON.parse(localStorage.getItem(CRASH.K
   for(const[i,v]of Object.entries(s.dyn||{})){const o=(T.map.dyn||[]).find(q=>q.i===+i);if(!o)continue;dynProps(o);dynSet(o,v)}
   T.marks=(s.marks||[]).slice();
   for(const[x,z,dx,dz,kind,at]of s.trees||[]){const t=(T.treeInst||[]).find(q=>Math.abs(q[1]-x)<.05&&Math.abs(q[2]-z)<.05);if(!t)continue;const b=T.blocks.find(w=>BTAG.get(w)&&BTAG.get(w).t===t);treeFall(T,t,b||[0,0,0,0],[dx,dz],kind,at)}
+  if(s.cars)T.savedCars=Object.assign({},s.cars);
   if(s.car){T.savedCar=s.car;fireCheckD(s.car)}}
 /* ================================ cars: doors, seats, condition, the workshop ================================
    Each car model's doors, seats and driver's side, in the car's own metres: x across (+ is the car's left), y up,
@@ -3817,7 +3899,7 @@ const blkAt=(T,C,x,z)=>(T&&T.blocks.some(w=>x>w[0]-.4&&x<w[2]+.4&&z>w[1]-.4&&z<w
    seated, and further taps are ignored until then. Getting out (stopped only): onto a clear spot beside the
    driver's door, or the passenger's if that side is blocked. ---- */
 let CARSEQ=null,CAMBL=null,LASTCAM=null;
-function carEnter(){if(CARSEQ||driving||busy||choosing||scene!=="town")return;const T=townOf(me.town),C=T.car;if(!C)return;const D=carD(C);
+function carEnter(){if(CARSEQ||driving||busy||choosing||scene!=="town")return;const T=townOf(me.town),cands=(T.cars||[]).filter(q=>q.vid&&garCanDrive(q)&&!(q.dmg&&q.dmg.job));let C=null;if(!cands.length)C=T.car;else{const near=cands.filter(q=>(q.x-cam.x)**2+(q.z-cam.z)**2<=12.25);C=(near.length?near:cands).sort((a,b)=>((a.x-cam.x)**2+(a.z-cam.z)**2)-((b.x-cam.x)**2+(b.z-cam.z)**2))[0]}if(!C)return;T.car=C;const D=carD(C);
   if(!garCanDrive(C)){toast("You do not have the keys to this vehicle");return}
   if(D.job){toast("Your car is in the workshop being repaired: ready in "+mmss(D.job.until-Date.now())+".");return}
   const door=carDoors(C).driver,s=Math.sign(door.stand[0]),[lx,lz]=carLoc(C,cam.x,cam.z),pts=[];
@@ -4110,22 +4192,26 @@ const garPark=id=>{for(const T of Object.values(TOWNS))for(const P of T.parks||[
 const garHold=C=>TOW&&TOW.C===C?"tow":C.dmg&&C.dmg.job?"repair":C.dmg&&C.dmg.refuel?"refuel":C.dmg&&C.dmg.fire>0?"fire":null;
 // how far the driver is from the car: in another state, as far as can be; inside a building, from where they went in
 function garDist(st,C){if(st!==me.town)return 1e6;if(scene==="town")return Math.hypot(cam.x-C.x,cam.z-C.z);return GAR.out&&GAR.out[2]===st?Math.hypot(GAR.out[0]-C.x,GAR.out[1]-C.z):1e6}
-async function garSync(){if(!garOn())return;try{const d=await garCall("veh_mine");garTake(d);GAR.list=d.vehicles||[];GAR.parks=d.parks||[];if(d.cfg)GAR.cfg=d.cfg;GAR.syncT=NOW;GAR.err="";garResume()}catch(e){GAR.syncT=NOW;if(!e.offline)GAR.err=garWhy(e)}}
+async function garSync(){if(!garOn())return;try{const d=await garCall("veh_mine");garTake(d);GAR.list=d.vehicles||[];GAR.parks=d.parks||[];if(d.cfg)GAR.cfg=d.cfg;if(d.slots!=null)GAR.slots=+d.slots;if(d.active_count!=null)GAR.activeCount=+d.active_count;GAR.syncT=NOW;GAR.err="";garResume();if(GAR.panel&&GAR.busyId===0)garDraw()}catch(e){GAR.syncT=NOW;if(!e.offline)GAR.err=garWhy(e)}}
 // a server error, said plainly: most often the vehicle part of the database has not been set up yet
 const garWhy=e=>(e.status===404||/could not find the function|schema cache|function [\w.]+\(.*\) does not exist/i.test(e.message))?"Car parks are not switched on in the database yet. The owner needs to run supabase_vehicles.sql in the Supabase SQL editor once.":e.message;
 // a car of mine that the server says is out with me: put it back in the world (after a reload, or on another phone)
-function garResume(){const v=GAR.list.find(q=>q.out_by_me&&q.token),M=garMine();
-  if(M&&(!v||v.id!==M.C.vid)){garGone(M.T,M.C,"Your car was taken back to the car park.");return}
-  if(!v||M||v.state!==me.town)return;const T=townOf(v.state);let x,z,yaw;
-  if(v.pos&&isFinite(v.pos.x)){x=v.pos.x;z=v.pos.z;yaw=v.pos.yaw||0}else{const P=(T.parks||[]).find(p=>p.id===v.park),B=P&&P.bays[v.in_bay||0];if(!B)return;x=B.x;z=B.z;yaw=B.yaw}
-  let dmg=v.damage&&Object.keys(v.damage).length?v.damage:null;const s=T.savedCar;if(s&&s.vid===v.id){dmg=Object.assign({},s);delete dmg.pos;delete dmg.vid}T.savedCar=null;
-  garPlace(T,v,x,z,yaw,dmg)}
-function garPlace(T,v,x,z,yaw,dmg){T.car={x,z,yaw,v:0,vid:v.id,token:v.token,plate:v.plate,special:!!v.special,model:CARS[v.model]?v.model:"sovereign",mine:!!v.mine,abandonedAt:v.abandoned_at?new Date(v.abandoned_at).getTime():0};
-  if(dmg){T.car.dmg=dmg;fireCheckD(dmg)}carD(T.car);T.car.dmg.ver=(T.car.dmg.ver||0)+1;crashSave(true);return T.car}
+function garResume(){const mine=(GAR.list||[]).filter(q=>q.out_by_me&&q.token);
+  for(const[st,T]of Object.entries(TOWNS))if(T.cars)for(const C of[...T.cars])if(C.token&&!mine.some(v=>v.id===C.vid)&&!(driving&&T.car===C))garGone(T,C,"Your car was taken back to the car park.");
+  for(const v of mine){if(v.state!==me.town)continue;const T=townOf(v.state);if((T.cars||[]).some(C=>C.vid===v.id))continue;let x,z,yaw;
+  if(v.pos&&isFinite(v.pos.x)){x=v.pos.x;z=v.pos.z;yaw=v.pos.yaw||0}else{const P=(T.parks||[]).find(p=>p.id===v.park),B=P&&P.bays[v.in_bay||0];if(!B)continue;x=B.x;z=B.z;yaw=B.yaw}
+  let dmg=v.damage&&Object.keys(v.damage).length?v.damage:null;const sv=T.savedCars&&T.savedCars[v.id];if(sv){dmg=Object.assign({},sv);delete dmg.pos;delete dmg.vid;if(T.savedCars)delete T.savedCars[v.id]}else{const s=T.savedCar;if(s&&s.vid===v.id){dmg=Object.assign({},s);delete dmg.pos;delete dmg.vid}}T.savedCar=null;
+  garPlace(T,v,x,z,yaw,dmg)}}
+function garPlace(T,v,x,z,yaw,dmg){T.cars=T.cars||[];const _o=T.cars.findIndex(q=>q.vid===v.id);if(_o>=0)T.cars.splice(_o,1);T.car={x,z,yaw,v:0,vid:v.id,token:v.token,plate:v.plate,special:!!v.special,model:CARS[v.model]?v.model:"sovereign",mine:!!v.mine,model:v.model||null,abandonedAt:v.abandoned_at?new Date(v.abandoned_at).getTime():0};
+  if(dmg){T.car.dmg=dmg;fireCheckD(dmg)}carD(T.car);T.car.dmg.ver=(T.car.dmg.ver||0)+1;crashSave(true);T.cars.push(T.car);netV({a:"spawn",vid:v.id,x:+x.toFixed(2),z:+z.toFixed(2),yaw:+(yaw||0).toFixed(2),md:v.model==="motorbike"?"motorbike":null});return T.car}
 // the car is no longer ours to have out: whoever is in it gets out, and it goes
 function garGone(T,C,msg){if(T.car!==C)return;if(CARSEQ&&CARSEQ.C===C){CARSEQ=null;if(CARUI.door)CARUI.door.hidden=true}       // half way into (or out of) it: that stops
   if(driving&&townOf(me.town)===T){const p=carPt(C,carDoors(C).driver.stand);driving=false;C.v=0;VEH.gear="P";vehicleLetGo();sndUpdate(false);dashUpdate();cam.x=p[0];cam.z=p[2];CARSEQ=null}
-  T.car=null;crashSave(true);if(msg)toast(msg)}
+  const _Tc=T.car;if(T.cars){const _k=T.cars.indexOf(_Tc);if(_k>=0)T.cars.splice(_k,1)}netV({a:"store",vid:C.vid});T.car=(T.cars&&T.cars.length)?T.cars[T.cars.length-1]:null;crashSave(true);if(msg)toast(msg)}
+// drop a parked copy that is no longer out on the server side (rolled off the roster, stored on another
+// device, re-spawned elsewhere): it must not be the one being driven, and removing the focused car re-focuses
+// onto the most recently placed one so labels/interactions keep working
+function garDrop(T,C){if(!T.cars)return;if(driving&&T.car===C)return;const _k=T.cars.indexOf(C);if(_k<0)return;T.cars.splice(_k,1);netV({a:"store",vid:C.vid});if(T.car===C)T.car=T.cars.length?T.cars[T.cars.length-1]:null;if(CARSEQ&&CARSEQ.C===C){CARSEQ=null;if(CARUI.door)CARUI.door.hidden=true}crashSave(true)}
 function garDmg(D){const o=JSON.parse(JSON.stringify(D));delete o.said;return o}
 // report on the car that is out: where it is, its damage, whether someone is in it and whether it stands in a bay
 async function garBeat(){const M=garMine();if(!M||!garOn()||GAR.beating)return;const{st,T,C}=M,w=parkWhere(T,C);GAR.beating=true;GAR.beatT=NOW;
@@ -4181,35 +4267,57 @@ const garRent=P=>{if(!garOn()||!me.town||me.town!==P.st)return"";const busy=GAR.
 // a side view of the car, in its colour (gold for the Chief Admin's); the rental bike gets its own drawing
 const garPic=v=>{if(v.model==="motorbike")return`<svg class="vpic" viewBox="0 0 120 52" aria-hidden="true"><circle cx="30" cy="38" r="10" fill="#15181d"/><circle cx="30" cy="38" r="4" fill="#9aa3ad"/><circle cx="90" cy="38" r="10" fill="#15181d"/><circle cx="90" cy="38" r="4" fill="#9aa3ad"/><path d="M30 38 46 22h16l12 14h6" fill="none" stroke="#d61f26" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M42 22h22" stroke="#94a3b8" stroke-width="6" stroke-linecap="round"/></svg>`;
 const c=v.special?"#c9a227":"#d61f26";return`<svg class="vpic" viewBox="0 0 120 52" aria-hidden="true"><path d="M8 36c0-6 4-9 10-10l16-3 14-10c4-2 8-3 13-3h18c6 0 11 2 15 6l9 8 9 2c4 1 6 4 6 8v4H8z" fill="${c}"/><path d="M50 15h12v10H40zM66 15h12c3 0 6 2 8 4l5 6H66z" fill="#cfe3f0"/><circle cx="32" cy="40" r="8" fill="#15181d"/><circle cx="32" cy="40" r="3.4" fill="#9aa3ad"/><circle cx="92" cy="40" r="8" fill="#15181d"/><circle cx="92" cy="40" r="3.4" fill="#9aa3ad"/><rect x="104" y="29" width="7" height="3" rx="1.5" fill="#fff3b0"/></svg>`};
-function garDraw(note){const P=GAR.panel,el=document.getElementById("choose");if(!P)return;const T=townOf(P.st),M=garMine();
-  const shell=b=>`<div class="card rpcard gcard"><h1>${esc(P.name)}</h1><p class="cdsub">${garOn()?garFree(P).length+" of "+P.bays.length+" spaces free":"Garage"}</p>${b}<p class="amsg" id="gpMsg" role="status">${esc(note||"")}</p><button class="go ghost" data-stay="1">Close Garage</button></div>`;
-  if(!garOn()){el.innerHTML=shell(`<p>Sign in to your account to keep vehicles in a garage.</p>`);return}
-  if(GAR.err&&!GAR.list.length){el.innerHTML=shell(`<p class="amsg err">${esc(GAR.err)}</p>`);return}
+function garPopClose(){document.querySelectorAll(".g2card.g2popopen").forEach(c=>{c.classList.remove("g2popopen");const x=c.querySelector(".g2infoBtn");if(x)x.setAttribute("aria-expanded","false")})}
+document.addEventListener("click",e=>{if(!e.target.closest||!e.target.closest(".g2card"))garPopClose()});
+function garDraw(note){garPopClose();const P=GAR.panel,el=document.getElementById("choose");if(!P)return;const T=townOf(P.st),M=garMine();
+  const gshell=b=>`<div class="card rpcard gcard g2panel"><div class="g2">${b}</div></div>`,
+    ghead=bays=>`<div class="g2hdr"><div class="g2l"><h1 class="g2ttl">MY GARAGE</h1><div class="g2meta"><span class="g2meta-sub">VEHICLE STORAGE &middot; MANAGEMENT</span><span class="g2stat ${garOn()?"ok":"off"}">${garOn()?bays+" OF "+P.bays.length+" SPACES FREE AT THIS PARK":"OFFLINE"}</span></div></div><p class="amsg" id="gpMsg" role="status">${esc(note||"")}</p><button class="go ghost g2close" data-stay="1">CLOSE</button></div>`,
+    gfoot=()=>`<div class="g2foot"><span class="g2foot-l">AUTHENTIC &nbsp;&middot;&nbsp; DELTA CITY PRIVATE PARKING</span><span class="g2foot-r">SECURE PARKING</span></div>`;
+  if(!garOn()){el.innerHTML=gshell(ghead(0)+`<p>Sign in to your account to keep vehicles in a garage.</p>`+gfoot());return}
+  if(GAR.err&&!GAR.list.length){el.innerHTML=gshell(ghead(0)+`<p class="amsg err">${esc(GAR.err)}</p>`+gfoot());return}
   if(GAR.keysFor){const v=GAR.list.find(q=>q.id===GAR.keysFor);if(!v){GAR.keysFor=null;return garDraw()}
-    el.innerHTML=shell(`<p><b>Keys to ${esc(v.plate)}</b></p><p>People holding keys can spawn the car at a car park and drive it. You can take them back at any time; if they have the car out, it goes back to the car park.</p>
-      <div class="vlist">${(v.keys||[]).length?(v.keys||[]).map(k=>`<div class="vrow"><div><b>${esc(k.name||"Citizen")}</b><small>Has keys</small></div><button class="btn2s" data-vp="revoke" data-v="${esc(k.holder)}">Take back</button></div>`).join(""):`<p>Nobody else has keys.</p>`}</div>
-      <div class="cbrow"><input id="gpQ" placeholder="Name of the citizen"><button class="btn2s" data-vp="find">Find</button></div>
-      <div class="vlist">${GAR.found.map(f=>`<div class="vrow"><div><b>${esc(f.name)}</b></div><button class="btn2s" data-vp="give" data-v="${esc(f.owner)}">Give keys</button></div>`).join("")}</div>
-      <button class="go ghost" data-vp="back">Back to my vehicles</button>`);
+    el.innerHTML=gshell(ghead(garFree(P).length)+`<div class="g2card"><div class="g2card-h"><span>KEYS &middot; ${esc(v.plate)}</span><span>${(v.keys||[]).length} HOLDER${(v.keys||[]).length===1?"":"S"}</span></div>
+      ${(v.keys||[]).length?(v.keys||[]).map(k=>`<div class="g2krow"><div class="g2kl"><b>${esc(k.name||"Citizen")}</b><small>Has keys</small></div><button class="btn2s" data-vp="revoke" data-v="${esc(k.holder)}">TAKE BACK</button></div>`).join(""):`<p class="g2knone">Nobody else has keys.</p>`}
+      <div class="g2chdr"><span>GIVE KEYS</span><span>CITIZEN</span></div>
+      <div class="cbrow"><input id="gpQ" placeholder="Name of the citizen"><button class="btn2s" data-vp="find">FIND</button></div>
+      <div class="g2krows">${GAR.found.map(f=>`<div class="g2krow"><div class="g2kl"><b>${esc(f.name)}</b><small>Citizen</small></div><button class="btn2s" data-vp="give" data-v="${esc(f.owner)}">GIVE KEYS</button></div>`).join("")}</div>
+      <div class="g2back"><button class="btn2s" data-vp="back">BACK TO MY VEHICLES</button></div></div>`+gfoot());
     const q=document.getElementById("gpQ");q.addEventListener("keydown",e=>{if(e.key==="Enter")garAct("find")});return}
-  if(!GAR.list.length){el.innerHTML=shell(`<p class="gnone">You do not own a vehicle yet. New citizens do not get one; for now the Chief Admin gives them out.</p>${garRent(P)}`);return}
+  if(!GAR.list.length){el.innerHTML=gshell(ghead(garFree(P).length)+`<p class="g2empty">No vehicles in storage yet. New citizens do not get one; for now the Chief Admin gives them out.</p>${garRent(P)}`+gfoot());return}
   const bar=(lab,v,col)=>`<div class="gbar"><span>${lab}</span><i><em style="width:${Math.round(v*100)}%;background:${col(v)}"></em></i><b>${Math.round(v*100)}%</b></div>`,
     good=v=>v>.6?"#16a34a":v>.3?"#d97706":"#dc2626";
-  const cards=GAR.list.map(v=>{let st="",btn="",note2="";const here=M&&M.C.vid===v.id&&M.T===T?parkWhere(T,M.C):null,inHere=here&&here.P===P;
+  const slots=GAR.slots||5,actV=GAR.list.filter(v=>v.mine&&!v.frozen),froV=GAR.list.filter(v=>v.mine&&v.frozen),othV=GAR.list.filter(v=>!v.mine),
+    actN=GAR.activeCount!=null?GAR.activeCount:actV.length,full=actN>=slots;
+  const cardA=(v,i)=>{let st="",btn="",note2="";const here=M&&M.C.vid===v.id&&M.T===T?parkWhere(T,M.C):null,inHere=here&&here.P===P;
     if(v.status==="stored")st=v.park===P.id?(v.bay!=null?"Stored here, space "+(v.bay+1):"Waiting here for a free space"):"Stored at "+((garPark(v.park)||{}).name||"another car park");
     else if(v.out_by_me)st=inHere?(here.bay!=null?"Here, in space "+(here.bay+1):"Here in the car park"):"Out with you"+(v.state?" in "+esc(v.state):"");
     else st="Out with someone who has its keys";
     if(inHere){const free=garFree(P,v),bay=here.bay!=null&&free.some(B=>B.i===here.bay)?here.bay:(free[0]||{}).i;
-      btn=bay!=null?`<button class="btn2s" data-vp="store" data-v="${v.id}" data-b="${bay}">Store in space ${bay+1}</button>`:"<small>No free space to store it</small>"}
-    else{const busy=GAR.busyId===v.id;btn=`<button class="go gspawn" data-vp="spawn" data-v="${v.id}" ${GAR.busyId?"disabled":""}>${busy?'<span class="spin"></span> Spawning...':"Spawn Vehicle"}</button>`;
+      btn=bay!=null?`<button class="gib" data-vp="store" data-v="${v.id}" data-b="${bay}" title="Store in space ${bay+1}" aria-label="Store in space ${bay+1}">${hico("bag",17)}</button>`:"<small>No free space to store it</small>"}
+    else{const busy=GAR.busyId===v.id;btn=`<button class="gib on" data-vp="spawn" data-v="${v.id}" ${GAR.busyId?"disabled":""} title="${busy?"Spawning...":"Spawn vehicle"}" aria-label="${busy?"Spawning":"Spawn vehicle"}">${busy?'<span class="spin"></span>':hico("car",17)}</button>`;
       if(v.status==="active")note2=`<small class="gnote">Spawning it here moves it from where it is now.</small>`;else if(v.park!==P.id)note2=`<small class="gnote">Spawning it here brings it over from that car park.</small>`}
-    if(v.mine)btn+=`<button class="btn2s" data-vp="keys" data-v="${v.id}">Keys</button>`;
+    if(v.mine)btn+=`<button class="gib" data-vp="keys" data-v="${v.id}" title="Keys" aria-label="Keys">${hico("key",17)}</button>`+`<button class="gib" data-vp="freeze" data-v="${v.id}" ${GAR.busyId?"disabled":""} title="Freeze" aria-label="Freeze">${hico("snow",17)}</button>`;
     const D=Object.assign(carDmg0(),v.damage||{}),hp=carHealth(D)/100,fuel=clamp01(D.fuel);
-    return`<div class="gveh">${garPic(v)}<div class="ginfo"><b>${esc((CARS[v.model]||CARS.sovereign).name)}</b>${v.special?` <span class="vtag">Chief Admin</span>`:""}<small>${esc(v.plate)} &middot; ${v.mine?"Owned by you":"Keys from "+esc(v.owner_name||"its owner")}</small>
-      ${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<small>${st}${rentChip(v)}</small>${note2}</div><div class="vbtns">${btn}</div></div>`}).join("");
-  el.innerHTML=shell(`<div class="glist">${cards}</div>${garRent(P)}`)}
+    return`<div class="g2card" data-vid="${v.id}">${garPic(v)}<div class="g2info"><div class="g2chead"><b>${esc((CARS[v.model]||CARS.sovereign).name)}</b>${v.special?` <span class="vtag">Chief Admin</span>`:""}${isBike(v)?'<span class="vtag bike">BIKE</span>':""}<span class="g2slot">SLOT ${i+1}</span><span class="g2state ${v.status==="stored"?"st":"out"}">${v.status==="stored"?"STORED":"ACTIVE"}</span><button class="g2infoBtn" data-vp="info" data-v="${v.id}" title="Vehicle details" aria-label="Vehicle details" aria-expanded="false">${hico("info",15)}</button></div><div class="g2pop" role="dialog" aria-label="Vehicle details"><p>${esc((CARS[v.model]||CARS.sovereign).name)}${v.special?" &middot; Chief Admin":""}</p>${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<div class="gprow"><span>PLATE</span><b>${esc(v.plate)}</b></div><div class="gprow"><span>LOCATION</span><b>${st||"&mdash;"}</b></div>${rentChip(v)?`<div class="gprow"><span>RENTAL</span><b>${rentChip(v)}</b></div>`:""}${v.mine?"":`<div class="gprow"><span>KEYS FROM</span><b>${esc(v.owner_name||"its owner")}</b></div>`}${note2?`<div class="gprow"><span>NOTE</span><b>${note2}</b></div>`:""}</div>
+    </div><div class="vbtns g2act">${btn}</div></div>`};
+  const cardF=v=>{const D=Object.assign(carDmg0(),v.damage||{}),hp=carHealth(D)/100,fuel=clamp01(D.fuel);
+    return`<div class="g2card froz" data-vid="${v.id}">${garPic(v)}<div class="g2info"><div class="g2chead"><b>${esc((CARS[v.model]||CARS.sovereign).name)}</b><span class="g2froz">FROZEN</span><button class="g2infoBtn" data-vp="info" data-v="${v.id}" title="Vehicle details" aria-label="Vehicle details" aria-expanded="false">${hico("info",15)}</button></div><div class="g2pop" role="dialog" aria-label="Vehicle details"><p>${esc((CARS[v.model]||CARS.sovereign).name)}</p>${bar("Condition",hp,good)}${bar("Fuel",fuel,good)}<div class="gprow"><span>PLATE</span><b>${esc(v.plate)}</b></div><div class="gprow"><span>STATUS</span><b>Frozen &middot; uses no slot</b></div></div>
+    </div><div class="vbtns g2act">${`<button class="gib" data-vp="unfreeze" data-v="${v.id}" ${GAR.busyId||full?"disabled":""} title="${full?"Unfreeze (needs a free slot)":"Unfreeze"}" aria-label="Unfreeze">${hico("thaw",17)}</button>`}</div></div>`};
+  const actBody=actV.length?`<div class="g2grid">${actV.map((v,i)=>cardA(v,i)).join("")}${full?`<div class="g2card noacc"><span class="g2slot">SLOT ${slots+1}</span><small class="gnote">Storage full — freeze a vehicle to access another slot.</small></div>`:""}</div>`:`<div class="g2empty">${othV.length?"No vehicles in active storage.": "Nothing in active storage yet."}</div>`;
+  const body=actBody+
+    (froV.length?`<div class="g2sect"><h2>FROZEN VEHICLES</h2><span class="g2sub">${full?"NO FREE SLOT":"SLOT AVAILABLE"}</span></div><div class="g2grid">${froV.map(cardF).join("")}</div>`:"")+
+    (othV.length?`<div class="g2sect"><h2>KEYS FROM OTHERS</h2><span class="g2sub">${othV.length} VEHICLE${othV.length>1?"S":""}</span></div><div class="g2grid">${othV.map((v,i)=>cardA(v,i)).join("")}</div>`:"");
+  el.innerHTML=gshell(ghead(garFree(P).length)+`<div class="g2grid" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr));margin-bottom:6px"><div class="g2kv"><span class="g2kl">PLAYER</span><b>${esc(me.n||"citizen")}</b></div><div class="g2kv"><span class="g2kl">ACTIVE STORAGE</span><b>${actN} / ${slots} SLOTS</b></div><div class="g2kv"><span class="g2kl">STORED</span><b>${GAR.list.filter(v=>v.mine&&v.status==="stored"&&!v.frozen).length}</b></div><div class="g2kv"><span class="g2kl">FROZEN</span><b>${froV.length}</b></div></div><div class="g2sect"><h2>ACTIVE STORAGE</h2><span class="g2sub">${esc(P.name)} &middot; ${garFree(P).length} OF ${P.bays.length} SPACES FREE</span></div>${body}${garRent(P)}`+gfoot())}
 async function garAct(what,arg,bay){const P=GAR.panel,msg=()=>document.getElementById("gpMsg"),say=(t,err)=>{const m=msg();if(m){m.textContent=t;m.classList.toggle("err",!!err)}};if(!P||!garOn())return;
   try{if(what==="keys"){GAR.keysFor=+arg;GAR.found=[];return garDraw()}
+    if(what==="freeze"){if(GAR.busyId)return;GAR.busyId=+arg;garDraw("Freezing the vehicle...");let r;
+      try{r=await garCall("veh_freeze",{p_vehicle:+arg})}finally{GAR.busyId=0}garTake(r);
+      if(r&&r.error){garDraw();return say(r.error,true)}
+      await garSync();return say("Frozen — it stays parked outside and no longer uses a storage slot.")}
+    if(what==="unfreeze"){if(GAR.busyId)return;GAR.busyId=+arg;garDraw("Unfreezing the vehicle...");let r;
+      try{r=await garCall("veh_unfreeze",{p_vehicle:+arg})}finally{GAR.busyId=0}garTake(r);
+      if(r&&r.error){garDraw();return say(r.error,true)}
+      await garSync();return say("Unfrozen — it is back in your storage.")}
     if(what==="back"){GAR.keysFor=null;return garDraw()}
     if(what==="find"){const r=await garCall("veh_find_citizen",{p_query:(document.getElementById("gpQ").value||"").trim()});GAR.found=r||[];return garDraw(GAR.found.length?"":"No citizen found by that name.")}
     if(what==="give"){const r=await garCall("veh_key_give",{p_vehicle:GAR.keysFor,p_holder:arg});GAR.found=[];await garSync();return garDraw((r&&r.name||"They")+" now has keys.")}
@@ -4231,7 +4339,13 @@ async function garAct(what,arg,bay){const P=GAR.panel,msg=()=>document.getElemen
       GAR.busyId=+arg;garDraw("Spawning your vehicle...");let r;
       try{r=await garCall("veh_spawn",{p_vehicle:+arg,p_park:P.id})}finally{GAR.busyId=0}garTake(r);
       if(r.error){garDraw();return say(r.error,true)}
-      const v=r.vehicle,T=townOf(P.st),B=P.bays[v.in_bay||0],M=garMine();if(M&&!(r.already&&M.C.vid===v.id))garGone(M.T,M.C,"");       // the old copy (this car elsewhere, or my other car) goes
+      const v=r.vehicle,T=townOf(P.st),B=P.bays[v.in_bay||0],M=garMine();
+      // rolling three-car roster (VEHROSTER): only the copy the server actually put away leaves the world — never a
+      // vehicle the server still has out, never one that is being driven; a same-car move only drops its old copy
+      if(M){
+        const stowed=(r.stowed&&r.stowed.length)?r.stowed.map(s=>s.vid||s.id):r.moved_from?[M.C.vid]:null;   // an older server (no stowed field) put away my other out car first
+        if(stowed)for(const gid of stowed){const _M=garMine();if(!_M)break;const q=(_M.T.cars||[]).find(c=>c.vid===gid&&!(driving&&_M.T.car===c));if(q)garDrop(_M.T,q)}
+      }
       if(!(r.already&&garMine()))garPlace(T,v,B.x,B.z,B.yaw,v.damage&&Object.keys(v.damage).length?v.damage:null);
       GAR.beatT=NOW;await garSync();choosing=false;document.getElementById("choose").hidden=true;
       const from=r.moved_from,moved=from&&(from.status==="active"||from.park!==P.id)?" It was moved here from "+(from.status==="active"?"the road"+(from.state?" in "+from.state:""):(garPark(from.park)||{}).name||"another car park")+".":"";
@@ -5071,8 +5185,8 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   const w=cv.clientWidth,h=cv.clientHeight,dpr=Math.min(window.devicePixelRatio||1,quality);if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
   const fly=scene==="town",indoor=scene==="bank"||scene==="imm"||scene==="gov"||scene==="hosp"||scene==="trs",fovNow=fly?(w>h?.85:1.05):(w>h?1.05:1.25),PMs=PLAYERS[me.gender]||PLAYERS.Female;
   // the sun's picture first: the town near you, the car, and your own character all cast shadows
-  if(scene==="town"&&T.car&&CARSCENE)carPose(T.car,dt);       // the doors, wheels and steering wheel move on
-  if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.car&&CARSCENE){for(const P of CARSCENE.parts)lists.push([P.bufs,P.model])}dynShadows(T,lists,cam.x,cam.z);
+  if(scene==="town"&&T.cars){for(const C of T.cars)if(CARSCENE)carPose(C,dt)}       // the doors, wheels and steering wheel move on
+  if(scene==="town"&&SHADOW.ready&&SHADOW.on&&!SHADOW.dark){const S=T.scene,near=S.cellBufs.filter(c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+CELLS),lists=[[S.bufs],[near]];if(T.cars){for(const C of T.cars){if(CARSCENE&&carMesh(C)){for(const P of CARSCENE.parts)lists.push([P.bufs,P.model])}}}dynShadows(T,lists,cam.x,cam.z);
     shadowPass(lists,cam.x,cam.z,lvp=>{drawTrees(T.trees,lvp,null,c=>Math.hypot(c.cx-cam.x,c.cz-cam.z)<SHADOW.range+35,0,true);gl.useProgram(DEPTHP.p);if(PMs&&!driving&&!flying&&!choosing&&!TOW&&!FOLLOW){gl.colorMask(true,true,true,true);FEET=jump.y>0?null:feetFn();WALKER.draw(PMs,lvp,cam.x,TGY+jump.y,cam.z,cam.yaw,gait,t,null,"");FEET=null;gl.colorMask(false,false,false,false)}})}
   if(scene==="town"){[eye,to]=carCamBlend(eye,to);LASTCAM=[eye.slice(),to.slice()]}if(TOW&&scene==="town"){towStep(dt);[eye,to]=towCam(dt)}if(FOLLOW&&scene==="town"){const c=vanCam(dt);if(c)[eye,to]=c}else{CAMBL=null;LASTCAM=null}
   netTick(dtNow);gl.viewport(0,0,cv.width,cv.height);const VP=mul(persp(fovNow,w/h,fly?.25:.08,800),look(eye,to,[0,1,0]));if(scene==="town")carUI(T,VP,w,h);else if(CARUI.door)carUI(T,VP,w,h);if(T)pumpTags(T,VP,w,h);else pumpTags({},VP,w,h);
@@ -5082,10 +5196,9 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
   if(scene==="imm"&&me.cert&&me.role==="citizen"&&!me.entered)parts.push(GUIDE);
   for(const S of parts)drawScene(S,VP,eye,indoor);if(scene==="imm"&&CAST.violet)WALKER.draw(CAST.violet,VP,VIOLET.x,0,VIOLET.z,Math.PI,{p:0,run:0,amt:0,idle:talking?"f_talk":"f_idle"},t,null,"");
   if(scene==="town"&&T.trees)drawTrees(T.trees,VP,eye,flying?null:c=>TREEVIS(c)&&Math.hypot(c.cx-cam.x,c.cz-cam.z)<125,flying?1500:150);       // beyond about 125 m the haze has swallowed the trees
-  if(scene==="town"&&T.car&&CARSCENE)carMesh(T.car);
-  if(scene==="town"&&T.car&&CARSCENE){const own=driving&&VEH.cam===2;       /* from the driver's own eyes: the inside of the car, without the wheels, lamps or the driver */
-    carDraw(VP,eye,false,own);if(!own){const bm=carModel(T.car);for(const L of carLamps(driving)){L.model=bm;L.fogFar=flying?1500:150;drawScene(L,VP,eye,false)}}
-    if(driving&&!own)carDriver(T.car,VP,t)}
+  if(scene==="town"&&T.cars)for(const C of T.cars)if(carMesh(C)){const own=C===T.car&&driving&&VEH.cam===2;       /* from the driver's own eyes: the inside of the car, without the wheels, lamps or the driver */
+    carDraw(VP,eye,false,own);if(!own){const bm=carModel(C);for(const L of carLamps(C===T.car&&driving)){L.model=bm;L.fogFar=flying?1500:150;drawScene(L,VP,eye,false)}}
+    if(C===T.car&&driving&&!own)carDriver(C,VP,t)}
     if(scene==="town")dynDraw(T,VP,eye);
     if(scene==="town"){mechDraw(T,VP,eye,t);vansDraw(VP,eye,t,false);attDraw(T,VP,eye,t)}
     if(TOW&&TOW.truckM&&scene==="town"){TOWTRUCK.model=TOW.truckM;TOWTRUCK.fogFar=150;drawScene(TOWTRUCK,VP,eye,false);towPeople(VP,t)}
@@ -5093,7 +5206,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     if(show&&scene==="town"&&CARSEQ&&CARSEQ.sit>.5){const C=CARSEQ.C,h=carRig(C).seats.driver||[0,.6,0];WALKER.draw(PM,VP,cam.x,h[1]+carSit(C).y,cam.z,C.yaw,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"",isBike(C)?VEH.lean:0)}       // half in: seated
     else if(show){const town=scene==="town";FEET=jump.y>0?null:feetFn();WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:MEY)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"");FEET=null}}
   netDraw(VP,eye,t,T);
-  for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.car&&CARSCENE)carDraw(VP,eye,true,driving&&VEH.cam===2);if(TOW&&TOW.truckM&&scene==="town")drawSceneClear(TOWTRUCK,VP,eye,t);if(scene==="town")vansDraw(VP,eye,t,true);if(scene==="town")fxDraw(VP,eye,to);
+  for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.cars)for(const C of T.cars)if(CARSCENE&&carMesh(C))carDraw(VP,eye,true,C===T.car&&driving&&VEH.cam===2);if(TOW&&TOW.truckM&&scene==="town")drawSceneClear(TOWTRUCK,VP,eye,t);if(scene==="town")vansDraw(VP,eye,t,true);if(scene==="town")fxDraw(VP,eye,to);
   const fpOn=scene!=="town"&&!!fpPlan();if(frames%3===0){if(scene==="town")drawMini(T);else if(fpOn)drawPlanMini()}document.getElementById("mini").hidden=!(scene==="town"||fpOn)||choosing;
   frames++;acc+=real;if(acc>=.5){const fps=frames/acc;document.getElementById("fps").textContent=Math.round(fps);frames=0;acc=0;let tris2=0;const tris=scene==="town"?0:parts.reduce((s,S)=>s+S.tris,0)+(scene==="imm"?15450:0);
     if(scene==="town")tris2=parts.reduce((s,S)=>s+S.bufs.concat(S.clear).reduce((q,x)=>q+x.n/3,0),0);const info=document.getElementById("info");info.textContent=({town:me.town,border:"The border gate",bank:"Inside "+STATES[me.town].bank,imm:"Inside Immigration",gov:GV?GV.title:"",hosp:HV?HV.title:"",trs:"Inside the National Treasury"})[scene]+", "+Math.round((scene==="town"?tris2:tris)/1000)+"k triangles, "+cv.width+"x"+cv.height;info.appendChild(document.createElement("br"));info.appendChild(document.createTextNode(GPU));
@@ -5347,7 +5460,9 @@ const HUDI={chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 1
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',id:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.2"/><path d="M14 10h4M14 14h4M6 16c.7-1.4 1.8-2 3-2s2.3.6 3 2"/>',
   fuel:'<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8l3 2v8a1.5 1.5 0 0 0 3 0v-7l-3-3"/>',
   wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8 6.2 21l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.6-.6-.6-2.6z"/>',heart:'<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>',
-  key:'<circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 8.8-8.8M15 6l3 3M18 3l3 3"/>',bag:'<path d="M8 8V6a4 4 0 0 1 8 0v2"/><rect x="4" y="8" width="16" height="13" rx="3"/><path d="M4 13h4M16 13h4"/>'};
+  key:'<circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 8.8-8.8M15 6l3 3M18 3l3 3"/>',bag:'<path d="M8 8V6a4 4 0 0 1 8 0v2"/><rect x="4" y="8" width="16" height="13" rx="3"/><path d="M4 13h4M16 13h4"/>',
+  snow:'<path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/>',
+  thaw:'<path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/><path d="M9 21.5h6"/>'};
 const hico=(n,s)=>`<svg viewBox="0 0 24 24" width="${s||18}" height="${s||18}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${HUDI[n]}</svg>`;
 Object.assign(HUDI,{phone:'<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M11 18.5h2"/>',bag:'<path d="M6 8h12l1 12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M9 13h6"/>',
   walk:'<circle cx="13" cy="4" r="1.8"/><path d="M11 21l2-6-2-3 1-5 3 3 3 1M12 7l-3 2-1 4M13 15l3 6"/>',run:'<circle cx="15" cy="4" r="1.8"/><path d="M5 12l3-3 5 1 3 3 3 0M10 10l-2 5-4 1M13 10l-1 5 4 2-1 4"/>',
@@ -5560,7 +5675,7 @@ document.getElementById("choose").addEventListener("change",e=>{if(e.target.data
 document.getElementById("choose").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const shut=()=>{choosing=false;document.getElementById("choose").hidden=true};
   if(b.dataset.g){pick.gender=b.dataset.g;pick.outfit="";chooser()}else if(b.dataset.o){pick.outfit=b.dataset.o;chooser()}
   else if(b.dataset.go){chooserOn=false;me.gender=pick.gender;me.outfit=pick.outfit;const c=ROSTER[me.gender].find(q=>q.key===me.outfit);if(c)PLAYERS[me.gender]=c.m;shut();guide()}
-  else if(b.dataset.floor!==undefined){const n=+b.dataset.floor;shut();if(n!==HFLOOR_N)toHosp(n,true)}else if(b.dataset.adm)adminAct(b.dataset.adm);else if(b.dataset.gt){govTab=b.dataset.gt;govDraw()}else if(b.dataset.ga)govAct(b.dataset.ga,b.dataset.owner);else if(b.dataset.gd)govAct("dismiss",b.dataset.gd);else if(b.dataset.gw)govClock(b.dataset.gw==="in");else if(b.dataset.cb)cbAction(b.dataset.cb);else if(b.dataset.vp)garAct(b.dataset.vp,b.dataset.v,b.dataset.b);else if(b.dataset.rp)repairAct(b.dataset.rp);else if(b.dataset.auth)authClick(b.dataset.auth);else if(b.dataset.stay)shut();else if(b.dataset.fly){const to=b.dataset.fly;shut();toTown(to,"air","Flying to "+to+"...",16)}});
+  else if(b.dataset.floor!==undefined){const n=+b.dataset.floor;shut();if(n!==HFLOOR_N)toHosp(n,true)}else if(b.dataset.adm)adminAct(b.dataset.adm);else if(b.dataset.gt){govTab=b.dataset.gt;govDraw()}else if(b.dataset.ga)govAct(b.dataset.ga,b.dataset.owner);else if(b.dataset.gd)govAct("dismiss",b.dataset.gd);else if(b.dataset.gw)govClock(b.dataset.gw==="in");else if(b.dataset.cb)cbAction(b.dataset.cb);else if(b.dataset.vp==="info"){const card=b.closest(".g2card"),open=card&&card.classList.contains("g2popopen");document.querySelectorAll(".g2card.g2popopen").forEach(c=>{c.classList.remove("g2popopen");const x=c.querySelector(".g2infoBtn");if(x)x.setAttribute("aria-expanded","false")});if(card&&!open){card.classList.add("g2popopen");b.setAttribute("aria-expanded","true")}return}else if(b.dataset.vp)garAct(b.dataset.vp,b.dataset.v,b.dataset.b);else if(b.dataset.rp)repairAct(b.dataset.rp);else if(b.dataset.auth)authClick(b.dataset.auth);else if(b.dataset.stay)shut();else if(b.dataset.fly){const to=b.dataset.fly;shut();toTown(to,"air","Flying to "+to+"...",16)}});
 const guide0=guide;guide=function(){guide0();if(choosing)document.getElementById("guide").hidden=true};
 /* ================================ accounts and saving ================================
    Players sign in with email and password. Their citizen (name, certificate, cash, home state, where they
@@ -5642,6 +5757,10 @@ const NETDOORS=["FL","FR","RL","RR"];
 const NET_EXTRAS_CARS=true,NET_EXTRAS_STREET=false,NET_EXTRAS_INDOORS=true,NET_EXTRAS_CHAT=false;
 function netOn(){return NET.state==="on"&&NET.ws&&NET.ws.readyState===1}
 function netSend(o){try{if(netOn())NET.ws.send(JSON.stringify(o))}catch(e){}}
+// my parked vehicles for the other players in my room: everything in the world except the focused
+// car, which rides along in my "p" message as "car". The server relays these to the room as "v".
+function netVsList(){const T=scene==="town"?townOf(me.town):null,cs=(T&&T.cars)||[];return cs.filter(C=>C!==T.car).map(C=>({vid:C.vid,x:+C.x.toFixed(2),z:+C.z.toFixed(2),yaw:+C.yaw.toFixed(2),md:C.model==="motorbike"?"motorbike":null}))}
+function netV(o){netSend(Object.assign({t:"v"},o))}
 function netRoom(){return scene==="town"?"town:"+me.town:scene==="gov"&&GV?"gov:"+me.town+":"+GV.kind:scene==="hosp"?"hosp:"+me.town+":"+HFLOOR_N:scene==="bank"?"bank:"+me.town:scene==="trs"?"trs:"+me.town:scene==="imm"?"imm":"border"}
 async function netStart(){try{if(!AUTH.user||!AUTH.refresh||NET.ws)return;clearTimeout(NET.timer);
     if(NET.until&&Date.now()<NET.until){netWait(NET.until-Date.now());return}
@@ -5667,20 +5786,26 @@ function netGot(m){
     NET.room=m.room;netClear();for(const p of m.peers||[])netPeer(p);if(NET_EXTRAS_STREET)netStreetApply(m.street||{},true);NET.lastSig="";return}
   if(m.t==="join"||m.t==="p"){netPeer(m);return}
   if(m.t==="leave"){const p=NET.peers.get(m.id);if(p){if(p.tag)p.tag.remove();NET.peers.delete(m.id)}return}
+  if(m.t==="v"){const p=NET.peers.get(m.id);
+    if(p){const V=(q)=>({vid:q.vid,x:+q.x||0,z:+q.z||0,yaw:+q.yaw||0,md:q.md==="motorbike"?"motorbike":null});
+      if(m.a==="sync"&&Array.isArray(m.vs))p.vs=m.vs.map(V);
+      else if(m.a==="spawn"&&m.vid)p.vs=(p.vs||[]).filter(q=>q.vid!==m.vid).concat(V(m));
+      else if(m.a==="store"&&m.vid)p.vs=(p.vs||[]).filter(q=>q.vid!==m.vid)}return}
   if(m.t==="st"){if(NET_EXTRAS_STREET)netStreetApply(m.ch||{},false);return}
   if(m.t==="chat"){if(NET_EXTRAS_CHAT)chatAdd(m.name,m.text,m.id===NET.id);return}
   if(m.t==="err"&&m.code==="over-limit"&&m.until)NET.until=m.until}
 function netClear(){for(const p of NET.peers.values())if(p.tag)p.tag.remove();NET.peers.clear()}
 // a player's news: their new place becomes where they are heading; they glide there (see netTick)
 function netPeer(m){let p=NET.peers.get(m.id);const now=performance.now();
-  if(!p){p={id:m.id,x:m.x||0,z:m.z||0,y:m.y||0,a:m.a||0,gait:{p:Math.random(),run:0,amt:0,wf:1,wb:0,wl:0,wr:0,jump:-1,speed:0},door:{},spin:0,vx:0,vz:0,t:now};NET.peers.set(m.id,p)}
+  if(!p){p={id:m.id,x:m.x||0,z:m.z||0,y:m.y||0,a:m.a||0,gait:{p:Math.random(),run:0,amt:0,wf:1,wb:0,wl:0,wr:0,jump:-1,speed:0},door:{},spin:0,vx:0,vz:0,t:now,vs:Array.isArray(m.vs)?m.vs.map(q=>({vid:q.vid,x:+q.x||0,z:+q.z||0,yaw:+q.yaw||0,md:q.md==="motorbike"?"motorbike":null})):[]};NET.peers.set(m.id,p)}
   else if(m.t==="p"){const dt=Math.max(.15,(now-p.t)/1000);p.vx=clamp(((m.x||0)-p.tx)/dt,-40,40);p.vz=clamp(((m.z||0)-p.tz)/dt,-40,40)}
   Object.assign(p,{name:m.name||p.name||"Player",g:m.g||p.g||"Female",look:m.look!==undefined?m.look:p.look,tx:m.x||0,tz:m.z||0,ty:m.y||0,ta:m.a||0,m:m.m||"s",sp:m.sp||0,t:now});
+  p.vs=Array.isArray(m.vs)?m.vs.map(q=>({vid:q.vid,x:+q.x||0,z:+q.z||0,yaw:+q.yaw||0,md:q.md==="motorbike"?"motorbike":null})):(p.vs||[]);
   if(m.m==="s"){p.vx=p.vz=0}
   if(m.car){const c=m.car;if(!p.car)p.car={x:c.x,z:c.z,a:c.a};Object.assign(p.car,{tx:c.x,tz:c.z,ta:c.a,v:c.v,st:c.st,dr:c.dr,l:c.l,d:c.d})}else p.car=null}
 // each frame: send my news if it changed (at most every half second), and move everyone else smoothly
 function netTick(dt){if(NET.state!=="on")return;try{const now=performance.now(),r=netRoom(),town=scene==="town",T=town?townOf(me.town):null;
-    if(r!==NET.room){NET.room=r;netClear();const b=town?cam:me;netSend({t:"room",room:r,x:+b.x.toFixed(2),z:+b.z.toFixed(2)});NET.lastSig=""}
+    if(r!==NET.room){NET.room=r;netClear();const b=town?cam:me;netSend({t:"room",room:r,x:+b.x.toFixed(2),z:+b.z.toFixed(2)});netV({a:"sync",vs:netVsList()});NET.lastSig=""}
     const b=town?cam:me,C=T&&T.car,mode=town&&driving?"d":gait.amt>.15&&!(town&&driving)?(gait.run>.5?"r":"w"):"s";
     const car=NET_EXTRAS_CARS&&C?{x:+C.x.toFixed(2),z:+C.z.toFixed(2),a:+C.yaw.toFixed(2),v:+(C.v||0).toFixed(1),st:driving?+VEH.steer.toFixed(2):0,dr:NETDOORS.reduce((s,k,i)=>s|((carAnim(C).want[k]?1:0)<<i),0),l:VEH.lights|0,d:driving?1:0,md:C.model==="motorbike"?"motorbike":null}:null;
     const o={t:"p",x:+b.x.toFixed(2),z:+b.z.toFixed(2),y:+(town?TGY:MEY).toFixed(2),a:+((town?cam.yaw:me.yaw)||0).toFixed(2),m:mode,sp:+Math.hypot(VEL.x,VEL.z).toFixed(1),car};
@@ -5708,6 +5833,7 @@ function netDraw(VP,eye,t,T){if(NET.state!=="on"||!NET.peers.size)return;try{con
     if(NET_EXTRAS_CARS&&town&&(CARSCENE||BIKESCENE)){const keep=CARSCENE;if(CARSCENE0)CARSCENE=CARSCENE0;
       for(const p of NET.peers.values()){if(!p.car||Math.hypot(p.car.x-eye[0],p.car.z-eye[2])>160)continue;const S=p.car.md==="motorbike"?BIKESCENE:CARSCENE;if(!S)continue;CARSCENE=S;cars=true;netCarPose(p);carDraw(VP,eye,false,false);carDraw(VP,eye,true,false);
         const M=netModel(p),R=carRig(p.car.md==="motorbike"?{model:"motorbike"}:null),h=R.seats&&R.seats.driver,sit=p.car.md==="motorbike"?CARSIT.motorbike:CARSIT;if(p.car.d&&M&&h){const q=carPt({x:p.car.x,z:p.car.z,yaw:p.car.a},[h[0],0,h[2]+sit.z]);WALKER.draw(M,VP,q[0],h[1]+sit.y,q[2],p.car.a,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"")}}
+      for(const p of NET.peers.values()){for(const vv of p.vs||[]){if(Math.hypot(vv.x-eye[0],vv.z-eye[2])>160)continue;const S=vv.md==="motorbike"?BIKESCENE:CARSCENE;if(!S)continue;CARSCENE=S;cars=true;const M=mul(trans(vv.x,0,vv.z),rotY(vv.yaw+Math.PI));for(const P of S.parts)P.model=M;carDraw(VP,eye,false,false);carDraw(VP,eye,true,false)}}
       CARSCENE=keep;if(cars&&T&&T.car)carPose(T.car,0)}
     for(const p of NET.peers.values()){if(!NET_EXTRAS_INDOORS&&!town||p.car&&p.car.d||p.m==="d")continue;if(Math.hypot(p.x-eye[0],p.z-eye[2])>120)continue;const M=netModel(p);if(!M)continue;
       FEET=town?(x,z,from)=>groundTop(T,x,z,from):null;WALKER.draw(M,VP,p.x,p.y,p.z,p.a,p.gait,t,null,"");FEET=null}
