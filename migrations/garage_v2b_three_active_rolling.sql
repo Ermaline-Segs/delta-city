@@ -75,6 +75,8 @@ begin
   return jsonb_build_object('park', pk, 'bay', b);
 end $$;
 
+revoke all on function public.veh_put_away_elsewhere(bigint, uuid, text, text) from public, anon, authenticated;
+
 create or replace function public.veh_spawn(p_vehicle bigint, p_park text)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare me uuid := auth.uid(); v vehicles; o vehicles; b int; pk car_parks; why text; was jsonb; stowed jsonb := '[]'::jsonb;
