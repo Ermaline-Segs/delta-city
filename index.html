@@ -4324,7 +4324,7 @@ async function garAct(what,arg,bay){const P=GAR.panel,msg=()=>document.getElemen
       // rolling three-car roster (VEHROSTER): only the copy the server actually put away leaves the world — never a
       // vehicle the server still has out, never one that is being driven; a same-car move only drops its old copy
       if(M){
-        const stowed=(r.stowed&&r.stowed.length)?r.stowed.map(s=>s.vid||s.id):r.moved_from?[M.C.vid]:null;   // an older server (no stowed field) put away my other out car first
+        const stowed=(r.stowed==null)?(r.moved_from?[M.C.vid]:null):r.stowed.map(s=>s.vid||s.id);   // an older server (no stowed field) put away my other out car first
         if(stowed)for(const gid of stowed){const _M=garMine();if(!_M)break;const q=(_M.T.cars||[]).find(c=>c.vid===gid&&!(driving&&_M.T.car===c));if(q)garDrop(_M.T,q)}
       }
       if(!(r.already&&garMine()))garPlace(T,v,B.x,B.z,B.yaw,v.damage&&Object.keys(v.damage).length?v.damage:null);
