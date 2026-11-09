@@ -2822,7 +2822,7 @@ function gaitSpeed(run){let dist=0,prev=null;for(let i=0;i<=200;i++){const g=gai
 function paintFor(m,part,look,key){if(part.paints[key]!==undefined)return part.paints[key];let buf=null;if(part.name==="AvatarBody"&&look&&look.paint){const C=new Uint8Array(part.verts*4);for(let k=0;k<part.verts;k++){const r=look.paint(m.lo[0]+part.pos[k*3]/65535*m.span,m.lo[1]+part.pos[k*3+1]/65535*m.span);if(r){const h=hex(r[0]);C[k*4]=h[0];C[k*4+1]=h[1];C[k*4+2]=h[2];C[k*4+3]=r[1]*255}}buf=mk(C)}return part.paints[key]=buf}
 // draw one person. state: {p: place in the walk cycle, run: 0..1, amt: 0 standing .. 1 moving}. Returns the pose, for hair fixed to the head.
 function draw(m,VP,x,y,z,yaw,state,t,look,lookKey,lean){use(m);let lift;if(ANIM&&m.rest){const a=state.amt,r=state.run;const idle=state.idle||m.clips.idle;
-    if(state.sit){const c=state.sitClip&&ANIM.clips[state.sitClip]?state.sitClip:"drive";lift=poseClips(m,[[c,t/ANIM.clips[c].dur,1]],false,0)}
+    if(state.sit){const c=state.sitClip&&ANIM.clips[state.sitClip]?state.sitClip:"drive",sw=clamp(+state.sit||0,0,1);lift=poseClips(m,[[c,t/ANIM.clips[c].dur,sw]].concat(sw<.999?[[idle,t/ANIM.clips[idle].dur,1-sw]]:[]),false,0)}       // fractional sit: blend standing into the seated pose so mounting/dismounting never pops
     else if(state.jump>=0&&m.clips.jump&&ANIM.clips[m.clips.jump])lift=poseClips(m,[[m.clips.jump,state.jump,1]],false,0,0,t);       // in the air: the jump recording; the height itself comes from the jump
     else{lift=poseClips(m,[[idle,t/ANIM.clips[idle].dur,1-a]].concat(blend(m,state).list.map(([n,w])=>[n,state.p,w*a])),true,0,0,t);if(FEET&&m.index.LeftUpLeg!==undefined)lift+=placeFeet(m,x,y+lift,z,yaw)}}
   else{const g=gaitPose(state.p,state.run,state.amt,t);poseBones(g.turns);lift=g.rise}const model0=mul(trans(x,y+lift,z),rotY(yaw+Math.PI)),P=SKINP;const model=lean?mul(model0,mrotZ(lean)):model0;
@@ -3907,11 +3907,21 @@ function carEnter(){if(CARSEQ||driving||busy||choosing||scene!=="town")return;co
     if(lx*s<-1.2)pts.push([-s*1.65,zc]);pts.push([s*1.65,zc])}
   pts.push([door.stand[0],door.stand[2]]);CARSEQ={stage:"walk",C,door,pts,i:0,t0:NOW,best:1e9,stuck:NOW};if(CARUI.door)CARUI.door.hidden=true}
 function carExit(){if(CARSEQ||busy)return;const T=townOf(me.town),C=T.car;if(!C||!driving)return;if(Math.abs(C.v)>.3){dashToast("Stop the car first");return}
+  if(isBike(C)){bikeExit();return}
   const ds=carDoors(C);let door=ds.driver,msg="",p=carPt(C,door.stand);
   if(!spotClear(T,p[0],p[2])){door=ds.passenger;p=carPt(C,door.stand);if(!spotClear(T,p[0],p[2])){dashToast("There is no room to open a door here. Move the car first.",3);return}msg="The driver's side is blocked, so you got out on the passenger side."}
   const seat=carPt(C,door.seat);driving=false;C.v=0;VEH.gear="P";VEH.ind="off";vehicleLetGo();sndUpdate(false);dashUpdate();
   CAMBL={from:LASTCAM,t0:NOW,dur:.9};cam.x=seat[0];cam.z=seat[2];cam.yaw=Math.atan2(-(p[0]-seat[0]),-(p[2]-seat[2]));VIEW.yaw=C.yaw;SNAPCAM=false;
   const left=garLeft(C);CARSEQ={stage:"open",next:"out",C,door,t0:NOW,from:[seat[0],seat[2]],to:[p[0],p[2]],msg:msg?msg+(left?" "+left:""):left};carDoorTo(C,door.part.slice(5),true)}
+ // a bike has no door: the rider steps off the near side (or the far side if that one is blocked) onto a spot clear of
+ // the bike's walk-blocking box, then walks off. The spot is the rider's end point, so the dismounting walk never stops early.
+ function bikeExit(){if(CARSEQ||busy)return;const T=townOf(me.town),C=T.car;if(!C||!driving)return;if(Math.abs(C.v)>.3){dashToast("Stop the bike first");return}
+  const h=carRig(C).seats.driver||[0,1.226,-.285],seat=carPt(C,[h[0],0,h[2]+carSit(C).z]),near=carPt(C,[1.85,0,h[2]+carSit(C).z]),far=carPt(C,[-1.85,0,h[2]+carSit(C).z]);       // step-off spot sits 1.85m across, well clear of the bike's own solid box
+  let p=near,side="";if(!spotClear(T,p[0],p[2])&&spotClear(T,far[0],far[2])){p=far;side="The near side is blocked, so you stepped off on the other side."}
+  if(!spotClear(T,p[0],p[2])){dashToast("There is no room to step off the bike here. Move it first.",3);return}
+  const left=garLeft(C);driving=false;C.v=0;VEH.gear="P";VEH.ind="off";vehicleLetGo();sndUpdate(false);dashUpdate();
+  CAMBL={from:LASTCAM,t0:NOW,dur:.9};cam.x=seat[0];cam.z=seat[2];cam.yaw=Math.atan2(-(p[0]-seat[0]),-(p[2]-seat[2]));VIEW.yaw=C.yaw;SNAPCAM=false;
+  CARSEQ={stage:"open",next:"bikeout",C,door:carDoors(C).driver,t0:NOW,from:[seat[0],seat[2]],to:[p[0],p[2]],msg:side?side+(left?" "+left:""):left}}
 function carSeated(C){driving=true;VEH.belt=false;setTimeout(carBase,600);cam.pitch=0;Object.assign(VEH,{gear:"P",orbit:0,lastVY:VIEW.yaw,camPos:null,hand:false,ind:"off",engine:false,engHint:0});sndStart();if(!CARL.low)buildCarLights();CAMBL={from:LASTCAM,t0:NOW,dur:.9};
   const D=carD(C);if(D.shop){D.shop=false;crashSave()}VEH.pushRev=false;GAR.beatT=-1e9;
   toast(touch?"Driving: hold GO to drive and BRAKE to stop; drag the wheel to steer. Tap R to reverse. Stop, then tap the door to get out.":"Driving: W go, S brake, A and D steer, Space handbrake. Gears 1 to 4: P R N D. Q and R indicators, G hazards, H lights, C camera, F horn. Stop, then E or the door to get out.")}
@@ -3927,12 +3937,16 @@ function carSeqStep(){const S=CARSEQ;if(!S)return null;const C=S.C;
     if(isBike(C)&&!S.camEye){const sw=carPt(C,S.door.stand),dx=sw[0]-C.x,dz=sw[2]-C.z,dl=Math.hypot(dx,dz)||1,nx=dx/dl,nz=dz/dl;       // lock the view on rider and bike for the whole mount
       S.camEye=[sw[0]+nx*2.6,1.7,sw[2]+nz*2.6];const st=carPt(C,[0,1.05,carSit(C).z]);S.camTo=[st[0],st[1],st[2]];CAMBL={from:LASTCAM,t0:NOW,dur:.4}}
     if(k>=1){S.stage="open";S.next="in";S.t0=NOW;S.from=[cam.x,cam.z];carDoorTo(C,S.door.part.slice(5),true)}return null}
-  if(S.stage==="open"){if(NOW-S.t0>=.5){S.stage=S.next;S.t0=NOW}S.sit=S.next==="out"?1:0;return null}       // the door swings open on its hinge (the bike has no door: a held beat to step up)
+  if(S.stage==="open"){if(NOW-S.t0>=.5){S.stage=S.next;S.t0=NOW;S.yaw0=cam.yaw;S.riderYaw=null}S.sit=(S.next==="out"||S.next==="bikeout")?1:0;return null}       // the door swings open on its hinge (the bike has no door: a held beat to step up)
   if(S.stage==="in"&&isBike(C)){       // mounting a bike: step up beside the saddle, swing across onto it, settle down
-    const k=Math.min(1,(NOW-S.t0)/.9),seat=[...carPt(C,[0,0,carSit(C).z]).slice(0,2)],beside=[...carPt(C,[.5,0,carSit(C).z]).slice(0,2)];
+    const h=carRig(C).seats.driver||[0,.6,0],k=Math.min(1,(NOW-S.t0)/.9),seat=[...carPt(C,[h[0],0,h[2]+carSit(C).z]).slice(0,2)],beside=[...carPt(C,[h[0]+.5,0,h[2]+carSit(C).z]).slice(0,2)];       // ends exactly where the seated rider is drawn, so there is no pop when driving starts
     if(k<.45){const u=k/.45,c=u*u*(3-2*u);cam.x=S.from[0]+(beside[0]-S.from[0])*c;cam.z=S.from[1]+(beside[1]-S.from[1])*c;S.sit=0}
-    else{const u=(k-.45)/.55,c=u*u*(3-2*u);cam.x=beside[0]+(seat[0]-beside[0])*c;cam.z=beside[1]+(seat[1]-beside[1])*c;S.sit=c}
+    else{const u=(k-.45)/.55,c=u*u*(3-2*u);cam.x=beside[0]+(seat[0]-beside[0])*c;cam.z=beside[1]+(seat[1]-beside[1])*c;S.sit=c;if(S.riderYaw==null)S.riderYaw=S.yaw0+angTo(C.yaw,S.yaw0)*c}
     if(k>=1){CARSEQ=null;carDoorTo(C,S.door.part.slice(5),false);carSeated(C)}return null}
+  if(S.stage==="bikeout"){const a=S.from,b=S.to,k=Math.min(1,(NOW-S.t0)/1.05);       // dismounting a bike: settle in the saddle, then step off to the side
+    const c1=Math.min(1,k/.35),c2=k<.35?0:((k-.35)/.7)*((k-.35)/.7)*(3-2*(k-.35)/.7),st=Math.min(1,c1*.15+c2*.85);
+    cam.x=a[0]+(b[0]-a[0])*c2;cam.z=a[1]+(b[1]-a[1])*c2;S.sit=1-st;if(S.riderYaw==null)S.riderYaw=S.yaw0+angTo(C.yaw,S.yaw0)*st;
+    if(k>=1){CARSEQ=null;carDoorTo(C,S.door.part.slice(5),false);if(S.msg)toast(S.msg)}return null}
   const k=Math.min(1,(NOW-S.t0)/.8),a=S.from,b=S.stage==="in"?(()=>{const q=carPt(C,S.door.seat);return[q[0],q[2]]})():S.to;cam.x=a[0]+(b[0]-a[0])*k;cam.z=a[1]+(b[1]-a[1])*k;
   S.sit=S.stage==="in"?k:1-k;       // sitting down into the seat, or getting up out of it
   if(k>=1){CARSEQ=null;carDoorTo(C,S.door.part.slice(5),false);if(S.stage==="in")carSeated(C);else if(S.msg)toast(S.msg)}return null}       // then the door shuts
@@ -5203,7 +5217,7 @@ function frame(now){requestAnimationFrame(frame);const t=now/1000,real=t-last||.
     if(scene==="town"){mechDraw(T,VP,eye,t);vansDraw(VP,eye,t,false);attDraw(T,VP,eye,t)}
     if(TOW&&TOW.truckM&&scene==="town"){TOWTRUCK.model=TOW.truckM;TOWTRUCK.fogFar=150;drawScene(TOWTRUCK,VP,eye,false);towPeople(VP,t)}
   {const PM=PLAYERS[me.gender]||PLAYERS.Female,show=PM&&view3&&!flying&&!driving&&!talking&&!choosing&&!TOW&&!FOLLOW;      // your own character, seen from behind
-    if(show&&scene==="town"&&CARSEQ&&CARSEQ.sit>.5){const C=CARSEQ.C,h=carRig(C).seats.driver||[0,.6,0];WALKER.draw(PM,VP,cam.x,h[1]+carSit(C).y,cam.z,C.yaw,{p:0,run:0,amt:0,sit:1,sitClip:"drive"},t,null,"",isBike(C)?VEH.lean:0)}       // half in: seated
+    if(show&&scene==="town"&&CARSEQ&&CARSEQ.sit>0){const C=CARSEQ.C,h=carRig(C).seats.driver||[0,.6,0],s=CARSEQ.sit,ys=TGY+(h[1]+carSit(C).y-TGY)*s,ry=CARSEQ.riderYaw!=null?CARSEQ.riderYaw:C.yaw;WALKER.draw(PM,VP,cam.x,ys,cam.z,ry,{p:0,run:0,amt:0,sit:s,sitClip:"drive"},t,null,"",isBike(C)?VEH.lean:0)}       // mounting/dismounting: standing blends into seated as the body settles; the body eases from the approach facing onto the saddle facing (no yaw pop)
     else if(show){const town=scene==="town";FEET=jump.y>0?null:feetFn();WALKER.draw(PM,VP,town?cam.x:me.x,(town?TGY:MEY)+jump.y,town?cam.z:me.z,town?cam.yaw:me.yaw,gait,t,null,"");FEET=null}}
   netDraw(VP,eye,t,T);
   for(const S of parts)drawSceneClear(S,VP,eye,t);if(scene==="town"&&T.cars)for(const C of T.cars)if(CARSCENE&&carMesh(C))carDraw(VP,eye,true,C===T.car&&driving&&VEH.cam===2);if(TOW&&TOW.truckM&&scene==="town")drawSceneClear(TOWTRUCK,VP,eye,t);if(scene==="town")vansDraw(VP,eye,t,true);if(scene==="town")fxDraw(VP,eye,to);
