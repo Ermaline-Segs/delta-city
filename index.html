@@ -3809,6 +3809,8 @@ const carLoc=(C,x,z)=>{const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),dx=x-C.x,dz
 const angTo=(a,b)=>((a-b+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
 const mmss=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
 const spotClear=(T,x,z)=>!T.blocks.concat(T.vblocks||[]).some(w=>x>w[0]-.35&&x<w[2]+.35&&z>w[1]-.35&&z<w[3]+.35);
+const hitCar=(C,x,z)=>{if(!C)return false;const fx=-Math.sin(C.yaw),fz=-Math.cos(C.yaw),dx=x-C.x,dz=z-C.z;return Math.abs(dx*fx+dz*fz)<2.7&&Math.abs(-dx*fz+dz*fx)<1.35};       /* the parked vehicle's solid box, in its metres */
+const blkAt=(T,C,x,z)=>(T&&T.blocks.some(w=>x>w[0]-.4&&x<w[2]+.4&&z>w[1]-.4&&z<w[3]+.4))||hitCar(C,x,z);
 
 /* ---- getting in and out, through the door. Tapping the door icon: the character walks to the door (round the car
    if need be), turns to it and steps in, and the camera moves to the driving view; the controls work only once
@@ -3833,8 +3835,11 @@ function carSeated(C){driving=true;VEH.belt=false;setTimeout(carBase,600);cam.pi
   toast(touch?"Driving: hold GO to drive and BRAKE to stop; drag the wheel to steer. Tap R to reverse. Stop, then tap the door to get out.":"Driving: W go, S brake, A and D steer, Space handbrake. Gears 1 to 4: P R N D. Q and R indicators, G hazards, H lights, C camera, F horn. Stop, then E or the door to get out.")}
 // each frame of the sequence: the way to walk (a direction), or null while standing, turning or stepping in or out
 function carSeqStep(){const S=CARSEQ;if(!S)return null;const C=S.C;
-  if(S.stage==="walk"){const p=S.pts[S.i],w=carPt(C,[p[0],0,p[1]]),dx=w[0]-cam.x,dz=w[2]-cam.z,d=Math.hypot(dx,dz),stuck=NOW-S.stuck>1.2;
-    if(d<.22||stuck){if(stuck){cam.x=w[0];cam.z=w[2]}S.i++;S.stuck=NOW;S.best=1e9;if(S.i>=S.pts.length){S.stage="turn";S.t0=NOW;S.yaw0=cam.yaw}return null}      // held up by something for over a second: past it
+  if(S.stage==="walk"){const p=S.pts[S.i],w=carPt(C,[p[0],0,p[1]]),dx=w[0]-cam.x,dz=w[2]-cam.z,d=Math.hypot(dx,dz),cl=isBike(C)?.48:.22;       /* the bike's stand spot sits inside its solid box: close enough is on the spot */
+    if(d<cl)S.stuck=NOW;
+    if(d<cl||NOW-S.stuck>1.6){const stalled=NOW-S.stuck>1.6;if(stalled){const mt=Math.min(1.2,d),nx=cam.x+dx/d*mt,nz=cam.z+dz/d*mt;       /* stalled: one short step toward the spot, only if actually free */
+      if(!blkAt(townOf(me.town),C,nx,nz)){cam.x=nx;cam.z=nz}else if(S.i===0){CARSEQ=null;return null}}       /* genuinely held at the first waypoint: give up rather than stall forever */
+      S.i++;S.stuck=NOW;S.best=1e9;if(S.i>=S.pts.length){S.stage="turn";S.t0=NOW;S.yaw0=cam.yaw}return null}
     if(d<S.best-.05){S.best=d;S.stuck=NOW}return[dx/d,dz/d]}
   if(S.stage==="turn"){const h=carPt(C,isBike(C)?[0,0,S.door.stand[2]+.6]:S.door.handle),want=Math.atan2(-(h[0]-cam.x),-(h[2]-cam.z)),k=Math.min(1,(NOW-S.t0)/.35);cam.yaw=S.yaw0+angTo(want,S.yaw0)*k;if(!view3)VIEW.yaw=cam.yaw;
     if(isBike(C)&&!S.camEye){const sw=carPt(C,S.door.stand),dx=sw[0]-C.x,dz=sw[2]-C.z,dl=Math.hypot(dx,dz)||1,nx=dx/dl,nz=dz/dl;       // lock the view on rider and bike for the whole mount
